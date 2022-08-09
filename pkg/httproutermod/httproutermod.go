@@ -1,6 +1,7 @@
 // HttpRouterModified, embeded (baca: extend) httprouter
 // Tujuan utama mempersingkat handling http request dengan tetap memanfaatkan
 // handlerfunc untuk keperluan penggunaan middleware
+// lihat variadic args pada masing2 fungsi MOD
 package httproutermod
 
 import (
@@ -8,6 +9,8 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 )
+
+type Adapter func(http.Handler) http.Handler
 
 type RouterMod struct {
 	*httprouter.Router
@@ -24,8 +27,12 @@ func New() *RouterMod {
 	}
 }
 
-func (r *RouterMod) GETMOD(path string, handler http.HandlerFunc) {
-	r.Handler(http.MethodGet, path, handler)
+func (r *RouterMod) GETMOD(path string, handler http.HandlerFunc, adapters ...Adapter) {
+	if len(adapters) == 1 {
+		r.Handler(http.MethodGet, path, adapters[0](handler))
+	} else {
+		r.Handler(http.MethodGet, path, handler)
+	}
 }
 
 func (r *RouterMod) POSTMOD(path string, handler http.HandlerFunc) {

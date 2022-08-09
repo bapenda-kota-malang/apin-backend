@@ -3,8 +3,8 @@ package apicore
 import (
 	"net/http"
 
-	hj "github.com/bapenda-kota-malang/apin-backend/pkg/core/httpjson"
-	t "github.com/bapenda-kota-malang/apin-backend/pkg/core/types"
+	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	"go.uber.org/zap"
 )
 
