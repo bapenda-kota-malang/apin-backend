@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"sync"
 	"syscall"
 	"time"
@@ -63,16 +62,4 @@ func (a *app) initHttp(router *httprouter.Router) {
 	}
 
 	Logger.Info("process", zap.String("type", "server"), zap.String("source", "httprouter"), zap.String("act", "shutdown"), zap.String("addr", srv.Addr), zap.String("status", "done"))
-}
-
-func GetParam(param string, r *http.Request) string {
-	return httprouter.ParamsFromContext(r.Context()).ByName(param)
-}
-
-func GetIntParam(param string, r *http.Request) (int64, error) {
-	result, err := strconv.ParseInt(httprouter.ParamsFromContext(r.Context()).ByName(param), 10, 64)
-	if err != nil || result < 1 {
-		return 0, errors.New("invalid id parameter")
-	}
-	return result, nil
 }
