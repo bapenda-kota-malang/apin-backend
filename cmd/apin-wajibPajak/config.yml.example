@@ -1,0 +1,26 @@
+name: APIN BACKEND
+version: 0.0.1
+
+httpConf:
+  host: 127.0.0.1
+  port: 9000
+
+dbConf:
+  dsn: host=127.0.0.1 port=5432 user=postgres password=sapiperah dbname=apin sslmode=disable TimeZone=Asia/Jakarta
+  maxOpenConns: 5
+  maxIdleConns: 5
+  maxIdleTime: 100
+  dialect: 
+
+mailerConf:
+  smtp_host:
+  smtp_port:
+  smtp_username:
+  smtp_password:
+  sender:
+  templateDir:
+
+loggerConf:
+  mode:
+  level:
+  output:
