@@ -30,7 +30,7 @@ var DB *gorm.DB
 var Logger *zap.Logger
 
 // app starter
-func Run(appCodeName string, routerIn *httprouter.Router) {
+func Run(routerIn *httprouter.Router) {
 	Self = &app{}
 
 	// Intantiate all the conf
