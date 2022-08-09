@@ -20,9 +20,24 @@ Package yg related ke proses bisnis:
 
 ### pkg/
 Package yang tidak related ke bisnis flow, bisa diimpor aplikasi lain kapan saja atau dibuatkan repo sendiri untuk masing-masing pacakge, stara eksternal library.
-1. `pkg/core`, bundle boilerplate menyediakan manajemen konfig sampai aplikasi dapat menjalankan service http
-2. `pkg/jwt`, pakcage untuk menangani kebutuhan jwt
-3. `pkg/structvalidator`, pakcage untuk menangani validasi struct
+1. `pkg/core`, package bundle boilerplate menyediakan manajemen konfig sampai aplikasi dapat menjalankan service http
+2. `pkg/httproutermod`, package turunan dari httprouter untuk mempermudah menangani request dan memanfaatkan middleware
+3. `pkg/jwt`, pakcage untuk menangani kebutuhan jwt
+4. `pkg/requester`, pakcage helper untuk http.request, spesifik berfungsi mendapatkan param by key
+5. `pkg/structvalidator`, pakcage untuk menangani validasi struct
+
+## Technical Workflow
+1. Tim dapat melewati (cukup tahu) apa yang ada dalam `cmd/` karena direktori tersebut merupakan starting poin.
+2. Proses kerja dapat dimulai dari direktori `internal/handlers/$handlertype`, dengan `$handlertype` adalah pilihan yand dibutuhkan:
+	1. `bapenda`
+	2. `main`
+	3. `ppat`
+	4. `wajibpajak`
+3. Buat routes pada file `routes.go` (kecuali untuk `$handlertype`==`main`) dengan scope sesuai kebutuhan. **Note**: routes memanfaatkan handler.
+4. Semi-Optional: Buat handler dengan nama direktori dan file sesuai scope saat membuat route jika belum ada, pastikan memahami scope bisnis. **Note**: handler memanfaatkan service untuk clean code
+5. Semi-Optional: Buat service pada direktori `internal/services` jika belum ada. pastikan memahami scope bisnis.
+6. Optional: Buat models pada direktori `internal/models` jika diperlukan. 
+7. Optional: Buat package tambahan pada direktori `pkg` jika diperlukan dan tidak berhubungan dengan flow bisnis.
 
 ## Usage
 Menjalankan aplikasi untuk development / debugging:
