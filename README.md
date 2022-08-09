@@ -7,6 +7,7 @@ Aplikasi yang mengintegrasikan beberapa fungsionalitas menjadi satu seperti BAPE
 Struktur direktori merujuk pada standar komunitas: golang-standards/project-layout (lihat references). Penjelasan tambahan (sub) dari yang ada di golang-standards/project-layout:
 1. `cmd/apin-backend`, merupakan starting poin aplikasi, cukup mengimport core dan routes.
 2. `internal/core`, merupakan core utama yang membundle kode boiler-plate aplikasi. Untuk informasi lebih detail silahkan lihat readme di direktori tersebut
+3. `internal/handlers`, berisi kode yang menghandle request.
 3. `internal/modules`, berisi kode yang menghandle proses bisnis.
 4. `internal/models`, berisi implementasi model database beserta data -transfer-object
 
