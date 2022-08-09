@@ -3,13 +3,26 @@
 ## Description
 Aplikasi yang mengintegrasikan beberapa fungsionalitas menjadi satu seperti BAPENDA, PPAT, AND WP.
 
-## Structure
-Struktur direktori merujuk pada standar komunitas: golang-standards/project-layout (lihat references). Penjelasan tambahan (sub) dari yang ada di golang-standards/project-layout:
-1. `cmd/apin-backend`, merupakan starting poin aplikasi, cukup mengimport core dan routes.
-2. `internal/core`, merupakan core utama yang membundle kode boiler-plate aplikasi. Untuk informasi lebih detail silahkan lihat readme di direktori tersebut
-3. `internal/handlers`, berisi kode yang menghandle request.
-3. `internal/modules`, berisi kode yang menghandle proses bisnis.
-4. `internal/models`, berisi implementasi model database beserta data -transfer-object
+## App Structure
+Struktur direktori merujuk pada standar komunitas: golang-standards/project-layout (lihat references).
+
+### cmd/
+Starting poin, cukup mengimport `pkd/core` dan routes dari masing-masing handlers. Terdapat 3 aplikasi: 
+1. `cmd/apin-bapenda`, merupakan starting poin aplikasi backend untuk bapenda
+2. `cmd/apin-ppat`, merupakan starting poin aplikasi backend untuk ppat
+3. `cmd/apin-wajibpajak`, merupakan starting poin aplikasi backend untuk wajibpajak
+
+### internal/
+Package yg related ke proses bisnis:
+1. `internal/handlers`, menghandle http request meneruskan ke kode `modules`.
+2. `internal/models`, implementasi model database + data-transfer-object
+3. `internal/modules`, menghandle proses bisnis.
+
+### pkg/
+Package yang tidak related ke bisnis flow, bisa diimpor aplikasi lain kapan saja atau dibuatkan repo sendiri untuk masing-masing pacakge, stara eksternal library.
+1. `pkg/core`, bundle boilerplate menyediakan manajemen konfig sampai aplikasi dapat menjalankan service http
+2. `pkg/jwt`, pakcage untuk menangani kebutuhan jwt
+3. `pkg/structvalidator`, pakcage untuk menangani validasi struct
 
 ## Usage
 Menjalankan aplikasi untuk development / debugging:
@@ -29,8 +42,8 @@ Note: file `config.yml` dapat diletakkan pada beberapa pilihan direktori diantar
 3. `$HOME/apin`
 
 ## Convention
-1. Programming Convetion lihat di sini:
-2. Database Convetion lihat di sini:
+1. Programming Convetion lihat file `README-CONV-CODE.md`
+2. Database Convetion lihat file `README-CONV-DB.md`
 
 ## References
 1. golang, the programming language (https://go.dev/)
