@@ -1,4 +1,4 @@
-package core
+package apicore
 
 type mailerConf struct {
 	Smtp_host     string

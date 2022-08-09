@@ -1,4 +1,4 @@
-package core
+package apicore
 
 /*****************************************************************************\
 The idea is to place all the needs for a web application to be running in one

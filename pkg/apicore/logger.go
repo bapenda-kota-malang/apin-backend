@@ -1,4 +1,4 @@
-package core
+package apicore
 
 import (
 	"go.uber.org/zap"
