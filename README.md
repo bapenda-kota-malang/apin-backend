@@ -45,8 +45,11 @@ Note: file `config.yml` dapat diletakkan pada beberapa pilihan direktori diantar
 1. Programming Convetion lihat file `README-CONV-CODE.md`
 2. Database Convetion lihat file `README-CONV-DB.md`
 
-## Misc
+## Git
 Usahakan untuk commit mengikuti konvensi komunitas (https://www.conventionalcommits.org/en/v1.0.0/).
+
+Gunakan branch sesuai kebutuhan.
+
 
 ## References
 1. golang, the programming language (https://go.dev/)

@@ -3,10 +3,10 @@ package user
 import (
 	"net/http"
 
-	sv "github.com/bapenda-kota-malang/apin-backend/internal/libraries/structvalidator"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/core"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/core/httpjson"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/core/types"
+	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
 
 	um "github.com/bapenda-kota-malang/apin-backend/internal/models/usermodel"
 )

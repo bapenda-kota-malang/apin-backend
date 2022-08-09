@@ -3,8 +3,8 @@ package core
 import (
 	"net/http"
 
-	hj "github.com/bapenda-kota-malang/apin-backend/internal/core/httpjson"
-	t "github.com/bapenda-kota-malang/apin-backend/internal/core/types"
+	hj "github.com/bapenda-kota-malang/apin-backend/pkg/core/httpjson"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/core/types"
 	"go.uber.org/zap"
 )
 
