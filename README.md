@@ -45,6 +45,9 @@ Note: file `config.yml` dapat diletakkan pada beberapa pilihan direktori diantar
 1. Programming Convetion lihat file `README-CONV-CODE.md`
 2. Database Convetion lihat file `README-CONV-DB.md`
 
+## Misc
+Usahakan untuk commit mengikuti konvensi komunitas (https://www.conventionalcommits.org/en/v1.0.0/).
+
 ## References
 1. golang, the programming language (https://go.dev/)
 2. httprouter, the url router management (https://github.com/julienschmidt/httprouter)
