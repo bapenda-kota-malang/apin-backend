@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/bapenda-kota-malang/apin-backend/pkg/core"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda"
 )
 
 func main() {
-	core.Run(bapenda.SetRoutes())
+	apicore.Run(bapenda.SetRoutes())
 }
