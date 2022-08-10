@@ -1,11 +1,10 @@
-package wajibpajak
+package ppat
 
 import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
@@ -22,12 +21,6 @@ func SetRoutes() *httprouter.Router {
 	router.HandlerFunc(http.MethodGet, "/", home.Index)
 
 	router.HandlerFunc(http.MethodGet, "/auth/login", auth.Login)
-
-	router.HandlerFunc(http.MethodGet, "/account/register", account.Register)
-	router.HandlerFunc(http.MethodGet, "/account/resend-confirmation", account.ResendConfirmation)
-	router.HandlerFunc(http.MethodGet, "/account/confirm", account.Confirm)
-	router.HandlerFunc(http.MethodGet, "/account/reset-password", account.ResetPassword)
-	router.HandlerFunc(http.MethodGet, "/account/change-password", account.ChangePassword)
 
 	return router
 }
