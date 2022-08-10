@@ -28,16 +28,16 @@ Package yang tidak related ke bisnis flow, bisa diimpor aplikasi lain kapan saja
 
 ## Technical Workflow
 1. Tim dapat melewati (cukup tahu) apa yang ada dalam `cmd/` karena direktori tersebut merupakan starting poin.
-2. Proses kerja dapat dimulai dari direktori `internal/handlers/$handlertype`, dengan `$handlertype` adalah pilihan yand dibutuhkan:
+2. Proses kerja dapat dimulai dari direktori `internal/handlers/$type`, dengan `$type` adalah pilihan yand dibutuhkan:
 	1. `bapenda`
 	2. `main`
 	3. `ppat`
 	4. `wajibpajak`
-3. Buat routes pada file `routes.go` (kecuali untuk `$handlertype`==`main`) dengan scope sesuai kebutuhan. **Note**: routes memanfaatkan handler.
-4. Semi-Optional: Buat handler dengan nama direktori dan file sesuai scope saat membuat route jika belum ada, pastikan memahami scope bisnis. **Note**: handler memanfaatkan service untuk clean code
-5. Semi-Optional: Buat service pada direktori `internal/services` jika belum ada. pastikan memahami scope bisnis.
-6. Optional: Buat models pada direktori `internal/models` jika diperlukan. 
-7. Optional: Buat package tambahan pada direktori `pkg` jika diperlukan dan tidak berhubungan dengan flow bisnis.
+3. Buat routes pada file `routes.go` (kecuali `$type` adalah `main`) dengan scope sesuai kebutuhan. **Note**: routes memanfaatkan handler.
+4. Buat handler dengan nama direktori dan file sesuai scope saat membuat route jika belum ada, pastikan memahami scope bisnis. **Note**: handler memanfaatkan service untuk clean code
+5. Buat service pada direktori `internal/services` jika belum ada. pastikan memahami scope bisnis.
+6. Buat models pada direktori `internal/models` jika diperlukan. 
+7. Buat package tambahan pada direktori `pkg` jika diperlukan dan tidak berhubungan dengan flow bisnis.
 
 ## Usage
 Menjalankan aplikasi untuk development / debugging:
