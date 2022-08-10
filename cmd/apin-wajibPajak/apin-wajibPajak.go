@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibPajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak"
 )
 
 func main() {
-	apicore.Run(wajibPajak.SetRoutes())
+	apicore.Run(wajibpajak.SetRoutes())
 }
