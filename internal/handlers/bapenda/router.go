@@ -3,8 +3,10 @@ package bapenda
 import (
 	"net/http"
 
-	hrm "github.com/bapenda-kota-malang/apin-backend/pkg/httproutermod"
 	"github.com/julienschmidt/httprouter"
+
+	amw "github.com/bapenda-kota-malang/apin-backend/pkg/authorizationmw"
+	hrm "github.com/bapenda-kota-malang/apin-backend/pkg/httproutermod"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
@@ -21,6 +23,7 @@ func SetRoutes() *httprouter.Router {
 	// TODO: Use group for routing
 
 	rmod.GETMOD("/", home.Index)
+	rmod.GETMOD("/checkauth", home.Index, amw.CheckAuth)
 
 	rmod.POSTMOD("/auth/login", auth.Login)
 
@@ -30,5 +33,6 @@ func SetRoutes() *httprouter.Router {
 	rmod.HandlerFunc(http.MethodPost, "/user/", user.Create)
 	rmod.HandlerFunc(http.MethodGet, "/user/", user.GetList)
 	rmod.HandlerFunc(http.MethodPatch, "/user/:id", user.GetDetail)
+
 	return rmod.Router
 }
