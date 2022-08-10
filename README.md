@@ -4,40 +4,39 @@
 Aplikasi yang mengintegrasikan beberapa fungsionalitas menjadi satu seperti BAPENDA, PPAT, AND WP.
 
 ## App Structure
-Struktur direktori merujuk pada standar komunitas: golang-standards/project-layout (lihat references).
+Struktur direktori merujuk pada standar komunitas: `golang-standards/project-layout` (lihat references).
 
 ### cmd/
-Starting poin, cukup mengimport `pkd/core` dan routes dari masing-masing handlers. Terdapat 3 aplikasi: 
+Starting poin, cukup mengimport `pkg/core` dan `routes` dari masing-masing handlers. Terdapat 3 aplikasi: 
 1. `cmd/apin-bapenda`, merupakan starting poin aplikasi backend untuk bapenda
 2. `cmd/apin-ppat`, merupakan starting poin aplikasi backend untuk ppat
 3. `cmd/apin-wajibpajak`, merupakan starting poin aplikasi backend untuk wajibpajak
 
 ### internal/
-Package yg related ke proses bisnis:
-1. `internal/handlers`, menghandle http request meneruskan ke kode `modules`.
+Package yg related ke proses bisnis (menyangkut data):
+1. `internal/handlers`, menghandle http request meneruskan ke request `services`.
 2. `internal/models`, implementasi model database + data-transfer-object
-3. `internal/modules`, menghandle proses bisnis.
+3. `internal/services`, menghandle proses bisnis.
 
 ### pkg/
 Package yang tidak related ke bisnis flow, bisa diimpor aplikasi lain kapan saja atau dibuatkan repo sendiri untuk masing-masing pacakge, stara eksternal library.
 1. `pkg/core`, package bundle boilerplate menyediakan manajemen konfig sampai aplikasi dapat menjalankan service http
 2. `pkg/httproutermod`, package turunan dari httprouter untuk mempermudah menangani request dan memanfaatkan middleware
-3. `pkg/jwt`, pakcage untuk menangani kebutuhan jwt
 4. `pkg/requester`, pakcage helper untuk http.request, spesifik berfungsi mendapatkan param by key
 5. `pkg/structvalidator`, pakcage untuk menangani validasi struct
 
 ## Technical Workflow
-1. Tim dapat melewati (cukup tahu) apa yang ada dalam `cmd/` karena direktori tersebut merupakan starting poin.
+1. Tim dapat melewati (cukup tahu) apa yang ada dalam `cmd/` karena direktori tersebut hanya merupakan starting poin.
 2. Proses kerja dapat dimulai dari direktori `internal/handlers/$type`, dengan `$type` adalah pilihan yand dibutuhkan:
 	1. `bapenda`
 	2. `main`
 	3. `ppat`
 	4. `wajibpajak`
 3. Buat routes pada file `routes.go` (kecuali `$type` adalah `main`) dengan scope sesuai kebutuhan. **Note**: routes memanfaatkan handler.
-4. Buat handler dengan nama direktori dan file sesuai scope saat membuat route jika belum ada, pastikan memahami scope bisnis. **Note**: handler memanfaatkan service untuk clean code
-5. Buat service pada direktori `internal/services` jika belum ada. pastikan memahami scope bisnis.
+4. Buat (jika belum ada) atau update handler pada direktori `inrwenal/handlers`, pastikan memahami scope bisnis. **Note**: handler memanfaatkan service untuk clean code
+5. Buat (jika belum ada) atau update service pada direktori `internal/services`, pastikan memahami scope bisnis.
 6. Buat models pada direktori `internal/models` jika diperlukan. 
-7. Buat package tambahan pada direktori `pkg` jika diperlukan dan tidak berhubungan dengan flow bisnis.
+7. Buat package tambahan untuk proses yang tidak berhubungan dengan flow bisnis pada direktori `pkg` jika diperlukan.
 
 ## Usage
 Menjalankan aplikasi untuk development / debugging:
@@ -51,11 +50,6 @@ Menjalankan aplikasi untuk keperluan production:
 2. Eksekusi perintah `go build .`
 3. Eksekusi file executable `apin-backend` atau `apin-backend.exe`
 
-Note: file `config.yml` dapat diletakkan pada beberapa pilihan direktori diantaranya:
-1. Direktori yang sama dengan direktori file executable
-2. `/etc/apin`
-3. `$HOME/apin`
-
 ## Convention
 1. Programming Convetion lihat file `README-CONV-CODE.md`
 2. Database Convetion lihat file `README-CONV-DB.md`
@@ -64,7 +58,6 @@ Note: file `config.yml` dapat diletakkan pada beberapa pilihan direktori diantar
 Usahakan untuk commit mengikuti konvensi komunitas (https://www.conventionalcommits.org/en/v1.0.0/).
 
 Gunakan branch sesuai kebutuhan.
-
 
 ## References
 1. golang, the programming language (https://go.dev/)
