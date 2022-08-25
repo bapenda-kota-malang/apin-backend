@@ -1,7 +1,6 @@
 // module name should not use dash, underscore, or uppercase. anyway.. :3
 module github.com/bapenda-kota-malang/apin-backend
 
-
 go 1.18
 
 require (
@@ -17,6 +16,7 @@ require (
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
+	github.com/go-chi/chi/v5 v5.0.7 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
