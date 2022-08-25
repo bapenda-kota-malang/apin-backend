@@ -15,6 +15,12 @@ type dbConf struct {
 	Dialect      string
 }
 
+var autoMigrateList []interface{}
+
+func init() {
+	// autoMigrateList = make([]interface{})
+}
+
 func (a *app) initDb() {
 	if a.DbConf.Dsn == "" {
 		Logger.Info("instantiation",
@@ -51,4 +57,12 @@ func (a *app) initDb() {
 			zap.String("status", "done"),
 			zap.String("name", "db"))
 	}
+
+	for _, item := range autoMigrateList {
+		DB.AutoMigrate(&item)
+	}
+}
+
+func AutoMigrate(model interface{}) {
+	autoMigrateList = append(autoMigrateList, model)
 }
