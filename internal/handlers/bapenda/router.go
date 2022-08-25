@@ -23,16 +23,16 @@ func SetRoutes() *httprouter.Router {
 	// TODO: Use group for routing
 
 	rmod.GETMOD("/", home.Index)
-	rmod.GETMOD("/checkauth", home.Index, amw.CheckAuth)
+	rmod.GETMOD("/v1/checkauth", home.Index, amw.CheckAuth)
 
-	rmod.POSTMOD("/auth/login", auth.Login)
+	rmod.POSTMOD("/v1/auth/login", auth.Login)
 
-	rmod.PATCHMOD("/account/reset-password", account.ResetPassword)
-	rmod.PATCHMOD("/account/change-password", account.ChangePassword)
+	rmod.PATCHMOD("/v1/account/reset-password", account.ResetPassword)
+	rmod.PATCHMOD("/v1/account/change-password", account.ChangePassword)
 
-	rmod.HandlerFunc(http.MethodPost, "/user/", user.Create)
-	rmod.HandlerFunc(http.MethodGet, "/user/", user.GetList)
-	rmod.HandlerFunc(http.MethodPatch, "/user/:id", user.GetDetail)
+	rmod.HandlerFunc(http.MethodPost, "/v1/user/", user.Create)
+	rmod.HandlerFunc(http.MethodGet, "/v1/user/", user.GetList)
+	rmod.HandlerFunc(http.MethodPatch, "/v1/user/:id", user.GetDetail)
 
 	return rmod.Router
 }
