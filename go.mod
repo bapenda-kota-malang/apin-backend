@@ -1,7 +1,7 @@
 // module name should not use dash, underscore, or uppercase. anyway.. :3
 module github.com/bapenda-kota-malang/apin-backend
 
-go 1.17
+go 1.18
 
 require (
 	github.com/julienschmidt/httprouter v1.3.0

@@ -1,6 +1,11 @@
 package apicore
 
 import (
+	"fmt"
+
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/configurationmodel"
+	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -19,6 +24,22 @@ var autoMigrateList []interface{}
 
 func init() {
 	// autoMigrateList = make([]interface{})
+	AutoMigrate(&user.User{})
+	AutoMigrate(&configurationmodel.Kecamatan{})
+	AutoMigrate(&configurationmodel.Kelurahan{})
+	AutoMigrate(&configurationmodel.Rekening{})
+	AutoMigrate(&configurationmodel.Skpd{})
+	AutoMigrate(&registration.Registration{})
+	AutoMigrate(&registration.ObjekPajak{})
+	AutoMigrate(&registration.DetailOpAirTanah{})
+	AutoMigrate(&registration.DetailOpHiburan{})
+	AutoMigrate(&registration.DetailOpHotel{})
+	AutoMigrate(&registration.DetailOpParkir{})
+	AutoMigrate(&registration.DetailOpPpj{})
+	AutoMigrate(&registration.DetailOpReklame{})
+	AutoMigrate(&registration.DetailOpResto{})
+	AutoMigrate(&registration.PemilikWp{})
+	AutoMigrate(&registration.Narahubung{})
 }
 
 func (a *app) initDb() {
@@ -59,6 +80,7 @@ func (a *app) initDb() {
 	}
 
 	for _, item := range autoMigrateList {
+		fmt.Println(item)
 		DB.AutoMigrate(&item)
 	}
 }
