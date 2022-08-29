@@ -1,8 +1,6 @@
 package apicore
 
 import (
-	"fmt"
-
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/configurationmodel"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
@@ -80,7 +78,6 @@ func (a *app) initDb() {
 	}
 
 	for _, item := range autoMigrateList {
-		fmt.Println(item)
 		DB.AutoMigrate(&item)
 	}
 }
