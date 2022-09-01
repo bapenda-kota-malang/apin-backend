@@ -9,6 +9,7 @@ import (
 	hrm "github.com/bapenda-kota-malang/apin-backend/pkg/httproutermod"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pendaftaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -33,6 +34,9 @@ func SetRoutes() *httprouter.Router {
 	rmod.HandlerFunc(http.MethodPost, "/user/", user.Create)
 	rmod.HandlerFunc(http.MethodGet, "/user/", user.GetList)
 	rmod.HandlerFunc(http.MethodPatch, "/user/:id", user.GetDetail)
+
+	rmod.HandlerFunc(http.MethodGet, "/registration", pendaftaran.GetList)
+	rmod.HandlerFunc(http.MethodPost, "/registration/operator", pendaftaran.RegisterByOperator)
 
 	return rmod.Router
 }
