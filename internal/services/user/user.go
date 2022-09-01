@@ -1,7 +1,6 @@
 package userservice
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -35,14 +34,16 @@ func Create(data um.UserCreate) (interface{}, error) {
 }
 
 func GetList(r *http.Request) (interface{}, error) {
-	result := ac.DB.Scopes(gh.Paginate(r)).Find(&um.User{})
-	resultx := ac.DB.Find(&um.User{})
-	fmt.Println(resultx)
+	var users []um.User
+	result := ac.DB.Scopes(gh.Paginate(r)).Find(&users)
+	// resultx := ac.DB.Find(&user)
+	// fmt.Println(user)
+	// fmt.Println(*resultx)
 	return rp.OK{
 		Meta: t.IS{
 			"Count": strconv.Itoa(int(result.RowsAffected)),
 		},
-		Data: result,
+		Data: users,
 	}, nil
 }
 

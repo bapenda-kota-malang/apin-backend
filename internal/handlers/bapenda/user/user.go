@@ -33,14 +33,9 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 func GetList(w http.ResponseWriter, r *http.Request) {
 	if result, err := us.GetList(r); err == nil {
-		hj.WriteJSON(w, http.StatusOK, rs.OKSimple{
-			Data: result,
-		}, nil)
+		hj.WriteJSON(w, http.StatusOK, result, nil)
 	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, rs.ErrCustom{
-			Meta:     nil,
-			Messages: err,
-		}, nil)
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
 	}
 }
 
