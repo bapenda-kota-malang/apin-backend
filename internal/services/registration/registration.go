@@ -10,11 +10,16 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"gorm.io/gorm/clause"
 )
 
 func GetAll(r *http.Request) (interface{}, error) {
 	var register []*registration.Registration
-	result := apicore.DB.Scopes(gormhelper.Paginate(r)).Find(&register)
+	result := apicore.DB.Model(&registration.Registration{}).
+		Preload(clause.Associations).
+		//nested preload
+		//Preload("PemilikWps.Kelurahan")
+		Scopes(gormhelper.Paginate(r)).Find(&register)
 	return responses.OK{
 		Meta: types.IS{
 			"Count": strconv.Itoa(int(result.RowsAffected)),

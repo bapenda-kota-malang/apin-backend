@@ -82,6 +82,11 @@ type (
 		VerifyAt          *time.Time                   `json:"verify_at"`
 		VendorEtaxID      *string                      `json:"vendor_etax_id"`
 		// VendorEtax         *configurationmodel.VendorEtax `gorm:"foreignKey:VendorEtaxID"`
+
+		ObjekPajaks *[]ObjekPajak `json:"objek_pajak" gorm:"foreignKey:PendaftaranID"`
+		PemilikWps  *[]PemilikWp  `json:"pemilik" gorm:"foreignKey:PendaftaranID"`
+		Narahubungs *[]Narahubung `json:"narahubung" gorm:"foreignKey:PendaftaranID"`
+
 		CreatedAt time.Time  `json:"created_at"`
 		UpdatedAt time.Time  `json:"updated_at"`
 		DeletedAt *time.Time `json:"deleted_at"`
@@ -90,15 +95,15 @@ type (
 	ObjekPajak struct {
 		ID            uint64                        `json:"id" gorm:"primarykey"`
 		PendaftaranID uint64                        `json:"pendaftaran_id"`
-		Pendaftaran   *Registration                 `gorm:"foreignKey:id"`
+		Pendaftaran   *Registration                 `json:"pendaftaran,omitempty" gorm:"foreignKey:id"`
 		Nama          *string                       `json:"nama"`
 		Nop           *string                       `json:"nop"`
 		Alamat        *string                       `json:"alamat"`
 		RtRw          *string                       `json:"rt_rw"`
 		KecamatanID   *uint64                       `json:"kecamatan_id"`
-		Kecamatan     *configurationmodel.Kecamatan `gorm:"foreignKey:id"`
+		Kecamatan     *configurationmodel.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:id"`
 		KelurahanID   *uint64                       `json:"kelurahan_id"`
-		Kelurahan     *configurationmodel.Kelurahan `gorm:"foreignKey:id"`
+		Kelurahan     *configurationmodel.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:id"`
 		Telp          *string                       `json:"telp"`
 		Status        StatusObjekPajak              `json:"status"`
 		IsNpwpd       *bool                         `json:"is_npwpd"`
