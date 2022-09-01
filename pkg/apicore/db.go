@@ -5,6 +5,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 type dbConf struct {
@@ -35,7 +36,7 @@ func (a *app) initDb() {
 			zap.String("type", "db"),
 			zap.String("source", "gorm"),
 			zap.String("status", "unset"),
-			zap.String("message", "no proper dialect provided"))
+			zap.String("message", "please provide the database dialect in the configuration file"))
 		return
 	}
 
@@ -46,7 +47,13 @@ func (a *app) initDb() {
 		gormD = postgres.Open(a.DbConf.Dsn)
 	}
 
-	if db, err := gorm.Open(gormD); err != nil {
+	db, err := gorm.Open(gormD, &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+			NoLowerCase:   true,
+		},
+	})
+	if err != nil {
 		Logger.Panic("instantiation", zap.String("type", "db"), zap.String("source", "gorm"), zap.String("status", "panic"))
 		panic("Failed to connect to database!")
 	} else {
