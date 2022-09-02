@@ -26,6 +26,7 @@ func SetRoutes() *httprouter.Router {
 	rmod.GETMOD("/v1/checkauth", home.Index, amw.CheckAuth)
 
 	rmod.POSTMOD("/v1/auth/login", auth.Login)
+	rmod.POSTMOD("/v1/auth/logout", auth.Logout)
 
 	rmod.PATCHMOD("/v1/account/reset-password", account.ResetPassword)
 	rmod.PATCHMOD("/v1/account/change-password", account.ChangePassword)

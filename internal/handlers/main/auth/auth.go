@@ -14,3 +14,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	hj.WriteJSON(w, http.StatusOK, data, nil)
 }
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	data := t.II{
+		"message": "You are loging in app: " + ac.Self.Name,
+	}
+	hj.WriteJSON(w, http.StatusOK, data, nil)
+}

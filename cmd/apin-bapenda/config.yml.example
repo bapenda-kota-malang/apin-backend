@@ -24,3 +24,6 @@ loggerConf:
   mode:
   level:
   output:
+
+authConf:
+  secretKey: OLDWORLDORDER
