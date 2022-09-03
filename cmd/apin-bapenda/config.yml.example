@@ -3,7 +3,7 @@ version: 0.0.1
 
 httpConf:
   host: 127.0.0.1
-  port: 9000
+  port: 8080
 
 dbConf:
   dsn: host=127.0.0.1 port=5432 user=postgres password=sapiperah dbname=apin sslmode=disable TimeZone=Asia/Jakarta
@@ -24,3 +24,4 @@ loggerConf:
   mode:
   level:
   output:
+
