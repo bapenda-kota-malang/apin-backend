@@ -15,3 +15,5 @@
 # vendor/
 
 config.yml
+
+__debug_bin
