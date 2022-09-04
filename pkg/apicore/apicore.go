@@ -44,5 +44,6 @@ func Run(routerIn *httprouter.Router) {
 	Self.initLogger()
 	Self.initDb()
 	// a.initMailer()
+	Self.initExtra()
 	Self.initHttp(routerIn)
 }
