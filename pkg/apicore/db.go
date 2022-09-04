@@ -18,10 +18,6 @@ type dbConf struct {
 
 var autoMigrateList []interface{}
 
-func init() {
-	// autoMigrateList = make([]interface{})
-}
-
 func (a *app) initDb() {
 	if a.DbConf.Dsn == "" {
 		Logger.Info("instantiation",
