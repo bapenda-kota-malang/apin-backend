@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+
+	rs "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/refvalstringer"
 )
 
 // register default tag validator
@@ -20,7 +22,7 @@ func init() {
 	RegisterValidator("maxLength", maxLengthTagValidator)
 }
 
-//// for the default validator we have: required + comparisons
+// // for the default validator we have: required + comparisons
 func requiredTagValidator(val reflect.Value, exptVal string) error {
 	if (val.Kind() == reflect.String && val.String() == "") || (val.Kind() == reflect.Ptr && val.IsNil()) {
 		val.Interface()
@@ -53,7 +55,7 @@ func minLengthTagValidator(val reflect.Value, exptVal string) error {
 		return errors.New("input must be numeric")
 	}
 
-	valC := valStringer(val) // value converted
+	valC := rs.ValStringer(val) // value converted
 	if len(valC) < exptValInt {
 		return fmt.Errorf("the minimum length is %v", exptVal)
 	}
@@ -66,14 +68,14 @@ func maxLengthTagValidator(val reflect.Value, exptVal string) error {
 		return errors.New("input must be numeric")
 	}
 
-	valC := valStringer(val) // value converted
+	valC := rs.ValStringer(val) // value converted
 	if len(valC) > exptValInt {
 		return fmt.Errorf("the maximum length is %v", exptVal)
 	}
 	return nil
 }
 
-///// some helper for default validator func
+// /// some helper for default validator func
 func valLimiter(val reflect.Value, exptVal string, mode string) error {
 	exptValFloat, err := strconv.ParseFloat(exptVal, 64)
 	if err != nil {
@@ -104,17 +106,4 @@ func valLimiter(val reflect.Value, exptVal string, mode string) error {
 		}
 	}
 	return nil
-}
-
-func valStringer(val reflect.Value) string {
-	valK := val.Kind()
-	var valC string
-	if valK == reflect.String {
-		valC = val.String()
-	} else if valK >= reflect.Int && valK < reflect.Uint64 {
-		valC = strconv.Itoa(int(val.Int()))
-	} else if valK >= reflect.Float32 && valK < reflect.Float64 {
-		valC = fmt.Sprintf("%v", val.Float())
-	}
-	return valC
 }
