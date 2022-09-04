@@ -59,12 +59,12 @@ type (
 		TanggalBuka       *time.Time                   `json:"tanggal_buka"`
 		JenisPajak        JenisPajak                   `json:"jenis_pajak"`
 		SkpdID            *uint64                      `json:"skpd_id"`
-		Skpd              *configurationmodel.Skpd     `gorm:"foreignKey:id"`
+		Skpd              *configurationmodel.Skpd     `gorm:"foreignKey:ID"`
 		RekeningID        *uint64                      `json:"rekening_id"`
-		Rekening          *configurationmodel.Rekening `gorm:"foreignKey:id"`
+		Rekening          *configurationmodel.Rekening `gorm:"foreignKey:ID"`
 		Nama              *string                      `json:"nama"`
 		UserID            *uint64                      `json:"user_id"`
-		User              *user.User                   `gorm:"foreignKey:id"`
+		User              *user.User                   `gorm:"foreignKey:ID"`
 		OmsetOp           *string                      `json:"omset_op"`
 		Genset            *bool                        `json:"genset"`
 		AirTanah          *bool                        `json:"air_tanah"`
@@ -95,15 +95,15 @@ type (
 	ObjekPajak struct {
 		ID            uint64                        `json:"id" gorm:"primarykey"`
 		PendaftaranID uint64                        `json:"pendaftaran_id"`
-		Pendaftaran   *Registration                 `json:"pendaftaran,omitempty" gorm:"foreignKey:id"`
+		Pendaftaran   *Registration                 `json:"pendaftaran,omitempty" gorm:"foreignKey:ID"`
 		Nama          *string                       `json:"nama"`
 		Nop           *string                       `json:"nop"`
 		Alamat        *string                       `json:"alamat"`
 		RtRw          *string                       `json:"rt_rw"`
 		KecamatanID   *uint64                       `json:"kecamatan_id"`
-		Kecamatan     *configurationmodel.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:id"`
+		Kecamatan     *configurationmodel.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:ID"`
 		KelurahanID   *uint64                       `json:"kelurahan_id"`
-		Kelurahan     *configurationmodel.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:id"`
+		Kelurahan     *configurationmodel.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:ID"`
 		Telp          *string                       `json:"telp"`
 		Status        StatusObjekPajak              `json:"status"`
 		IsNpwpd       *bool                         `json:"is_npwpd"`
@@ -115,7 +115,7 @@ type (
 	DetailOp struct {
 		ID                 uint64        `json:"id" gorm:"primaryKey"`
 		PendaftaranID      uint64        `json:"pendaftaran_id"`
-		Pendaftaran        *Registration `gorm:"foreignKey:id"`
+		Pendaftaran        *Registration `gorm:"foreignKey:ID"`
 		NpwpdPendaftaranID *string       `json:"npwpd_pendaftaran_id"`
 		JenisOp            *string       `json:"jenis_op"`
 		JumlahOp           *string       `json:"jumlah_op"`
@@ -155,14 +155,14 @@ type (
 	PemilikWp struct {
 		ID            uint64                        `json:"id" gorm:"primaryKey"`
 		PendaftaranID uint64                        `json:"pendaftaran_id"`
-		Pendaftaran   *Registration                 `gorm:"foreignKey:id"`
+		Pendaftaran   *Registration                 `gorm:"foreignKey:ID"`
 		Nama          *string                       `json:"nama"`
 		Alamat        *string                       `json:"alamat"`
 		RtRw          *string                       `json:"rt_rw"`
 		KecamatanID   *uint64                       `json:"kecamatan_id"`
-		Kecamatan     *configurationmodel.Kecamatan `gorm:"foreignKey:id"`
+		Kecamatan     *configurationmodel.Kecamatan `gorm:"foreignKey:ID"`
 		KelurahanID   *uint64                       `json:"kelurahan_id"`
-		Kelurahan     *configurationmodel.Kelurahan `gorm:"foreignKey:id"`
+		Kelurahan     *configurationmodel.Kelurahan `gorm:"foreignKey:ID"`
 		Telp          *string                       `json:"telp"`
 		Status        StatusPemilik                 `json:"status"`
 		NoIdPemilik   *string                       `json:"no_id_pemilik"`
@@ -172,14 +172,14 @@ type (
 	Narahubung struct {
 		ID            uint64                        `json:"id" gorm:"primaryKey"`
 		PendaftaranID uint64                        `json:"pendaftaran_id"`
-		Pendaftaran   *Registration                 `gorm:"foreignKey:id"`
+		Pendaftaran   *Registration                 `gorm:"foreignKey:ID"`
 		Nama          *string                       `json:"nama"`
 		Alamat        *string                       `json:"alamat"`
 		RtRw          *string                       `json:"rt_rw"`
 		KecamatanID   *uint64                       `json:"kecamatan_id"`
-		Kecamatan     *configurationmodel.Kecamatan `gorm:"foreignKey:id"`
+		Kecamatan     *configurationmodel.Kecamatan `gorm:"foreignKey:ID"`
 		KelurahanID   *uint64                       `json:"kelurahan_id"`
-		Kelurahan     *configurationmodel.Kelurahan `gorm:"foreignKey:id"`
+		Kelurahan     *configurationmodel.Kelurahan `gorm:"foreignKey:ID"`
 		Telp          *string                       `json:"telp"`
 		Status        StatusNarahubung              `json:"status"`
 		Nik           *string                       `json:"nik"`
