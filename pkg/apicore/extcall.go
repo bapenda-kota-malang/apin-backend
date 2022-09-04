@@ -1,13 +1,10 @@
 package apicore
 
-import "fmt"
-
 type extCall func()
 
 var extraCalls []extCall
 
-func (a *app) initExtra() {
-	fmt.Println("Init extra")
+func (a *app) initExtCall() {
 	for _, init := range extraCalls {
 		init()
 	}
