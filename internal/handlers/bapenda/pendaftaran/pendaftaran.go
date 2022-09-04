@@ -9,11 +9,26 @@ import (
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	rq "github.com/bapenda-kota-malang/apin-backend/pkg/requester"
 	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
 )
 
 func GetList(w http.ResponseWriter, r *http.Request) {
 	if result, err := registration.GetAll(r); err == nil {
+		hj.WriteJSON(w, http.StatusOK, responses.OKSimple{
+			Data: result,
+		}, nil)
+	} else {
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, responses.ErrCustom{
+			Meta:     nil,
+			Messages: err,
+		}, nil)
+	}
+}
+
+func GetDetail(w http.ResponseWriter, r *http.Request) {
+	id := rq.GetParam("id", r)
+	if result, err := registration.GetDetail(r, id); err == nil {
 		hj.WriteJSON(w, http.StatusOK, responses.OKSimple{
 			Data: result,
 		}, nil)

@@ -10,6 +10,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -18,7 +19,7 @@ func GetAll(r *http.Request) (interface{}, error) {
 	result := apicore.DB.Model(&registration.Registration{}).
 		Preload(clause.Associations).
 		//nested preload
-		//Preload("PemilikWps.Kelurahan")
+		//Preload("PemilikWps.Kelurahan").
 		Scopes(gormhelper.Paginate(r)).Find(&register)
 	return responses.OK{
 		Meta: types.IS{
@@ -26,6 +27,23 @@ func GetAll(r *http.Request) (interface{}, error) {
 		},
 		Data: register,
 	}, nil
+}
+
+func GetDetail(r *http.Request, regID string) (interface{}, error) {
+	var register *registration.Registration
+	err := apicore.DB.Model(&registration.Registration{}).
+		Where("id = ?", regID).
+		Preload(clause.Associations).
+		Find(&register).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return responses.OKSimple{
+		Data: register,
+	}, err
 }
 
 func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (interface{}, error) {

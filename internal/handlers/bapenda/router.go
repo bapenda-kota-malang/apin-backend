@@ -36,6 +36,7 @@ func SetRoutes() *httprouter.Router {
 	rmod.HandlerFunc(http.MethodPatch, "/user/:id", user.GetDetail)
 
 	rmod.HandlerFunc(http.MethodGet, "/registration", pendaftaran.GetList)
+	rmod.HandlerFunc(http.MethodGet, "/registration/:id", pendaftaran.GetDetail)
 	rmod.HandlerFunc(http.MethodPost, "/registration/operator", pendaftaran.RegisterByOperator)
 
 	return rmod.Router
