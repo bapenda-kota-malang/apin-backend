@@ -2,9 +2,11 @@ package registration
 
 import (
 	"net/http"
+	"reflect"
 	"strconv"
 	"time"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/configurationmodel"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -46,7 +48,73 @@ func GetDetail(r *http.Request, regID string) (interface{}, error) {
 	}, err
 }
 
+func insertDetailOp(objek string, data *[]registration.DetailOp, registerForm *registration.Registration) error {
+	var (
+		err      error
+		mActions map[string]reflect.Type = make(map[string]reflect.Type)
+		model    interface{}
+
+		detailOpHotel    registration.DetailOpHotel
+		detailOpResto    registration.DetailOpResto
+		detailOpHiburan  registration.DetailOpHiburan
+		detailOpReklame  registration.DetailOpReklame
+		detailOpPpj      registration.DetailOpPpj
+		detailOpParkir   registration.DetailOpParkir
+		detailOpAirTanah registration.DetailOpAirTanah
+	)
+
+	mActions[`detailOpHotel`] = reflect.TypeOf(detailOpHotel)
+	mActions[`detailOpResto`] = reflect.TypeOf(detailOpResto)
+	mActions[`detailOpHiburan`] = reflect.TypeOf(detailOpHiburan)
+	mActions[`detailOpReklame`] = reflect.TypeOf(detailOpReklame)
+	mActions[`detailOpPpj`] = reflect.TypeOf(detailOpPpj)
+	mActions[`detailOpParkir`] = reflect.TypeOf(detailOpParkir)
+	mActions[`detailOpAirTanah`] = reflect.TypeOf(detailOpAirTanah)
+
+	switch objek {
+	case "01":
+		model = reflect.Zero(mActions["detailOpHotel"]).Interface()
+	case "02":
+		model = reflect.Zero(mActions["detailOpResto"]).Interface()
+	case "03":
+		model = reflect.Zero(mActions["detailOpHiburan"]).Interface()
+	case "04":
+		model = reflect.Zero(mActions["detailOpReklame"]).Interface()
+	case "05":
+		model = reflect.Zero(mActions["detailOpPpj"]).Interface()
+	case "06":
+		model = reflect.Zero(mActions["detailOpParkir"]).Interface()
+	case "07":
+		model = reflect.Zero(mActions["detailOpAirTanah"]).Interface()
+	}
+
+	for _, dop := range *data {
+		dop.JenisOp = registerForm.Rekening.Nama
+		dop.Pendaftaran_ID = registerForm.ID
+
+		m := make(map[string]interface{})
+		m["Pendaftaran_ID"] = dop.Pendaftaran_ID
+		m["JenisOp"] = dop.JenisOp
+		m["JumlahOp"] = dop.JumlahOp
+		m["TarifOp"] = dop.TarifOp
+		m["UnitOp"] = dop.UnitOp
+		m["Notes"] = dop.Notes
+
+		err = apicore.DB.Model(&model).Create(&m).Error
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (interface{}, error) {
+	var rekening *configurationmodel.Rekening
+	err := apicore.DB.Model(&configurationmodel.Rekening{}).First(&rekening, reg.RekeningID).Error
+	if err != nil {
+		return nil, err
+	}
 	register := registration.Registration{
 		Mode:       registration.ModeOperator,
 		Status:     registration.StatusAktif,
@@ -76,7 +144,8 @@ func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (i
 			}
 			return &t
 		}(),
-		RekeningID: &reg.RekeningID,
+		Rekening_ID: &reg.RekeningID,
+		Rekening:    rekening,
 		TanggalMulaiUsaha: func() *time.Time {
 			t, err := time.Parse("2006-01-02", *reg.TanggalMulaiUsaha)
 			if err != nil {
@@ -92,12 +161,16 @@ func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (i
 		Genset:        &reg.Genset,
 		AirTanah:      &reg.AirTanah,
 	}
-	err := apicore.DB.Create(&register).Error
+	err = apicore.DB.Create(&register).Error
+	if err != nil {
+		return nil, err
+	}
+	err = insertDetailOp(*rekening.Objek, reg.DetailOp, &register)
 	if err != nil {
 		return nil, err
 	}
 	for _, op := range *reg.ObjekPajak {
-		op.PendaftaranID = register.ID
+		op.Pendaftaran_ID = register.ID
 		op.Status = registration.StatusBaru
 		err := apicore.DB.Create(&op).Error
 		if err != nil {
@@ -105,7 +178,7 @@ func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (i
 		}
 	}
 	for _, p := range *reg.Pemilik {
-		p.PendaftaranID = register.ID
+		p.Pendaftaran_ID = register.ID
 		p.Status = registration.StatusPemilikBaru
 		err := apicore.DB.Create(&p).Error
 		if err != nil {
@@ -113,7 +186,7 @@ func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (i
 		}
 	}
 	for _, n := range *reg.Narahubung {
-		n.PendaftaranID = register.ID
+		n.Pendaftaran_ID = register.ID
 		n.Status = registration.StatusNarahubungBaru
 		err := apicore.DB.Create(&n).Error
 		if err != nil {
