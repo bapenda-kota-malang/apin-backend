@@ -3,10 +3,8 @@ package bapenda
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
-
-	amw "github.com/bapenda-kota-malang/apin-backend/pkg/authorizationmw"
-	hrm "github.com/bapenda-kota-malang/apin-backend/pkg/httproutermod"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
@@ -15,24 +13,29 @@ import (
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 )
 
-func SetRoutes() *httprouter.Router {
-	rmod := hrm.New()
-	rmod.NotFound = http.HandlerFunc(er.NotFoundResponse)
-	rmod.MethodNotAllowed = http.HandlerFunc(er.MethodNotAllowedResponse)
+func SetRoutes() http.Handler {
+	r := chi.NewRouter()
 
-	// TODO: Use group for routing
+	// r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
 
-	rmod.GETMOD("/", home.Index)
-	rmod.GETMOD("/checkauth", home.Index, amw.CheckAuth)
+	r.NotFound(er.NotFoundResponse)
+	r.MethodNotAllowed(er.MethodNotAllowedResponse)
 
-	rmod.POSTMOD("/auth/login", auth.Login)
+	r.Get("/", home.Index)
 
-	rmod.PATCHMOD("/account/reset-password", account.ResetPassword)
-	rmod.PATCHMOD("/account/change-password", account.ChangePassword)
+	r.Post("/auth/login", auth.Login)
 
-	rmod.HandlerFunc(http.MethodPost, "/user/", user.Create)
-	rmod.HandlerFunc(http.MethodGet, "/user/", user.GetList)
-	rmod.HandlerFunc(http.MethodPatch, "/user/:id", user.GetDetail)
+	r.Patch("/account/reset-password", account.ResetPassword)
+	r.Patch("/account/change-password", account.ChangePassword)
 
-	return rmod.Router
+	r.Post("/user", user.Create)
+	r.Get("/user", user.GetList)
+	r.Get("/user/{id}", user.GetDetail)
+
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("sup"))
+	})
+
+	return r
 }
