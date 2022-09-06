@@ -35,9 +35,8 @@ func GetAll(r *http.Request) (interface{}, error) {
 func GetDetail(r *http.Request, regID string) (interface{}, error) {
 	var register *registration.Registration
 	err := apicore.DB.Model(&registration.Registration{}).
-		Where("id = ?", regID).
 		Preload(clause.Associations).
-		Find(&register).Error
+		First(&register, regID).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
