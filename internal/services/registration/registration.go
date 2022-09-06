@@ -23,6 +23,7 @@ func GetAll(r *http.Request) (interface{}, error) {
 		//nested preload
 		//Preload("PemilikWps.Kelurahan").
 		Scopes(gormhelper.Paginate(r)).Find(&register)
+
 	return responses.OK{
 		Meta: types.IS{
 			"Count": strconv.Itoa(int(result.RowsAffected)),

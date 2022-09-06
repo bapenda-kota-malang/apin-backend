@@ -83,9 +83,17 @@ type (
 		VendorEtaxID      *string                      `json:"vendor_etax_id"`
 		// VendorEtax         *configurationmodel.VendorEtax `gorm:"foreignKey:VendorEtaxID"`
 
-		ObjekPajaks *[]ObjekPajak `json:"objek_pajak" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
-		PemilikWps  *[]PemilikWp  `json:"pemilik" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
-		Narahubungs *[]Narahubung `json:"narahubung" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
+		ObjekPajaks []*ObjekPajak `json:"objek_pajak,omitempty" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
+		PemilikWps  []*PemilikWp  `json:"pemilik,omitempty" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
+		Narahubungs []*Narahubung `json:"narahubung,omitempty" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
+
+		DetailOpAirTanah []*DetailOpAirTanah `json:"detail_op_air_tanah,omitempty" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
+		DetailOpHiburan  []*DetailOpHiburan  `json:"detail_op_hiburan,omitempty" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
+		DetailOpHotel    []*DetailOpHotel    `json:"detail_op_hotel,omitempty" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
+		DetailOpParkir   []*DetailOpParkir   `json:"detail_op_parkir,omitempty" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
+		DetailOpPpj      []*DetailOpPpj      `json:"detail_op_ppj,omitempty" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
+		DetailOpReklame  []*DetailOpReklame  `json:"detail_op_reklame,omitempty" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
+		DetailOpResto    []*DetailOpResto    `json:"detail_op_resto,omitempty" gorm:"foreignKey:Pendaftaran_ID;references:ID"`
 
 		CreatedAt time.Time  `json:"created_at"`
 		UpdatedAt time.Time  `json:"updated_at"`
@@ -115,7 +123,7 @@ type (
 	DetailOp struct {
 		ID                 uint64        `json:"id" gorm:"primaryKey"`
 		Pendaftaran_ID     uint64        `json:"pendaftaran_id"`
-		Pendaftaran        *Registration `gorm:"foreignKey:Pendaftaran_ID"`
+		Pendaftaran        *Registration `json:"pendaftaran,omitempty" gorm:"foreignKey:Pendaftaran_ID"`
 		NpwpdPendaftaranID *string       `json:"npwpd_pendaftaran_id"`
 		JenisOp            *string       `json:"jenis_op"`
 		JumlahOp           *string       `json:"jumlah_op"`
@@ -155,7 +163,7 @@ type (
 	PemilikWp struct {
 		ID             uint64                        `json:"id" gorm:"primaryKey"`
 		Pendaftaran_ID uint64                        `json:"pendaftaran_id"`
-		Pendaftaran    *Registration                 `gorm:"foreignKey:Pendaftaran_ID"`
+		Pendaftaran    *Registration                 `json:"pendaftaran,omitempty" gorm:"foreignKey:Pendaftaran_ID"`
 		Nama           *string                       `json:"nama"`
 		Alamat         *string                       `json:"alamat"`
 		RtRw           *string                       `json:"rt_rw"`
@@ -172,7 +180,7 @@ type (
 	Narahubung struct {
 		ID             uint64                        `json:"id" gorm:"primaryKey"`
 		Pendaftaran_ID uint64                        `json:"pendaftaran_id"`
-		Pendaftaran    *Registration                 `gorm:"foreignKey:Pendaftaran_ID"`
+		Pendaftaran    *Registration                 `json:"pendaftaran,omitempty" gorm:"foreignKey:Pendaftaran_ID"`
 		Nama           *string                       `json:"nama"`
 		Alamat         *string                       `json:"alamat"`
 		RtRw           *string                       `json:"rt_rw"`
