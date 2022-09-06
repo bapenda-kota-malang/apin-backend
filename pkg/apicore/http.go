@@ -11,7 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/julienschmidt/httprouter"
 	"go.uber.org/zap"
 )
 
@@ -22,10 +21,11 @@ type httpConf struct {
 
 var wg sync.WaitGroup
 
-func (a *app) initHttp(router *httprouter.Router) {
+func (a *app) initHttp(handler http.Handler) {
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("%v:%v", a.HttpConf.Host, a.HttpConf.Port),
-		Handler:      a.recoverPanic(a.rateLimit(router)),
+		Addr:    fmt.Sprintf("%v:%v", a.HttpConf.Host, a.HttpConf.Port),
+		Handler: handler,
+
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
@@ -33,9 +33,9 @@ func (a *app) initHttp(router *httprouter.Router) {
 
 	shutdownError := make(chan error)
 	go func() {
-		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		s := <-quit
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+		s := <-sig
 		Logger.Info("process", zap.String("type", "signal"), zap.String("source", "signal"), zap.String("act", s.String()), zap.String("status", "delegated"))
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
