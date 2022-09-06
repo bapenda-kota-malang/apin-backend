@@ -59,9 +59,9 @@ type (
 		TanggalBuka       *time.Time                   `json:"tanggal_buka"`
 		JenisPajak        JenisPajak                   `json:"jenis_pajak"`
 		Skpd_ID           *uint64                      `json:"skpd_id"`
-		Skpd              *configurationmodel.Skpd     `gorm:"foreignKey:Skpd_ID"`
+		Skpd              *configurationmodel.Skpd     `json:"skpd,omitempty" gorm:"foreignKey:Skpd_ID"`
 		Rekening_ID       *uint64                      `json:"rekening_id"`
-		Rekening          *configurationmodel.Rekening `gorm:"foreignKey:Rekening_ID"`
+		Rekening          *configurationmodel.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_ID"`
 		Nama              *string                      `json:"nama"`
 		User_ID           *uint64                      `json:"user_id"`
 		User              *user.User                   `gorm:"foreignKey:User_ID"`
