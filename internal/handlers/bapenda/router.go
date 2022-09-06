@@ -26,7 +26,6 @@ func SetRoutes() http.Handler {
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", auth.Login)
-		// r.Post("/logout", auth.Logout)
 	})
 
 	r.Route("/account", func(r chi.Router) {
