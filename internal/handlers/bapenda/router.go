@@ -24,17 +24,19 @@ func SetRoutes() http.Handler {
 
 	r.Get("/", home.Index)
 
-	r.Post("/auth/login", auth.Login)
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/login", auth.Login)
+	})
 
-	r.Patch("/account/reset-password", account.ResetPassword)
-	r.Patch("/account/change-password", account.ChangePassword)
+	r.Route("/account", func(r chi.Router) {
+		r.Patch("/reset-password", account.ResetPassword)
+		r.Patch("/change-password", account.ChangePassword)
+	})
 
-	r.Post("/user", user.Create)
-	r.Get("/user", user.GetList)
-	r.Get("/user/{id}", user.GetDetail)
-
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("sup"))
+	r.Route("/user", func(r chi.Router) {
+		r.Post("/", user.Create)
+		r.Get("/", user.GetList)
+		r.Get("/{id}", user.GetDetail)
 	})
 
 	return r
