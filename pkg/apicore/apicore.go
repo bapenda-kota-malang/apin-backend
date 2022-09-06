@@ -7,7 +7,8 @@ is main properties of a website.
 \*****************************************************************************/
 
 import (
-	"github.com/julienschmidt/httprouter"
+	"net/http"
+
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	// "github.com/karincake/nogosari/mailer"
@@ -30,7 +31,7 @@ var DB *gorm.DB
 var Logger *zap.Logger
 
 // app starter
-func Run(routerIn *httprouter.Router) {
+func Run(routerIn http.Handler) {
 	Self = &app{}
 
 	// Intantiate all the conf
@@ -44,5 +45,6 @@ func Run(routerIn *httprouter.Router) {
 	Self.initLogger()
 	Self.initDb()
 	// a.initMailer()
+	Self.initExtCall()
 	Self.initHttp(routerIn)
 }

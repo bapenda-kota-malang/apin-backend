@@ -13,10 +13,10 @@ import (
 
 // error format, exported for casting purpose
 type ValidationError struct {
-	Error      error
-	Code       string
-	ExptdValue string
-	GivenValue interface{}
+	Error      error       `json:"error"`
+	Code       string      `json:"code"`
+	ExptdValue string      `json:"exptdValue"`
+	GivenValue interface{} `json:"givenValue"`
 }
 
 // just key val for the tag
