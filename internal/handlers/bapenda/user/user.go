@@ -16,18 +16,34 @@ import (
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var user um.UserCreate
-	if err := sv.ValidateIoReader(&user, r.Body); err != nil {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, rs.ErrCustom{
-			Meta:     t.IS{"count": strconv.Itoa(len(err))},
-			Messages: err,
-		}, nil)
-	}
-
-	if result, err := us.Create(user); err == nil {
-		hj.WriteJSON(w, http.StatusOK, result, nil)
+	// complicated here, since there are 2 schemes
+	position := r.FormValue("position")
+	if position == "" || position == "pegawai" {
+		var user um.UserCreate
+		if err := sv.ValidateIoReader(&user, r.Body); err != nil {
+			hj.WriteJSON(w, http.StatusUnprocessableEntity, rs.ErrCustom{
+				Meta:     t.IS{"count": strconv.Itoa(len(err))},
+				Messages: err,
+			}, nil)
+		}
+		if result, err := us.Create(user); err == nil {
+			hj.WriteJSON(w, http.StatusOK, result, nil)
+		} else {
+			hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
+		}
 	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
+		var user um.UserCreate
+		if err := sv.ValidateIoReader(&user, r.Body); err != nil {
+			hj.WriteJSON(w, http.StatusUnprocessableEntity, rs.ErrCustom{
+				Meta:     t.IS{"count": strconv.Itoa(len(err))},
+				Messages: err,
+			}, nil)
+		}
+		if result, err := us.Create(user); err == nil {
+			hj.WriteJSON(w, http.StatusOK, result, nil)
+		} else {
+			hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
+		}
 	}
 }
 
