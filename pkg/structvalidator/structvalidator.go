@@ -38,7 +38,7 @@ const tagName = "validate"
 // parse tag for key - val
 func parseTag(tag string) []keyVal {
 	kvList := []keyVal{}
-	for _, item := range strings.Split(tag, ",") {
+	for _, item := range strings.Split(tag, ";") {
 		pair := strings.SplitN(strings.TrimSpace(item), "=", 2)
 		if len(pair) == 0 {
 			continue
