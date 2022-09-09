@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
@@ -16,7 +17,7 @@ import (
 func SetRoutes() http.Handler {
 	r := chi.NewRouter()
 
-	// r.Use(middleware.RequestID)
+	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 
 	r.NotFound(er.NotFoundResponse)
@@ -37,6 +38,15 @@ func SetRoutes() http.Handler {
 		r.Post("/", user.Create)
 		r.Get("/", user.GetList)
 		r.Get("/{id}", user.GetDetail)
+		r.Patch("/{id}", user.Update)
+	})
+
+	r.Route("/group", func(r chi.Router) {
+		r.Post("/", group.Create)
+		r.Get("/", group.GetList)
+		r.Get("/{id}", group.GetDetail)
+		r.Patch("/{id}", group.Update)
+		r.Delete("/{id}", group.Delete)
 	})
 
 	return r
