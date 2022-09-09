@@ -22,6 +22,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 			Meta:     t.IS{"count": strconv.Itoa(len(err))},
 			Messages: err,
 		}, nil)
+		return
 	}
 
 	if result, err := s.Create(data); err == nil {
