@@ -21,7 +21,7 @@ func init() {
 	a.AutoMigrate(&m.Group{})
 }
 
-func myLogger(xtype, status, message string, data any) {
+func myErrLogger(xtype, status, message string, data any) {
 	dataString, _ := json.Marshal(data)
 	a.Logger.Error("request",
 		zap.String("type", xtype),
@@ -36,14 +36,14 @@ func Create(input m.Create) (interface{}, error) {
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
-		myLogger("create-data", "failed", "failed to copy payload", data)
-		return nil, errors.New("Proses pengambilan data dari \"body-payload\" gagal")
+		myErrLogger("create-data", "failed", "failed to copy payload", data)
+		return nil, errors.New("pengambilan data dari \"body-payload\" gagal")
 	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := a.DB.Create(&data); result.Error != nil {
-		myLogger("create-data", "failed", "failed to create", data)
-		return nil, errors.New("Proses penyimpanan data gagal")
+		myErrLogger("create-data", "failed", "failed to create", data)
+		return nil, errors.New("penyimpanan data gagal")
 	}
 
 	return rp.OKSimple{Data: data}, nil
@@ -58,8 +58,8 @@ func GetList(r *http.Request) (interface{}, error) {
 
 	result := filtered.Scopes(gh.Paginate(r)).Find(&data)
 	if result.Error != nil {
-		myLogger("get-list", "failed", result.Error.Error(), "")
-		return nil, errors.New("Proses pengambilan data gagal")
+		myErrLogger("get-list", "failed", result.Error.Error(), "")
+		return nil, errors.New("proses pengambilan data gagal")
 	}
 
 	return rp.OK{
@@ -75,15 +75,15 @@ func GetDetail(id int) (interface{}, error) {
 	var data *m.Group
 
 	result := a.DB.First(&data, id)
-	if result.Error != nil {
-		myLogger("get-detail", "failed", "failed fetch data", "")
-		return nil, errors.New("Proses pengambilan data gagal")
-	} else if result.RowsAffected == 0 {
-		data = nil // set to nil since we dont want empty struct
+	// if result.Error != nil {
+	// 	myErrLogger("get-detail", "failed", "failed fetch data", result.Error.Error())
+	// 	return nil, errors.New("Proses pengambilan data gagal")
+	// } else
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	return rp.OK{
-		Meta: t.IS{"count": strconv.Itoa(int(result.RowsAffected))},
+	return rp.OKSimple{
 		Data: data,
 	}, nil
 }
@@ -91,22 +91,23 @@ func GetDetail(id int) (interface{}, error) {
 func Update(id int, input m.Update) (interface{}, error) {
 	var data *m.Group
 	result := a.DB.First(&data, id)
-	if result.Error != nil {
-		myLogger("get-detail", "failed", "failed fetch data", "")
-		return nil, errors.New("Proses pengambilan data gagal")
-	} else if result.RowsAffected == 0 {
-		return nil, errors.New("Data tidak dapat ditemukan")
+	// if result.Error != nil {
+	// 	myErrLogger("get-detail", "failed", "failed fetch data", "")
+	// 	return nil, errors.New("Proses pengambilan data gagal")
+	// } else
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
 		dataString, _ := json.Marshal(data)
-		myLogger("update-data", "failed", "failed to copy payload", string(dataString))
-		return nil, errors.New("Proses pengambilan data dari \"body-payload\" gagal")
+		myErrLogger("update-data", "failed", "failed to copy payload", string(dataString))
+		return nil, errors.New("proses pengambilan data dari \"body-payload\" gagal")
 	}
 
 	if result := a.DB.Save(&data); result.Error != nil {
-		myLogger("update-data", "failed", "failed to update", data)
-		return nil, errors.New("Proses penyimpanan data gagal")
+		myErrLogger("update-data", "failed", "failed to update", data)
+		return nil, errors.New("proses penyimpanan data gagal")
 	}
 
 	return rp.OK{
@@ -119,9 +120,13 @@ func Update(id int, input m.Update) (interface{}, error) {
 
 func Delete(id int) (interface{}, error) {
 	var data *m.Group
-	result := a.DB.Delete(&data, id)
-	status := "deleted"
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
 
+	result = a.DB.Delete(&data, id)
+	status := "deleted"
 	if result.RowsAffected == 0 {
 		data = nil
 		status = "no deletion"
