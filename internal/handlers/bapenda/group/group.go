@@ -43,7 +43,7 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{
-			"Messages": "format id tidak dapat di kenali",
+			"message": "format id tidak dapat di kenali",
 		}, nil)
 		return
 	}
@@ -51,7 +51,7 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	if result, err := s.GetDetail(id); err == nil {
 		hj.WriteJSON(w, http.StatusOK, result, nil)
 	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{"message": err.Error()}, nil)
 	}
 }
 
@@ -59,7 +59,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{
-			"Messages": "format id tidak dapat di kenali",
+			"message": "format id tidak dapat di kenali",
 		}, nil)
 		return
 	}
@@ -75,7 +75,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	if result, err := s.Update(id, data); err == nil {
 		hj.WriteJSON(w, http.StatusOK, result, nil)
 	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{"message": err.Error()}, nil)
 	}
 }
 
@@ -83,7 +83,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{
-			"Messages": "format id tidak dapat di kenali",
+			"message": "format id tidak dapat di kenali",
 		}, nil)
 		return
 	}
@@ -91,6 +91,6 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	if result, err := s.Delete(id); err == nil {
 		hj.WriteJSON(w, http.StatusOK, result, nil)
 	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{"message": err.Error()}, nil)
 	}
 }
