@@ -39,6 +39,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", user.GetList)
 		r.Get("/{id}", user.GetDetail)
 		r.Patch("/{id}", user.Update)
+		r.Delete("/{id}", user.Delete)
 	})
 
 	r.Route("/group", func(r chi.Router) {

@@ -4,42 +4,48 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
+
 	ac "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
-	rs "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	rq "github.com/bapenda-kota-malang/apin-backend/pkg/requester"
 	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
 
-	um "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
-	us "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
 	// complicated here, since there are 2 schemes
 	position := r.FormValue("position")
 	if position == "" || position == "pegawai" {
-		var user um.UserCreate
-		if err := sv.ValidateIoReader(&user, r.Body); err != nil {
-			hj.WriteJSON(w, http.StatusUnprocessableEntity, rs.ErrCustom{
+		var data pegawai.CreateByUser
+		if err := sv.ValidateIoReader(&data, r.Body); err != nil {
+			hj.WriteJSON(w, http.StatusUnprocessableEntity, rp.ErrCustom{
 				Meta:     t.IS{"count": strconv.Itoa(len(err))},
 				Messages: err,
 			}, nil)
+			return
 		}
-		if result, err := us.Create(user); err == nil {
+
+		if result, err := s.Create(data); err == nil {
 			hj.WriteJSON(w, http.StatusOK, result, nil)
 		} else {
 			hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
 		}
 	} else {
-		var user um.UserCreate
-		if err := sv.ValidateIoReader(&user, r.Body); err != nil {
-			hj.WriteJSON(w, http.StatusUnprocessableEntity, rs.ErrCustom{
+		var data ppat.CreateByUser
+		if err := sv.ValidateIoReader(&data, r.Body); err != nil {
+			hj.WriteJSON(w, http.StatusUnprocessableEntity, rp.ErrCustom{
 				Meta:     t.IS{"count": strconv.Itoa(len(err))},
 				Messages: err,
 			}, nil)
 		}
-		if result, err := us.Create(user); err == nil {
+
+		if result, err := s.Create(data); err == nil {
 			hj.WriteJSON(w, http.StatusOK, result, nil)
 		} else {
 			hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
@@ -48,7 +54,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	if result, err := us.GetList(r); err == nil {
+	if result, err := s.GetList(r); err == nil {
 		hj.WriteJSON(w, http.StatusOK, result, nil)
 	} else {
 		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
@@ -68,4 +74,20 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		"message": "You are updating user of app: " + ac.Self.Name,
 	}
 	hj.WriteJSON(w, http.StatusOK, data, nil)
+}
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{
+			"message": "format id tidak dapat di kenali",
+		}, nil)
+		return
+	}
+
+	if result, err := s.Delete(id); err == nil {
+		hj.WriteJSON(w, http.StatusOK, result, nil)
+	} else {
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{"message": err.Error()}, nil)
+	}
 }
