@@ -121,7 +121,7 @@ func ValidateIoReader(container interface{}, input io.Reader) map[string]Validat
 	if err != nil {
 		myType := fmt.Sprintf("%T", container)
 		return map[string]ValidationError{
-			"struct": {"parsing to type %v failed", "struct", fmt.Sprintf("value of %v", myType), ""},
+			"struct": {fmt.Sprintf("parsing to type %v failed", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
 		}
 	}
 	return Validate(container)
