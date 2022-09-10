@@ -8,48 +8,38 @@ import (
 
 	ac "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
-	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 	rq "github.com/bapenda-kota-malang/apin-backend/pkg/requester"
-	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
 )
 
+// complicated process where data depends on position
 func Create(w http.ResponseWriter, r *http.Request) {
-	// complicated here, since there are 2 schemes
+	var result any
+	var err error
+
 	position := r.FormValue("position")
 	if position == "" || position == "pegawai" {
 		var data pegawai.CreateByUser
-		if err := sv.ValidateIoReader(&data, r.Body); err != nil {
-			hj.WriteJSON(w, http.StatusUnprocessableEntity, rp.ErrCustom{
-				Meta:     t.IS{"count": strconv.Itoa(len(err))},
-				Messages: err,
-			}, nil)
+		if !hh.StructValidation(w, r.Body, &data) {
 			return
 		}
-
-		if result, err := s.Create(data); err == nil {
-			hj.WriteJSON(w, http.StatusOK, result, nil)
-		} else {
-			hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
-		}
+		result, err = s.Create(data)
 	} else {
 		var data ppat.CreateByUser
-		if err := sv.ValidateIoReader(&data, r.Body); err != nil {
-			hj.WriteJSON(w, http.StatusUnprocessableEntity, rp.ErrCustom{
-				Meta:     t.IS{"count": strconv.Itoa(len(err))},
-				Messages: err,
-			}, nil)
+		if !hh.StructValidation(w, r.Body, &data) {
+			return
 		}
+	}
 
-		if result, err := s.Create(data); err == nil {
-			hj.WriteJSON(w, http.StatusOK, result, nil)
-		} else {
-			hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
-		}
+	if err == nil {
+		hj.WriteJSON(w, http.StatusOK, result, nil)
+	} else {
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
 	}
 }
 

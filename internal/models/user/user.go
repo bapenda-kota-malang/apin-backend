@@ -12,10 +12,11 @@ type User struct {
 	Group_Id    int       `json:"group_id"`
 	Email       string    `json:"email"`
 	Notes       string    `json:"notes"`
-	SysAdmin    int       `json:"sysAdmin"`
+	SysAdmin    bool      `json:"sysAdmin"`
 	ValidPeriod time.Time `json:"validPeriod"`
-	VeifyStatus int       `json:"verifyStatus"`
-	Status      int       `json:"status"`
+	VeifyStatus int16     `json:"verifyStatus"`
+	RegMode     int16     `json:"regMode"`
+	Status      int16     `json:"status"`
 	ApprovedAt  time.Time `json:"approvedAt"`
 	InactiveAt  time.Time `json:"inactiveAt"`
 	CreatedAt   time.Time `json:"createdAt"`
@@ -56,7 +57,7 @@ type Login struct {
 
 type Filter struct {
 	Name     string `json:"name"`
-	Position string `json:"position"`
+	Position int16  `json:"position"`
 	Email    string `json:"email"`
 	Status   int16  `json:"status"`
 }
