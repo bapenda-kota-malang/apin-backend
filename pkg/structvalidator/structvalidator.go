@@ -13,7 +13,8 @@ import (
 
 // error format, exported for casting purpose
 type ValidationError struct {
-	Error      error       `json:"error"`
+	// Error      error       `json:"error"`
+	ErrMessage string      `json:"errMessage"`
 	Code       string      `json:"code"`
 	ExptdValue string      `json:"exptdValue"`
 	GivenValue interface{} `json:"givenValue"`
@@ -84,7 +85,7 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		}
 
 		// if current field is struct, validate again
-		if fieldT.Type.Kind() == reflect.Struct || fieldT.Anonymous || fieldT.Type.Name() == "" {
+		if fieldT.Type.Kind() == reflect.Struct || fieldT.Anonymous { //  TODO: find information about this -> || fieldT.Type.Name() == ""
 			maps.Copy(errList, Validate(fieldV.Interface(), fieldT.Name))
 			continue
 		}
@@ -96,7 +97,11 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 				if _, ok := tagValidator[kv.Key]; ok {
 					err := tagValidator[kv.Key](fieldV, kv.Val)
 					if err != nil {
-						errList[nameSpace+fieldT.Name] = ValidationError{err, kv.Key, kv.Val, fieldV.Interface()}
+						key := fieldT.Tag.Get("json")
+						if key == "" {
+							key = fieldT.Name
+						}
+						errList[nameSpace+key] = ValidationError{err.Error(), kv.Key, kv.Val, fieldV.Interface()}
 						break // 1 err is enough, break from error check of the current field
 					}
 				}
@@ -116,7 +121,7 @@ func ValidateIoReader(container interface{}, input io.Reader) map[string]Validat
 	if err != nil {
 		myType := fmt.Sprintf("%T", container)
 		return map[string]ValidationError{
-			"struct": {fmt.Errorf("parsing to type %v failed", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
+			"struct": {"parsing to type %v failed", "struct", fmt.Sprintf("value of %v", myType), ""},
 		}
 	}
 	return Validate(container)
