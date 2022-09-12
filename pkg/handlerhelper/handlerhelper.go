@@ -5,15 +5,30 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
+
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
 )
 
-// send error response if validation fails, return boool with success as true
-func StructValidation(w http.ResponseWriter, body io.Reader, data any) bool {
-	if err := sv.ValidateIoReader(&data, body); err != nil {
+// write error response if validation fails, return boool true if success
+func ValidateAutoInc(w http.ResponseWriter, r *http.Request, input string) int {
+	id, err := strconv.Atoi(chi.URLParam(r, input))
+	if err != nil || id < 1 {
+		hj.WriteJSON(w, http.StatusBadRequest, t.IS{
+			"message": "format id harus berupa integer positive",
+		}, nil)
+		return 0
+	}
+	return id
+}
+
+// write error response if validation fails, return boool true on success
+func ValidateStruct(w http.ResponseWriter, data any) bool {
+	err := sv.Validate(&data)
+	if err != nil {
 		httpStatus := http.StatusUnprocessableEntity
 		if _, ok := err["struct"]; ok {
 			httpStatus = http.StatusBadRequest
@@ -26,4 +41,34 @@ func StructValidation(w http.ResponseWriter, body io.Reader, data any) bool {
 	}
 
 	return true
+}
+
+// by io reader version of ValidateStruct, to cover request.body, return boool true on success
+func ValidateStructByIOR(w http.ResponseWriter, body io.Reader, data any) bool {
+	err := sv.ValidateIoReader(&data, body)
+	if err != nil {
+		httpStatus := http.StatusUnprocessableEntity
+		if _, ok := err["struct"]; ok {
+			httpStatus = http.StatusBadRequest
+		}
+		hj.WriteJSON(w, httpStatus, rp.ErrCustom{
+			Meta:     t.IS{"count": strconv.Itoa(len(err))},
+			Messages: err,
+		}, nil)
+		return false
+	}
+
+	return true
+}
+
+// respond at the service level that related to data
+func DataResponse(w http.ResponseWriter, result any, err error) {
+	if result == nil && err == nil {
+		hj.WriteJSON(w, http.StatusNotFound, t.IS{"message": "data not found"}, nil)
+	} else if err != nil {
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{"message": err.Error()}, nil)
+	} else {
+		hj.WriteJSON(w, http.StatusOK, result, nil)
+	}
+
 }
