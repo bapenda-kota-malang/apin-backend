@@ -4,22 +4,24 @@ type Group struct {
 	Id              int    `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name            string `json:"name" gorm:"size:100"`
 	TestDescription string `json:"description" gorm:"size:1000"`
-	Position        string `json:"position"`
+	Position        int16  `json:"position"`
 	Status          int16  `json:"status"`
 }
 
 type Create struct {
 	Name        string `json:"name" validate:"required;maxLength=100"`
 	Description string `json:"description"`
-	Position    string `json:"position" validate:"required"`
+	Position    int16  `json:"position" validate:"required;min=1"`
 }
 
 type Update struct {
-	Create // copy from Create since it's the same
+	Name        string `json:"name" validate:"required;maxLength=100"`
+	Description string `json:"description"`
+	Position    int16  `json:"position" validate:"required;min=1"`
 }
 
 type Filter struct {
 	Name     string `json:"name"`
-	Position string `json:"position"`
+	Position int16  `json:"position"`
 	Status   int16  `json:"status"`
 }

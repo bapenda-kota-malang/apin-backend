@@ -78,12 +78,11 @@ func GetDetail(id int) (any, error) {
 	var data *m.Group
 
 	result := a.DB.First(&data, id)
-	// if result.Error != nil {
-	// 	myErrLogger("get-detail", "failed", "failed fetch data", result.Error.Error())
-	// 	return nil, errors.New("Proses pengambilan data gagal")
-	// } else
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return nil, nil
+	} else if result.Error != nil {
+		myErrLogger("get-data", "failed", "failed to get data", data)
+		return nil, errors.New("proses pengambilan data gagal")
 	}
 
 	return rp.OKSimple{
@@ -94,10 +93,6 @@ func GetDetail(id int) (any, error) {
 func Update(id int, input m.Update) (any, error) {
 	var data *m.Group
 	result := a.DB.First(&data, id)
-	// if result.Error != nil {
-	// 	myErrLogger("get-detail", "failed", "failed fetch data", "")
-	// 	return nil, errors.New("Proses pengambilan data gagal")
-	// } else
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
