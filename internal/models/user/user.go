@@ -4,13 +4,13 @@ import "time"
 
 type User struct {
 	Id          int       `json:"id" gorm:"primaryKey;autoIncrement"`
-	Name        string    `json:"name"`
-	Salt        string    `json:"salt"`
-	Password    string    `json:"password"`
+	Name        string    `json:"name" gorm:"size:100"`
+	Salt        string    `json:"salt" gorm:"size:100"`
+	Password    string    `json:"password" gorm:"size:200"`
 	Position    int16     `json:"position"`
-	Ref_Id      int       `json:"ref_id"`
-	Group_Id    int       `json:"group_id"`
-	Email       string    `json:"email"`
+	Ref_Id      int       `json:"ref_id" gorm:"index"`
+	Group_Id    int       `json:"group_id" gorm:"index"`
+	Email       string    `json:"email" gorm:"size:100;index"`
 	Notes       string    `json:"notes"`
 	SysAdmin    bool      `json:"sysAdmin"`
 	ValidPeriod time.Time `json:"validPeriod"`
@@ -29,7 +29,7 @@ type Create struct {
 	Password    string    `json:"password" validate:"required"`
 	Position    string    `json:"position" validate:"required"`
 	Group_Id    int       `json:"group_id" validate:"min=1"`
-	Email       string    `json:"email"`
+	Email       string    `json:"email" validate:"validemail"`
 	Notes       string    `json:"notes"`
 	SysAdmin    bool      `json:"sysAdmin"`
 	ValidPeriod time.Time `json:"validPeriod"`

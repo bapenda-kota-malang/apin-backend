@@ -1,13 +1,17 @@
 package user
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	sc "github.com/jinzhu/copier"
 
 	ac "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
+
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 	rq "github.com/bapenda-kota-malang/apin-backend/pkg/requester"
@@ -19,19 +23,32 @@ import (
 
 // complicated process where data depends on position
 func Create(w http.ResponseWriter, r *http.Request) {
+	var payload t.II
 	var result any
 	var err error
 
-	position := r.FormValue("position")
-	if position == "" || position == "pegawai" {
-		var data pegawai.CreateByUser
-		if !hh.StructValidation(w, r.Body, &data) {
+	decodedInput := json.NewDecoder(r.Body)
+	err = decodedInput.Decode(&payload)
+	if err != nil {
+		hj.WriteJSON(w, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	if _, ok := payload["position"]; !ok {
+		payload["position"] = "1"
+	}
+	fmt.Println(payload)
+	if payload["position"] == "" || payload["position"] == "1" {
+		var data pegawai.Create
+		sc.Copy(&data, payload)
+		if hh.ValidateStruct(w, &data) == false {
 			return
 		}
 		result, err = s.Create(data)
 	} else {
 		var data ppat.CreateByUser
-		if !hh.StructValidation(w, r.Body, &data) {
+		sc.Copy(&data, payload)
+		if hh.ValidateStruct(w, &data) == false {
 			return
 		}
 	}

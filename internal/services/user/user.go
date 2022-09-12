@@ -14,6 +14,8 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
+	sl "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/stringval"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
@@ -24,6 +26,7 @@ func init() {
 	a.AutoMigrate(&pegawai.Pegawai{})
 	a.AutoMigrate(&ppat.Ppat{})
 	a.AutoMigrate(&m.User{})
+	sv.RegisterValidator("validemail", sl.ValEmailValidator)
 }
 
 func myErrLogger(xtype, source, status, message string, data any) {
@@ -37,17 +40,17 @@ func myErrLogger(xtype, source, status, message string, data any) {
 }
 
 func Create(input any) (any, error) {
-	switch input.(type) {
-	case pegawai.CreateByUser:
+	switch inputV := input.(type) {
+	case pegawai.Create:
 		var pegawai pegawai.Pegawai
 		var user m.User
 
 		// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
-		if err := sc.Copy(&pegawai, &input); err != nil {
+		if err := sc.CopyWithOption(&pegawai, inputV, sc.Option{IgnoreEmpty: true}); err != nil {
 			myErrLogger("create-data", "pegawai", "failed", "failed to copy payload", pegawai)
 			return nil, errors.New("pengambilan data dari \"body-payload\" gagal")
 		}
-		if err := sc.Copy(&user, &input); err != nil {
+		if err := sc.Copy(&user, inputV); err != nil {
 			myErrLogger("create-data", "user", "failed", "failed to copy payload", user)
 			return nil, errors.New("pengambilan data dari \"body-payload\" gagal")
 		}
@@ -70,17 +73,22 @@ func Create(input any) (any, error) {
 			return nil
 		})
 
-		return rp.OKSimple{Data: input}, nil
+		user.Password = "********"
+
+		return rp.OKSimple{Data: t.II{
+			"pegawai": pegawai,
+			"user":    user,
+		}}, nil
 	case ppat.CreateByUser:
 		var ppat ppat.Ppat
 		var user m.User
 
 		// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
-		if err := sc.Copy(&ppat, &input); err != nil {
+		if err := sc.Copy(&ppat, &inputV); err != nil {
 			myErrLogger("create-data", "pegawai", "failed", "failed to copy payload", ppat)
 			return nil, errors.New("pengambilan data dari \"body-payload\" gagal")
 		}
-		if err := sc.Copy(&user, &input); err != nil {
+		if err := sc.Copy(&user, &inputV); err != nil {
 			myErrLogger("create-data", "user", "failed", "failed to copy payload", user)
 			return nil, errors.New("pengambilan data dari \"body-payload\" gagal")
 		}
@@ -112,11 +120,12 @@ func Create(input any) (any, error) {
 func GetList(r *http.Request) (interface{}, error) {
 	var data []m.User
 	var count int64
+	var pagination gh.Pagination
 
-	filtered := a.DB.Table("Group").Scopes(gh.Filter(r, m.Filter{}))
+	filtered := a.DB.Table("Group").Scopes(gh.Filter(r.URL, m.Filter{}))
 	filtered.Count(&count)
 
-	result := filtered.Scopes(gh.Paginate(r)).Find(&data)
+	result := filtered.Scopes(gh.Paginate(r.URL, &pagination)).Find(&data)
 	if result.Error != nil {
 		myErrLogger("get-list", "user", "failed", result.Error.Error(), "")
 		return nil, errors.New("proses pengambilan data gagal")
@@ -124,8 +133,10 @@ func GetList(r *http.Request) (interface{}, error) {
 
 	return rp.OK{
 		Meta: t.IS{
-			"count":        strconv.Itoa(int(count)),
+			"totalCount":   strconv.Itoa(int(count)),
 			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
 		Data: data,
 	}, nil
