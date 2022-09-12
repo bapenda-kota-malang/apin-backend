@@ -8,6 +8,7 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -34,11 +35,20 @@ func SetRoutes() http.Handler {
 		r.Patch("/change-password", account.ChangePassword)
 	})
 
+	r.Route("/pegawai", func(r chi.Router) {
+		r.Post("/", pegawai.Create)
+		r.Get("/", pegawai.GetList)
+		r.Get("/{id}", pegawai.GetDetail)
+		r.Patch("/{id}", pegawai.Update)
+		r.Delete("/{id}", pegawai.Delete)
+	})
+
 	r.Route("/user", func(r chi.Router) {
 		r.Post("/", user.Create)
 		r.Get("/", user.GetList)
 		r.Get("/{id}", user.GetDetail)
 		r.Patch("/{id}", user.Update)
+		r.Delete("/{id}", user.Delete)
 	})
 
 	r.Route("/group", func(r chi.Router) {
