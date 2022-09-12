@@ -31,7 +31,7 @@ func myErrLogger(xtype, status, message string, data any) {
 		zap.String("data", string(dataString)))
 }
 
-func Create(input m.Create) (interface{}, error) {
+func Create(input m.Create) (any, error) {
 	var data m.Group
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
@@ -49,14 +49,15 @@ func Create(input m.Create) (interface{}, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetList(r *http.Request) (interface{}, error) {
+func GetList(r *http.Request) (any, error) {
 	var data []m.Group
 	var count int64
+	var pagination gh.Pagination
 
-	filtered := a.DB.Table("Group").Scopes(gh.Filter(r, m.Filter{}))
+	filtered := a.DB.Table("Group").Scopes(gh.Filter(r.URL, m.Filter{}))
 	filtered.Count(&count)
 
-	result := filtered.Scopes(gh.Paginate(r)).Find(&data)
+	result := filtered.Scopes(gh.Paginate(r.URL, &pagination)).Find(&data)
 	if result.Error != nil {
 		myErrLogger("get-list", "failed", result.Error.Error(), "")
 		return nil, errors.New("proses pengambilan data gagal")
@@ -64,14 +65,16 @@ func GetList(r *http.Request) (interface{}, error) {
 
 	return rp.OK{
 		Meta: t.IS{
-			"count":        strconv.Itoa(int(count)),
+			"totalCount":   strconv.Itoa(int(count)),
 			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
 		Data: data,
 	}, nil
 }
 
-func GetDetail(id int) (interface{}, error) {
+func GetDetail(id int) (any, error) {
 	var data *m.Group
 
 	result := a.DB.First(&data, id)
@@ -88,7 +91,7 @@ func GetDetail(id int) (interface{}, error) {
 	}, nil
 }
 
-func Update(id int, input m.Update) (interface{}, error) {
+func Update(id int, input m.Update) (any, error) {
 	var data *m.Group
 	result := a.DB.First(&data, id)
 	// if result.Error != nil {
@@ -118,7 +121,7 @@ func Update(id int, input m.Update) (interface{}, error) {
 	}, nil
 }
 
-func Delete(id int) (interface{}, error) {
+func Delete(id int) (any, error) {
 	var data *m.Group
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
