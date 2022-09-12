@@ -13,7 +13,8 @@ import (
 
 // error format, exported for casting purpose
 type ValidationError struct {
-	Error      error       `json:"error"`
+	// Error      error       `json:"error"`
+	ErrMessage string      `json:"errMessage"`
 	Code       string      `json:"code"`
 	ExptdValue string      `json:"exptdValue"`
 	GivenValue interface{} `json:"givenValue"`
@@ -38,7 +39,7 @@ const tagName = "validate"
 // parse tag for key - val
 func parseTag(tag string) []keyVal {
 	kvList := []keyVal{}
-	for _, item := range strings.Split(tag, ",") {
+	for _, item := range strings.Split(tag, ";") {
 		pair := strings.SplitN(strings.TrimSpace(item), "=", 2)
 		if len(pair) == 0 {
 			continue
@@ -57,8 +58,12 @@ func parseTag(tag string) []keyVal {
 func Validate(input interface{}, nameSpaces ...string) map[string]ValidationError {
 	// identiy value and loop if its pointer until reaches non pointer
 	inputV := reflect.ValueOf(input)
-	for inputV.Kind() == reflect.Pointer {
+	inputT := reflect.TypeOf(inputV.Interface())
+
+	// loop until we get what kind lays behind the input
+	for inputV.Kind() == reflect.Pointer || inputV.Kind() == reflect.Interface {
 		inputV = inputV.Elem()
+		inputT = reflect.TypeOf(inputV.Interface())
 	}
 
 	// non struct cant be validated
@@ -66,14 +71,14 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		return nil
 	}
 
-	// namespace will be availble if it is sub validation
+	// namespace will be available if it is sub validation
 	nameSpace := ""
 	if len(nameSpaces) > 0 {
 		nameSpace += nameSpaces[0] + "."
 	}
 
 	// check each field
-	inputT := reflect.TypeOf(inputV.Interface())
+	inputT = reflect.TypeOf(inputV.Interface())
 	errList := map[string]ValidationError{}
 	for i := 0; i < inputV.NumField(); i++ {
 		// identify type and value of the field
@@ -84,7 +89,10 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		}
 
 		// if current field is struct, validate again
-		if fieldT.Type.Kind() == reflect.Struct || fieldT.Anonymous || fieldT.Type.Name() == "" {
+		// TODO: find information about this -> || fieldT.Type.Name() == ""
+		typeString := fieldT.Type.String()
+		if (fieldT.Type.Kind() == reflect.Struct || fieldT.Anonymous) && typeString != "time.Time" {
+			fmt.Println(fieldT.Name)
 			maps.Copy(errList, Validate(fieldV.Interface(), fieldT.Name))
 			continue
 		}
@@ -96,7 +104,11 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 				if _, ok := tagValidator[kv.Key]; ok {
 					err := tagValidator[kv.Key](fieldV, kv.Val)
 					if err != nil {
-						errList[nameSpace+fieldT.Name] = ValidationError{err, kv.Key, kv.Val, fieldV.Interface()}
+						key := fieldT.Tag.Get("json")
+						if key == "" {
+							key = fieldT.Name
+						}
+						errList[nameSpace+key] = ValidationError{err.Error(), kv.Key, kv.Val, fieldV.Interface()}
 						break // 1 err is enough, break from error check of the current field
 					}
 				}
@@ -116,7 +128,7 @@ func ValidateIoReader(container interface{}, input io.Reader) map[string]Validat
 	if err != nil {
 		myType := fmt.Sprintf("%T", container)
 		return map[string]ValidationError{
-			"struct": {fmt.Errorf("parsing to type %v failed", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
+			"struct": {fmt.Sprintf("parsing to type %v failed", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
 		}
 	}
 	return Validate(container)

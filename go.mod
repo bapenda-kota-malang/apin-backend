@@ -4,6 +4,8 @@ module github.com/bapenda-kota-malang/apin-backend
 go 1.18
 
 require (
+	github.com/go-chi/chi/v5 v5.0.7
+	github.com/jinzhu/copier v0.3.5
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/spf13/viper v1.12.0
 	go.uber.org/zap v1.21.0
@@ -26,6 +28,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/pgtype v1.11.0 // indirect
 	github.com/jackc/pgx/v4 v4.16.1 // indirect
+	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

@@ -3,44 +3,61 @@ package bapenda
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 
-	amw "github.com/bapenda-kota-malang/apin-backend/pkg/authorizationmw"
-	hrm "github.com/bapenda-kota-malang/apin-backend/pkg/httproutermod"
-
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pendaftaran"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 )
 
-func SetRoutes() *httprouter.Router {
-	rmod := hrm.New()
-	rmod.NotFound = http.HandlerFunc(er.NotFoundResponse)
-	rmod.MethodNotAllowed = http.HandlerFunc(er.MethodNotAllowedResponse)
+func SetRoutes() http.Handler {
+	r := chi.NewRouter()
 
-	// TODO: Use group for routing
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
 
-	rmod.GETMOD("/", home.Index)
-	rmod.GETMOD("/checkauth", home.Index, amw.CheckAuth)
+	r.NotFound(er.NotFoundResponse)
+	r.MethodNotAllowed(er.MethodNotAllowedResponse)
 
-	rmod.POSTMOD("/auth/login", auth.Login)
+	r.Get("/", home.Index)
 
-	rmod.PATCHMOD("/account/reset-password", account.ResetPassword)
-	rmod.PATCHMOD("/account/change-password", account.ChangePassword)
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/login", auth.Login)
+	})
 
-	rmod.HandlerFunc(http.MethodPost, "/user/", user.Create)
-	rmod.HandlerFunc(http.MethodGet, "/user/", user.GetList)
-	rmod.HandlerFunc(http.MethodPatch, "/user/:id", user.GetDetail)
+	r.Route("/account", func(r chi.Router) {
+		r.Patch("/reset-password", account.ResetPassword)
+		r.Patch("/change-password", account.ChangePassword)
+	})
 
-	rmod.HandlerFunc(http.MethodGet, "/registration", pendaftaran.GetList)
-	rmod.HandlerFunc(http.MethodGet, "/registration/:id", pendaftaran.GetDetail)
-	rmod.HandlerFunc(http.MethodPost, "/registration/operator", pendaftaran.RegisterByOperator)
+	r.Route("/pegawai", func(r chi.Router) {
+		r.Post("/", pegawai.Create)
+		r.Get("/", pegawai.GetList)
+		r.Get("/{id}", pegawai.GetDetail)
+		r.Patch("/{id}", pegawai.Update)
+		r.Delete("/{id}", pegawai.Delete)
+	})
 
-	rmod.HandlerFunc(http.MethodGet, "/rekening", rekening.GetList)
+	r.Route("/user", func(r chi.Router) {
+		r.Post("/", user.Create)
+		r.Get("/", user.GetList)
+		r.Get("/{id}", user.GetDetail)
+		r.Patch("/{id}", user.Update)
+		r.Delete("/{id}", user.Delete)
+	})
 
-	return rmod.Router
+	r.Route("/group", func(r chi.Router) {
+		r.Post("/", group.Create)
+		r.Get("/", group.GetList)
+		r.Get("/{id}", group.GetDetail)
+		r.Patch("/{id}", group.Update)
+		r.Delete("/{id}", group.Delete)
+	})
+
+	return r
 }
