@@ -6,9 +6,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pendaftaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -57,6 +59,16 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", group.GetDetail)
 		r.Patch("/{id}", group.Update)
 		r.Delete("/{id}", group.Delete)
+	})
+
+	r.Route("/registration", func(r chi.Router) {
+		r.Get("/", pendaftaran.GetList)
+		r.Get("/{id}", pendaftaran.GetDetail)
+		r.Post("/operator", pendaftaran.RegisterByOperator)
+	})
+
+	r.Route("/rekening", func(r chi.Router) {
+		r.Get("/", rekening.GetList)
 	})
 
 	return r

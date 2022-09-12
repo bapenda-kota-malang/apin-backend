@@ -17,16 +17,26 @@ import (
 )
 
 func GetAll(r *http.Request) (interface{}, error) {
-	var register []*registration.Registration
+	var (
+		register   []*registration.Registration
+		count      int64
+		pagination gormhelper.Pagination
+	)
+
 	result := apicore.DB.Model(&registration.Registration{}).
 		Preload(clause.Associations).
 		//nested preload
 		//Preload("PemilikWps.Kelurahan").
-		Scopes(gormhelper.Paginate(r)).Find(&register)
+		Count(&count).
+		Scopes(gormhelper.Paginate(r.URL, &pagination)).
+		Find(&register)
 
 	return responses.OK{
 		Meta: types.IS{
-			"Count": strconv.Itoa(int(result.RowsAffected)),
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
 		Data: register,
 	}, nil
