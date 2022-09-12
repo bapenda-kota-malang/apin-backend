@@ -58,8 +58,12 @@ func parseTag(tag string) []keyVal {
 func Validate(input interface{}, nameSpaces ...string) map[string]ValidationError {
 	// identiy value and loop if its pointer until reaches non pointer
 	inputV := reflect.ValueOf(input)
-	for inputV.Kind() == reflect.Pointer {
+	inputT := reflect.TypeOf(inputV.Interface())
+
+	// loop until we get what kind lays behind the input
+	for inputV.Kind() == reflect.Pointer || inputV.Kind() == reflect.Interface {
 		inputV = inputV.Elem()
+		inputT = reflect.TypeOf(inputV.Interface())
 	}
 
 	// non struct cant be validated
@@ -67,14 +71,14 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		return nil
 	}
 
-	// namespace will be availble if it is sub validation
+	// namespace will be available if it is sub validation
 	nameSpace := ""
 	if len(nameSpaces) > 0 {
 		nameSpace += nameSpaces[0] + "."
 	}
 
 	// check each field
-	inputT := reflect.TypeOf(inputV.Interface())
+	inputT = reflect.TypeOf(inputV.Interface())
 	errList := map[string]ValidationError{}
 	for i := 0; i < inputV.NumField(); i++ {
 		// identify type and value of the field
@@ -85,7 +89,10 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		}
 
 		// if current field is struct, validate again
-		if fieldT.Type.Kind() == reflect.Struct || fieldT.Anonymous { //  TODO: find information about this -> || fieldT.Type.Name() == ""
+		// TODO: find information about this -> || fieldT.Type.Name() == ""
+		typeString := fieldT.Type.String()
+		if (fieldT.Type.Kind() == reflect.Struct || fieldT.Anonymous) && typeString != "time.Time" {
+			fmt.Println(fieldT.Name)
 			maps.Copy(errList, Validate(fieldV.Interface(), fieldT.Name))
 			continue
 		}
