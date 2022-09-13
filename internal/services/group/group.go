@@ -1,34 +1,25 @@
 package groupservice
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
-	"go.uber.org/zap"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/group"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
+const source = "group"
+
 func init() {
 	a.AutoMigrate(&m.Group{})
-}
-
-func myErrLogger(xtype, status, message string, data any) {
-	dataString, _ := json.Marshal(data)
-	a.Logger.Error("request",
-		zap.String("type", xtype),
-		zap.String("source", "group"),
-		zap.String("status", status),
-		zap.String("message", message),
-		zap.String("data", string(dataString)))
 }
 
 func Create(input m.Create) (any, error) {
@@ -36,14 +27,12 @@ func Create(input m.Create) (any, error) {
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
-		myErrLogger("create-data", "failed", "failed to copy payload", data)
-		return nil, errors.New("pengambilan data dari \"body-payload\" gagal")
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := a.DB.Create(&data); result.Error != nil {
-		myErrLogger("create-data", "failed", "failed to create", data)
-		return nil, errors.New("penyimpanan data gagal")
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
@@ -59,8 +48,7 @@ func GetList(r *http.Request) (any, error) {
 
 	result := filtered.Scopes(gh.Paginate(r.URL, &pagination)).Find(&data)
 	if result.Error != nil {
-		myErrLogger("get-list", "failed", result.Error.Error(), "")
-		return nil, errors.New("proses pengambilan data gagal")
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
 
 	return rp.OK{
@@ -81,8 +69,7 @@ func GetDetail(id int) (any, error) {
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
-		myErrLogger("get-data", "failed", "failed to get data", data)
-		return nil, errors.New("proses pengambilan data gagal")
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
 
 	return rp.OKSimple{
@@ -98,14 +85,11 @@ func Update(id int, input m.Update) (any, error) {
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
-		dataString, _ := json.Marshal(data)
-		myErrLogger("update-data", "failed", "failed to copy payload", string(dataString))
-		return nil, errors.New("proses pengambilan data dari \"body-payload\" gagal")
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
 	if result := a.DB.Save(&data); result.Error != nil {
-		myErrLogger("update-data", "failed", "failed to update", data)
-		return nil, errors.New("proses penyimpanan data gagal")
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
 	return rp.OK{
