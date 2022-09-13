@@ -24,6 +24,8 @@ var autoMigrateList []interface{}
 func init() {
 	// autoMigrateList = make([]interface{})
 	AutoMigrate(&user.User{})
+	AutoMigrate(&configurationmodel.Provinsi{})
+	AutoMigrate(&configurationmodel.Daerah{})
 	AutoMigrate(&configurationmodel.Kecamatan{})
 	AutoMigrate(&configurationmodel.Kelurahan{})
 	AutoMigrate(&configurationmodel.Rekening{})

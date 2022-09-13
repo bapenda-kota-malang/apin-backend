@@ -33,16 +33,36 @@ type (
 
 	VendorEtax struct{}
 
+	Provinsi struct {
+		ID     uint64    `json:"id" gorm:"primaryKey"`
+		Kode   string    `json:"kode" gorm:"unique"`
+		Nama   string    `json:"nama"`
+		Daerah []*Daerah `json:"daerah,omitempty" gorm:"foreignKey:ProvinsiKode;references:Kode"`
+	}
+
+	Daerah struct {
+		ID           uint64       `json:"id" gorm:"primaryKey"`
+		ProvinsiKode string       `json:"provinsi_kode"`
+		Provinsi     *Provinsi    `json:"provinsi,omitempty" gorm:"foreignKey:ProvinsiKode;references:Kode"`
+		Kode         string       `json:"kode" gorm:"unique"`
+		Nama         string       `json:"nama"`
+		Kecamatan    []*Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:DaerahKode;references:Kode"`
+	}
+
 	Kecamatan struct {
-		ID   uint64  `json:"id" gorm:"primaryKey"`
-		Kode *string `json:"kode"`
-		Nama *string `json:"nama"`
+		ID         string       `json:"id" gorm:"primaryKey"`
+		DaerahKode string       `json:"daerah_kode"`
+		Daerah     *Daerah      `json:"daerah,omitempty" gorm:"foreignKey:DaerahKode;references:Kode"`
+		Kode       string       `json:"kode" gorm:"unique"`
+		Nama       string       `json:"nama"`
+		Kelurahan  []*Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:KecamatanKode;references:Kode"`
 	}
 
 	Kelurahan struct {
-		ID            uint64  `json:"id" gorm:"primaryKey"`
-		KodeKecamatan *string `json:"kode_kecamatan"`
-		Kode          *string `json:"kode"`
-		Nama          *string `json:"nama"`
+		ID            string     `json:"id" gorm:"primaryKey"`
+		KecamatanKode string     `json:"kecamatan_kode"`
+		Kecamatan     *Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:KecamatanKode;references:Kode"`
+		Kode          string     `json:"kode" gorm:"unique"`
+		Nama          string     `json:"nama"`
 	}
 )
