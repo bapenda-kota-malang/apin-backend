@@ -14,7 +14,6 @@ import (
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
-	rq "github.com/bapenda-kota-malang/apin-backend/pkg/requester"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
@@ -69,9 +68,16 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := rq.GetParam("id", r)
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{
+			"message": "format id tidak dapat di kenali",
+		}, nil)
+		return
+	}
+
 	data := t.II{
-		"message": "You are visiting user detail for id " + id + " of app: " + ac.Self.Name,
+		"message": "You are visiting user detail for id " + strconv.Itoa(id) + " of app: " + ac.Self.Name,
 	}
 	hj.WriteJSON(w, http.StatusOK, data, nil)
 }
