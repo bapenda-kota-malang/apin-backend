@@ -58,12 +58,10 @@ func parseTag(tag string) []keyVal {
 func Validate(input interface{}, nameSpaces ...string) map[string]ValidationError {
 	// identiy value and loop if its pointer until reaches non pointer
 	inputV := reflect.ValueOf(input)
-	inputT := reflect.TypeOf(inputV.Interface())
 
 	// loop until we get what kind lays behind the input
 	for inputV.Kind() == reflect.Pointer || inputV.Kind() == reflect.Interface {
 		inputV = inputV.Elem()
-		inputT = reflect.TypeOf(inputV.Interface())
 	}
 
 	// non struct cant be validated
@@ -78,7 +76,8 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 	}
 
 	// check each field
-	inputT = reflect.TypeOf(inputV.Interface())
+	// inputT := reflect.TypeOf(inputV.Interface()) // keep this for now
+	inputT := inputV.Type()
 	errList := map[string]ValidationError{}
 	for i := 0; i < inputV.NumField(); i++ {
 		// identify type and value of the field
