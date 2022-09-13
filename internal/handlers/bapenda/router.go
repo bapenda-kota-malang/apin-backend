@@ -15,9 +15,9 @@ import (
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 )
 
-func SetRoutes() http.Handler {
-	r := chi.NewRouter()
+var r = chi.NewRouter()
 
+func SetRoutes() http.Handler {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 
@@ -58,6 +58,8 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", group.Update)
 		r.Delete("/{id}", group.Delete)
 	})
+
+	setCrudRoutes()
 
 	return r
 }
