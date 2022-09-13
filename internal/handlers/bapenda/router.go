@@ -11,6 +11,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pendaftaran"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/potensiop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -69,6 +70,14 @@ func SetRoutes() http.Handler {
 
 	r.Route("/rekening", func(r chi.Router) {
 		r.Get("/", rekening.GetList)
+	})
+
+	r.Route("/potensiop", func(r chi.Router) {
+		r.Post("/", potensiop.Create)
+		r.Get("/", potensiop.GetList)
+		r.Get("/{id}", potensiop.GetDetail)
+		r.Patch("/{id}", potensiop.Update)
+		r.Delete("/{id}", potensiop.Delete)
 	})
 
 	return r
