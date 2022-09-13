@@ -28,7 +28,7 @@ type Create struct {
 	StartDate   time.Time `json:"startDate"`
 	EndDate     time.Time `json:"endDate"`
 
-	// user.Create	// using composition is not good since structvalidation inlcudes the parent namespace
+	// user.Create	// using embed composition is not good since structvalidation inlcudes the parent namespace
 	// for user
 	Name     string `json:"name" validate:"required"`
 	Password string `json:"password" validate:"required"`

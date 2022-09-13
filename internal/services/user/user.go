@@ -79,7 +79,7 @@ func Create(input any) (any, error) {
 			"pegawai": pegawai,
 			"user":    user,
 		}}, nil
-	case ppat.CreateByUser:
+	case ppat.Create:
 		var ppat ppat.Ppat
 		var user m.User
 
