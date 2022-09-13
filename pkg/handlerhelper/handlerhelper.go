@@ -18,7 +18,7 @@ func ValidateAutoInc(w http.ResponseWriter, r *http.Request, input string) int {
 	id, err := strconv.Atoi(chi.URLParam(r, input))
 	if err != nil || id < 1 {
 		hj.WriteJSON(w, http.StatusBadRequest, t.IS{
-			"message": "format id harus berupa integer positive",
+			"message": "format harus berupa integer positive",
 		}, nil)
 		return 0
 	}
@@ -64,7 +64,7 @@ func ValidateStructByIOR(w http.ResponseWriter, body io.Reader, data any) bool {
 // respond at the service level that related to data
 func DataResponse(w http.ResponseWriter, result any, err error) {
 	if result == nil && err == nil {
-		hj.WriteJSON(w, http.StatusNotFound, t.IS{"message": "data not found"}, nil)
+		hj.WriteJSON(w, http.StatusNotFound, t.IS{"message": "data tidak dapat ditemukan"}, nil)
 	} else if err != nil {
 		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{"message": err.Error()}, nil)
 	} else {
