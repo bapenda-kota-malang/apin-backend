@@ -7,4 +7,5 @@ func main() {
 
 	fmt.Println("start importing")
 	ImportRekening()
+	ImportRegion()
 }

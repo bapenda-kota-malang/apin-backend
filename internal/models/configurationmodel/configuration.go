@@ -50,7 +50,7 @@ type (
 	}
 
 	Kecamatan struct {
-		ID         string       `json:"id" gorm:"primaryKey"`
+		ID         uint64       `json:"id" gorm:"primaryKey"`
 		DaerahKode string       `json:"daerah_kode"`
 		Daerah     *Daerah      `json:"daerah,omitempty" gorm:"foreignKey:DaerahKode;references:Kode"`
 		Kode       string       `json:"kode" gorm:"unique"`
@@ -59,7 +59,7 @@ type (
 	}
 
 	Kelurahan struct {
-		ID            string     `json:"id" gorm:"primaryKey"`
+		ID            uint64     `json:"id" gorm:"primaryKey"`
 		KecamatanKode string     `json:"kecamatan_kode"`
 		Kecamatan     *Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:KecamatanKode;references:Kode"`
 		Kode          string     `json:"kode" gorm:"unique"`
