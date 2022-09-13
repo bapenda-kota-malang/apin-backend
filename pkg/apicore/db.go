@@ -2,6 +2,7 @@ package apicore
 
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/configurationmodel"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"go.uber.org/zap"
@@ -23,22 +24,40 @@ var autoMigrateList []interface{}
 
 func init() {
 	// autoMigrateList = make([]interface{})
-	AutoMigrate(&user.User{})
-	AutoMigrate(&configurationmodel.Kecamatan{})
-	AutoMigrate(&configurationmodel.Kelurahan{})
-	AutoMigrate(&configurationmodel.Rekening{})
-	AutoMigrate(&configurationmodel.Skpd{})
-	AutoMigrate(&registration.Registration{})
-	AutoMigrate(&registration.ObjekPajak{})
-	AutoMigrate(&registration.DetailOpAirTanah{})
-	AutoMigrate(&registration.DetailOpHiburan{})
-	AutoMigrate(&registration.DetailOpHotel{})
-	AutoMigrate(&registration.DetailOpParkir{})
-	AutoMigrate(&registration.DetailOpPpj{})
-	AutoMigrate(&registration.DetailOpReklame{})
-	AutoMigrate(&registration.DetailOpResto{})
-	AutoMigrate(&registration.PemilikWp{})
-	AutoMigrate(&registration.Narahubung{})
+	listModelPendaftaran := []interface{}{
+		&user.User{},
+		&configurationmodel.Kecamatan{},
+		&configurationmodel.Kelurahan{},
+		&configurationmodel.Rekening{},
+		&configurationmodel.Skpd{},
+		&registration.Registration{},
+		&registration.ObjekPajak{},
+		&registration.DetailOpAirTanah{},
+		&registration.DetailOpHiburan{},
+		&registration.DetailOpHotel{},
+		&registration.DetailOpParkir{},
+		&registration.DetailOpPpj{},
+		&registration.DetailOpReklame{},
+		&registration.DetailOpResto{},
+		&registration.PemilikWp{},
+		&registration.Narahubung{},
+	}
+	AutoMigrate(listModelPendaftaran...)
+
+	listModelPendataan := []interface{}{
+		&potensiopwp.PotensiOp{},
+		&potensiopwp.PotensiPemilikWp{},
+		&potensiopwp.PotensiNarahubung{},
+		&potensiopwp.DetailPotensiOp{},
+		&potensiopwp.DetailPotensiAirTanah{},
+		&potensiopwp.DetailPotensiHiburan{},
+		&potensiopwp.DetailPotensiHotel{},
+		&potensiopwp.DetailPotensiPPJ{},
+		&potensiopwp.DetailPotensiParkir{},
+		&potensiopwp.DetailPotensiReklame{},
+		&potensiopwp.DetailPotensiResto{},
+	}
+	AutoMigrate(listModelPendataan...)
 }
 
 func (a *app) initDb() {
@@ -84,11 +103,9 @@ func (a *app) initDb() {
 			zap.String("name", "db"))
 	}
 
-	for _, item := range autoMigrateList {
-		DB.AutoMigrate(&item)
-	}
+	DB.AutoMigrate(autoMigrateList...)
 }
 
-func AutoMigrate(model interface{}) {
-	autoMigrateList = append(autoMigrateList, model)
+func AutoMigrate(model ...interface{}) {
+	autoMigrateList = append(autoMigrateList, model...)
 }
