@@ -6,13 +6,15 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
+
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 )
 
 func SetRoutes() http.Handler {
@@ -41,6 +43,14 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", pegawai.GetDetail)
 		r.Patch("/{id}", pegawai.Update)
 		r.Delete("/{id}", pegawai.Delete)
+	})
+
+	r.Route("/ppat", func(r chi.Router) {
+		r.Post("/", ppat.Create)
+		r.Get("/", ppat.GetList)
+		r.Get("/{id}", ppat.GetDetail)
+		r.Patch("/{id}", ppat.Update)
+		r.Delete("/{id}", ppat.Delete)
 	})
 
 	r.Route("/user", func(r chi.Router) {
