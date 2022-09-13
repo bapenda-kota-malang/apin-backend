@@ -109,9 +109,9 @@ type (
 		Alamat         *string                       `json:"alamat"`
 		RtRw           *string                       `json:"rt_rw"`
 		Kecamatan_ID   *uint64                       `json:"kecamatan_id"`
-		Kecamatan      *configurationmodel.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:ID"`
+		Kecamatan      *configurationmodel.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_ID"`
 		Kelurahan_ID   *uint64                       `json:"kelurahan_id"`
-		Kelurahan      *configurationmodel.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:ID"`
+		Kelurahan      *configurationmodel.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_ID"`
 		Telp           *string                       `json:"telp"`
 		Status         StatusObjekPajak              `json:"status"`
 		IsNpwpd        *bool                         `json:"is_npwpd"`
@@ -168,9 +168,9 @@ type (
 		Alamat         *string                       `json:"alamat"`
 		RtRw           *string                       `json:"rt_rw"`
 		Kecamatan_ID   *uint64                       `json:"kecamatan_id"`
-		Kecamatan      *configurationmodel.Kecamatan `gorm:"foreignKey:ID"`
+		Kecamatan      *configurationmodel.Kecamatan `gorm:"foreignKey:Kecamatan_ID"`
 		Kelurahan_ID   *uint64                       `json:"kelurahan_id"`
-		Kelurahan      *configurationmodel.Kelurahan `gorm:"foreignKey:ID"`
+		Kelurahan      *configurationmodel.Kelurahan `gorm:"foreignKey:Kelurahan_ID"`
 		Telp           *string                       `json:"telp"`
 		Status         StatusPemilik                 `json:"status"`
 		NoIdPemilik    *string                       `json:"no_id_pemilik"`
@@ -185,9 +185,9 @@ type (
 		Alamat         *string                       `json:"alamat"`
 		RtRw           *string                       `json:"rt_rw"`
 		Kecamatan_ID   *uint64                       `json:"kecamatan_id"`
-		Kecamatan      *configurationmodel.Kecamatan `gorm:"foreignKey:ID"`
+		Kecamatan      *configurationmodel.Kecamatan `gorm:"foreignKey:Kecamatan_ID"`
 		Kelurahan_ID   *uint64                       `json:"kelurahan_id"`
-		Kelurahan      *configurationmodel.Kelurahan `gorm:"foreignKey:ID"`
+		Kelurahan      *configurationmodel.Kelurahan `gorm:"foreignKey:Kelurahan_ID"`
 		Telp           *string                       `json:"telp"`
 		Status         StatusNarahubung              `json:"status"`
 		Nik            *string                       `json:"nik"`
