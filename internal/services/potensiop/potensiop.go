@@ -13,6 +13,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
@@ -63,6 +64,20 @@ func Create(input m.CreatePotensiOp) (any, error) {
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	// TODO: check rekening_id exist in table rekening
+	// TODO: check user_id exist in table user
+
+	data.Status = registration.StatusAktif
+
+	switch data.Golongan {
+	case registration.GolonganBadan:
+		break
+	case registration.GolonganOrangPribadi:
+		break
+	default:
+		return sh.SetError("request", "create-data", source, "failed", "golongan not neither badan or orang pribadi", data)
 	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
