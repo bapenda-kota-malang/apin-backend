@@ -1,9 +1,7 @@
 package potensiopwp
 
 import (
-	"time"
-
-	"gorm.io/gorm"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
 type DetailPotensiOp struct {
@@ -12,17 +10,15 @@ type DetailPotensiOp struct {
 }
 
 type Detail struct {
-	Id           uint           `json:"id" gorm:"primaryKey"`
-	Potensiop_Id uint           `json:"potensiop_id"`
-	JenisOp      string         `json:"jenisOp"`
-	JumlahOp     string         `json:"jumlahOp"`
-	TarifOp      string         `json:"tarifOp"`
-	UnitOp       string         `json:"unitOp"`
-	Notes        string         `json:"notes"`
-	CreatedAt    time.Time      `json:"createdAt"`
-	UpdatedAt    time.Time      `json:"updatedAt"`
-	DeletedAt    gorm.DeletedAt `json:"deletedAt" gorm:"index"`
-	Potensiop    PotensiOp      `gorm:"foreignKey:Potensi_Id"`
+	Id           uint      `json:"id" gorm:"primaryKey"`
+	Potensiop_Id uint      `json:"potensiop_id"`
+	Potensiop    PotensiOp `gorm:"foreignKey:Potensiop_Id"`
+	JenisOp      string    `json:"jenisOp"`
+	JumlahOp     string    `json:"jumlahOp"`
+	TarifOp      string    `json:"tarifOp"`
+	UnitOp       string    `json:"unitOp"`
+	Notes        string    `json:"notes"`
+	gormhelper.DateModel
 }
 
 type DetailPotensiAirTanah struct {

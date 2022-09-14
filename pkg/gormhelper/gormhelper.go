@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	// gi "github.com/juliangruber/go-intersect"
 
@@ -15,6 +16,12 @@ import (
 type Pagination struct {
 	Page     int
 	PageSize int
+}
+
+type DateModel struct {
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 }
 
 // Pageinate based on query parameters
