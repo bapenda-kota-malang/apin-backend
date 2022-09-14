@@ -26,6 +26,8 @@ func init() {
 	// autoMigrateList = make([]interface{})
 	listModelPendaftaran := []interface{}{
 		&user.User{},
+		&configurationmodel.Provinsi{},
+		&configurationmodel.Daerah{},
 		&configurationmodel.Kecamatan{},
 		&configurationmodel.Kelurahan{},
 		&configurationmodel.Rekening{},
