@@ -26,7 +26,7 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var data m.PotensiOp
+	var data m.CreatePotensiOp
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
@@ -41,7 +41,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data m.PotensiOp
+	var data m.CreatePotensiOp
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
