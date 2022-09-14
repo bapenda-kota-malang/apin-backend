@@ -75,7 +75,6 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 		}, nil)
 		return
 	}
-
 	data := t.II{
 		"message": "You are visiting user detail for id " + strconv.Itoa(id) + " of app: " + ac.Self.Name,
 	}
