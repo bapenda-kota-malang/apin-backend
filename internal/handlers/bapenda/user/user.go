@@ -46,7 +46,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		}
 		result, err = s.Create(data)
 	} else {
-		var data ppat.CreateByUser
+		var data ppat.Create
 		sc.Copy(&data, payload)
 		if hh.ValidateStruct(w, &data) == false {
 			return
