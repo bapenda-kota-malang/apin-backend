@@ -6,12 +6,15 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
+
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
@@ -36,6 +39,8 @@ func SetRoutes() http.Handler {
 		r.Patch("/reset-password", account.ResetPassword)
 		r.Patch("/change-password", account.ChangePassword)
 	})
+
+	rh.RegCrud(r, "/menu", menu.Crud{})
 
 	r.Route("/pegawai", func(r chi.Router) {
 		r.Post("/", pegawai.Create)
