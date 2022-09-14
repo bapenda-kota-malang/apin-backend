@@ -10,16 +10,39 @@ type Ppat struct {
 }
 
 // create ppat data alongside with user data
-type CreateByUser struct {
-	Name        string    `json:"name" validate:"required"`
-	Password    string    `json:"password" validate:"required"`
-	Position    int16     `json:"position" validate:"required"`
-	Group_Id    int       `json:"group_id" validate:"required;min=1"`
-	Email       string    `json:"email"`
+type Create struct {
+	// for ppat
+	NamaLengkap string `json:"namaLengkap" validate:"required"`
+	Alamat      string `json:"alamat" validate:"required"`
+	Nik         string `json:"nik" validate:"required"`
+
+	// for user
+	Name     string `json:"name" validate:"required"`
+	Password string `json:"password" validate:"required"`
+	// Position    int16     `json:"position"`
+	// Group_Id    int       `json:"group_id" validate:"required;min=1"`
+	Email       string    `json:"email" validate:"required; validemail"`
 	Notes       string    `json:"notes"`
 	SysAdmin    bool      `json:"sysAdmin"`
 	ValidPeriod time.Time `json:"validPeriod"`
-	NamaLengkap string    `json:"namaLengkap" validate:"required"`
-	Alamat      string    `json:"alamat" validate:"required"`
-	Nik         string    `json:"nik" validate:"required"`
+}
+
+type Update struct {
+	// for ppat
+	NamaLengkap string `json:"namaLengkap" validate:"required"`
+	Alamat      string `json:"alamat" validate:"required"`
+	Nik         string `json:"nik" validate:"required"`
+
+	// for user
+	// Position    int16     `json:"position"`
+	// Group_Id    int       `json:"group_id" validate:"required;min=1"`
+	Email       string    `json:"email" validate:"required; validemail"`
+	Notes       string    `json:"notes"`
+	SysAdmin    bool      `json:"sysAdmin"`
+	ValidPeriod time.Time `json:"validPeriod"`
+}
+
+type Filter struct {
+	NamaLengkap string `json:"namaLengkap"`
+	Nik         string `json:"nip"`
 }
