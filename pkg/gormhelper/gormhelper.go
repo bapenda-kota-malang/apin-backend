@@ -24,37 +24,48 @@ type DateModel struct {
 	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 }
 
+// Parsing incoming query to pagination struct and return pagination struct, if error when parsing return error
+func ParseQueryPagination(q url.Values) (p Pagination, err error) {
+	p.Page, err = strconv.Atoi(q.Get("page"))
+	if err != nil {
+		return
+	}
+
+	if p.Page == 0 {
+		p.Page = 1
+	}
+
+	p.PageSize, err = strconv.Atoi(q.Get("page_size"))
+	if err != nil {
+		return
+	}
+
+	switch {
+	case p.PageSize > 100:
+		p.PageSize = 100
+	case p.PageSize <= 0:
+		p.PageSize = 10
+	}
+
+	return
+}
+
 // Pageinate based on query parameters
-func Paginate(u *url.URL, p *Pagination) func(db *gorm.DB) *gorm.DB {
+func Paginate(p *Pagination) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		q := u.Query()
-		p.Page, _ = strconv.Atoi(q.Get("page"))
-		if p.Page == 0 {
-			p.Page = 1
-		}
-
-		p.PageSize, _ = strconv.Atoi(q.Get("page_size"))
-		switch {
-		case p.PageSize > 100:
-			p.PageSize = 100
-		case p.PageSize <= 0:
-			p.PageSize = 10
-		}
-
 		offset := (p.Page - 1) * p.PageSize
 		return db.Offset(offset).Limit(p.PageSize)
 	}
 }
 
 // Filters based on query parameters
-func Filter(u *url.URL, filter interface{}) func(db *gorm.DB) *gorm.DB {
+func Filter(q url.Values, filter interface{}) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		rt := reflect.TypeOf(filter)
 		if rt.Kind() != reflect.Struct {
 			return db
 		}
 
-		q := u.Query()
 		opts := []string{"=", "<", ">", "<=", ">=", "<>"} // the default is without like and between
 
 		for i := 0; i < rt.NumField(); i++ {

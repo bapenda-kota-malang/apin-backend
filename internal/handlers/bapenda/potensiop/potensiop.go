@@ -8,12 +8,17 @@ import (
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiop"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
 // GetList Data Potensi Objek Pajak with pagination
 func GetList(w http.ResponseWriter, r *http.Request) {
-	result, err := s.GetList(r)
+	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
+	if err != nil {
+		hj.WriteJSON(w, http.StatusBadRequest, err, nil)
+	}
+	result, err := s.GetList(r.URL.Query(), pagination)
 	hh.DataResponse(w, result, err)
 }
 

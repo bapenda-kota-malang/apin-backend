@@ -2,7 +2,7 @@ package potensiop
 
 import (
 	"errors"
-	"net/http"
+	"net/url"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -19,15 +19,14 @@ import (
 
 const source = "potensiop"
 
-func GetList(r *http.Request) (any, error) {
+func GetList(query url.Values, pagination gh.Pagination) (any, error) {
 	var data []m.PotensiOp
 	var count int64
-	var pagination gh.Pagination
 
-	filtered := a.DB.Table("PotensiOp").Scopes(gh.Filter(r.URL, m.PotensiOp{}))
+	filtered := a.DB.Table("PotensiOp").Scopes(gh.Filter(query, m.PotensiOp{}))
 	filtered.Count(&count)
 
-	result := filtered.Scopes(gh.Paginate(r.URL, &pagination)).Find(&data)
+	result := filtered.Scopes(gh.Paginate(&pagination)).Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}

@@ -3,6 +3,8 @@ package group
 import (
 	"net/http"
 
+	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/group"   // model
@@ -20,7 +22,11 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	result, err := s.GetList(r)
+	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
+	if err != nil {
+		hj.WriteJSON(w, http.StatusBadRequest, err, nil)
+	}
+	result, err := s.GetList(r.URL.Query(), pagination)
 	hh.DataResponse(w, result, err)
 }
 

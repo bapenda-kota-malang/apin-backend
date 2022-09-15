@@ -16,11 +16,10 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func GetAll(r *http.Request) (interface{}, error) {
+func GetAll(pagination gormhelper.Pagination) (interface{}, error) {
 	var (
-		register   []*registration.Registration
-		count      int64
-		pagination gormhelper.Pagination
+		register []*registration.Registration
+		count    int64
 	)
 
 	result := apicore.DB.Model(&registration.Registration{}).
@@ -28,7 +27,7 @@ func GetAll(r *http.Request) (interface{}, error) {
 		//nested preload
 		//Preload("PemilikWps.Kelurahan").
 		Count(&count).
-		Scopes(gormhelper.Paginate(r.URL, &pagination)).
+		Scopes(gormhelper.Paginate(&pagination)).
 		Find(&register)
 
 	return responses.OK{

@@ -9,12 +9,18 @@ import (
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	rq "github.com/bapenda-kota-malang/apin-backend/pkg/requester"
 	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
 )
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	if result, err := registration.GetAll(r); err == nil {
+	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
+	if err != nil {
+		hj.WriteJSON(w, http.StatusBadRequest, err, nil)
+	}
+
+	if result, err := registration.GetAll(pagination); err == nil {
 		hj.WriteJSON(w, http.StatusOK, result, nil)
 	} else {
 		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
