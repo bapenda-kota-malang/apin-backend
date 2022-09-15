@@ -71,15 +71,6 @@ func Create(input m.CreatePotensiOp) (any, error) {
 
 	data.Status = registration.StatusAktif
 
-	switch data.Golongan {
-	case registration.GolonganBadan:
-		break
-	case registration.GolonganOrangPribadi:
-		break
-	default:
-		return sh.SetError("request", "create-data", source, "failed", "golongan not neither badan or orang pribadi", data)
-	}
-
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := a.DB.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)

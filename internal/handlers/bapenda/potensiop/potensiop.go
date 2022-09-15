@@ -4,7 +4,10 @@ import (
 	"net/http"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiop"
+	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
@@ -28,6 +31,16 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 func Create(w http.ResponseWriter, r *http.Request) {
 	var data m.CreatePotensiOp
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	switch data.Golongan {
+	case rm.GolonganBadan:
+		break
+	case rm.GolonganOrangPribadi:
+		break
+	default:
+		hj.WriteJSON(w, http.StatusBadRequest, t.IS{"message": "golongan tidak diketahui"}, nil)
 		return
 	}
 
