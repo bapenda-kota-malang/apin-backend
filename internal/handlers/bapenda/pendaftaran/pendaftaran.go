@@ -17,7 +17,7 @@ import (
 func GetList(w http.ResponseWriter, r *http.Request) {
 	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
 	if err != nil {
-		hj.WriteJSON(w, http.StatusBadRequest, err, nil)
+		hj.WriteJSON(w, http.StatusBadRequest, responses.ErrSimple{Message: err.Error()}, nil)
 	}
 
 	if result, err := registration.GetAll(pagination); err == nil {

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
@@ -24,7 +25,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 func GetList(w http.ResponseWriter, r *http.Request) {
 	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
 	if err != nil {
-		hj.WriteJSON(w, http.StatusBadRequest, err, nil)
+		hj.WriteJSON(w, http.StatusBadRequest, responses.ErrSimple{Message: err.Error()}, nil)
 	}
 	result, err := s.GetList(r.URL.Query(), pagination)
 	hh.DataResponse(w, result, err)

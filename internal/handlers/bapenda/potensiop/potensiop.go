@@ -7,7 +7,7 @@ import (
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiop"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
-	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
@@ -16,7 +16,7 @@ import (
 func GetList(w http.ResponseWriter, r *http.Request) {
 	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
 	if err != nil {
-		hj.WriteJSON(w, http.StatusBadRequest, err, nil)
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
 	}
 	result, err := s.GetList(r.URL.Query(), pagination)
 	hh.DataResponse(w, result, err)
@@ -45,7 +45,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	case rm.GolonganOrangPribadi:
 		break
 	default:
-		hj.WriteJSON(w, http.StatusBadRequest, t.IS{"message": "golongan tidak diketahui"}, nil)
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: "golongan tidak diketahui"}, nil)
 		return
 	}
 

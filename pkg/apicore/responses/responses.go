@@ -24,6 +24,10 @@ type Err struct {
 	Messages t.IS `json:"messages"`
 }
 
+type ErrSimple struct {
+	Message string `json:"messages"`
+}
+
 type ErrCustom struct {
 	Meta     interface{} `json:"meta"`
 	Messages interface{} `json:"message"`
