@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strconv"
 
-	rs "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/refvalstringer"
+	h "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/helper"
 )
 
 // register default tag validator
@@ -54,7 +54,7 @@ func minLengthTagValidator(val reflect.Value, exptVal string) error {
 		return errors.New("nilai harus berupa angka/numerik")
 	}
 
-	valC := rs.ValStringer(val) // value converted
+	valC := h.ValStringer(val) // value converted
 	if len(valC) < exptValInt {
 		return fmt.Errorf("panjang minimum adalah %v", exptVal)
 	}
@@ -67,7 +67,7 @@ func maxLengthTagValidator(val reflect.Value, exptVal string) error {
 		return errors.New("nilai harus berupa angka/numerik")
 	}
 
-	valC := rs.ValStringer(val) // value converted
+	valC := h.ValStringer(val) // value converted
 	if len(valC) > exptValInt {
 		return fmt.Errorf("panjang maximum adalah %v", exptVal)
 	}
