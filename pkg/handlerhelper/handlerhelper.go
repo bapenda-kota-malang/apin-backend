@@ -3,6 +3,7 @@ package handlerhelper
 import (
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -25,7 +26,7 @@ func ValidateAutoInc(w http.ResponseWriter, r *http.Request, input string) int {
 
 // write error response if validation fails, return boool true on success
 func ValidateStruct(w http.ResponseWriter, data any) bool {
-	err := sv.Validate(&data)
+	err := sv.Validate(data)
 	if err != nil {
 		httpStatus := http.StatusUnprocessableEntity
 		if _, ok := err["struct"]; ok {
@@ -44,6 +45,24 @@ func ValidateStruct(w http.ResponseWriter, data any) bool {
 // by io reader version of ValidateStruct, to cover request.body, return boool true on success
 func ValidateStructByIOR(w http.ResponseWriter, body io.Reader, data any) bool {
 	err := sv.ValidateIoReader(&data, body)
+	if err != nil {
+		httpStatus := http.StatusUnprocessableEntity
+		if _, ok := err["struct"]; ok {
+			httpStatus = http.StatusBadRequest
+		}
+		hj.WriteJSON(w, httpStatus, rp.ErrCustom{
+			Meta:     t.IS{"count": strconv.Itoa(len(err))},
+			Messages: err,
+		}, nil)
+		return false
+	}
+
+	return true
+}
+
+// by io reader version of ValidateStruct, to cover request.body, return boool true on success
+func ValidateStructByURL(w http.ResponseWriter, url url.URL, data any) bool {
+	err := sv.ValidateURL(&data, url)
 	if err != nil {
 		httpStatus := http.StatusUnprocessableEntity
 		if _, ok := err["struct"]; ok {

@@ -23,20 +23,20 @@ func GetList(query url.Values, pagination gh.Pagination) (any, error) {
 	var data []m.PotensiOp
 	var count int64
 
-	filtered := a.DB.Table("PotensiOp").Scopes(gh.Filter(query, m.PotensiOp{}))
-	filtered.Count(&count)
+	// filtered := a.DB.Table("PotensiOp").Scopes(gh.Filter(query, m.PotensiOp{}))
+	// filtered.Count(&count)
 
-	result := filtered.Scopes(gh.Paginate(&pagination)).Find(&data)
-	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
-	}
+	// result := filtered.Scopes(gh.Paginate(&pagination)).Find(&data)
+	// if result.Error != nil {
+	// 	return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	// }
 
 	return rp.OK{
 		Meta: t.IS{
-			"totalCount":   strconv.Itoa(int(count)),
-			"currentCount": strconv.Itoa(int(result.RowsAffected)),
-			"page":         strconv.Itoa(pagination.Page),
-			"pageSize":     strconv.Itoa(pagination.PageSize),
+			"totalCount": strconv.Itoa(int(count)),
+			// "currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":     strconv.Itoa(pagination.Page),
+			"pageSize": strconv.Itoa(pagination.PageSize),
 		},
 		Data: data,
 	}, nil

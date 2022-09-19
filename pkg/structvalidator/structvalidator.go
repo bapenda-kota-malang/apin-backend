@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"golang.org/x/exp/maps"
@@ -36,25 +38,7 @@ var tagValidator map[string]validator
 // tag name to validate
 const tagName = "validate"
 
-// parse tag for key - val
-func parseTag(tag string) []keyVal {
-	kvList := []keyVal{}
-	for _, item := range strings.Split(tag, ";") {
-		pair := strings.SplitN(strings.TrimSpace(item), "=", 2)
-		if len(pair) == 0 {
-			continue
-		}
-		if len(pair) == 1 {
-			kvList = append(kvList, keyVal{pair[0], ""})
-		}
-		if len(pair) == 2 {
-			kvList = append(kvList, keyVal{pair[0], pair[1]})
-		}
-	}
-	return kvList
-}
-
-// main func, validation of each elem
+// Validation of each elem
 func Validate(input interface{}, nameSpaces ...string) map[string]ValidationError {
 	// identiy value and loop if its pointer until reaches non pointer
 	inputV := reflect.ValueOf(input)
@@ -91,7 +75,6 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		// TODO: find information about this -> || fieldT.Type.Name() == ""
 		typeString := fieldT.Type.String()
 		if (fieldT.Type.Kind() == reflect.Struct || fieldT.Anonymous) && typeString != "time.Time" {
-			fmt.Println(fieldT.Name)
 			maps.Copy(errList, Validate(fieldV.Interface(), fieldT.Name))
 			continue
 		}
@@ -121,23 +104,150 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 	return nil
 }
 
+// Validation from IO Reader
 func ValidateIoReader(container interface{}, input io.Reader) map[string]ValidationError {
-	decodedInput := json.NewDecoder(input)
-	err := decodedInput.Decode(&container)
+	// cV := reflect.ValueOf(container)
+	// if cV.Kind() != reflect.Ptr || cV.Type().Kind() != reflect.Struct {
+	// 	panic("requires pointer of a struct typed input")
+	// }
+	decoder := json.NewDecoder(input)
+	err := decoder.Decode(&container)
 	if err != nil {
 		myType := fmt.Sprintf("%T", container)
 		return map[string]ValidationError{
 			"struct": {fmt.Sprintf("parsing to type %v failed", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
 		}
 	}
+
+	// same process with normal validation
 	return Validate(container)
 }
 
-// simply add or remove tag validator
+// Validation from url
+// caveat: url's structure makes it impossible to do deep parsing
+func ValidateURL(container any, url url.URL) map[string]ValidationError {
+	cV := reflect.ValueOf(container).Elem()
+	for cV.Kind() == reflect.Pointer || cV.Kind() == reflect.Interface {
+		cV = cV.Elem()
+	}
+
+	cT := cV.Type()
+	values := url.Query()
+	errList := map[string]ValidationError{}
+	for i := 0; i < cV.NumField(); i++ {
+		fieldV := cV.Field(i)
+		fieldT := cT.Field(i)
+
+		if !fieldV.CanSet() {
+			continue
+		}
+
+		key := fieldT.Tag.Get("json")
+		if key == "" {
+			key = fieldT.Name
+		}
+
+		vals, ok := values[key]
+		if !ok {
+			continue
+		}
+
+		switch fieldV.Interface().(type) {
+		case *bool:
+			var v bool
+			if strings.ToLower(vals[0]) == "true" || vals[0] == "1" {
+				v = true
+			} else {
+				v = false
+			}
+			fieldV.Set(reflect.ValueOf(&v))
+		case *string:
+			fieldV.Set(reflect.ValueOf(&vals[0]))
+		case *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64:
+			if valInt, err := strconv.Atoi(vals[0]); err != nil {
+				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}
+			} else {
+				v := autoCastInt(valInt, fieldV)
+				fieldV.Set(v)
+			}
+		case *[]string:
+			fieldV.Set(reflect.ValueOf(&vals))
+
+		// TODO: make any *[]int as a function
+		case *[]int8:
+			failed := false
+			valX := []int8{}
+			for _, val := range vals {
+				if valInt, err := strconv.Atoi(val); err != nil {
+					failed = true
+					errList[key] = ValidationError{err.Error(), key, val, fieldV.Interface()}
+				} else {
+					valX = append(valX, int8(valInt))
+				}
+			}
+			if !failed {
+				fieldV.Set(reflect.ValueOf(valX))
+			}
+			// case []int16:
+			// 	failed := false
+			// 	valX := []int16{}
+			// 	for _, val := range vals {
+			// 		if valInt, err := strconv.Atoi(val); err != nil {
+			// 			failed = true
+			// 			errList[key] = ValidationError{err.Error(), key, val, fieldV.Interface()}
+			// 		} else {
+			// 			valX = append(valX, int16(valInt))
+			// 		}
+			// 	}
+			// 	if !failed {
+			// 		fieldV.Set(reflect.ValueOf(valX))
+			// 	}
+			// case []int32:
+			// 	failed := false
+			// 	valX := []int32{}
+			// 	for _, val := range vals {
+			// 		if valInt, err := strconv.Atoi(val); err != nil {
+			// 			failed = true
+			// 			errList[key] = ValidationError{err.Error(), key, val, fieldV.Interface()}
+			// 		} else {
+			// 			valX = append(valX, int32(valInt))
+			// 		}
+			// 	}
+			// 	if !failed {
+			// 		fieldV.Set(reflect.ValueOf(valX))
+			// 	}
+			// case []int64:
+			// 	failed := false
+			// 	valX := []int64{}
+			// 	for _, val := range vals {
+			// 		if valInt, err := strconv.Atoi(val); err != nil {
+			// 			failed = true
+			// 			errList[key] = ValidationError{err.Error(), key, val, fieldV.Interface()}
+			// 		} else {
+			// 			valX = append(valX, int64(valInt))
+			// 		}
+			// 	}
+			// 	if !failed {
+			// 		fieldV.Set(reflect.ValueOf(valX))
+			// 	}
+		}
+	}
+
+	if len(errList) > 0 {
+		return errList
+	}
+
+	return Validate(container)
+}
+
+// register a validator
 func RegisterValidator(tag string, validatorF validator) {
 	tagValidator[tag] = validatorF
 }
 
+// unregister a validator
 func UnregisterValidator(tag string) {
 	delete(tagValidator, tag)
 }
+
+///////////// Helper Goes here

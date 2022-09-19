@@ -121,21 +121,21 @@ func GetList(query url.Values, pagination gh.Pagination) (interface{}, error) {
 	var data []m.User
 	var count int64
 
-	filtered := a.DB.Table("Group").Scopes(gh.Filter(query, m.Filter{}))
-	filtered.Count(&count)
+	// filtered := a.DB.Table("Group").Scopes(gh.Filter(query, m.Filter{}))
+	// filtered.Count(&count)
 
-	result := filtered.Scopes(gh.Paginate(&pagination)).Find(&data)
-	if result.Error != nil {
-		myErrLogger("get-list", "user", "failed", result.Error.Error(), "")
-		return nil, errors.New("proses pengambilan data gagal")
-	}
+	// result := filtered.Scopes(gh.Paginate(&pagination)).Find(&data)
+	// if result.Error != nil {
+	// 	myErrLogger("get-list", "user", "failed", result.Error.Error(), "")
+	// 	return nil, errors.New("proses pengambilan data gagal")
+	// }
 
 	return rp.OK{
 		Meta: t.IS{
-			"totalCount":   strconv.Itoa(int(count)),
-			"currentCount": strconv.Itoa(int(result.RowsAffected)),
-			"page":         strconv.Itoa(pagination.Page),
-			"pageSize":     strconv.Itoa(pagination.PageSize),
+			"totalCount": strconv.Itoa(int(count)),
+			// "currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":     strconv.Itoa(pagination.Page),
+			"pageSize": strconv.Itoa(pagination.PageSize),
 		},
 		Data: data,
 	}, nil
