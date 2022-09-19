@@ -26,6 +26,6 @@ type FilterDto struct {
 	Position *int    `json:"position"`
 	Status   *int    `json:"status"`
 	// fixed fields
-	Page      int   `json:"page"`
-	Page_Size int64 `json:"page_size"`
+	Page     int   `json:"page"`
+	PageSize int64 `json:"page_size"`
 }
