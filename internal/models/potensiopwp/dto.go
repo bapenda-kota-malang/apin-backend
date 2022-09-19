@@ -4,6 +4,7 @@ import (
 	"time"
 
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
 type CreatePotensiOp struct {
@@ -20,4 +21,8 @@ type CreatePotensiOp struct {
 	Genset        string      `json:"genset" validate:"required"`
 	AirTanah      string      `json:"airTanah" validate:"required"`
 	VendorEtax_Id *uint       `json:"vendorEtax_id"`
+}
+
+type FilterDto struct {
+	gormhelper.Pagination
 }

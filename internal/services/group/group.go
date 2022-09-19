@@ -42,7 +42,7 @@ func GetList(input m.FilterDto) (any, error) {
 	var count int64
 
 	var pagination gh.Pagination
-	result := a.DB.Scopes(gh.Filter(input, &pagination)).Find(&data)
+	result := a.DB.Scopes(gh.Filter(input, &pagination, &count)).Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}

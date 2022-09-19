@@ -12,7 +12,7 @@ import (
 )
 
 // Filters based on query parameters
-func Filter(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
+func Filter(input interface{}, p *Pagination, c *int64) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		rt := reflect.TypeOf(input)
 		if rt.Kind() != reflect.Struct {
@@ -33,7 +33,7 @@ func Filter(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 			opt := iTF.Name[len(iTF.Name)-4:]
 
 			// skip option, page, or page_size
-			if opt == "_opt" || iTF.Name == "Page" || iTF.Name == "Page_Size" {
+			if opt == "_opt" || iTF.Name == "Page" || iTF.Name == "PageSize" {
 				continue
 			}
 
@@ -64,6 +64,8 @@ func Filter(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 				db.Where(iTF.Name+" = ?", iVF.Interface())
 			}
 		}
+
+		db.Count(c)
 
 		// field pagination
 		fP := iV.FieldByName("Page")
