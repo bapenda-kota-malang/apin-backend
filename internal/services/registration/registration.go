@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/configurationmodel"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
+	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -119,8 +119,8 @@ func insertDetailOp(objek string, data *[]registration.DetailOp, registerForm *r
 }
 
 func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (interface{}, error) {
-	var rekening *configurationmodel.Rekening
-	err := apicore.DB.Model(&configurationmodel.Rekening{}).First(&rekening, reg.RekeningID).Error
+	var rekening *rm.Rekening
+	err := apicore.DB.Model(&rm.Rekening{}).First(&rekening, reg.RekeningID).Error
 	if err != nil {
 		return nil, err
 	}

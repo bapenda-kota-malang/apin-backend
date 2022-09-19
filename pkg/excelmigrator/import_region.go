@@ -6,12 +6,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/configurationmodel"
+	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	"gorm.io/gorm"
 )
 
 func migrateProvinsi() {
-	var provinsi []configurationmodel.Provinsi
+	var provinsi []adm.Provinsi
 	result := DB.First(&provinsi)
 	if result.RowsAffected > 0 {
 		fmt.Println("Provinsi not empty")
@@ -32,7 +32,7 @@ func migrateProvinsi() {
 	}
 
 	for _, r := range records {
-		provinsi = append(provinsi, configurationmodel.Provinsi{
+		provinsi = append(provinsi, adm.Provinsi{
 			Kode: r[0],
 			Nama: r[2],
 		})
@@ -46,7 +46,7 @@ func migrateProvinsi() {
 }
 
 func migrateDaerah() {
-	var daerah []configurationmodel.Daerah
+	var daerah []adm.Daerah
 	result := DB.First(&daerah)
 	if result.RowsAffected > 0 {
 		fmt.Println("Daerah not empty")
@@ -67,7 +67,7 @@ func migrateDaerah() {
 	}
 
 	for _, r := range records {
-		daerah = append(daerah, configurationmodel.Daerah{
+		daerah = append(daerah, adm.Daerah{
 			Kode:         r[0],
 			ProvinsiKode: r[1],
 			Nama:         r[2],
@@ -82,7 +82,7 @@ func migrateDaerah() {
 }
 
 func migrateKecamatan() {
-	var kecamatan []configurationmodel.Kecamatan
+	var kecamatan []adm.Kecamatan
 	result := DB.First(&kecamatan)
 	if result.RowsAffected > 0 {
 		fmt.Println("Kecamatan not empty")
@@ -104,7 +104,7 @@ func migrateKecamatan() {
 
 	err = DB.Transaction(func(tx *gorm.DB) error {
 		for _, r := range records {
-			if err := tx.Create(&configurationmodel.Kecamatan{
+			if err := tx.Create(&adm.Kecamatan{
 				DaerahKode: r[1],
 				Kode:       r[0],
 				Nama:       r[2],
@@ -124,7 +124,7 @@ func migrateKecamatan() {
 }
 
 func migrateKelurahan() {
-	var kelurahan []configurationmodel.Kelurahan
+	var kelurahan []adm.Kelurahan
 	result := DB.First(&kelurahan)
 	if result.RowsAffected > 0 {
 		fmt.Println("Kelurahan not empty")
@@ -146,7 +146,7 @@ func migrateKelurahan() {
 
 	err = DB.Transaction(func(tx *gorm.DB) error {
 		for _, r := range records {
-			if err := tx.Create(&configurationmodel.Kelurahan{
+			if err := tx.Create(&adm.Kelurahan{
 				KecamatanKode: r[1],
 				Kode:          r[0],
 				Nama:          r[2],

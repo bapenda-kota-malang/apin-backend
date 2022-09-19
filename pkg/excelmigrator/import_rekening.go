@@ -5,11 +5,11 @@ import (
 	"strconv"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/configurationmodel"
+	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 )
 
 func ImportRekening() {
-	var rekening []configurationmodel.Rekening
+	var rekening []rm.Rekening
 	result := DB.First(&rekening)
 	if result.RowsAffected > 0 {
 		log.Fatal("Rekening not empty")
@@ -39,7 +39,7 @@ func ImportRekening() {
 			cKode := f.GetCellValue(sheet, "J"+n)
 			cNama := f.GetCellValue(sheet, "K"+n)
 
-			rekening = append(rekening, configurationmodel.Rekening{
+			rekening = append(rekening, rm.Rekening{
 				Tipe:     &cTipe,
 				Kelompok: &cKelompok,
 				Jenis:    &cJenis,

@@ -3,7 +3,7 @@ package potensiopwp
 import (
 	"time"
 
-	cm "github.com/bapenda-kota-malang/apin-backend/internal/models/configurationmodel"
+	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
@@ -38,9 +38,9 @@ type Potensi struct {
 	Alamat       string              `json:"alamat" gorm:"size:50"`
 	RtRw         string              `json:"rt_rw" gorm:"size:10"`
 	Kecamatan_Id uint                `json:"kecamatan_id"`
-	Kecamatan    cm.Kecamatan        `gorm:"foreignKey:Kecamatan_Id"`
+	Kecamatan    adm.Kecamatan       `gorm:"foreignKey:Kecamatan_Id"`
 	Kelurahan_Id uint                `json:"kelurahan_id"`
-	Kelurahan    cm.Kelurahan        `gorm:"foreignKey:Kelurahan_Id"`
+	Kelurahan    adm.Kelurahan       `gorm:"foreignKey:Kelurahan_Id"`
 	Telp         string              `json:"telp" gorm:"size:20"`
 	Status       rm.StatusObjekPajak `json:"status"`
 	gormhelper.DateModel
