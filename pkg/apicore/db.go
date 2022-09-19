@@ -1,9 +1,11 @@
 package apicore
 
 import (
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/configurationmodel"
+	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
+	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
@@ -26,12 +28,12 @@ func init() {
 	// autoMigrateList = make([]interface{})
 	listModelPendaftaran := []interface{}{
 		&user.User{},
-		&configurationmodel.Provinsi{},
-		&configurationmodel.Daerah{},
-		&configurationmodel.Kecamatan{},
-		&configurationmodel.Kelurahan{},
-		&configurationmodel.Rekening{},
-		&configurationmodel.Skpd{},
+		&adm.Provinsi{},
+		&adm.Daerah{},
+		&adm.Kecamatan{},
+		&adm.Kelurahan{},
+		&rm.Rekening{},
+		&skpd.Skpd{},
 		&registration.Registration{},
 		&registration.ObjekPajak{},
 		&registration.DetailOpAirTanah{},
