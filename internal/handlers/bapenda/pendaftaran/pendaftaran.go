@@ -2,46 +2,32 @@ package pendaftaran
 
 import (
 	"net/http"
-	"strconv"
 
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/registration"
-	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
-	rq "github.com/bapenda-kota-malang/apin-backend/pkg/requester"
-	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
+	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	if result, err := registration.GetAll(r); err == nil {
-		hj.WriteJSON(w, http.StatusOK, result, nil)
-	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
-	}
+	result, err := registration.GetAll(r)
+	hh.DataResponse(w, result, err)
 }
 
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := rq.GetParam("id", r)
-	if result, err := registration.GetDetail(r, id); err == nil {
-		hj.WriteJSON(w, http.StatusOK, result, nil)
-	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
 	}
+	result, err := registration.GetDetail(r, id)
+	hh.DataResponse(w, result, err)
 }
 
 func RegisterByOperator(w http.ResponseWriter, r *http.Request) {
 	var register rm.RegisterByOperator
-	if err := sv.ValidateIoReader(&register, r.Body); err != nil {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, responses.ErrCustom{
-			Meta:     types.IS{"count": strconv.Itoa(len(err))},
-			Messages: err,
-		}, nil)
-	} else {
-		if result, err := registration.RegisterByOperator(r, register); err == nil {
-			hj.WriteJSON(w, http.StatusOK, result, nil)
-		} else {
-			hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
-		}
+	if hh.ValidateStructByIOR(w, r.Body, &register) == false {
+		return
 	}
+
+	result, err := registration.RegisterByOperator(r, register)
+	hh.DataResponse(w, result, err)
 }
