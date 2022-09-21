@@ -12,7 +12,7 @@ import (
 )
 
 // Filters based on query parameters
-func Filter(input interface{}, p *Pagination, c *int64) func(db *gorm.DB) *gorm.DB {
+func Filter(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		rt := reflect.TypeOf(input)
 		if rt.Kind() != reflect.Struct {
@@ -65,8 +65,6 @@ func Filter(input interface{}, p *Pagination, c *int64) func(db *gorm.DB) *gorm.
 			}
 		}
 
-		db.Count(c)
-
 		// field pagination
 		fP := iV.FieldByName("Page")
 		fPS := iV.FieldByName("PageSize")
@@ -86,7 +84,7 @@ func Filter(input interface{}, p *Pagination, c *int64) func(db *gorm.DB) *gorm.
 		} else {
 			p.PageSize = 10
 		}
-		db.Offset(p.Page).Limit(p.PageSize)
+		db.Offset((p.Page - 1) * p.PageSize).Limit(p.PageSize)
 
 		return db
 	}
