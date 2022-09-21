@@ -4,7 +4,6 @@ import (
 	"time"
 
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
 type CreatePotensiOp struct {
@@ -24,5 +23,6 @@ type CreatePotensiOp struct {
 }
 
 type FilterDto struct {
-	gormhelper.Pagination
+	Page     int   `json:"page"`
+	PageSize int64 `json:"page_size"`
 }

@@ -2,7 +2,6 @@ package potensiop
 
 import (
 	"errors"
-	"net/url"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -14,22 +13,23 @@ import (
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
+	mr "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
 const source = "potensiop"
 
-func GetList(query url.Values, pagination gh.Pagination) (any, error) {
+func GetList(input m.FilterDto) (any, error) {
 	var data []m.PotensiOp
 	var count int64
+	a.DB.Model(&m.PotensiOp{}).Count(&count)
 
-	// filtered := a.DB.Table("PotensiOp").Scopes(gh.Filter(query, m.PotensiOp{}))
-	// filtered.Count(&count)
-
-	// result := filtered.Scopes(gh.Paginate(&pagination)).Find(&data)
-	// if result.Error != nil {
-	// 	return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
-	// }
+	var pagination gh.Pagination
+	result := a.DB.Scopes(gh.Filter(input, &pagination)).Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
 
 	return rp.OK{
 		Meta: t.IS{
@@ -65,8 +65,15 @@ func Create(input m.CreatePotensiOp) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	// TODO: check rekening_id exist in table rekening
-	// TODO: check user_id exist in table user
+	var dataMRek mr.Rekening
+	if result := a.DB.First(&dataMRek, data.Rekening_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	var dataMUser mu.User
+	if result := a.DB.First(&dataMUser, data.User_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
 
 	data.Status = registration.StatusAktif
 
@@ -87,6 +94,16 @@ func Update(id int, input m.CreatePotensiOp) (any, error) {
 
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	var dataMRek mr.Rekening
+	if result := a.DB.First(&dataMRek, data.Rekening_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	var dataMUser mu.User
+	if result := a.DB.First(&dataMUser, data.User_Id); result.RowsAffected == 0 {
+		return nil, nil
 	}
 
 	if result := a.DB.Save(&data); result.Error != nil {
