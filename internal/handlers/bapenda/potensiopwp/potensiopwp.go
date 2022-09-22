@@ -1,11 +1,11 @@
-package potensiop
+package potensiopwp
 
 import (
 	"net/http"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiop"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
@@ -33,7 +33,7 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var data m.CreatePotensiOp
+	var data m.CreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
@@ -58,7 +58,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data m.CreatePotensiOp
+	var data m.CreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}

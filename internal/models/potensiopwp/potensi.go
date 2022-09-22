@@ -3,7 +3,6 @@ package potensiopwp
 import (
 	"time"
 
-	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
@@ -11,12 +10,12 @@ import (
 type PotensiOp struct {
 	Id          uint        `json:"id" gorm:"primaryKey"`
 	Golongan    rm.Golongan `json:"golongan"`
-	Rekening_Id uint        `json:"rekening_id"`
+	Rekening_Id uint        `json:"rekeningId"`
 	// Rekening      cm.Rekening          `gorm:"foreignKey:Rekening_Id"`
 	Status      rm.StatusPendaftaran `json:"status"`
 	ClosingDate *time.Time           `json:"closingDate"`
 	OpeningDate *time.Time           `json:"openingDate"`
-	User_Id     uint                 `json:"user_id"`
+	User_Id     uint                 `json:"userId"`
 	// User          um.User              `gorm:"foreignKey:User_Id"`
 	LuasBangunan  *string `json:"luasBangunan" gorm:"size:50"`
 	JamBuka       *string `json:"jamBuka" gorm:"size:50"`
@@ -25,24 +24,33 @@ type PotensiOp struct {
 	OmsetOp       string  `json:"omsetOp" gorm:"size:50"`
 	Genset        string  `json:"genset" gorm:"size:10"`
 	AirTanah      string  `json:"airTanah" gorm:"size:10"`
-	VendorEtax_Id *uint   `json:"vendorEtax_id"`
+	VendorEtax_Id *uint   `json:"vendorEtaxId"`
 	// VendorEtax    cm.VendorEtax        `gorm:"foreignKey:VendorEtax_Id"`
+	PotensiPemilikWp       *PotensiPemilikWp       `gorm:"foreignKey:Potensiop_Id"`
+	PotensiNarahubung      *PotensiNarahubung      `gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiOp        *DetailPotensiOp        `gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiAirTanahs []DetailPotensiAirTanah `gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiHiburans  []DetailPotensiHiburan  `gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiHotels    []DetailPotensiHotel    `gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiPPJs      []DetailPotensiPPJ      `gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiParkirs   []DetailPotensiParkir   `gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiReklames  []DetailPotensiReklame  `gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiRestos    []DetailPotensiResto    `gorm:"foreignKey:Potensiop_Id"`
 	gormhelper.DateModel
 }
 
 type Potensi struct {
-	Id           uint                `json:"id" gorm:"primaryKey"`
-	Potensiop_Id uint                `json:"Potensiop_id"`
-	Potensiop    PotensiOp           `gorm:"foreignKey:Potensiop_Id"`
-	Nama         string              `json:"nama" gorm:"size:50"`
-	Alamat       string              `json:"alamat" gorm:"size:50"`
-	RtRw         string              `json:"rt_rw" gorm:"size:10"`
-	Kecamatan_Id uint                `json:"kecamatan_id"`
-	Kecamatan    adm.Kecamatan       `gorm:"foreignKey:Kecamatan_Id"`
-	Kelurahan_Id uint                `json:"kelurahan_id"`
-	Kelurahan    adm.Kelurahan       `gorm:"foreignKey:Kelurahan_Id"`
-	Telp         string              `json:"telp" gorm:"size:20"`
-	Status       rm.StatusObjekPajak `json:"status"`
+	Id           uint   `json:"id" gorm:"primaryKey"`
+	Potensiop_Id uint   `json:"PotensiopId"`
+	Nama         string `json:"nama" gorm:"size:50"`
+	Alamat       string `json:"alamat" gorm:"size:50"`
+	RtRw         string `json:"rtRw" gorm:"size:10"`
+	Kecamatan_Id uint   `json:"kecamatanId"`
+	// Kecamatan    adm.Kecamatan       `gorm:"foreignKey:Kecamatan_Id"`
+	Kelurahan_Id uint `json:"kelurahanId"`
+	// Kelurahan    adm.Kelurahan       `gorm:"foreignKey:Kelurahan_Id"`
+	Telp   string              `json:"telp" gorm:"size:20"`
+	Status rm.StatusObjekPajak `json:"status"`
 	gormhelper.DateModel
 }
 
