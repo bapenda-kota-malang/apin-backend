@@ -11,3 +11,13 @@ func stringInSlice(s string, a []string) bool {
 	}
 	return false
 }
+
+// reflect field value or nil
+// func refOperatorVal(iV reflect.Value, iTF reflect.StructField) string {
+// 	vOpt := "="
+// 	o := iV.FieldByName(iTF.Name + "_Opt") // option
+// 	if o.Interface() != nil {
+// 		vOpt = o.String()
+// 	}
+// 	return vOpt
+// }

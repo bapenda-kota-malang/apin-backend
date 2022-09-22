@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/configurationmodel"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
+	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -16,11 +16,10 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func GetAll(r *http.Request) (interface{}, error) {
+func GetAll(pagination gormhelper.Pagination) (interface{}, error) {
 	var (
-		register   []*registration.Registration
-		count      int64
-		pagination gormhelper.Pagination
+		register []*registration.Registration
+		count    int64
 	)
 
 	result := apicore.DB.Model(&registration.Registration{}).
@@ -28,7 +27,7 @@ func GetAll(r *http.Request) (interface{}, error) {
 		//nested preload
 		//Preload("PemilikWps.Kelurahan").
 		Count(&count).
-		Scopes(gormhelper.Paginate(r.URL, &pagination)).
+		Scopes(gormhelper.Paginate(&pagination)).
 		Find(&register)
 
 	return responses.OK{
@@ -120,8 +119,8 @@ func insertDetailOp(objek string, data *[]registration.DetailOp, registerForm *r
 }
 
 func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (interface{}, error) {
-	var rekening *configurationmodel.Rekening
-	err := apicore.DB.Model(&configurationmodel.Rekening{}).First(&rekening, reg.RekeningID).Error
+	var rekening *rm.Rekening
+	err := apicore.DB.Model(&rm.Rekening{}).First(&rekening, reg.RekeningID).Error
 	if err != nil {
 		return nil, err
 	}

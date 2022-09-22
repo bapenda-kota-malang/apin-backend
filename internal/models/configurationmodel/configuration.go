@@ -11,7 +11,7 @@ type (
 
 	Rekening struct {
 		ID             uint64  `json:"id" gorm:"primaryKey"`
-		ParentID       *uint64 `json:"parent_id"`
+		Parent_ID       *uint64 `json:"parent_id"`
 		Tipe           *string `json:"tipe"`
 		Kelompok       *string `json:"kelompok"`
 		Jenis          *string `json:"jenis"`

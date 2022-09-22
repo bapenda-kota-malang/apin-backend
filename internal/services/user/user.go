@@ -3,7 +3,7 @@ package userservice
 import (
 	"encoding/json"
 	"errors"
-	"net/http"
+	"net/url"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -79,7 +79,7 @@ func Create(input any) (any, error) {
 			"pegawai": pegawai,
 			"user":    user,
 		}}, nil
-	case ppat.CreateByUser:
+	case ppat.Create:
 		var ppat ppat.Ppat
 		var user m.User
 
@@ -117,26 +117,25 @@ func Create(input any) (any, error) {
 	return nil, errors.New("unknown data type")
 }
 
-func GetList(r *http.Request) (interface{}, error) {
+func GetList(query url.Values, pagination gh.Pagination) (interface{}, error) {
 	var data []m.User
 	var count int64
-	var pagination gh.Pagination
 
-	filtered := a.DB.Table("Group").Scopes(gh.Filter(r.URL, m.Filter{}))
-	filtered.Count(&count)
+	// filtered := a.DB.Table("Group").Scopes(gh.Filter(query, m.Filter{}))
+	// filtered.Count(&count)
 
-	result := filtered.Scopes(gh.Paginate(r.URL, &pagination)).Find(&data)
-	if result.Error != nil {
-		myErrLogger("get-list", "user", "failed", result.Error.Error(), "")
-		return nil, errors.New("proses pengambilan data gagal")
-	}
+	// result := filtered.Scopes(gh.Paginate(&pagination)).Find(&data)
+	// if result.Error != nil {
+	// 	myErrLogger("get-list", "user", "failed", result.Error.Error(), "")
+	// 	return nil, errors.New("proses pengambilan data gagal")
+	// }
 
 	return rp.OK{
 		Meta: t.IS{
-			"totalCount":   strconv.Itoa(int(count)),
-			"currentCount": strconv.Itoa(int(result.RowsAffected)),
-			"page":         strconv.Itoa(pagination.Page),
-			"pageSize":     strconv.Itoa(pagination.PageSize),
+			"totalCount": strconv.Itoa(int(count)),
+			// "currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":     strconv.Itoa(pagination.Page),
+			"pageSize": strconv.Itoa(pagination.PageSize),
 		},
 		Data: data,
 	}, nil

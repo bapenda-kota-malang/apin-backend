@@ -6,15 +6,21 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pendaftaran"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
+	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
+
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
+
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pendaftaran"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/potensiop"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 )
 
 func SetRoutes() http.Handler {
@@ -37,12 +43,22 @@ func SetRoutes() http.Handler {
 		r.Patch("/change-password", account.ChangePassword)
 	})
 
+	rh.RegCrud(r, "/menu", menu.Crud{})
+
 	r.Route("/pegawai", func(r chi.Router) {
 		r.Post("/", pegawai.Create)
 		r.Get("/", pegawai.GetList)
 		r.Get("/{id}", pegawai.GetDetail)
 		r.Patch("/{id}", pegawai.Update)
 		r.Delete("/{id}", pegawai.Delete)
+	})
+
+	r.Route("/ppat", func(r chi.Router) {
+		r.Post("/", ppat.Create)
+		r.Get("/", ppat.GetList)
+		r.Get("/{id}", ppat.GetDetail)
+		r.Patch("/{id}", ppat.Update)
+		r.Delete("/{id}", ppat.Delete)
 	})
 
 	r.Route("/user", func(r chi.Router) {
@@ -69,6 +85,14 @@ func SetRoutes() http.Handler {
 
 	r.Route("/rekening", func(r chi.Router) {
 		r.Get("/", rekening.GetList)
+	})
+
+	r.Route("/potensiop", func(r chi.Router) {
+		r.Post("/", potensiop.Create)
+		r.Get("/", potensiop.GetList)
+		r.Get("/{id}", potensiop.GetDetail)
+		r.Patch("/{id}", potensiop.Update)
+		r.Delete("/{id}", potensiop.Delete)
 	})
 
 	return r

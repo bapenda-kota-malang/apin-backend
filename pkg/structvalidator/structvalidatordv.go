@@ -1,4 +1,3 @@
-// Go Struct Validator Default Validator
 package structvalidator
 
 import (
@@ -26,7 +25,7 @@ func init() {
 func requiredTagValidator(val reflect.Value, exptVal string) error {
 	if (val.Kind() == reflect.String && val.String() == "") || (val.Kind() == reflect.Ptr && val.IsNil()) {
 		val.Interface()
-		return errors.New("field is required")
+		return errors.New("nilai/isi dibutuhkan")
 	}
 	return nil
 }
@@ -52,12 +51,12 @@ func maxTagValidator(val reflect.Value, exptVal string) error {
 func minLengthTagValidator(val reflect.Value, exptVal string) error {
 	exptValInt, err := strconv.Atoi(exptVal)
 	if err != nil {
-		return errors.New("input must be numeric")
+		return errors.New("nilai harus berupa angka/numerik")
 	}
 
 	valC := rs.ValStringer(val) // value converted
 	if len(valC) < exptValInt {
-		return fmt.Errorf("the minimum length is %v", exptVal)
+		return fmt.Errorf("panjang minimum adalah %v", exptVal)
 	}
 	return nil
 }
@@ -65,12 +64,12 @@ func minLengthTagValidator(val reflect.Value, exptVal string) error {
 func maxLengthTagValidator(val reflect.Value, exptVal string) error {
 	exptValInt, err := strconv.Atoi(exptVal)
 	if err != nil {
-		return errors.New("input must be numeric")
+		return errors.New("nilai harus berupa angka/numerik")
 	}
 
 	valC := rs.ValStringer(val) // value converted
 	if len(valC) > exptValInt {
-		return fmt.Errorf("the maximum length is %v", exptVal)
+		return fmt.Errorf("panjang maximum adalah %v", exptVal)
 	}
 	return nil
 }
@@ -87,7 +86,7 @@ func valLimiter(val reflect.Value, exptVal string, mode string) error {
 	if valK == reflect.String {
 		valCT, err := strconv.ParseFloat(val.String(), 64)
 		if err != nil {
-			return errors.New("field must be numeric")
+			return errors.New("nilai harus berupa angka/numerik")
 		}
 		valC = valCT
 	} else if valK >= reflect.Int && valK <= reflect.Uint64 {
@@ -98,11 +97,11 @@ func valLimiter(val reflect.Value, exptVal string, mode string) error {
 
 	if mode == "<" {
 		if exptValFloat > valC {
-			return fmt.Errorf("minimum value is %v", exptVal)
+			return fmt.Errorf("nilai minimum adalah %v", exptVal)
 		}
 	} else {
 		if exptValFloat < valC {
-			return fmt.Errorf(fmt.Sprintf("maximum value is %v", exptVal))
+			return fmt.Errorf(fmt.Sprintf("nilai maximum adalah %v", exptVal))
 		}
 	}
 	return nil
