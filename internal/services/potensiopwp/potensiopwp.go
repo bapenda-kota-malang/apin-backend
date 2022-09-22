@@ -14,8 +14,6 @@ import (
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
-	mr "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
@@ -27,7 +25,7 @@ func GetList(input m.FilterDto) (any, error) {
 	a.DB.Model(&m.PotensiOp{}).Count(&count)
 
 	var pagination gh.Pagination
-	result := a.DB.Scopes(gh.Filter(input, &pagination)).Preload("DetailPotensiOp").Preload("PotensiPemilikWp").Preload("PotensiNarahubung").Find(&data)
+	result := a.DB.Scopes(gh.Filter(input, &pagination)).Preload("DetailPotensiOp").Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
@@ -62,8 +60,15 @@ func Create(input m.CreateDto) (any, error) {
 	var dataPotensiOp m.PotensiOp
 	var dataDetailPotensiOp m.DetailPotensiOp
 	var dataPemilikWp m.PotensiPemilikWp
-	var dataPemilikNarahub m.CreatePotensiNarahubung
-	var dataDetailPotensiAirTanah []m.DetailPotensiAirTanah
+	var dataPemilikNarahub m.PotensiNarahubung
+	var dPAirTanahs []m.DetailPotensiAirTanah
+	var dPHiburans []m.DetailPotensiHiburan
+	var dPHotels []m.DetailPotensiHotel
+	var dPParkirs []m.DetailPotensiParkir
+	var dPPpjs []m.DetailPotensiPPJ
+	var dPReklames []m.DetailPotensiReklame
+	var dPRestos []m.DetailPotensiResto
+	// listTransactionData := []interface{}{&dPAirTanahs, &dPHiburans, &dPHotels, &dPParkirs, &dPPpjs, &dPReklames, &dPRestos}
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&dataPotensiOp, &input.CreatePotensiOp); err != nil {
@@ -80,7 +85,6 @@ func Create(input m.CreateDto) (any, error) {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikNarahub)
 		}
 	}
-
 	for _, v := range input.DetailPajakDtos {
 		switch v.JenisOp {
 		case "airTanah":
@@ -88,52 +92,45 @@ func Create(input m.CreateDto) (any, error) {
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
-			dataDetailPotensiAirTanah = append(dataDetailPotensiAirTanah, tmp)
-			break
+			dPAirTanahs = append(dPAirTanahs, tmp)
 		case "hiburan":
-			var tmp m.DetailPotensiAirTanah
+			var tmp m.DetailPotensiHiburan
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
-			dataDetailPotensiAirTanah = append(dataDetailPotensiAirTanah, tmp)
-			break
+			dPHiburans = append(dPHiburans, tmp)
 		case "hotel":
-			var tmp m.DetailPotensiAirTanah
+			var tmp m.DetailPotensiHotel
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
-			dataDetailPotensiAirTanah = append(dataDetailPotensiAirTanah, tmp)
-			break
+			dPHotels = append(dPHotels, tmp)
 		case "parkir":
-			var tmp m.DetailPotensiAirTanah
+			var tmp m.DetailPotensiParkir
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
-			dataDetailPotensiAirTanah = append(dataDetailPotensiAirTanah, tmp)
-			break
+			dPParkirs = append(dPParkirs, tmp)
 		case "ppj":
-			var tmp m.DetailPotensiAirTanah
+			var tmp m.DetailPotensiPPJ
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
-			dataDetailPotensiAirTanah = append(dataDetailPotensiAirTanah, tmp)
-			break
+			dPPpjs = append(dPPpjs, tmp)
 		case "reklame":
-			var tmp m.DetailPotensiAirTanah
+			var tmp m.DetailPotensiReklame
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
-			dataDetailPotensiAirTanah = append(dataDetailPotensiAirTanah, tmp)
-			break
+			dPReklames = append(dPReklames, tmp)
 		case "resto":
-			var tmp m.DetailPotensiAirTanah
+			var tmp m.DetailPotensiResto
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
-			dataDetailPotensiAirTanah = append(dataDetailPotensiAirTanah, tmp)
-			break
+			dPRestos = append(dPRestos, tmp)
 		default:
-			break
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPotensiOp)
 		}
 	}
 
@@ -170,6 +167,22 @@ func Create(input m.CreateDto) (any, error) {
 				return result.Error
 			}
 		}
+		// for _, v := range listTransactionData {
+		// 	vType := reflect.ValueOf(v)
+		// 	if vType.Kind() == reflect.Pointer {
+		// 		vType = vType.Elem()
+		// 	}
+
+		// 	if vType.Kind() != reflect.Slice {
+		// 		return errors.New("failed parsing not slice")
+		// 	}
+
+		// 	if vType.Len() != 0 {
+		// 		if result := tx.Create(&v); result.Error != nil {
+		// 			return result.Error
+		// 		}
+		// 	}
+		// }
 		return nil
 	})
 
@@ -181,35 +194,106 @@ func Create(input m.CreateDto) (any, error) {
 }
 
 func Update(id int, input m.CreateDto) (any, error) {
-	var data *m.PotensiOp
-	result := a.DB.First(&data, id)
-	if result.RowsAffected == 0 {
+	var dataPotensiOp *m.PotensiOp
+	var dataDetailPotensiOp *m.DetailPotensiOp
+	var dataPemilikWp *m.PotensiPemilikWp
+	var dataPemilikNarahub *m.PotensiNarahubung
+	// var dPAirTanahs []m.DetailPotensiAirTanah
+	// var dPHiburans []m.DetailPotensiHiburan
+	// var dPHotels []m.DetailPotensiHotel
+	// var dPParkirs []m.DetailPotensiParkir
+	// var dPPpjs []m.DetailPotensiPPJ
+	// var dPReklames []m.DetailPotensiReklame
+	// var dPRestos []m.DetailPotensiResto
+	// listTransactionData := []interface{}{&dPAirTanahs, &dPHiburans, &dPHotels, &dPParkirs, &dPPpjs, &dPReklames, &dPRestos}
+
+	// validate data exist
+	dataResPotensiOp := a.DB.First(&dataPotensiOp, id).RowsAffected
+	if dataResPotensiOp == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+	if result := a.DB.Where(&m.DetailPotensiOp{Potensi: m.Potensi{Potensiop_Id: uint(id)}}).First(&dataDetailPotensiOp); result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+	if result := a.DB.Where(&m.PotensiPemilikWp{Potensi: m.Potensi{Potensiop_Id: uint(id)}}).First(&dataDetailPotensiOp); result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	// copy to model struct
+	if err := sc.Copy(&dataPotensiOp, &input.CreatePotensiOp); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPotensiOp)
+	}
+	if err := sc.Copy(&dataDetailPotensiOp, &input.CreateDetailPotensiOp); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataDetailPotensiOp)
+	}
+	if err := sc.Copy(&dataPemilikWp, &input.CreatePotensiPemilikWp); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
+	}
+	if input.CreatePotensiNarahubung != nil {
+		if err := sc.Copy(&dataPemilikNarahub, &input.CreatePotensiNarahubung); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikNarahub)
+		}
 	}
 
-	var dataMRek mr.Rekening
-	if result := a.DB.First(&dataMRek, data.Rekening_Id); result.RowsAffected == 0 {
-		return nil, nil
-	}
+	// var dataMRek mr.Rekening
+	// if result := a.DB.First(&dataMRek, data.Rekening_Id); result.RowsAffected == 0 {
+	// 	return nil, nil
+	// }
 
-	var dataMUser mu.User
-	if result := a.DB.First(&dataMUser, data.User_Id); result.RowsAffected == 0 {
-		return nil, nil
-	}
+	// var dataMUser mu.User
+	// if result := a.DB.First(&dataMUser, data.User_Id); result.RowsAffected == 0 {
+	// 	return nil, nil
+	// }
 
-	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	// transaction update db
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		// simpan data ke db satu if karena result dipakai sekali, +error
+		if result := tx.Save(&dataPotensiOp); result.Error != nil {
+			return result.Error
+		}
+
+		dataDetailPotensiOp.Potensiop_Id = dataPotensiOp.Id
+		if result := tx.Save(&dataDetailPotensiOp); result.Error != nil {
+			return result.Error
+		}
+		dataPemilikWp.Potensiop_Id = dataPotensiOp.Id
+		if result := tx.Save(&dataPemilikWp); result.Error != nil {
+			return result.Error
+		}
+		if input.CreatePotensiNarahubung != nil {
+			dataPemilikNarahub.Potensiop_Id = dataPotensiOp.Id
+			if result := tx.Save(&dataPemilikNarahub); result.Error != nil {
+				return result.Error
+			}
+		}
+		// for _, v := range listTransactionData {
+		// 	vType := reflect.ValueOf(v)
+		// 	if vType.Kind() == reflect.Pointer {
+		// 		vType = vType.Elem()
+		// 	}
+
+		// 	if vType.Kind() != reflect.Slice {
+		// 		return errors.New("failed parsing not slice")
+		// 	}
+
+		// 	if vType.Len() != 0 {
+		// 		if result := tx.Create(&v); result.Error != nil {
+		// 			return result.Error
+		// 		}
+		// 	}
+		// }
+		return nil
+	})
+
+	if err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataPotensiOp)
 	}
 
 	return rp.OK{
 		Meta: t.IS{
-			"affected": strconv.Itoa(int(result.RowsAffected)),
+			"affected": strconv.Itoa(int(dataResPotensiOp)),
 		},
-		Data: data,
+		Data: dataPotensiOp,
 	}, nil
 }
 
