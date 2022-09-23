@@ -1,16 +1,15 @@
-package pegawai
+package kecamatan
 
 import (
 	"net/http"
 
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
-
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/pegawai"
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var input m.Create
+	var input m.KecamatanCreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
@@ -20,7 +19,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	var input m.Filter
+	var input m.KecamatanFilterDto
 	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
 		return
 	}
@@ -45,7 +44,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data m.Update
+	var data m.KecamatanUpdateDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}

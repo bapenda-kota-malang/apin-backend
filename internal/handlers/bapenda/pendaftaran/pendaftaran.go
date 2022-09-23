@@ -5,11 +5,14 @@ import (
 
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/registration"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	result, err := registration.GetAll(r)
+	// parameter dan getAll service harus diganti filterDTO
+	var pagination gh.Pagination
+	result, err := registration.GetAll(pagination)
 	hh.DataResponse(w, result, err)
 }
 

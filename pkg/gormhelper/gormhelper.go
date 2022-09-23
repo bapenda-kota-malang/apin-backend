@@ -65,7 +65,7 @@ func Filter(input interface{}, p *Pagination, c *int64) func(db *gorm.DB) *gorm.
 			}
 		}
 
-		db.Count(c)
+		// db.Count(c)
 
 		// field pagination
 		fP := iV.FieldByName("Page")
