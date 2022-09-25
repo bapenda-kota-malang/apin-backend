@@ -2,7 +2,6 @@ package groupservice
 
 import (
 	"errors"
-	"net/http"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -22,7 +21,7 @@ func init() {
 	a.AutoMigrate(&m.Group{})
 }
 
-func Create(input m.Create) (any, error) {
+func Create(input m.CreateDto) (any, error) {
 	var data m.Group
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
@@ -38,15 +37,12 @@ func Create(input m.Create) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetList(r *http.Request) (any, error) {
+func GetList(input m.FilterDto) (any, error) {
 	var data []m.Group
 	var count int64
+
 	var pagination gh.Pagination
-
-	filtered := a.DB.Table("Group").Scopes(gh.Filter(r.URL, m.Filter{}))
-	filtered.Count(&count)
-
-	result := filtered.Scopes(gh.Paginate(r.URL, &pagination)).Find(&data)
+	result := a.DB.Scopes(gh.Filter(input, &pagination, &count)).Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
@@ -77,7 +73,7 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.Update) (any, error) {
+func Update(id int, input m.UpdateDto) (any, error) {
 	var data *m.Group
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {

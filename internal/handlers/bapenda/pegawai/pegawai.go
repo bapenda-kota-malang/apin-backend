@@ -10,17 +10,22 @@ import (
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var data m.Create
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	var input m.Create
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
 
-	result, err := s.Create(data)
+	result, err := s.Create(input)
 	hh.DataResponse(w, result, err)
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	result, err := s.GetList(r)
+	var input m.Filter
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+
+	result, err := s.GetList(input)
 	hh.DataResponse(w, result, err)
 }
 

@@ -12,11 +12,18 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pendaftaran"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/potensiop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 )
 
@@ -72,6 +79,56 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", group.GetDetail)
 		r.Patch("/{id}", group.Update)
 		r.Delete("/{id}", group.Delete)
+	})
+
+	r.Route("/registration", func(r chi.Router) {
+		r.Get("/", pendaftaran.GetList)
+		r.Get("/{id}", pendaftaran.GetDetail)
+		r.Post("/operator", pendaftaran.RegisterByOperator)
+	})
+
+	r.Route("/rekening", func(r chi.Router) {
+		r.Get("/", rekening.GetList)
+	})
+
+	r.Route("/potensiop", func(r chi.Router) {
+		r.Post("/", potensiop.Create)
+		r.Get("/", potensiop.GetList)
+		r.Get("/{id}", potensiop.GetDetail)
+		r.Patch("/{id}", potensiop.Update)
+		r.Delete("/{id}", potensiop.Delete)
+	})
+
+	r.Route("/provinsi", func(r chi.Router) {
+		r.Post("/", provinsi.Create)
+		r.Get("/", provinsi.GetList)
+		r.Get("/{id}", provinsi.GetDetail)
+		r.Patch("/{id}", provinsi.Update)
+		r.Delete("/{id}", provinsi.Delete)
+	})
+
+	r.Route("/daerah", func(r chi.Router) {
+		r.Post("/", daerah.Create)
+		r.Get("/", daerah.GetList)
+		r.Get("/{id}", daerah.GetDetail)
+		r.Patch("/{id}", daerah.Update)
+		r.Delete("/{id}", daerah.Delete)
+	})
+
+	r.Route("/kecamatan", func(r chi.Router) {
+		r.Post("/", kecamatan.Create)
+		r.Get("/", kecamatan.GetList)
+		r.Get("/{id}", kecamatan.GetDetail)
+		r.Patch("/{id}", kecamatan.Update)
+		r.Delete("/{id}", kecamatan.Delete)
+	})
+
+	r.Route("/kelurahan", func(r chi.Router) {
+		r.Post("/", kelurahan.Create)
+		r.Get("/", kelurahan.GetList)
+		r.Get("/{id}", kelurahan.GetDetail)
+		r.Patch("/{id}", kelurahan.Update)
+		r.Delete("/{id}", kelurahan.Delete)
 	})
 
 	return r

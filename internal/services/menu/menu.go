@@ -1,7 +1,7 @@
 package menuservice
 
 import (
-	"net/http"
+	"net/url"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -37,25 +37,24 @@ func Create(input m.CreateDto) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetList(r *http.Request) (any, error) {
+func GetList(query url.Values, pagination gh.Pagination) (any, error) {
 	var data []m.Menu
 	var count int64
-	var pagination gh.Pagination
 
-	filtered := a.DB.Table("Group").Scopes(gh.Filter(r.URL, m.FilterDto{}))
-	filtered.Count(&count)
+	// filtered := a.DB.Table("Group").Scopes(gh.Filter(query, m.FilterDto{}))
+	// filtered.Count(&count)
 
-	result := filtered.Scopes(gh.Paginate(r.URL, &pagination)).Find(&data)
-	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
-	}
+	// result := filtered.Scopes(gh.Paginate(&pagination)).Find(&data)
+	// if result.Error != nil {
+	// 	return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	// }
 
 	return rp.OK{
 		Meta: t.IS{
-			"totalCount":   strconv.Itoa(int(count)),
-			"currentCount": strconv.Itoa(int(result.RowsAffected)),
-			"page":         strconv.Itoa(pagination.Page),
-			"pageSize":     strconv.Itoa(pagination.PageSize),
+			"totalCount": strconv.Itoa(int(count)),
+			// "currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":     strconv.Itoa(pagination.Page),
+			"pageSize": strconv.Itoa(pagination.PageSize),
 		},
 		Data: data,
 	}, nil

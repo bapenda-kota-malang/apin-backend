@@ -11,6 +11,8 @@ import (
 
 	ac "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
@@ -60,7 +62,12 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	if result, err := s.GetList(r); err == nil {
+	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
+	if err != nil {
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
+	}
+
+	if result, err := s.GetList(r.URL.Query(), pagination); err == nil {
 		hj.WriteJSON(w, http.StatusOK, result, nil)
 	} else {
 		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)

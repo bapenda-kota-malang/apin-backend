@@ -1,6 +1,12 @@
 package apicore
 
 import (
+	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
+	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -17,6 +23,46 @@ type dbConf struct {
 }
 
 var autoMigrateList []interface{}
+
+func init() {
+	// autoMigrateList = make([]interface{})
+	listModelPendaftaran := []interface{}{
+		&user.User{},
+		&adm.Provinsi{},
+		&adm.Daerah{},
+		&adm.Kecamatan{},
+		&adm.Kelurahan{},
+		&rm.Rekening{},
+		&skpd.Skpd{},
+		&registration.Registration{},
+		&registration.ObjekPajak{},
+		&registration.DetailOpAirTanah{},
+		&registration.DetailOpHiburan{},
+		&registration.DetailOpHotel{},
+		&registration.DetailOpParkir{},
+		&registration.DetailOpPpj{},
+		&registration.DetailOpReklame{},
+		&registration.DetailOpResto{},
+		&registration.PemilikWp{},
+		&registration.Narahubung{},
+	}
+	AutoMigrate(listModelPendaftaran...)
+
+	listModelPendataan := []interface{}{
+		&potensiopwp.PotensiOp{},
+		&potensiopwp.PotensiPemilikWp{},
+		&potensiopwp.PotensiNarahubung{},
+		&potensiopwp.DetailPotensiOp{},
+		&potensiopwp.DetailPotensiAirTanah{},
+		&potensiopwp.DetailPotensiHiburan{},
+		&potensiopwp.DetailPotensiHotel{},
+		&potensiopwp.DetailPotensiPPJ{},
+		&potensiopwp.DetailPotensiParkir{},
+		&potensiopwp.DetailPotensiReklame{},
+		&potensiopwp.DetailPotensiResto{},
+	}
+	AutoMigrate(listModelPendataan...)
+}
 
 func (a *app) initDb() {
 	if a.DbConf.Dsn == "" {
@@ -61,11 +107,9 @@ func (a *app) initDb() {
 			zap.String("name", "db"))
 	}
 
-	for _, item := range autoMigrateList {
-		DB.AutoMigrate(&item)
-	}
+	DB.AutoMigrate(autoMigrateList...)
 }
 
-func AutoMigrate(model interface{}) {
-	autoMigrateList = append(autoMigrateList, model)
+func AutoMigrate(model ...interface{}) {
+	autoMigrateList = append(autoMigrateList, model...)
 }
