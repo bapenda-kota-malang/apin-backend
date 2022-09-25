@@ -41,7 +41,7 @@ func GetAll(pagination gormhelper.Pagination) (interface{}, error) {
 	}, nil
 }
 
-func GetDetail(r *http.Request, regID string) (interface{}, error) {
+func GetDetail(r *http.Request, regID int) (interface{}, error) {
 	var register *registration.Registration
 	err := apicore.DB.Model(&registration.Registration{}).
 		Preload(clause.Associations).

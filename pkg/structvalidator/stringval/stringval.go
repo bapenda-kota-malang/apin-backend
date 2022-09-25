@@ -8,13 +8,13 @@ import (
 	"reflect"
 	"regexp"
 
-	rs "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/refvalstringer"
+	h "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/helper"
 )
 
 func ValEmailValidator(val reflect.Value, exptVal string) error {
 	re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
-	if re.MatchString(rs.ValStringer(val)) == false {
+	if re.MatchString(h.ValStringer(val)) == false {
 		return errors.New("requires valid email address")
 	}
 

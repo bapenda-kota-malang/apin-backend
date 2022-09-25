@@ -2,52 +2,35 @@ package pendaftaran
 
 import (
 	"net/http"
-	"strconv"
 
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/registration"
-	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
-	rq "github.com/bapenda-kota-malang/apin-backend/pkg/requester"
-	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
-	if err != nil {
-		hj.WriteJSON(w, http.StatusBadRequest, responses.ErrSimple{Message: err.Error()}, nil)
-	}
-
-	if result, err := registration.GetAll(pagination); err == nil {
-		hj.WriteJSON(w, http.StatusOK, result, nil)
-	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
-	}
+	// parameter dan getAll service harus diganti filterDTO
+	var pagination gh.Pagination
+	result, err := registration.GetAll(pagination)
+	hh.DataResponse(w, result, err)
 }
 
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := rq.GetParam("id", r)
-	if result, err := registration.GetDetail(r, id); err == nil {
-		hj.WriteJSON(w, http.StatusOK, result, nil)
-	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
 	}
+	result, err := registration.GetDetail(r, id)
+	hh.DataResponse(w, result, err)
 }
 
 func RegisterByOperator(w http.ResponseWriter, r *http.Request) {
 	var register rm.RegisterByOperator
-	if err := sv.ValidateIoReader(&register, r.Body); err != nil {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, responses.ErrCustom{
-			Meta:     types.IS{"count": strconv.Itoa(len(err))},
-			Messages: err,
-		}, nil)
-	} else {
-		if result, err := registration.RegisterByOperator(r, register); err == nil {
-			hj.WriteJSON(w, http.StatusOK, result, nil)
-		} else {
-			hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
-		}
+	if hh.ValidateStructByIOR(w, r.Body, &register) == false {
+		return
 	}
+
+	result, err := registration.RegisterByOperator(r, register)
+	hh.DataResponse(w, result, err)
 }
