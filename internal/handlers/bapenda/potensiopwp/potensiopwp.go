@@ -1,24 +1,23 @@
-package potensiop
+package potensiopwp
 
 import (
 	"net/http"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiop"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
 // GetList Data Potensi Objek Pajak with pagination
 func GetList(w http.ResponseWriter, r *http.Request) {
-	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
-	if err != nil {
-		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
 	}
-	result, err := s.GetList(r.URL.Query(), pagination)
+	result, err := s.GetList(input)
 	hh.DataResponse(w, result, err)
 }
 
@@ -34,7 +33,7 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var data m.CreatePotensiOp
+	var data m.CreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
@@ -59,7 +58,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data m.CreatePotensiOp
+	var data m.CreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
