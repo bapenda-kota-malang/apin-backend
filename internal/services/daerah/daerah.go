@@ -23,7 +23,7 @@ func init() {
 func Create(input m.DaerahCreateDto) (any, error) {
 	var data m.Daerah
 	var dataP m.Provinsi
-	checkProvinceCode := a.DB.Where(&m.Provinsi{Kode: input.ProvinsiKode}).First(&dataP)
+	checkProvinceCode := a.DB.Where(&m.Provinsi{Kode: input.Provinsi_Kode}).First(&dataP)
 	if checkProvinceCode.RowsAffected == 0 {
 		return nil, errors.New("provinsi dengan kode tersebut belum terdaftar")
 	}

@@ -1,24 +1,24 @@
 package areadivision
 
 type Kecamatan struct {
-	ID         uint64       `json:"id" gorm:"primaryKey"`
-	DaerahKode string       `json:"daerah_kode"`
-	Daerah     *Daerah      `json:"daerah,omitempty" gorm:"foreignKey:DaerahKode;references:Kode"`
-	Kode       string       `json:"kode" gorm:"unique"`
-	Nama       string       `json:"nama"`
-	Kelurahan  []*Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:KecamatanKode;references:Kode"`
+	ID          uint64       `json:"id" gorm:"primaryKey"`
+	Daerah_Kode string       `json:"daerah_kode" gorm:"size:4"`
+	Daerah      *Daerah      `json:"daerah,omitempty" gorm:"foreignKey:Daerah_Kode;references:Kode"`
+	Kode        string       `json:"kode" gorm:"unique;size:7"`
+	Nama        string       `json:"nama" gorm:"size:100"`
+	Kelurahan   []*Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kecamatan_Kode;references:Kode"`
 }
 
 type KecamatanCreateDto struct {
-	DaerahKode string `json:"daerah_kode" validate:"requred;min=1"`
-	Kode       string `json:"kode" validate:"requred;min=1"`
-	Nama       string `json:"nama" validate:"required;maxLength=100"`
+	Daerah_Kode string `json:"daerah_kode" validate:"requred;min=1"`
+	Kode        string `json:"kode" validate:"requred;min=1"`
+	Nama        string `json:"nama" validate:"required;maxLength=100"`
 }
 
 type KecamatanUpdateDto struct {
-	DaerahKode string `json:"daerah_kode" validate:"requred;min=1"`
-	Kode       string `json:"kode" validate:"requred;min=1"`
-	Nama       string `json:"nama" validate:"required;maxLength=100"`
+	Daerah_Kode string `json:"daerah_kode" validate:"requred;min=1"`
+	Kode        string `json:"kode" validate:"requred;min=1"`
+	Nama        string `json:"nama" validate:"required;maxLength=100"`
 }
 
 type KecamatanFilterDto struct {
@@ -26,5 +26,5 @@ type KecamatanFilterDto struct {
 	// Kode       *string `json:"kode"`
 	// Nama       string  `json:"nama"`
 	Page     int   `json:"page"`
-	PageSize int64 `json:"page_size"`
+	PageSize int64 `json:"pageSize"`
 }
