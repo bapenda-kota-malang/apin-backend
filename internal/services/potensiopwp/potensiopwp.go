@@ -19,7 +19,6 @@ import (
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 
 	mr "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 
 	// mvetax "github.com/bapenda-kota-malang/apin-backend/internal/models/vendoretax"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -150,9 +149,6 @@ func Create(input m.CreateDto) (any, error) {
 	// check relasi id tabel ke tabel relasi
 	// potensiop table
 	if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
-		return nil, nil
-	}
-	if result := a.DB.First(&mu.User{}, dataPotensiOp.User_Id); result.RowsAffected == 0 {
 		return nil, nil
 	}
 	// if result := a.DB.First(&mvetax.VendorEtax{}, dataPotensiOp.VendorEtax_Id); result.RowsAffected == 0 {
@@ -389,9 +385,6 @@ func Update(id int, input m.CreateDto) (any, error) {
 	// check relasi id tabel ke tabel relasi
 	// potensiop table
 	if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
-		return nil, nil
-	}
-	if result := a.DB.First(&mu.User{}, dataPotensiOp.User_Id); result.RowsAffected == 0 {
 		return nil, nil
 	}
 	// if result := a.DB.First(&mvetax.VendorEtax{}, dataPotensiOp.VendorEtax_Id); result.RowsAffected == 0 {
