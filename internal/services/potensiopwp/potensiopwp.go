@@ -7,18 +7,18 @@ import (
 
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	// mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 
-	// mr "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	// mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
+	mr "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 
 	// mvetax "github.com/bapenda-kota-malang/apin-backend/internal/models/vendoretax"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -51,7 +51,7 @@ func GetList(input m.FilterDto) (any, error) {
 func GetDetail(id int) (any, error) {
 	var data *m.PotensiOp
 
-	result := a.DB.Preload("DetailPotensiOp").Preload("PotensiPemilikWp").Preload("PotensiNarahubung").First(&data, id)
+	result := a.DB.Preload(clause.Associations).First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -148,27 +148,24 @@ func Create(input m.CreateDto) (any, error) {
 
 	// check relasi id tabel ke tabel relasi
 	// potensiop table
-	// if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
-	// if result := a.DB.First(&mu.User{}, dataPotensiOp.User_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
+	if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
 	// if result := a.DB.First(&mvetax.VendorEtax{}, dataPotensiOp.VendorEtax_Id); result.RowsAffected == 0 {
 	// 	return nil, nil
 	// }
-	// if result := a.DB.First(&mad.Kecamatan{}, dataDetailPotensiOp.Kecamatan_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
-	// if result := a.DB.First(&mad.Kelurahan{}, dataDetailPotensiOp.Kelurahan_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
-	// if result := a.DB.First(&mad.Kecamatan{}, dataPemilikWp.Kecamatan_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
-	// if result := a.DB.First(&mad.Kelurahan{}, dataPemilikWp.Kelurahan_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
+	if result := a.DB.First(&mad.Kecamatan{}, dataDetailPotensiOp.Kecamatan_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if result := a.DB.First(&mad.Kelurahan{}, dataDetailPotensiOp.Kelurahan_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if result := a.DB.First(&mad.Kecamatan{}, dataPemilikWp.Kecamatan_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if result := a.DB.First(&mad.Kelurahan{}, dataPemilikWp.Kelurahan_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
 
 	// filter data to listTransactionData before execute db
 	tmp := []interface{}{&dataPemilikNarahub, &dPAirTanahs, &dPHiburans, &dPHotels, &dPParkirs, &dPPpjs, &dPReklames, &dPRestos}
@@ -177,10 +174,8 @@ func Create(input m.CreateDto) (any, error) {
 		if xVal.Kind() == reflect.Pointer {
 			xVal = xVal.Elem()
 		}
-		if xVal.Kind() == reflect.Slice {
-			if xVal.IsNil() {
-				continue
-			}
+		if xVal.Kind() == reflect.Slice && xVal.IsNil() {
+			continue
 		} else if xVal.Kind() == reflect.Struct {
 			newEmpty := reflect.New(reflect.TypeOf(x).Elem()).Elem()
 			if xVal.Interface() == newEmpty.Interface() {
@@ -307,74 +302,106 @@ func Update(id int, input m.CreateDto) (any, error) {
 		switch v.JenisOp {
 		case "airTanah":
 			var tmp m.DetailPotensiAirTanah
+			if v.Id != nil {
+				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
+					return nil, errors.New("data tidak dapat ditemukan")
+				}
+			}
 			if err := sc.Copy(&tmp, &v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
 			dPAirTanahs = append(dPAirTanahs, tmp)
 		case "hiburan":
 			var tmp m.DetailPotensiHiburan
+			if v.Id != nil {
+				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
+					return nil, errors.New("data tidak dapat ditemukan")
+				}
+			}
 			if err := sc.Copy(&tmp, &v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
 			dPHiburans = append(dPHiburans, tmp)
 		case "hotel":
 			var tmp m.DetailPotensiHotel
+			if v.Id != nil {
+				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
+					return nil, errors.New("data tidak dapat ditemukan")
+				}
+			}
 			if err := sc.Copy(&tmp, &v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
 			dPHotels = append(dPHotels, tmp)
 		case "parkir":
 			var tmp m.DetailPotensiParkir
+			if v.Id != nil {
+				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
+					return nil, errors.New("data tidak dapat ditemukan")
+				}
+			}
 			if err := sc.Copy(&tmp, &v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
 			dPParkirs = append(dPParkirs, tmp)
 		case "ppj":
 			var tmp m.DetailPotensiPPJ
+			if v.Id != nil {
+				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
+					return nil, errors.New("data tidak dapat ditemukan")
+				}
+			}
 			if err := sc.Copy(&tmp, &v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
 			dPPpjs = append(dPPpjs, tmp)
 		case "reklame":
 			var tmp m.DetailPotensiReklame
+			if v.Id != nil {
+				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
+					return nil, errors.New("data tidak dapat ditemukan")
+				}
+			}
 			if err := sc.Copy(&tmp, &v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
 			dPReklames = append(dPReklames, tmp)
 		case "resto":
 			var tmp m.DetailPotensiResto
+			if v.Id != nil {
+				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
+					return nil, errors.New("data tidak dapat ditemukan")
+				}
+			}
 			if err := sc.Copy(&tmp, &v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
 			}
 			dPRestos = append(dPRestos, tmp)
 		default:
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPotensiOp)
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPotensiOp)
 		}
 	}
 
 	// check relasi id tabel ke tabel relasi
 	// potensiop table
-	// if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
-	// if result := a.DB.First(&mu.User{}, dataPotensiOp.User_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
+	if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
 	// if result := a.DB.First(&mvetax.VendorEtax{}, dataPotensiOp.VendorEtax_Id); result.RowsAffected == 0 {
 	// 	return nil, nil
 	// }
-	// if result := a.DB.First(&mad.Kecamatan{}, dataDetailPotensiOp.Kecamatan_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
-	// if result := a.DB.First(&mad.Kelurahan{}, dataDetailPotensiOp.Kelurahan_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
-	// if result := a.DB.First(&mad.Kecamatan{}, dataPemilikWp.Kecamatan_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
-	// if result := a.DB.First(&mad.Kelurahan{}, dataPemilikWp.Kelurahan_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
+	if result := a.DB.First(&mad.Kecamatan{}, dataDetailPotensiOp.Kecamatan_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if result := a.DB.First(&mad.Kelurahan{}, dataDetailPotensiOp.Kelurahan_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if result := a.DB.First(&mad.Kecamatan{}, dataPemilikWp.Kecamatan_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if result := a.DB.First(&mad.Kelurahan{}, dataPemilikWp.Kelurahan_Id); result.RowsAffected == 0 {
+		return nil, nil
+	}
 
 	// filter data to listTransactionData before execute db
 	tmp := []interface{}{&dataPemilikNarahub, &dPAirTanahs, &dPHiburans, &dPHotels, &dPParkirs, &dPPpjs, &dPReklames, &dPRestos}
