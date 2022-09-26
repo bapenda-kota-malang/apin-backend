@@ -39,7 +39,7 @@ func GetList(input m.ProvinsiFilterDto) (any, error) {
 	var count int64
 	a.DB.Model(&m.Provinsi{}).Count(&count)
 	var pagination gh.Pagination
-	result := a.DB.Scopes(gh.Filter(input, &pagination, &count)).Find(&data)
+	result := a.DB.Scopes(gh.Filter(input, &pagination)).Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}

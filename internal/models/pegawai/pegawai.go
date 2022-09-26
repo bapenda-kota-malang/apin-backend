@@ -62,9 +62,11 @@ type Update struct {
 }
 
 type Filter struct {
-	NamaLengkap string `json:"namaLengkap"`
-	Nip         string `json:"nip"`
-	Jabatan_Id  int    `json:"jabatan_id"`
-	Pangkat_Id  int    `json:"pangkat_id"`
-	Skpd_Id     int    `json:"skpd_id"`
+	// NamaLengkap string `json:"namaLengkap"`
+	// Nip         string `json:"nip"`
+	// Jabatan_Id  int    `json:"jabatan_id"`
+	// Pangkat_Id  int    `json:"pangkat_id"`
+	// Skpd_Id     int    `json:"skpd_id"`
+	Page     int   `json:"page"`
+	PageSize int64 `json:"page_size"`
 }

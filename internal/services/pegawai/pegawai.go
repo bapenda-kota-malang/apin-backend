@@ -12,6 +12,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
 	sl "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/stringval"
@@ -75,25 +76,24 @@ func Create(input m.Create) (any, error) {
 	}}, nil
 }
 
-func GetList(input m.Filter) (interface{}, error) {
+func GetList(input m.Filter) (any, error) {
 	var data []m.Pegawai
 	var count int64
 
-	// filtered := a.DB.Table("Pegawai").Scopes(gh.Filter(query, m.Filter{}))
-	// filtered.Count(&count)
+	a.DB.Model(&m.Pegawai{}).Count(&count)
 
-	// result := filtered.Scopes(gh.Paginate(&pagination)).Find(&data)
-	// if result.Error != nil {
-	// 	myErrLogger("get-list", "user", "failed", result.Error.Error(), "")
-	// 	return nil, errors.New("proses pengambilan data gagal")
-	// }
+	var pagination gh.Pagination
+	result := a.DB.Scopes(gh.Filter(input, &pagination)).Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
 
 	return rp.OK{
 		Meta: t.IS{
-			"totalCount": strconv.Itoa(int(count)),
-			// "currentCount": strconv.Itoa(int(result.RowsAffected)),
-			// "page":     strconv.Itoa(pagination.Page),
-			// "pageSize": strconv.Itoa(pagination.PageSize),
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
 		Data: data,
 	}, nil
@@ -127,7 +127,7 @@ func Update(id int, input m.Update) (interface{}, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
-	result = a.DB.Where("Ref_Id = ?", data.Id).First(&dataU, id)
+	result = a.DB.Where(mu.User{Ref_Id: data.Id}).First(&dataU, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
