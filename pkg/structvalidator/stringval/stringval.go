@@ -4,15 +4,18 @@ package stringval
 // please register yourself all the functions you need :3
 
 import (
-	"net/mail"
+	"errors"
 	"reflect"
+	"regexp"
 
-	rs "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/refvalstringer"
+	h "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/helper"
 )
 
 func ValEmailValidator(val reflect.Value, exptVal string) error {
-	if _, err := mail.ParseAddress(rs.ValStringer(val)); err != nil {
-		return err
+	re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+	if re.MatchString(h.ValStringer(val)) == false {
+		return errors.New("requires valid email address")
 	}
 
 	return nil

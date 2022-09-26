@@ -1,30 +1,60 @@
 package user
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
+	sc "github.com/jinzhu/copier"
+
 	ac "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
-	rs "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
-	rq "github.com/bapenda-kota-malang/apin-backend/pkg/requester"
-	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 
-	um "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
-	us "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
+
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
 )
 
+// complicated process where data depends on position
 func Create(w http.ResponseWriter, r *http.Request) {
-	var user um.UserCreate
-	if err := sv.ValidateIoReader(&user, r.Body); err != nil {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, rs.ErrCustom{
-			Meta:     t.IS{"count": strconv.Itoa(len(err))},
-			Messages: err,
-		}, nil)
+	var payload t.II
+	var result any
+	var err error
+
+	decodedInput := json.NewDecoder(r.Body)
+	err = decodedInput.Decode(&payload)
+	if err != nil {
+		hj.WriteJSON(w, http.StatusInternalServerError, err.Error(), nil)
+		return
 	}
 
-	if result, err := us.Create(user); err == nil {
+	if _, ok := payload["position"]; !ok {
+		payload["position"] = "1"
+	}
+	fmt.Println(payload)
+	if payload["position"] == "" || payload["position"] == "1" {
+		var data pegawai.Create
+		sc.Copy(&data, payload)
+		if hh.ValidateStruct(w, &data) == false {
+			return
+		}
+		result, err = s.Create(data)
+	} else {
+		var data ppat.Create
+		sc.Copy(&data, payload)
+		if hh.ValidateStruct(w, &data) == false {
+			return
+		}
+	}
+
+	if err == nil {
 		hj.WriteJSON(w, http.StatusOK, result, nil)
 	} else {
 		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
@@ -32,7 +62,12 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	if result, err := us.GetList(r); err == nil {
+	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
+	if err != nil {
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
+	}
+
+	if result, err := s.GetList(r.URL.Query(), pagination); err == nil {
 		hj.WriteJSON(w, http.StatusOK, result, nil)
 	} else {
 		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
@@ -40,9 +75,15 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := rq.GetParam("id", r)
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{
+			"message": "format id tidak dapat di kenali",
+		}, nil)
+		return
+	}
 	data := t.II{
-		"message": "You are visiting user detail for id " + id + " of app: " + ac.Self.Name,
+		"message": "You are visiting user detail for id " + strconv.Itoa(id) + " of app: " + ac.Self.Name,
 	}
 	hj.WriteJSON(w, http.StatusOK, data, nil)
 }
@@ -52,4 +93,20 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		"message": "You are updating user of app: " + ac.Self.Name,
 	}
 	hj.WriteJSON(w, http.StatusOK, data, nil)
+}
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{
+			"message": "format id tidak dapat di kenali",
+		}, nil)
+		return
+	}
+
+	if result, err := s.Delete(id); err == nil {
+		hj.WriteJSON(w, http.StatusOK, result, nil)
+	} else {
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{"message": err.Error()}, nil)
+	}
 }
