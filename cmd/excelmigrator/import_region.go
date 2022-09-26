@@ -68,9 +68,9 @@ func migrateDaerah() {
 
 	for _, r := range records {
 		daerah = append(daerah, adm.Daerah{
-			Kode:         r[0],
-			ProvinsiKode: r[1],
-			Nama:         r[2],
+			Kode:          r[0],
+			Provinsi_Kode: r[1],
+			Nama:          r[2],
 		})
 	}
 
@@ -105,9 +105,9 @@ func migrateKecamatan() {
 	err = DB.Transaction(func(tx *gorm.DB) error {
 		for _, r := range records {
 			if err := tx.Create(&adm.Kecamatan{
-				DaerahKode: r[1],
-				Kode:       r[0],
-				Nama:       r[2],
+				Daerah_Kode: r[1],
+				Kode:        r[0],
+				Nama:        r[2],
 			}).Error; err != nil {
 				fmt.Println("error kode : ", r[0])
 				return err
@@ -147,9 +147,9 @@ func migrateKelurahan() {
 	err = DB.Transaction(func(tx *gorm.DB) error {
 		for _, r := range records {
 			if err := tx.Create(&adm.Kelurahan{
-				KecamatanKode: r[1],
-				Kode:          r[0],
-				Nama:          r[2],
+				Kecamatan_Kode: r[1],
+				Kode:           r[0],
+				Nama:           r[2],
 			}).Error; err != nil {
 				return err
 			}

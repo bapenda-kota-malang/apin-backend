@@ -23,7 +23,7 @@ func init() {
 func Create(input m.KelurahanCreateDto) (any, error) {
 	var data m.Kelurahan
 	var dataK m.Kecamatan
-	checkDistrictCode := a.DB.Where(&m.Kecamatan{Kode: input.KecamatanKode}).First(&dataK)
+	checkDistrictCode := a.DB.Where(&m.Kecamatan{Kode: input.Kecamatan_Kode}).First(&dataK)
 	if checkDistrictCode.RowsAffected == 0 {
 		return nil, errors.New("kecamatan dengan kode tersebut belum terdaftar")
 	}

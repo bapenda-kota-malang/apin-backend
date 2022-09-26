@@ -1,28 +1,28 @@
 package areadivision
 
 type Daerah struct {
-	ID           uint64       `json:"id" gorm:"primaryKey"`
-	ProvinsiKode string       `json:"provinsi_kode"`
-	Provinsi     *Provinsi    `json:"provinsi,omitempty" gorm:"foreignKey:ProvinsiKode;references:Kode"`
-	Kode         string       `json:"kode" gorm:"unique"`
-	Nama         string       `json:"nama"`
-	Kecamatan    []*Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:DaerahKode;references:Kode"`
+	ID            uint64       `json:"id" gorm:"primaryKey"`
+	Provinsi_Kode string       `json:"provinsi_kode" gorm:"size:2"`
+	Provinsi      *Provinsi    `json:"provinsi,omitempty" gorm:"foreignKey:Provinsi_Kode;references:Kode"`
+	Kode          string       `json:"kode" gorm:"unique;size:4"`
+	Nama          string       `json:"nama" gorm:"size:100"`
+	Kecamatan     []*Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Daerah_Kode;references:Kode"`
 }
 
 type DaerahCreateDto struct {
-	ProvinsiKode string `json:"provinsi_kode" validate:"requred;min=1"`
-	Kode         string `json:"kode" validate:"requred;min=1"`
-	Nama         string `json:"nama" validate:"required;maxLength=100"`
+	Provinsi_Kode string `json:"provinsi_kode" validate:"requred;min=1"`
+	Kode          string `json:"kode" validate:"requred;min=1"`
+	Nama          string `json:"nama" validate:"required;maxLength=100"`
 }
 
 type DaerahUpdateDto struct {
-	ProvinsiKode string `json:"provinsi_kode" validate:"requred;min=1"`
-	Kode         string `json:"kode" validate:"requred;min=1"`
-	Nama         string `json:"nama" validate:"required;maxLength=100"`
+	Provinsi_Kode string `json:"provinsi_kode" validate:"requred;min=1"`
+	Kode          string `json:"kode" validate:"requred;min=1"`
+	Nama          string `json:"nama" validate:"required;maxLength=100"`
 }
 
 type DaerahFilterDto struct {
-	ProvinsiKode *string `json:"provinsi_kode"`
+	Provinsi_Kode *string `json:"provinsi_kode"`
 	// Kode         *string `json:"kode"`
 	// Nama         *string `json:"nama"`
 	Page     int   `json:"page"`
