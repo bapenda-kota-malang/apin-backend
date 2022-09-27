@@ -22,7 +22,7 @@ func ResendConfirmation(w http.ResponseWriter, r *http.Request) {
 	hj.WriteJSON(w, http.StatusOK, data, nil)
 }
 
-func Confirm(w http.ResponseWriter, r *http.Request) {
+func ConfirmByEmail(w http.ResponseWriter, r *http.Request) {
 	data := t.II{
 		"message": "You are getting your account data in app: " + ac.Self.Name,
 	}

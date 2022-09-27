@@ -3,27 +3,44 @@ package wajibpajak
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
+	// "github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile" // EXECUTE
 )
 
-func SetRoutes() *httprouter.Router {
-	router := httprouter.New()
-	router.NotFound = http.HandlerFunc(er.NotFoundResponse)
-	router.MethodNotAllowed = http.HandlerFunc(er.MethodNotAllowedResponse)
+func SetRoutes() http.Handler {
+	r := chi.NewRouter()
 
-	// TODO: Use group for routing
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
 
-	router.HandlerFunc(http.MethodGet, "/auth/login", auth.Login)
+	r.NotFound(er.NotFoundResponse)
+	r.MethodNotAllowed(er.MethodNotAllowedResponse)
 
-	router.HandlerFunc(http.MethodGet, "/account/register", account.Register)
-	router.HandlerFunc(http.MethodGet, "/account/resend-confirmation", account.ResendConfirmation)
-	router.HandlerFunc(http.MethodGet, "/account/confirm", account.Confirm)
-	router.HandlerFunc(http.MethodGet, "/account/reset-password", account.ResetPassword)
-	router.HandlerFunc(http.MethodGet, "/account/change-password", account.ChangePassword)
+	r.Get("/", home.Index)
+	// r.Post("/register", wp.Create) // EXECUTE
 
-	return router
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/login", auth.Login)
+	})
+
+	r.Route("/account", func(r chi.Router) {
+		// r.Post("/register", account.Create) // replaced withr register
+		r.Get("/confirm-by-email", account.ConfirmByEmail)
+		r.Get("/resend-confirmation", account.ResendConfirmation)
+		r.Patch("/change-pass", account.ChangePassword)
+		r.Patch("/reset-pass", account.ResetPassword)
+	})
+
+	// r.Route("/profile", func(r chi.Router) { // EXECUTE
+	// 	r.Get("/", p.Login)   // EXECUTE
+	// 	r.Patch("/", p.Login) // EXECUTE
+	// })
+
+	return r
 }
