@@ -44,7 +44,7 @@ func init() {
 // Generates token and store in redis at one place
 func GenToken(input um.LoginDto) (interface{}, error) {
 	var user um.User
-	result := ac.DB.Where("Name = ?", input.Name).Where("Position = ?", input.Position).Find(&user)
+	result := ac.DB.Where("\"Name\" = ?", input.Name).Where("\"Position\" = ?", input.Position).Find(&user) // F-KING WEIRD BUG
 	if result.Error != nil {
 		return nil, errors.New("gagal mengambil data")
 	} else if result.RowsAffected == 0 {
