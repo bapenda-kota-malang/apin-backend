@@ -4,13 +4,13 @@ import "time"
 
 type User struct {
 	Id          int       `json:"id" gorm:"primaryKey;autoIncrement"`
-	Name        string    `json:"name" gorm:"size:100"`
+	Name        string    `json:"name" gorm:"size:100;unique"`
 	Salt        string    `json:"salt" gorm:"size:100"`
 	Password    string    `json:"password" gorm:"size:200"`
 	Position    int16     `json:"position"`
 	Ref_Id      int       `json:"ref_id" gorm:"index"`
 	Group_Id    int       `json:"group_id" gorm:"index"`
-	Email       string    `json:"email" gorm:"size:100;index"`
+	Email       string    `json:"email" gorm:"size:100;unique"`
 	Notes       string    `json:"notes"`
 	SysAdmin    bool      `json:"sysAdmin"`
 	ValidPeriod time.Time `json:"validPeriod"`
@@ -24,10 +24,11 @@ type User struct {
 	DeletedAt   time.Time `json:"deletedAt"`
 }
 
-type Create struct {
+type CreateDto struct {
 	Name        string    `json:"name" validate:"required"`
 	Password    string    `json:"password" validate:"required"`
-	Position    string    `json:"position" validate:"required"`
+	Position    int16     `json:"position" validate:"required"`
+	Ref_Id      int       `json:"ref_id"`
 	Group_Id    int       `json:"group_id" validate:"min=1"`
 	Email       string    `json:"email" validate:"validemail"`
 	Notes       string    `json:"notes"`
@@ -35,7 +36,7 @@ type Create struct {
 	ValidPeriod time.Time `json:"validPeriod"`
 }
 
-type Update struct {
+type UpdateDto struct {
 	Name     string `json:"name"`
 	Position string `json:"position" validate:"required"`
 	Group_Id int    `json:"group_id" validate:"required"`
@@ -44,18 +45,18 @@ type Update struct {
 	SysAdmin bool   `json:"sysAdmin"`
 }
 
-type Register struct {
-	Name     string `json:"name"`
-	Password string `json:"password"`
+type RegisterDto struct {
+	Name     string `json:"name" validate:"required"`
+	Password string `json:"password" validate:"required"`
 	Email    string `json:"email"`
 }
 
-type Login struct {
+type LoginDto struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 
-type Filter struct {
+type FilterDto struct {
 	Name     string `json:"name"`
 	Position int16  `json:"position"`
 	Email    string `json:"email"`

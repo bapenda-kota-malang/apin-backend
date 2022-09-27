@@ -25,5 +25,8 @@ loggerConf:
   level:
   output:
 
+redisConf:
+  dsn: 127.0.0.1:6379
+
 authConf:
   secretKey: OLDWORLDORDER

@@ -1,6 +1,7 @@
 package pegawai
 
 import (
+	"fmt"
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
@@ -14,6 +15,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
+	fmt.Println("reached 1")
 
 	result, err := s.Create(input)
 	hh.DataResponse(w, result, err)
