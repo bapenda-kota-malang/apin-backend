@@ -7,8 +7,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/auth"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
 	// "github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile" // EXECUTE
 )

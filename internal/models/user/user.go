@@ -55,6 +55,7 @@ type RegisterDto struct {
 type LoginDto struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
+	Position int16  `json:"position"`
 }
 
 type FilterDto struct {

@@ -42,16 +42,16 @@ func init() {
 }
 
 // Generates token and store in redis at one place
-func GenToken(userLogin um.LoginDto) (interface{}, error) {
+func GenToken(input um.LoginDto) (interface{}, error) {
 	var user um.User
-	result := ac.DB.Where("name = ?", userLogin.Name).Find(&user)
+	result := ac.DB.Where("name = ?", input.Name).Where("position = ?", input.Position).Find(&user)
 	if result.Error != nil {
 		return nil, errors.New("gagal mengambil data")
 	} else if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	if p.Check(userLogin.Password, user.Password) == false {
+	if p.Check(input.Password, user.Password) == false {
 		return nil, errors.New("username atau password tidak sesuai")
 	}
 
