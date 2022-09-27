@@ -43,6 +43,7 @@ func Create(input m.CreateDto) (any, error) {
 	if result := a.DB.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data user: "+result.Error.Error(), data)
 	}
+	data.Password = ""
 
 	return rp.OKSimple{Data: data}, nil
 }
@@ -50,9 +51,8 @@ func Create(input m.CreateDto) (any, error) {
 func GetList(input m.FilterDto) (any, error) {
 	var data []m.User
 	var count int64
-	a.DB.Model(&m.User{}).Count(&count)
-
 	var pagination gh.Pagination
+
 	result := a.DB.
 		Model(&m.User{}).
 		Scopes(gh.Filter(input)).

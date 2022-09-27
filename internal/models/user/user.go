@@ -59,8 +59,12 @@ type LoginDto struct {
 }
 
 type FilterDto struct {
-	Name     string `json:"name"`
-	Position int16  `json:"position"`
-	Email    string `json:"email"`
-	Status   int16  `json:"status"`
+	Name     *string `json:"name"`
+	Position *int16  `json:"position"`
+	Email    *string `json:"email"`
+	Status   *int16  `json:"status"`
+
+	// fixed fields
+	Page     int   `json:"page"`
+	PageSize int64 `json:"page_size"`
 }
