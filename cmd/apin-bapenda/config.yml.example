@@ -6,11 +6,11 @@ httpConf:
   port: 8080
 
 dbConf:
-  dsn: host=127.0.0.1 port=5432 user=postgres password=sapiperah dbname=apin sslmode=disable TimeZone=Asia/Jakarta
+  dsn: host=127.0.0.1 port=5432 user=postgres password=postgres dbname=apin sslmode=disable TimeZone=Asia/Jakarta
   maxOpenConns: 5
   maxIdleConns: 5
   maxIdleTime: 100
-  dialect: 
+  dialect: postgres
 
 mailerConf:
   smtp_host:
