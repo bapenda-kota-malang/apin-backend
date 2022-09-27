@@ -29,20 +29,24 @@ const source = "potensiop"
 func GetList(input m.FilterDto) (any, error) {
 	var data []m.PotensiOp
 	var count int64
-	a.DB.Model(&m.PotensiOp{}).Count(&count)
 
 	var pagination gh.Pagination
-	result := a.DB.Scopes(gh.Filter(input, &pagination)).Preload("DetailPotensiOp").Find(&data)
+	result := a.DB.Model(&m.PotensiOp{}).
+		Scopes(gh.Filter(input)).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Preload("DetailPotensiOp").
+		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
 
 	return rp.OK{
 		Meta: t.IS{
-			"totalCount": strconv.Itoa(int(count)),
-			// "currentCount": strconv.Itoa(int(result.RowsAffected)),
-			"page":     strconv.Itoa(pagination.Page),
-			"pageSize": strconv.Itoa(pagination.PageSize),
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
 		Data: data,
 	}, nil

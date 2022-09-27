@@ -40,10 +40,14 @@ func Create(input m.CreateDto) (any, error) {
 func GetList(input m.FilterDto) (any, error) {
 	var data []m.Group
 	var count int64
-	a.DB.Model(&m.Group{}).Count(&count)
 
 	var pagination gh.Pagination
-	result := a.DB.Scopes(gh.Filter(input, &pagination)).Find(&data)
+	result := a.DB.
+		Model(&m.Group{}).
+		Scopes(gh.Filter(input)).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}

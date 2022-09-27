@@ -12,7 +12,7 @@ import (
 )
 
 // Filters based on query parameters
-func Filter(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
+func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		rt := reflect.TypeOf(input)
 		if rt.Kind() != reflect.Struct {
@@ -65,29 +65,6 @@ func Filter(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 			}
 		}
 
-		// db.Count(c)
-
-		// field pagination
-		fP := iV.FieldByName("Page")
-		fPS := iV.FieldByName("PageSize")
-		if fP.IsValid() && fP.Type().Kind() == reflect.Int {
-			p.Page = fP.Interface().(int)
-			if p.Page == 0 {
-				p.Page = 1
-			}
-		} else {
-			p.Page = 1
-		}
-		if fPS.IsValid() && fPS.Type().Kind() == reflect.Int {
-			p.PageSize = fPS.Interface().(int)
-			if p.PageSize < 5 && p.PageSize > 100 {
-				p.PageSize = 10
-			}
-		} else {
-			p.PageSize = 10
-		}
-		db.Offset((p.Page - 1) * p.PageSize).Limit(p.PageSize)
-
 		return db
 	}
 }
@@ -119,8 +96,31 @@ func ParseQueryPagination(q url.Values) (p Pagination, err error) {
 }
 
 // Pageinate based on query parameters
-func Paginate(p *Pagination) func(db *gorm.DB) *gorm.DB {
+func Paginate(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
+		iV := reflect.ValueOf(input) // input value
+		if iV.Kind() != reflect.Struct {
+			panic("input must be a struct")
+		}
+		// field pagination
+		fP := iV.FieldByName("Page")
+		fPS := iV.FieldByName("PageSize")
+		if fP.IsValid() && fP.Type().Kind() == reflect.Int {
+			p.Page = fP.Interface().(int)
+			if p.Page == 0 {
+				p.Page = 1
+			}
+		} else {
+			p.Page = 1
+		}
+		if fPS.IsValid() && fPS.Type().Kind() == reflect.Int {
+			p.PageSize = fPS.Interface().(int)
+			if p.PageSize < 5 && p.PageSize > 100 {
+				p.PageSize = 10
+			}
+		} else {
+			p.PageSize = 10
+		}
 		offset := (p.Page - 1) * p.PageSize
 		return db.Offset(offset).Limit(p.PageSize)
 	}
