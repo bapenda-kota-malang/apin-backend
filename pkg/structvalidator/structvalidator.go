@@ -153,7 +153,7 @@ func ValidateURL(container any, url url.URL) map[string]ValidationError {
 		}
 
 		switch fieldV.Interface().(type) {
-		case *bool:
+		case bool, *bool:
 			var v bool
 			if strings.ToLower(vals[0]) == "true" || vals[0] == "1" {
 				v = true
@@ -161,16 +161,16 @@ func ValidateURL(container any, url url.URL) map[string]ValidationError {
 				v = false
 			}
 			fieldV.Set(reflect.ValueOf(&v))
-		case *string:
+		case string, *string:
 			fieldV.Set(reflect.ValueOf(&vals[0]))
-		case *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64:
+		case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64:
 			if valInt, err := strconv.Atoi(vals[0]); err != nil {
 				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}
 			} else {
 				v := autoCastInt(valInt, fieldV)
 				fieldV.Set(v)
 			}
-		case *[]string:
+		case []string, *[]string:
 			fieldV.Set(reflect.ValueOf(&vals))
 
 		// TODO: make any *[]int as a function
