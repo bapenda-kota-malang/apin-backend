@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	apicore.Run(wajibpajak.SetRoutes())
+	apicore.Run(wajibpajak.SetRoutes(), "apin/wajibPajak")
 }

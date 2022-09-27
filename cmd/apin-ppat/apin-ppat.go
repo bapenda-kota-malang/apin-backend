@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	apicore.Run(ppat.SetRoutes())
+	apicore.Run(ppat.SetRoutes(), "apin/ppat")
 }
