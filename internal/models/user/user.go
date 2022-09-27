@@ -42,8 +42,8 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Name     string `json:"name"`
-	Position string `json:"position" validate:"required"`
-	Group_Id int    `json:"group_id" validate:"required"`
+	Position int16  `json:"position"`
+	Group_Id int    `json:"group_id"`
 	Email    string `json:"email"`
 	Notes    string `json:"notes"`
 	SysAdmin bool   `json:"sysAdmin"`
@@ -58,11 +58,16 @@ type RegisterDto struct {
 type LoginDto struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
+	Position int16  `json:"position"`
 }
 
 type FilterDto struct {
-	Name     string `json:"name"`
-	Position int16  `json:"position"`
-	Email    string `json:"email"`
-	Status   int16  `json:"status"`
+	Name     *string `json:"name"`
+	Position *int16  `json:"position"`
+	Email    *string `json:"email"`
+	Status   *int16  `json:"status"`
+
+	// fixed fields
+	Page     int   `json:"page"`
+	PageSize int64 `json:"page_size"`
 }

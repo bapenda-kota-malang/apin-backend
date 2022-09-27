@@ -71,6 +71,7 @@ func Create(input m.Create) (any, error) {
 	dataUP := dataUX.(rp.OKSimple)
 
 	dataU.Password = nil
+
 	return rp.OKSimple{Data: t.II{
 		"ppat": data,
 		"user": dataUP.Data,
@@ -121,25 +122,30 @@ func Update(id int, input m.Update) (interface{}, error) {
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return sh.SetError("request", "update-data", source, "failed", "data ppat tidak dapat ditemukan", data)
+	}
+	result = a.DB.Where(mu.User{Ref_Id: data.Id, Position: 2}).First(&dataU, id)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "update-data", source, "failed", "data user tidak dapat ditemukan", data)
 	}
 	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
-	}
-	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
-	}
-
-	result = a.DB.Where(mu.User{Ref_Id: data.Id}).First(&dataU, id)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload ppat", data)
 	}
 	if err := sc.Copy(&dataU, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload user", data)
 	}
 
-	if result := a.DB.Save(&dataU); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", dataU)
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		if result := a.DB.Save(&data); result.Error != nil {
+			return errors.New("gagal menyimpan data ppat")
+		}
+		if result := a.DB.Save(&dataU); result.Error != nil {
+			return errors.New("gagal menyimpan data user")
+		}
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "update-data", source, "failed", err.Error(), input)
 	}
 
 	dataU.Password = nil

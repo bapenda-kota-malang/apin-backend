@@ -5,14 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch bapenda debug",
+            "name": "Launch file Bapenda",
             "type": "go",
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceRoot}/cmd/apin-bapenda/apin-bapenda.go"
         },
         {
-            "name": "Launch wajib pajak debug",
+            "name": "Launch file Wajib Pajak",
             "type": "go",
             "request": "launch",
             "mode": "debug",
