@@ -10,7 +10,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
-	// "github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile" // EXECUTE
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
 )
 
 func SetRoutes() http.Handler {
@@ -23,7 +23,7 @@ func SetRoutes() http.Handler {
 	r.MethodNotAllowed(er.MethodNotAllowedResponse)
 
 	r.Get("/", home.Index)
-	// r.Post("/register", wp.Create) // EXECUTE
+	r.Post("/register", profile.Create) // EXECUTE
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", auth.Login)
@@ -37,10 +37,10 @@ func SetRoutes() http.Handler {
 		r.Patch("/reset-pass", account.ResetPassword)
 	})
 
-	// r.Route("/profile", func(r chi.Router) { // EXECUTE
-	// 	r.Get("/", p.Login)   // EXECUTE
-	// 	r.Patch("/", p.Login) // EXECUTE
-	// })
+	r.Route("/profile", func(r chi.Router) {
+		// 	r.Get("/", p.Login)   // EXECUTE
+		r.Patch("/{id}", profile.Update)
+	})
 
 	return r
 }

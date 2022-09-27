@@ -32,17 +32,19 @@ func Create(input m.CreateDto) (any, error) {
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
-	password, err := p.Hash(data.Password)
+	password, err := p.Hash(*data.Password)
 	if err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal membuat password", data)
 	} else {
-		data.Password = password
+		data.Password = &password
 	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := a.DB.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data user: "+result.Error.Error(), data)
 	}
+
+	data.Password = nil
 
 	return rp.OKSimple{Data: data}, nil
 }

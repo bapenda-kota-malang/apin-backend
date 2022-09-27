@@ -7,6 +7,7 @@ import (
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -28,6 +29,7 @@ func init() {
 	// autoMigrateList = make([]interface{})
 	listModelPendaftaran := []interface{}{
 		&user.User{},
+		&wajibpajak.WajibPajak{},
 		&adm.Provinsi{},
 		&adm.Daerah{},
 		&adm.Kecamatan{},
