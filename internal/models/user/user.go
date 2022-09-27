@@ -30,6 +30,7 @@ type CreateDto struct {
 	Position    int16     `json:"position" validate:"required"`
 	Ref_Id      int       `json:"ref_id"`
 	Group_Id    int       `json:"group_id" validate:"min=1"`
+	RegMode     int16     `json:"regMode"`
 	Email       string    `json:"email" validate:"validemail"`
 	Notes       string    `json:"notes"`
 	SysAdmin    bool      `json:"sysAdmin"`
