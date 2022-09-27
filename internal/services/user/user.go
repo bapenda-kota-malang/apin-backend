@@ -104,7 +104,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 	}
 
 	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data: "+result.Error.Error(), data)
 	}
 	data.Password = ""
 
