@@ -20,7 +20,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	input.Position = 2
+	input.Position = 3
 	result, err := as.GenToken(input)
 	if err == nil {
 		hj.WriteJSON(w, http.StatusOK, result, nil)
