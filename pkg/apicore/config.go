@@ -11,8 +11,8 @@ func (a *app) initConfig() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("/etc/apin")
-	viper.AddConfigPath("$HOME/apin")
+	viper.AddConfigPath("/etc/" + a.Code)
+	viper.AddConfigPath("$HOME/" + a.Code)
 	viper.AutomaticEnv()
 
 	// default values

@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	apicore.Run(bapenda.SetRoutes())
+	apicore.Run(bapenda.SetRoutes(), "apin/bapenda")
 }
