@@ -39,7 +39,7 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Name     string `json:"name"`
-	Position string `json:"position"`
+	Position int16  `json:"position"`
 	Group_Id int    `json:"group_id"`
 	Email    string `json:"email"`
 	Notes    string `json:"notes"`
