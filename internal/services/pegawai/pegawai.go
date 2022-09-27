@@ -54,6 +54,7 @@ func Create(input m.Create) (any, error) {
 		// simpan data user melalui user service
 		dataU.Position = 1
 		dataU.Ref_Id = data.Id
+		dataU.RegMode = 1
 		dataUXTemp, err := su.Create(dataU)
 		if err != nil {
 			return err
