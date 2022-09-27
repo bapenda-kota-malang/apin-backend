@@ -69,8 +69,6 @@ func Create(input m.Create) (any, error) {
 	}
 
 	dataUP := dataUX.(rp.OKSimple)
-
-	dataU.Password = "********" // cara cepat
 	return rp.OKSimple{Data: t.II{
 		"pegawai": data,
 		"user":    dataUP.Data,
@@ -121,34 +119,48 @@ func Update(id int, input m.Update) (interface{}, error) {
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return sh.SetError("request", "update-data", source, "failed", "data pegawai tidak dapat ditemukan", input)
+	}
+	result = a.DB.Where(mu.User{Ref_Id: data.Id, Position: 1}).First(&dataU)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "update-data", source, "failed", "data user tidak dapat ditemukan", input)
 	}
 	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
-	}
-	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
-	}
-
-	result = a.DB.Where(mu.User{Ref_Id: data.Id}).First(&dataU, id)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload untuk pegawai", input)
 	}
 	if err := sc.Copy(&dataU, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload untuk user", input)
 	}
 
-	if result := a.DB.Save(&dataU); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", dataU)
+	rowsAffected := 0
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		if result := a.DB.Save(&data); result.Error != nil {
+			return errors.New("gagal menyimpan data pegawai")
+		}
+		if result.RowsAffected > 0 {
+			rowsAffected++
+		}
+		if result := a.DB.Save(&dataU); result.Error != nil {
+			return errors.New("gagal menyimpan data user")
+		}
+		if result.RowsAffected > 0 {
+			rowsAffected++
+		}
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "update-data", source, "failed", err.Error(), input)
 	}
 
-	dataU.Password = "********" // cara cepat
-
+	dataU.Password = "" // cara cepat
 	return rp.OK{
 		Meta: t.IS{
-			"affected": strconv.Itoa(int(result.RowsAffected)),
+			"affected": strconv.Itoa(rowsAffected),
 		},
-		Data: data,
+		Data: t.II{
+			"pegawai": data,
+			"user":    dataU,
+		},
 	}, nil
 }
 
