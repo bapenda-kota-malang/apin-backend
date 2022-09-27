@@ -51,7 +51,7 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	if p.Check(input.Password, user.Password) == false {
+	if p.Check(userLogin.Password, *user.Password) == false {
 		return nil, errors.New("username atau password tidak sesuai")
 	}
 

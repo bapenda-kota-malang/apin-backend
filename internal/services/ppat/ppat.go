@@ -70,6 +70,8 @@ func Create(input m.Create) (any, error) {
 
 	dataUP := dataUX.(rp.OKSimple)
 
+	dataU.Password = nil
+
 	return rp.OKSimple{Data: t.II{
 		"ppat": data,
 		"user": dataUP.Data,
@@ -146,7 +148,7 @@ func Update(id int, input m.Update) (interface{}, error) {
 		return sh.SetError("request", "update-data", source, "failed", err.Error(), input)
 	}
 
-	dataU.Password = "********" // cara cepat
+	dataU.Password = nil
 
 	return rp.OK{
 		Meta: t.IS{
