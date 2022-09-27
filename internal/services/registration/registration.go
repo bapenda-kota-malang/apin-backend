@@ -27,7 +27,7 @@ func GetAll(pagination gormhelper.Pagination) (interface{}, error) {
 		//nested preload
 		//Preload("PemilikWps.Kelurahan").
 		Count(&count).
-		Scopes(gormhelper.Paginate(&pagination)).
+		// Scopes(gormhelper.Paginate(&pagination)).
 		Find(&register)
 
 	return responses.OK{
