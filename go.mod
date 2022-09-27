@@ -13,6 +13,7 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/spf13/viper v1.12.0
 	go.uber.org/zap v1.21.0
+	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 	gorm.io/driver/mysql v1.3.4
@@ -45,7 +46,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.3.0 // indirect
-	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
