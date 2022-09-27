@@ -16,6 +16,7 @@ import (
 	ac "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	r "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	p "github.com/bapenda-kota-malang/apin-backend/pkg/password"
 
 	um "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 )
@@ -41,19 +42,23 @@ func init() {
 }
 
 // Generates token and store in redis at one place
-func GenToken(userLogin um.UserLogin) (interface{}, error) {
+func GenToken(userLogin um.LoginDto) (interface{}, error) {
 	var user um.User
 	result := ac.DB.Where("name = ?", userLogin.Name).Find(&user)
 	if result.Error != nil {
-		return nil, errors.New("Internal server error: failed to fetch data")
+		return nil, errors.New("gagal mengambil data")
 	} else if result.RowsAffected == 0 {
-		return nil, errors.New("Data can not be found")
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if p.Check(userLogin.Password, user.Password) == false {
+		return nil, errors.New("username atau password tidak sesuai")
 	}
 
 	// Access token uuid prep
 	id, err := uuid.NewV4()
 	if err != nil {
-		panic(fmt.Sprintf("failed to generate UUID: %v", err))
+		panic(fmt.Sprintf("gagal mebuat UUID access token: %v", err))
 	}
 	aUuid := id.String()
 	atExpires := time.Now().Add(time.Minute * 15).Unix()
@@ -62,7 +67,7 @@ func GenToken(userLogin um.UserLogin) (interface{}, error) {
 	// Refresh token uuid prep
 	id, err = uuid.NewV4()
 	if err != nil {
-		panic(fmt.Sprintf("failed to generate UUID: %v", err))
+		panic(fmt.Sprintf("gagal mebuat UUID untuk refresh token: %v", err))
 	}
 	rUuid := id.String()
 	rtExpires := time.Now().Add(time.Hour * 24 * 7).Unix()
@@ -115,7 +120,6 @@ func GenToken(userLogin um.UserLogin) (interface{}, error) {
 			"refreshToken": rts,
 		},
 	}, nil
-
 }
 
 func RevokeToken() {

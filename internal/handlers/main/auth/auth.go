@@ -8,23 +8,20 @@ import (
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rs "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
-	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
+	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	um "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	as "github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	var user um.UserLogin
-	if err := sv.ValidateIoReader(&user, r.Body); err != nil {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, rs.ErrCustom{
-			Meta:     t.IS{"count": strconv.Itoa(len(err))},
-			Messages: err,
-		}, nil)
+	var input um.LoginDto
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
 
-	if result, err := as.GenToken(user); err == nil {
+	result, err := as.GenToken(input)
+	if err == nil {
 		hj.WriteJSON(w, http.StatusOK, result, nil)
 	} else {
 		fmt.Println(err)

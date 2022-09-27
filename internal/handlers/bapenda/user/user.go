@@ -1,112 +1,66 @@
 package user
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi/v5"
-	sc "github.com/jinzhu/copier"
-
-	ac "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
-	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
-	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
-
-	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
 )
 
 // complicated process where data depends on position
 func Create(w http.ResponseWriter, r *http.Request) {
-	var payload t.II
-	var result any
-	var err error
-
-	decodedInput := json.NewDecoder(r.Body)
-	err = decodedInput.Decode(&payload)
-	if err != nil {
-		hj.WriteJSON(w, http.StatusInternalServerError, err.Error(), nil)
+	var input m.CreateDto
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
 
-	if _, ok := payload["position"]; !ok {
-		payload["position"] = "1"
-	}
-	fmt.Println(payload)
-	if payload["position"] == "" || payload["position"] == "1" {
-		var data pegawai.Create
-		sc.Copy(&data, payload)
-		if hh.ValidateStruct(w, &data) == false {
-			return
-		}
-		result, err = s.Create(data)
-	} else {
-		var data ppat.Create
-		sc.Copy(&data, payload)
-		if hh.ValidateStruct(w, &data) == false {
-			return
-		}
-	}
-
-	if err == nil {
-		hj.WriteJSON(w, http.StatusOK, result, nil)
-	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
-	}
+	result, err := s.Create(input)
+	hh.DataResponse(w, result, err)
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
-	if err != nil {
-		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
 	}
 
-	if result, err := s.GetList(r.URL.Query(), pagination); err == nil {
-		hj.WriteJSON(w, http.StatusOK, result, nil)
-	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, err, nil)
-	}
+	result, err := s.GetList(input)
+	hh.DataResponse(w, result, err)
 }
 
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{
-			"message": "format id tidak dapat di kenali",
-		}, nil)
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
 		return
 	}
-	data := t.II{
-		"message": "You are visiting user detail for id " + strconv.Itoa(id) + " of app: " + ac.Self.Name,
-	}
-	hj.WriteJSON(w, http.StatusOK, data, nil)
+
+	result, err := s.GetDetail(id)
+	hh.DataResponse(w, result, err)
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
-	data := t.II{
-		"message": "You are updating user of app: " + ac.Self.Name,
-	}
-	hj.WriteJSON(w, http.StatusOK, data, nil)
-}
-
-func Delete(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{
-			"message": "format id tidak dapat di kenali",
-		}, nil)
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
 		return
 	}
 
-	if result, err := s.Delete(id); err == nil {
-		hj.WriteJSON(w, http.StatusOK, result, nil)
-	} else {
-		hj.WriteJSON(w, http.StatusUnprocessableEntity, t.IS{"message": err.Error()}, nil)
+	var data m.UpdateDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
 	}
+
+	result, err := s.Update(id, data)
+	hh.DataResponse(w, result, err)
+}
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	result, err := s.Delete(id)
+	hh.DataResponse(w, result, err)
 }
