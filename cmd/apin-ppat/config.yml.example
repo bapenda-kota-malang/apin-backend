@@ -26,4 +26,8 @@ loggerConf:
   output:
 
 authConf:
-  secretKey: OLDWORLDORDER
+  atSecretKey: OLDWORLDORDER
+  rtSecretKey: BLACKSEAOFIGNORANCE
+
+redisConf:
+  dsn: 127.0.0.1:6379
