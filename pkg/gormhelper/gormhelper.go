@@ -59,9 +59,9 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 
 			// add where query
 			if stringInSlice(vOpt, opts) {
-				db.Where(iTF.Name+" "+vOpt+" ?", iVF.Interface())
+				db.Where("\""+iTF.Name+"\" "+vOpt+" ?", iVF.Interface()) // F-KING BUG
 			} else {
-				db.Where(iTF.Name+" = ?", iVF.Interface())
+				db.Where("\""+iTF.Name+"\" = ?", iVF.Interface()) // F-KING BUG
 			}
 		}
 
