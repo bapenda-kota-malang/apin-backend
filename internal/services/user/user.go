@@ -62,6 +62,9 @@ func GetList(input m.FilterDto) (any, error) {
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
+	for i := range data {
+		data[i].Password = ""
+	}
 
 	return rp.OK{
 		Meta: t.IS{
@@ -103,6 +106,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 	if result := a.DB.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
+	data.Password = ""
 
 	return rp.OK{
 		Meta: t.IS{

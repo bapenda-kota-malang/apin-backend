@@ -39,8 +39,8 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Name     string `json:"name"`
-	Position string `json:"position" validate:"required"`
-	Group_Id int    `json:"group_id" validate:"required"`
+	Position string `json:"position"`
+	Group_Id int    `json:"group_id"`
 	Email    string `json:"email"`
 	Notes    string `json:"notes"`
 	SysAdmin bool   `json:"sysAdmin"`
