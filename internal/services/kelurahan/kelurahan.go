@@ -44,12 +44,14 @@ func GetList(input m.KelurahanFilterDto) (interface{}, error) {
 	var count int64
 	var pagination gh.Pagination
 
-	result := a.DB.
+	query := a.DB.
 		Model(&m.Kelurahan{}).
 		Scopes(gh.Filter(input)).
-		Count(&count).
-		Scopes(gh.Paginate(input, &pagination)).
-		Find(&data)
+		Count(&count)
+	if input.Kecamatan_Kode == nil {
+		query = query.Scopes(gh.Paginate(input, &pagination))
+	}
+	result := query.Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
