@@ -75,3 +75,16 @@ type UpdateDto struct {
 	// User
 	Email *string `json:"email" validate:"validemail"`
 }
+
+type CheckerPOneDto struct {
+	Nik          string    `json:"nik" validate:"required"`
+	Nama         string    `json:"nama" validate:"required"`
+	TempatLahir  string    `json:"tempatLahir" validate:"required"`
+	TanggalLahir time.Time `json:"tanggalLahir" validate:"required"`
+	Gender       uint8     `json:"gender" validate:"required,min=1"`
+	Pekerjaan    string    `json:"pekerjaan" validate:"required"`
+	Telp         string    `json:"telp" validate:"required"`
+}
+
+type name struct {
+}

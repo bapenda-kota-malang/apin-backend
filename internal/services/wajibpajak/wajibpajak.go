@@ -150,3 +150,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 		Data: data,
 	}, nil
 }
+
+func CheckerPOne(id int) (interface{}, error) {
+	return nil, nil
+}
