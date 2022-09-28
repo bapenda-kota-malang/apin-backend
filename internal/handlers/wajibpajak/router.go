@@ -27,7 +27,7 @@ func SetRoutes() http.Handler {
 	r.MethodNotAllowed(er.MethodNotAllowedResponse)
 
 	r.Get("/", home.Index)
-	r.Post("/register", profile.Create) // EXECUTE
+	r.Post("/register", profile.Create)
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", auth.Login)
