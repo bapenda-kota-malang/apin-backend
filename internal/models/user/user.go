@@ -71,3 +71,10 @@ type FilterDto struct {
 	Page     int   `json:"page"`
 	PageSize int64 `json:"page_size"`
 }
+
+type CheckerPThreeDto struct {
+	Name       string `json:"name" validate:"required"`
+	Password   string `json:"password" validate:"required"`
+	Email      string `json:"email" validate:"validemail"`
+	RePassword string `json:"rePassword" validate:"required"`
+}
