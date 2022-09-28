@@ -5,7 +5,7 @@ type Kelurahan struct {
 	Kecamatan_Kode string     `json:"kecamatan_kode" gorn:"size:7"`
 	Kecamatan      *Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_Kode;references:Kode"`
 	Kode           string     `json:"kode" gorm:"unique;size:10"`
-	Nama           string     `json:"nama;size:100"`
+	Nama           string     `json:"nama" gorm:"size:100"`
 }
 type KelurahanCreateDto struct {
 	Kecamatan_Kode string `json:"kecamatan_kode" validate:"requred;min=1"`
@@ -20,7 +20,7 @@ type KelurahanUpdateDto struct {
 }
 
 type KelurahanFilterDto struct {
-	// Kecamatan_Kode *string `json:"kecamatan_kode"`
+	Kecamatan_Kode *string `json:"kecamatan_kode"`
 	// Kode          *string `json:"kode"`
 	// Nama          *string `json:"nama"`
 	Page     int   `json:"page"`

@@ -32,11 +32,11 @@ func Create(input m.CreateDto) (any, error) {
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
-	password, err := p.Hash(data.Password)
+	password, err := p.Hash(*data.Password)
 	if err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal membuat password", data)
 	} else {
-		data.Password = password
+		data.Password = &password
 	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
@@ -44,15 +44,16 @@ func Create(input m.CreateDto) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data user: "+result.Error.Error(), data)
 	}
 
+	data.Password = nil
+
 	return rp.OKSimple{Data: data}, nil
 }
 
 func GetList(input m.FilterDto) (any, error) {
 	var data []m.User
 	var count int64
-	a.DB.Model(&m.User{}).Count(&count)
-
 	var pagination gh.Pagination
+
 	result := a.DB.
 		Model(&m.User{}).
 		Scopes(gh.Filter(input)).
@@ -61,6 +62,9 @@ func GetList(input m.FilterDto) (any, error) {
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+	for i := range data {
+		data[i].Password = nil
 	}
 
 	return rp.OK{
@@ -101,8 +105,9 @@ func Update(id int, input m.UpdateDto) (any, error) {
 	}
 
 	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data: "+result.Error.Error(), data)
 	}
+	data.Password = nil
 
 	return rp.OK{
 		Meta: t.IS{

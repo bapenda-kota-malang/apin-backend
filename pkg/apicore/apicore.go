@@ -15,6 +15,7 @@ import (
 )
 
 type app struct {
+	Code            string
 	Name            string
 	Env             string
 	Version         string
@@ -31,10 +32,11 @@ var DB *gorm.DB
 var Logger *zap.Logger
 
 // app starter
-func Run(routerIn http.Handler) {
+func Run(routerIn http.Handler, code string) {
 	Self = &app{}
 
 	// Intantiate all the conf
+	Self.Code = code
 	Self.HttpConf = &httpConf{}
 	Self.DbConf = &dbConf{}
 	Self.MailerConf = &mailerConf{}

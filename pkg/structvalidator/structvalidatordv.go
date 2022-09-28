@@ -89,8 +89,10 @@ func valLimiter(val reflect.Value, exptVal string, mode string) error {
 			return errors.New("nilai harus berupa angka/numerik")
 		}
 		valC = valCT
-	} else if valK >= reflect.Int && valK <= reflect.Uint64 {
+	} else if valK >= reflect.Int && valK <= reflect.Int64 {
 		valC = float64(val.Int())
+	} else if valK >= reflect.Uint && valK <= reflect.Uint64 {
+		valC = float64(val.Uint())
 	} else if valK <= reflect.Float32 && valK <= reflect.Float64 {
 		valC = val.Float()
 	}
