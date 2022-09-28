@@ -107,9 +107,19 @@ func GetDetail(id int) (any, error) {
 
 func Update(id int, input m.UpdateDto) (any, error) {
 	var data *m.WajibPajak
+	var imgNameChan = make(chan string)
+	var errChan = make(chan error)
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if input.FotoKtp != nil {
+		go sh.ReplaceImage(data.FotoKtp, *input.FotoKtp, imgNameChan, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "image unsupported", data)
+		}
+		data.FotoKtp = <-imgNameChan
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {

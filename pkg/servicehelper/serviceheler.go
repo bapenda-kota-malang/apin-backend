@@ -29,6 +29,17 @@ func SetError(scope, xtype, source, status, message string, data any) (any, erro
 	return nil, errors.New(message)
 }
 
+func getImgPath() (string, error) {
+	// path
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	basePath := filepath.Join(wd, "../../", "resources", "img")
+	os.MkdirAll(basePath, os.ModePerm)
+	return basePath, nil
+}
+
 func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 	defer close(imgNameCh)
 	defer close(errCh)
@@ -41,14 +52,11 @@ func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 	}
 	bReader := bytes.NewReader(unbased)
 
-	// path
-	wd, err := os.Getwd()
+	basePath, err := getImgPath()
 	if err != nil {
 		errCh <- err
 		return
 	}
-	basePath := filepath.Join(wd, "../../", "resources", "img")
-	os.MkdirAll(basePath, os.ModePerm)
 
 	// create img name
 	uid, err := uuid.NewV4()
@@ -94,4 +102,27 @@ func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 	}
 	errCh <- nil
 	imgNameCh <- imgName
+}
+
+func ReplaceImage(oImgName, b64Raw string, imgNameCh chan string, errCh chan error) {
+	defer close(errCh)
+	saveErrCh := make(chan error)
+	go SaveImage(b64Raw, imgNameCh, saveErrCh)
+
+	basePath, err := getImgPath()
+	if err != nil {
+		errCh <- err
+		return
+	}
+
+	if err := <-saveErrCh; err != nil {
+		errCh <- err
+		return
+	}
+
+	if err := os.Remove(fmt.Sprintf("%s/%s", basePath, oImgName)); err != nil {
+		errCh <- err
+		return
+	}
+
 }
