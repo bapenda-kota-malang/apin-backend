@@ -79,7 +79,7 @@ type (
 		LainLain          *string            `json:"lain_lain" gorm:"size:50"`
 		FotoObjek         *string            `json:"foto_objek" gorm:"size:50"`
 		Mode              Mode               `json:"mode"`
-		VerifyStatus      *VerifyPendaftaran `json:"verify_status"`
+		VerifyStatus      *VerifyPendaftaran `json:"verifyStatus"`
 		VerifyAt          *time.Time         `json:"verify_at"`
 		VendorEtaxID      *string            `json:"vendor_etax_id"`
 		// VendorEtax         *configurationmodel.VendorEtax `gorm:"foreignKey:VendorEtaxID"`
@@ -258,5 +258,5 @@ type RegisterUpdate struct {
 }
 
 type VerifikasiDto struct {
-	VerifyStatus string `json:"verify_status"`
+	VerifyStatus string `json:"verifyStatus"`
 }

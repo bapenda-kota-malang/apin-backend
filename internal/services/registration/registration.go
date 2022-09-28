@@ -133,12 +133,14 @@ func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (i
 	if err != nil {
 		return nil, err
 	}
+	var tmpverify = registration.VerifiyPendaftaranDisetujui
 	register := registration.Registration{
-		Mode:       registration.ModeOperator,
-		Status:     registration.StatusAktif,
-		JenisPajak: reg.JenisPajak,
-		Golongan:   reg.Golongan,
-		Npwp:       reg.Npwp,
+		Mode:         registration.ModeOperator,
+		Status:       registration.StatusAktif,
+		JenisPajak:   reg.JenisPajak,
+		Golongan:     reg.Golongan,
+		Npwp:         reg.Npwp,
+		VerifyStatus: &tmpverify,
 		Nomor: func() *string {
 			unique := strconv.FormatInt(time.Now().Unix(), 10)
 			if reg.IsNomorRegistrasiAuto {
@@ -375,7 +377,7 @@ func Update(id int, input registration.RegisterUpdate) (any, error) {
 	}
 	fmt.Println("data: ", input.Narahubung)
 	fmt.Println("data narahubung: ", dataNarahubung)
-	if err := sc.Copy(&dataNarahubung, &input.Narahubung); err != nil {
+	if err := sc.Copy(&dataNarahubung, &input.Narahubung[0]); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataNarahubung)
 	}
 	fmt.Println("data narahubung after: ", dataNarahubung)
