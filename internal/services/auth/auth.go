@@ -44,7 +44,7 @@ func init() {
 // Generates token and store in redis at one place
 func GenToken(input um.LoginDto) (interface{}, error) {
 	var user um.User
-	result := ac.DB.Where("\"Name\" = ?", input.Name).Where("\"Position\" = ?", input.Position).Find(&user) // F-KING WEIRD BUG
+	result := ac.DB.Where(um.User{Name: input.Name, Position: input.Position}).Find(&user)
 	if result.Error != nil {
 		return nil, errors.New("gagal mengambil data")
 	} else if result.RowsAffected == 0 {
@@ -88,6 +88,7 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 	// Creating Refresh Token
 	rtClaims := jwt.MapClaims{}
 	rtClaims["user_id"] = user.Id
+	rtClaims["ref_id"] = user.Ref_Id
 	rtClaims["exp"] = rtExpires
 	rtClaims["uuid"] = rUuid
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
