@@ -124,5 +124,5 @@ func ReplaceImage(oImgName, b64Raw string, imgNameCh chan string, errCh chan err
 		errCh <- err
 		return
 	}
-
+	errCh <- nil
 }
