@@ -62,3 +62,7 @@ type FilterDto struct {
 	Email    string `json:"email"`
 	Status   int16  `json:"status"`
 }
+
+type VerifikasiDto struct {
+	Status int16 `json:"status" validate:"required"`
+}

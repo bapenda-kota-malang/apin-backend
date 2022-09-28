@@ -256,3 +256,7 @@ type RegisterUpdate struct {
 	Pemilik    []PemilikWp  `json:"pemilik"`
 	Narahubung []Narahubung `json:"narahubung"`
 }
+
+type VerifikasiDto struct {
+	VerifyStatus string `json:"verify_status"`
+}
