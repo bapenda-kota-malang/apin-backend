@@ -43,7 +43,6 @@ func Create(input m.CreateDto) (any, error) {
 	if result := a.DB.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data user: "+result.Error.Error(), data)
 	}
-	data.Password = ""
 
 	data.Password = nil
 
@@ -65,7 +64,7 @@ func GetList(input m.FilterDto) (any, error) {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
 	for i := range data {
-		data[i].Password = ""
+		data[i].Password = nil
 	}
 
 	return rp.OK{
@@ -108,7 +107,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 	if result := a.DB.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data: "+result.Error.Error(), data)
 	}
-	data.Password = ""
+	data.Password = nil
 
 	return rp.OK{
 		Meta: t.IS{

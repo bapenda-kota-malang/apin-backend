@@ -25,6 +25,10 @@ func Create(input m.CreateDto) (any, error) {
 	var data m.WajibPajak
 	var dataU mu.CreateDto
 	var respDataU interface{}
+	var imgNameChan = make(chan string)
+	var errChan = make(chan error)
+
+	go sh.SaveImage(input.FotoKtp, imgNameChan, errChan)
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -47,7 +51,10 @@ func Create(input m.CreateDto) (any, error) {
 	// 	return nil, nil
 	// }
 
-	_ = data.FotoKtp
+	if err := <-errChan; err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "image unsupported", data)
+	}
+	data.FotoKtp = <-imgNameChan
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data ke db satu if karena result dipakai sekali, +error
@@ -100,9 +107,19 @@ func GetDetail(id int) (any, error) {
 
 func Update(id int, input m.UpdateDto) (any, error) {
 	var data *m.WajibPajak
+	var imgNameChan = make(chan string)
+	var errChan = make(chan error)
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if input.FotoKtp != nil {
+		go sh.ReplaceImage(data.FotoKtp, *input.FotoKtp, imgNameChan, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "image unsupported", data)
+		}
+		data.FotoKtp = <-imgNameChan
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
