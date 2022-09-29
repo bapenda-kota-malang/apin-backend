@@ -225,32 +225,32 @@ type (
 )
 
 type RegisterUpdate struct {
-	JenisPajak JenisPajak `json:"jenis_pajak"`
+	JenisPajak JenisPajak `json:"jenisPajak"`
 	Golongan   Golongan   `json:"golongan"`
-	Npwp       string     `json:"npwp"`
+	Npwp       *string    `json:"npwp"`
 
-	NomorRegistrasi       string `json:"nomor_registrasi"`
-	IsNomorRegistrasiAuto bool   `json:"is_nomor_registrasi_auto"`
+	NomorRegistrasi       *string `json:"nomorRegistrasi"`
+	IsNomorRegistrasiAuto bool    `json:"isNomorRegistrasiAuto"`
 
-	Npwpd             string `json:"npwpd"`
-	TanggalPengukuhan string `json:"tanggal_pengukuhan"`
-	TanggalNpwpd      string `json:"tanggal_npwpd"`
+	Npwpd             *string `json:"npwpd"`
+	TanggalPengukuhan *string `json:"tanggalPengukuhan"`
+	TanggalNpwpd      *string `json:"tanggalNpwpd"`
 
-	TanggalMulaiUsaha string `json:"tanggal_mulai_usaha"`
-	LuasBangunan      string `json:"luas_bangunan"`
-	JamBukaUsaha      string `json:"jam_buka_usaha"`
-	JamTutupUsaha     string `json:"jam_tutup_usaha"`
-	Pengunjung        string `json:"pengunjung"`
-	OmsetOp           string `json:"omset_op"`
+	TanggalMulaiUsaha *string `json:"tanggalMulaiUsaha"`
+	LuasBangunan      *string `json:"luasBangunan"`
+	JamBukaUsaha      *string `json:"jamBukaUsaha"`
+	JamTutupUsaha     *string `json:"jamTutupUsaha"`
+	Pengunjung        *string `json:"pengunjung"`
+	OmsetOp           *string `json:"omsetOp"`
 
-	RekeningID uint64 `json:"rekening_id"`
+	Rekening_Id uint64 `json:"rekening_id"`
 
 	Genset   bool `json:"genset"`
-	AirTanah bool `json:"air_tanah"`
+	AirTanah bool `json:"airTanah"`
 
-	DetailOp []DetailOp `json:"detail_op"`
+	DetailOp *[]DetailOp `json:"detail_op"`
 
-	ObjekPajak []ObjekPajak `json:"objek_pajak"`
+	ObjekPajak []ObjekPajak `json:"objekPajak"`
 	Pemilik    []PemilikWp  `json:"pemilik"`
 	Narahubung []Narahubung `json:"narahubung"`
 }
