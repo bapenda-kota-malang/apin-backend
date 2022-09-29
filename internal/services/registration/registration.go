@@ -9,7 +9,6 @@ import (
 
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -471,29 +470,6 @@ func Delete(id int) (any, error) {
 		Data: data,
 	}, nil
 
-}
-
-func VerifyUser(id int, input mu.VerifikasiDto) (any, error) {
-	var data *mu.User
-	result := a.DB.First(&data, id)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
-
-	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
-	}
-
-	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
-	}
-
-	return rp.OK{
-		Meta: t.IS{
-			"affected": strconv.Itoa(int(result.RowsAffected)),
-		},
-		Data: data,
-	}, nil
 }
 
 func VerifyNpwpd(id int, input registration.VerifikasiDto) (any, error) {
