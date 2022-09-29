@@ -3,9 +3,6 @@ package menu
 import (
 	"net/http"
 
-	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/menu"   // model
@@ -25,11 +22,12 @@ func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c Crud) GetList(w http.ResponseWriter, r *http.Request) {
-	pagination, err := gormhelper.ParseQueryPagination(r.URL.Query())
-	if err != nil {
-		hj.WriteJSON(w, http.StatusBadRequest, responses.ErrSimple{Message: err.Error()}, nil)
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
 	}
-	result, err := s.GetList(r.URL.Query(), pagination)
+
+	result, err := s.GetList(input)
 	hh.DataResponse(w, result, err)
 }
 

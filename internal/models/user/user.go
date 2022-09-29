@@ -56,8 +56,8 @@ type RegisterDto struct {
 }
 
 type LoginDto struct {
-	Name     string `json:"name"`
-	Password string `json:"password"`
+	Name     string `json:"name" validate:"required"`
+	Password string `json:"password" validate:"required"`
 	Position int16  `json:"position"`
 }
 
