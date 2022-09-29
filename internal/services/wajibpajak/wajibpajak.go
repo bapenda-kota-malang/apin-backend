@@ -11,6 +11,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
@@ -88,6 +89,32 @@ func Create(input m.CreateDto) (any, error) {
 	}
 
 	return rp.OKSimple{Data: resp}, nil
+}
+
+func GetList(input m.FilterDto) (any, error) {
+	var data []m.WajibPajak
+	var count int64
+	var pagination gh.Pagination
+
+	result := a.DB.
+		Model(&m.WajibPajak{}).
+		Scopes(gh.Filter(input)).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
 }
 
 func GetDetail(id int) (any, error) {

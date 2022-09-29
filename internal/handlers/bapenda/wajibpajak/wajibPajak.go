@@ -1,8 +1,12 @@
 package wajibPajak
 
 import (
-	"fmt"
 	"net/http"
+
+	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
+
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/wajibpajak"
 
 	ac "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
@@ -10,19 +14,23 @@ import (
 )
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	data := t.II{
-		"message": "You are visiting wajibpajak list of app: " + ac.Self.Name,
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
 	}
-	hj.WriteJSON(w, http.StatusOK, data, nil)
+
+	result, err := s.GetList(input)
+	hh.DataResponse(w, result, err)
 }
 
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.Context())
-	// id := .GetParam("id", r)
-	data := t.II{
-		"message": "You are visiting wajibpajak detail for id of app: " + ac.Self.Name,
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
 	}
-	hj.WriteJSON(w, http.StatusOK, data, nil)
+
+	result, err := s.GetDetail(id)
+	hh.DataResponse(w, result, err)
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {

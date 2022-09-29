@@ -2,7 +2,6 @@ package registration
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -52,8 +51,7 @@ func GetAll(pagination gormhelper.Pagination) (interface{}, error) {
 func GetDetail(r *http.Request, regID int) (interface{}, error) {
 	var register *registration.Registration
 	err := a.DB.Model(&registration.Registration{}).
-		Preload(clause.Associations).
-		First(&register, regID).Error
+		Preload(clause.Associations).First(&register, regID).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -329,9 +327,9 @@ func Update(id int, input registration.RegisterUpdate) (any, error) {
 	// 	}
 	// }
 
-	var dataObjekPajak *registration.ObjekPajak
-	var dataPemilikWp *registration.PemilikWp
-	var dataNarahubung *registration.Narahubung
+	// var dataObjekPajak *registration.ObjekPajak
+	// var dataPemilikWp *registration.PemilikWp
+	// var dataNarahubung *registration.Narahubung
 
 	//data regis
 	result := a.DB.First(&data, id)
@@ -345,47 +343,47 @@ func Update(id int, input registration.RegisterUpdate) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
 	}
 
-	//data objekpajak
-	result = a.DB.Where(registration.ObjekPajak{Pendaftaran_Id: uint64(id)}).First(&dataObjekPajak)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
-	if err := sc.Copy(&dataObjekPajak, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataObjekPajak)
-	}
+	// //data objekpajak
+	// result = a.DB.Where(registration.ObjekPajak{Pendaftaran_Id: uint64(id)}).First(&dataObjekPajak)
+	// if result.RowsAffected == 0 {
+	// 	return nil, errors.New("data tidak dapat ditemukan")
+	// }
+	// if err := sc.Copy(&dataObjekPajak, &input); err != nil {
+	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataObjekPajak)
+	// }
 
-	if result := a.DB.Save(&dataObjekPajak); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", dataObjekPajak)
-	}
+	// if result := a.DB.Save(&dataObjekPajak); result.Error != nil {
+	// 	return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", dataObjekPajak)
+	// }
 
-	//data pemilikwp
-	result = a.DB.Where(registration.PemilikWp{Pendaftaran_Id: uint64(id)}).First(&dataPemilikWp)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
-	if err := sc.Copy(&dataPemilikWp, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
-	}
+	// //data pemilikwp
+	// result = a.DB.Where(registration.PemilikWp{Pendaftaran_Id: uint64(id)}).First(&dataPemilikWp)
+	// if result.RowsAffected == 0 {
+	// 	return nil, errors.New("data tidak dapat ditemukan")
+	// }
+	// if err := sc.Copy(&dataPemilikWp, &input); err != nil {
+	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataPemilikWp)
+	// }
 
-	if result := a.DB.Save(&dataPemilikWp); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", dataPemilikWp)
-	}
+	// if result := a.DB.Save(&dataPemilikWp); result.Error != nil {
+	// 	return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", dataPemilikWp)
+	// }
 
-	//data narahubung
-	result = a.DB.Where(registration.Narahubung{Pendaftaran_Id: uint64(id)}).First(&dataNarahubung)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
-	fmt.Println("data: ", input.Narahubung)
-	fmt.Println("data narahubung: ", dataNarahubung)
-	if err := sc.Copy(&dataNarahubung, &input.Narahubung[0]); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataNarahubung)
-	}
-	fmt.Println("data narahubung after: ", dataNarahubung)
+	// //data narahubung
+	// result = a.DB.Where(registration.Narahubung{Pendaftaran_Id: uint64(id)}).First(&dataNarahubung)
+	// if result.RowsAffected == 0 {
+	// 	return nil, errors.New("data tidak dapat ditemukan")
+	// }
+	// fmt.Println("data: ", input.Narahubung)
+	// fmt.Println("data narahubung: ", dataNarahubung)
+	// if err := sc.Copy(&dataNarahubung, &input.Narahubung[0]); err != nil {
+	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataNarahubung)
+	// }
+	// fmt.Println("data narahubung after: ", dataNarahubung)
 
-	if result := a.DB.Save(&dataNarahubung); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", dataNarahubung)
-	}
+	// if result := a.DB.Save(&dataNarahubung); result.Error != nil {
+	// 	return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", dataNarahubung)
+	// }
 
 	return rp.OK{
 		Meta: t.IS{
@@ -397,70 +395,70 @@ func Update(id int, input registration.RegisterUpdate) (any, error) {
 
 func Delete(id int) (any, error) {
 
-	// data pemilikwp
-	var dataPemilik *registration.PemilikWp
-	result := a.DB.Where(registration.PemilikWp{Pendaftaran_Id: uint64(id)}).First(&dataPemilik)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
+	// // data pemilikwp
+	// var dataPemilik *registration.PemilikWp
+	// result := a.DB.Where(registration.PemilikWp{Pendaftaran_Id: uint64(id)}).First(&dataPemilik)
+	// if result.RowsAffected == 0 {
+	// 	return nil, errors.New("data tidak dapat ditemukan")
+	// }
 
-	result = a.DB.Where(registration.PemilikWp{Pendaftaran_Id: uint64(id)}).Delete(&dataPemilik)
-	status := "deleted"
-	if result.RowsAffected == 0 {
-		dataPemilik = nil
-		status = "no deletion"
-	}
+	// result = a.DB.Where(registration.PemilikWp{Pendaftaran_Id: uint64(id)}).Delete(&dataPemilik)
+	// status := "deleted"
+	// if result.RowsAffected == 0 {
+	// 	dataPemilik = nil
+	// 	status = "no deletion"
+	// }
 
-	// data narahubung
-	var dataNarahubung *registration.Narahubung
-	result = a.DB.Where(registration.Narahubung{Pendaftaran_Id: uint64(id)}).First(&dataNarahubung)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
+	// // data narahubung
+	// var dataNarahubung *registration.Narahubung
+	// result = a.DB.Where(registration.Narahubung{Pendaftaran_Id: uint64(id)}).First(&dataNarahubung)
+	// if result.RowsAffected == 0 {
+	// 	return nil, errors.New("data tidak dapat ditemukan")
+	// }
 
-	result = a.DB.Where(registration.Narahubung{Pendaftaran_Id: uint64(id)}).Delete(&dataNarahubung)
-	status = "deleted"
-	if result.RowsAffected == 0 {
-		dataPemilik = nil
-		status = "no deletion"
-	}
+	// result = a.DB.Where(registration.Narahubung{Pendaftaran_Id: uint64(id)}).Delete(&dataNarahubung)
+	// status = "deleted"
+	// if result.RowsAffected == 0 {
+	// 	dataPemilik = nil
+	// 	status = "no deletion"
+	// }
 
-	// data objekpajak
-	var dataObjekPajak *registration.ObjekPajak
-	result = a.DB.Where(registration.ObjekPajak{Pendaftaran_Id: uint64(id)}).First(&dataObjekPajak)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
+	// // data objekpajak
+	// var dataObjekPajak *registration.ObjekPajak
+	// result = a.DB.Where(registration.ObjekPajak{Pendaftaran_Id: uint64(id)}).First(&dataObjekPajak)
+	// if result.RowsAffected == 0 {
+	// 	return nil, errors.New("data tidak dapat ditemukan")
+	// }
 
-	result = a.DB.Where(registration.ObjekPajak{Pendaftaran_Id: uint64(id)}).Delete(&dataObjekPajak)
-	status = "deleted"
-	if result.RowsAffected == 0 {
-		dataPemilik = nil
-		status = "no deletion"
-	}
+	// result = a.DB.Where(registration.ObjekPajak{Pendaftaran_Id: uint64(id)}).Delete(&dataObjekPajak)
+	// status = "deleted"
+	// if result.RowsAffected == 0 {
+	// 	dataPemilik = nil
+	// 	status = "no deletion"
+	// }
 
-	// data detailop
-	var dataDetailOp *registration.DetailOpHiburan
-	result = a.DB.Where(registration.DetailOpHiburan{registration.DetailOp{Pendaftaran_Id: uint64(id)}}).First(&dataDetailOp)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
+	// // data detailop
+	// var dataDetailOp *registration.DetailOpHiburan
+	// result = a.DB.Where(registration.DetailOpHiburan{registration.DetailOp{Pendaftaran_Id: uint64(id)}}).First(&dataDetailOp)
+	// if result.RowsAffected == 0 {
+	// 	return nil, errors.New("data tidak dapat ditemukan")
+	// }
 
-	result = a.DB.Where(registration.DetailOpHiburan{registration.DetailOp{Pendaftaran_Id: uint64(id)}}).Delete(&dataDetailOp)
-	status = "deleted"
-	if result.RowsAffected == 0 {
-		dataPemilik = nil
-		status = "no deletion"
-	}
+	// result = a.DB.Where(registration.DetailOpHiburan{registration.DetailOp{Pendaftaran_Id: uint64(id)}}).Delete(&dataDetailOp)
+	// status = "deleted"
+	// if result.RowsAffected == 0 {
+	// 	dataPemilik = nil
+	// 	status = "no deletion"
+	// }
 
 	var data *registration.Registration
-	result = a.DB.First(&data, id)
+	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
 	result = a.DB.Delete(&data, id)
-	status = "deleted"
+	status := "deleted"
 	if result.RowsAffected == 0 {
 		data = nil
 		status = "no deletion"
@@ -470,7 +468,7 @@ func Delete(id int) (any, error) {
 			"count":  strconv.Itoa(int(result.RowsAffected)),
 			"status": status,
 		},
-		Data: dataPemilik,
+		Data: data,
 	}, nil
 
 }
