@@ -40,6 +40,19 @@ func getImgPath() (string, error) {
 	return basePath, nil
 }
 
+func CheckImage(b64Raw string) (err error) {
+	coI := strings.Index(string(b64Raw), ",")
+	switch strings.TrimSuffix(b64Raw[5:coI], ";base64") {
+	case "image/png":
+		return
+	case "image/jpeg":
+		return
+	default:
+		err = errors.New("unsupported mime type")
+	}
+	return
+}
+
 func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 	defer close(imgNameCh)
 	defer close(errCh)
