@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
@@ -38,6 +39,9 @@ func SetRoutes() http.Handler {
 	r.MethodNotAllowed(er.MethodNotAllowedResponse)
 
 	r.Get("/", home.Index)
+
+	fs := http.FileServer(http.Dir(servicehelper.GetResourcesPath()))
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", auth.Login)
