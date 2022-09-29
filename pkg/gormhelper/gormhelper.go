@@ -86,8 +86,8 @@ func ParseQueryPagination(q url.Values) (p Pagination, err error) {
 	}
 
 	switch {
-	case p.PageSize > 100:
-		p.PageSize = 100
+	case p.PageSize > 100000:
+		p.PageSize = 100000
 	case p.PageSize <= 0:
 		p.PageSize = 10
 	}

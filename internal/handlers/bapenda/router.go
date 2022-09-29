@@ -85,6 +85,10 @@ func SetRoutes() http.Handler {
 		r.Get("/", pendaftaran.GetList)
 		r.Get("/{id}", pendaftaran.GetDetail)
 		r.Post("/operator", pendaftaran.RegisterByOperator)
+		r.Patch("/{id}", pendaftaran.Update)
+		r.Patch("/user/{id}/verifikasi", pendaftaran.VerifyUser)
+		r.Patch("/npwpd/{id}/verifikasi", pendaftaran.VerifyNpwpd)
+		r.Delete("/{id}", pendaftaran.Delete)
 	})
 
 	r.Route("/rekening", func(r chi.Router) {

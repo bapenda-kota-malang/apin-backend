@@ -17,5 +17,6 @@
 resources/
 
 config.yml
+config.env
 
 __debug_bin
