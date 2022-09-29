@@ -12,7 +12,6 @@ import (
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -39,7 +38,7 @@ func GetAll(pagination gormhelper.Pagination) (interface{}, error) {
 		// Scopes(gormhelper.Paginate(&pagination)).
 		Find(&register)
 
-	return responses.OK{
+	return rp.OK{
 		Meta: types.IS{
 			"totalCount":   strconv.Itoa(int(count)),
 			"currentCount": strconv.Itoa(int(result.RowsAffected)),
@@ -61,7 +60,7 @@ func GetDetail(r *http.Request, regID int) (interface{}, error) {
 		}
 		return nil, err
 	}
-	return responses.OKSimple{
+	return rp.OKSimple{
 		Data: register,
 	}, err
 }
@@ -108,10 +107,12 @@ func insertDetailOp(objek string, data *[]registration.DetailOp, registerForm *r
 
 	for _, dop := range *data {
 		dop.JenisOp = registerForm.Rekening.Nama
-		dop.Pendaftaran_ID = registerForm.ID
+		dop.Pendaftaran_Id = registerForm.Id
+		dop.Pendaftaran_Npwpd = registerForm.Npwpd
 
 		m := make(map[string]interface{})
-		m["Pendaftaran_ID"] = dop.Pendaftaran_ID
+		m["Pendaftaran_Id"] = dop.Pendaftaran_Id
+		m["Pendaftaran_Npwpd"] = dop.Pendaftaran_Npwpd
 		m["JenisOp"] = dop.JenisOp
 		m["JumlahOp"] = dop.JumlahOp
 		m["TarifOp"] = dop.TarifOp
@@ -129,7 +130,7 @@ func insertDetailOp(objek string, data *[]registration.DetailOp, registerForm *r
 
 func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (interface{}, error) {
 	var rekening *rm.Rekening
-	err := a.DB.Model(&rm.Rekening{}).First(&rekening, reg.RekeningID).Error
+	err := a.DB.Model(&rm.Rekening{}).First(&rekening, reg.Rekening_Id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +165,7 @@ func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (i
 			}
 			return &t
 		}(),
-		Rekening_ID: &reg.RekeningID,
+		Rekening_Id: &reg.Rekening_Id,
 		Rekening:    rekening,
 		TanggalMulaiUsaha: func() *time.Time {
 			t, err := time.Parse("2006-01-02", *reg.TanggalMulaiUsaha)
@@ -190,7 +191,7 @@ func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (i
 		return nil, err
 	}
 	for _, op := range *reg.ObjekPajak {
-		op.Pendaftaran_ID = register.ID
+		op.Pendaftaran_Id = register.Id
 		op.Status = registration.StatusBaru
 		err := a.DB.Create(&op).Error
 		if err != nil {
@@ -198,7 +199,7 @@ func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (i
 		}
 	}
 	for _, p := range *reg.Pemilik {
-		p.Pendaftaran_ID = register.ID
+		p.Pendaftaran_Id = register.Id
 		p.Status = registration.StatusPemilikBaru
 		err := a.DB.Create(&p).Error
 		if err != nil {
@@ -206,14 +207,14 @@ func RegisterByOperator(r *http.Request, reg registration.RegisterByOperator) (i
 		}
 	}
 	for _, n := range *reg.Narahubung {
-		n.Pendaftaran_ID = register.ID
+		n.Pendaftaran_Id = register.Id
 		n.Status = registration.StatusNarahubungBaru
 		err := a.DB.Create(&n).Error
 		if err != nil {
 			return nil, err
 		}
 	}
-	return responses.OKSimple{
+	return rp.OKSimple{
 		Data: register,
 	}, nil
 }
@@ -345,7 +346,7 @@ func Update(id int, input registration.RegisterUpdate) (any, error) {
 	}
 
 	//data objekpajak
-	result = a.DB.Where(registration.ObjekPajak{Pendaftaran_ID: uint64(id)}).First(&dataObjekPajak)
+	result = a.DB.Where(registration.ObjekPajak{Pendaftaran_Id: uint64(id)}).First(&dataObjekPajak)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
@@ -358,7 +359,7 @@ func Update(id int, input registration.RegisterUpdate) (any, error) {
 	}
 
 	//data pemilikwp
-	result = a.DB.Where(registration.PemilikWp{Pendaftaran_ID: uint64(id)}).First(&dataPemilikWp)
+	result = a.DB.Where(registration.PemilikWp{Pendaftaran_Id: uint64(id)}).First(&dataPemilikWp)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
@@ -371,7 +372,7 @@ func Update(id int, input registration.RegisterUpdate) (any, error) {
 	}
 
 	//data narahubung
-	result = a.DB.Where(registration.Narahubung{Pendaftaran_ID: uint64(id)}).First(&dataNarahubung)
+	result = a.DB.Where(registration.Narahubung{Pendaftaran_Id: uint64(id)}).First(&dataNarahubung)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
@@ -398,12 +399,12 @@ func Delete(id int) (any, error) {
 
 	// data pemilikwp
 	var dataPemilik *registration.PemilikWp
-	result := a.DB.Where(registration.PemilikWp{Pendaftaran_ID: uint64(id)}).First(&dataPemilik)
+	result := a.DB.Where(registration.PemilikWp{Pendaftaran_Id: uint64(id)}).First(&dataPemilik)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	result = a.DB.Where(registration.PemilikWp{Pendaftaran_ID: uint64(id)}).Delete(&dataPemilik)
+	result = a.DB.Where(registration.PemilikWp{Pendaftaran_Id: uint64(id)}).Delete(&dataPemilik)
 	status := "deleted"
 	if result.RowsAffected == 0 {
 		dataPemilik = nil
@@ -412,12 +413,12 @@ func Delete(id int) (any, error) {
 
 	// data narahubung
 	var dataNarahubung *registration.Narahubung
-	result = a.DB.Where(registration.Narahubung{Pendaftaran_ID: uint64(id)}).First(&dataNarahubung)
+	result = a.DB.Where(registration.Narahubung{Pendaftaran_Id: uint64(id)}).First(&dataNarahubung)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	result = a.DB.Where(registration.Narahubung{Pendaftaran_ID: uint64(id)}).Delete(&dataNarahubung)
+	result = a.DB.Where(registration.Narahubung{Pendaftaran_Id: uint64(id)}).Delete(&dataNarahubung)
 	status = "deleted"
 	if result.RowsAffected == 0 {
 		dataPemilik = nil
@@ -426,12 +427,12 @@ func Delete(id int) (any, error) {
 
 	// data objekpajak
 	var dataObjekPajak *registration.ObjekPajak
-	result = a.DB.Where(registration.ObjekPajak{Pendaftaran_ID: uint64(id)}).First(&dataObjekPajak)
+	result = a.DB.Where(registration.ObjekPajak{Pendaftaran_Id: uint64(id)}).First(&dataObjekPajak)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	result = a.DB.Where(registration.ObjekPajak{Pendaftaran_ID: uint64(id)}).Delete(&dataObjekPajak)
+	result = a.DB.Where(registration.ObjekPajak{Pendaftaran_Id: uint64(id)}).Delete(&dataObjekPajak)
 	status = "deleted"
 	if result.RowsAffected == 0 {
 		dataPemilik = nil
@@ -440,12 +441,12 @@ func Delete(id int) (any, error) {
 
 	// data detailop
 	var dataDetailOp *registration.DetailOpHiburan
-	result = a.DB.Where(registration.DetailOpHiburan{registration.DetailOp{Pendaftaran_ID: uint64(id)}}).First(&dataDetailOp)
+	result = a.DB.Where(registration.DetailOpHiburan{registration.DetailOp{Pendaftaran_Id: uint64(id)}}).First(&dataDetailOp)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	result = a.DB.Where(registration.DetailOpHiburan{registration.DetailOp{Pendaftaran_ID: uint64(id)}}).Delete(&dataDetailOp)
+	result = a.DB.Where(registration.DetailOpHiburan{registration.DetailOp{Pendaftaran_Id: uint64(id)}}).Delete(&dataDetailOp)
 	status = "deleted"
 	if result.RowsAffected == 0 {
 		dataPemilik = nil
