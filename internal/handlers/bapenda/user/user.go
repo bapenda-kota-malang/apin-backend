@@ -64,3 +64,18 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Delete(id)
 	hh.DataResponse(w, result, err)
 }
+
+func Verifikasi(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	var input m.VerifikasiDto
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
+		return
+	}
+
+	result, err := s.Verifikasi(id, input)
+	hh.DataResponse(w, result, err)
+}

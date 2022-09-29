@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
-	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/registration"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
@@ -59,21 +58,6 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := s.Delete(id)
-	hh.DataResponse(w, result, err)
-}
-
-func VerifyUser(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
-		return
-	}
-
-	var input mu.VerifikasiDto
-	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		return
-	}
-
-	result, err := s.VerifyUser(id, input)
 	hh.DataResponse(w, result, err)
 }
 
