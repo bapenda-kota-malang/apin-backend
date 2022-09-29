@@ -88,10 +88,10 @@ type CheckerPOneDto struct {
 
 type CheckerPTwoDto struct {
 	Alamat       string `json:"alamat" validate:"required"`
-	Provinsi_Id  uint   `json:"provinsi_id" validate:"required,min=1"`
-	Kota_id      uint   `json:"kota_id" validate:"required,min=1"`
-	Kecamatan_Id uint   `json:"kecamatan_id" validate:"required,min=1"`
-	Kelurahan_Id uint   `json:"kelurahan_id" validate:"required,min=1"`
+	Provinsi_Id  uint   `json:"provinsi_id" validate:"min=1"`
+	Kota_id      uint   `json:"kota_id" validate:"min=1"`
+	Kecamatan_Id uint   `json:"kecamatan_id" validate:"min=1"`
+	Kelurahan_Id uint   `json:"kelurahan_id" validate:"min=1"`
 	KodePos      string `json:"kodePos" validate:"required"`
 	RtRw         string `json:"rtRw" validate:"required"`
 }

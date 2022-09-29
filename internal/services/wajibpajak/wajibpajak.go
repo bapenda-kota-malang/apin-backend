@@ -151,6 +151,39 @@ func Update(id int, input m.UpdateDto) (any, error) {
 	}, nil
 }
 
-func CheckerPOne(id int) (interface{}, error) {
-	return nil, nil
+func CheckerPOne(input m.CheckerPOneDto) (interface{}, error) {
+	var data m.WajibPajak
+	if result := a.DB.Where(&m.WajibPajak{Nik: input.Nik}).First(&data); result.RowsAffected != 0 {
+		return nil, errors.New("NIK telah terdaftar")
+	}
+	return rp.OKSimple{
+		Data: input,
+	}, nil
+}
+
+func CheckerPTwo(input m.CheckerPTwoDto) (interface{}, error) {
+	if result := a.DB.First(&mad.Kecamatan{}, input.Kecamatan_Id); result.RowsAffected == 0 {
+		return nil, errors.New("Kecamatan tidak ditemukan")
+	}
+	if result := a.DB.First(&mad.Kelurahan{}, input.Kelurahan_Id); result.RowsAffected == 0 {
+		return nil, errors.New("Kelurahan tidak ditemukan")
+	}
+	if result := a.DB.First(&mad.Daerah{}, input.Kota_id); result.RowsAffected == 0 {
+		return nil, errors.New("Daerah tidak ditemukan")
+	}
+	if result := a.DB.First(&mad.Provinsi{}, input.Provinsi_Id); result.RowsAffected == 0 {
+		return nil, errors.New("Provinsi tidak ditemukan")
+	}
+	return rp.OKSimple{
+		Data: input,
+	}, nil
+}
+
+func CheckerPFour(input m.CheckerPFourDto) (interface{}, error) {
+	if err := sh.CheckImage(input.FotoKtp); err != nil {
+		return nil, err
+	}
+	return rp.OKSimple{
+		Data: nil,
+	}, nil
 }
