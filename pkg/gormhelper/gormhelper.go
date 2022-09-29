@@ -30,7 +30,10 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 		iT := iV.Type() // input type
 		for i := 0; i < iV.NumField(); i++ {
 			iTF := iT.Field(i) // input type of the current field
-			opt := iTF.Name[len(iTF.Name)-4:]
+			opt := iTF.Name
+			if len(iTF.Name) >= 4 {
+				opt = iTF.Name[len(iTF.Name)-4:]
+			}
 
 			// skip option, page, or page_size
 			if opt == "_opt" || iTF.Name == "Page" || iTF.Name == "PageSize" {
