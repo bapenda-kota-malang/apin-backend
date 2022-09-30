@@ -17,14 +17,14 @@ type CreateDto struct {
 type UpdateDto struct {
 	Name        string `json:"name" validate:"required;maxLength=100"`
 	Description string `json:"description"`
-	Position    byte   `json:"position" validate:"required;min=1"`
+	// Position    byte   `json:"position" validate:"required;min=1"`
 }
 
 type FilterDto struct {
 	// dynamic fields
 	Name     *string `json:"name"`
-	Position *int    `json:"position"`
 	Status   *int    `json:"status"`
+	Position *int    `json:"position"`
 	// fixed fields
 	Page     int   `json:"page"`
 	PageSize int64 `json:"page_size"`
