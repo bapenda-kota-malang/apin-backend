@@ -29,13 +29,20 @@ func SetError(scope, xtype, source, status, message string, data any) (any, erro
 	return nil, errors.New(message)
 }
 
-func getImgPath() (string, error) {
-	// path
+func GetResourcesPath() string {
 	wd, err := os.Getwd()
 	if err != nil {
-		return "", err
+		return ""
 	}
-	basePath := filepath.Join(wd, "../../", "resources", "img")
+	basePath := filepath.Join(wd, "../../", "resources")
+	os.MkdirAll(basePath, os.ModePerm)
+	return basePath
+}
+
+func getImgPath() (string, error) {
+	// path
+	resourcesPath := GetResourcesPath()
+	basePath := filepath.Join(resourcesPath, "img")
 	os.MkdirAll(basePath, os.ModePerm)
 	return basePath, nil
 }
