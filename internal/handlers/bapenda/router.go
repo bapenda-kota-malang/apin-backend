@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
@@ -25,6 +26,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 )
 
 func SetRoutes() http.Handler {
@@ -37,6 +39,9 @@ func SetRoutes() http.Handler {
 	r.MethodNotAllowed(er.MethodNotAllowedResponse)
 
 	r.Get("/", home.Index)
+
+	fs := http.FileServer(http.Dir(servicehelper.GetResourcesPath()))
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", auth.Login)
@@ -71,6 +76,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", user.GetDetail)
 		r.Patch("/{id}", user.Update)
 		r.Delete("/{id}", user.Delete)
+		r.Patch("/{id}/verifikasi", user.Verifikasi)
 	})
 
 	r.Route("/group", func(r chi.Router) {
@@ -85,6 +91,9 @@ func SetRoutes() http.Handler {
 		r.Get("/", pendaftaran.GetList)
 		r.Get("/{id}", pendaftaran.GetDetail)
 		r.Post("/operator", pendaftaran.RegisterByOperator)
+		r.Patch("/{id}", pendaftaran.Update)
+		r.Patch("/npwpd/{id}/verifikasi", pendaftaran.VerifyNpwpd)
+		r.Delete("/{id}", pendaftaran.Delete)
 	})
 
 	r.Route("/rekening", func(r chi.Router) {
@@ -129,6 +138,11 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", kelurahan.GetDetail)
 		r.Patch("/{id}", kelurahan.Update)
 		r.Delete("/{id}", kelurahan.Delete)
+	})
+
+	r.Route("/wajibpajak", func(r chi.Router) {
+		r.Get("/", wajibpajak.GetList)
+		r.Get("/{id}", wajibpajak.GetDetail)
 	})
 
 	return r

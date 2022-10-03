@@ -75,3 +75,46 @@ type UpdateDto struct {
 	// User
 	Email *string `json:"email" validate:"validemail"`
 }
+
+type FilterDto struct {
+	Nik          *string `json:"nik"`
+	Nama         *string `json:"nama"`
+	Alamat       *string `json:"alamat"`
+	Provinsi_Id  *uint   `json:"provinsi_id"`
+	Kota_id      *uint   `json:"kota_id"`
+	Kecamatan_Id *uint   `json:"kecamatan_id"`
+	Kelurahan_Id *uint   `json:"kelurahan_id"`
+	TempatLahir  *string `json:"tempatLahir"`
+	Gender       *uint8  `json:"gender"`
+	Pekerjaan    *string `json:"pekerjaan"`
+	Telp         *string `json:"telp"`
+	KodePos      *string `json:"kodePos"`
+	Status       *uint8  `json:"status"`
+	// fixed fields
+	Page     int   `json:"page"`
+	PageSize int64 `json:"page_size"`
+}
+
+type CheckerPOneDto struct {
+	Nik          string    `json:"nik" validate:"required"`
+	Nama         string    `json:"nama" validate:"required"`
+	TempatLahir  string    `json:"tempatLahir" validate:"required"`
+	TanggalLahir time.Time `json:"tanggalLahir" validate:"required"`
+	Gender       uint8     `json:"gender" validate:"required,min=1"`
+	Pekerjaan    string    `json:"pekerjaan" validate:"required"`
+	Telp         string    `json:"telp" validate:"required"`
+}
+
+type CheckerPTwoDto struct {
+	Alamat       string `json:"alamat" validate:"required"`
+	Provinsi_Id  uint   `json:"provinsi_id" validate:"min=1"`
+	Kota_id      uint   `json:"kota_id" validate:"min=1"`
+	Kecamatan_Id uint   `json:"kecamatan_id" validate:"min=1"`
+	Kelurahan_Id uint   `json:"kelurahan_id" validate:"min=1"`
+	KodePos      string `json:"kodePos" validate:"required"`
+	RtRw         string `json:"rtRw" validate:"required"`
+}
+
+type CheckerPFourDto struct {
+	FotoKtp string `json:"fotoKtp" validate:"required"`
+}

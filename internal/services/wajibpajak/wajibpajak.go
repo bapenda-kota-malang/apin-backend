@@ -11,6 +11,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
@@ -90,6 +91,32 @@ func Create(input m.CreateDto) (any, error) {
 	return rp.OKSimple{Data: resp}, nil
 }
 
+func GetList(input m.FilterDto) (any, error) {
+	var data []m.WajibPajak
+	var count int64
+	var pagination gh.Pagination
+
+	result := a.DB.
+		Model(&m.WajibPajak{}).
+		Scopes(gh.Filter(input)).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
+}
+
 func GetDetail(id int) (any, error) {
 	var data *m.WajibPajak
 
@@ -148,5 +175,42 @@ func Update(id int, input m.UpdateDto) (any, error) {
 			"affected": strconv.Itoa(int(result.RowsAffected)),
 		},
 		Data: data,
+	}, nil
+}
+
+func CheckerPOne(input m.CheckerPOneDto) (interface{}, error) {
+	var data m.WajibPajak
+	if result := a.DB.Where(&m.WajibPajak{Nik: input.Nik}).First(&data); result.RowsAffected != 0 {
+		return nil, errors.New("NIK telah terdaftar")
+	}
+	return rp.OKSimple{
+		Data: input,
+	}, nil
+}
+
+func CheckerPTwo(input m.CheckerPTwoDto) (interface{}, error) {
+	if result := a.DB.First(&mad.Kecamatan{}, input.Kecamatan_Id); result.RowsAffected == 0 {
+		return nil, errors.New("Kecamatan tidak ditemukan")
+	}
+	if result := a.DB.First(&mad.Kelurahan{}, input.Kelurahan_Id); result.RowsAffected == 0 {
+		return nil, errors.New("Kelurahan tidak ditemukan")
+	}
+	if result := a.DB.First(&mad.Daerah{}, input.Kota_id); result.RowsAffected == 0 {
+		return nil, errors.New("Daerah tidak ditemukan")
+	}
+	if result := a.DB.First(&mad.Provinsi{}, input.Provinsi_Id); result.RowsAffected == 0 {
+		return nil, errors.New("Provinsi tidak ditemukan")
+	}
+	return rp.OKSimple{
+		Data: input,
+	}, nil
+}
+
+func CheckerPFour(input m.CheckerPFourDto) (interface{}, error) {
+	if err := sh.CheckImage(input.FotoKtp); err != nil {
+		return nil, err
+	}
+	return rp.OKSimple{
+		Data: nil,
 	}, nil
 }

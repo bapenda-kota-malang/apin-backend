@@ -139,3 +139,39 @@ func Delete(id int) (any, error) {
 		Data: data,
 	}, nil
 }
+
+func CheckerPThree(input m.CheckerPThreeDto) (interface{}, error) {
+	var data m.User
+	if result := a.DB.Unscoped().Where(&m.User{Name: input.Name}).First(&data); result.RowsAffected != 0 {
+		return nil, errors.New("username telah terdaftar")
+	}
+	if result := a.DB.Unscoped().Where(&m.User{Email: input.Email}).First(&data); result.RowsAffected != 0 {
+		return nil, errors.New("email telah terdaftar")
+	}
+	return rp.OKSimple{
+		Data: input,
+	}, nil
+}
+
+func Verifikasi(id int, input m.VerifikasiDto) (any, error) {
+	var data *m.User
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}

@@ -56,8 +56,8 @@ type RegisterDto struct {
 }
 
 type LoginDto struct {
-	Name     string `json:"name"`
-	Password string `json:"password"`
+	Name     string `json:"name" validate:"required"`
+	Password string `json:"password" validate:"required"`
 	Position int16  `json:"position"`
 }
 
@@ -66,8 +66,20 @@ type FilterDto struct {
 	Position *int16  `json:"position"`
 	Email    *string `json:"email"`
 	Status   *int16  `json:"status"`
+	Ref_Id   *int    `json:"ref_id"`
 
 	// fixed fields
 	Page     int   `json:"page"`
 	PageSize int64 `json:"page_size"`
+}
+
+type VerifikasiDto struct {
+	Status int16 `json:"status" validate:"required"`
+}
+
+type CheckerPThreeDto struct {
+	Name       string  `json:"name" validate:"required"`
+	Password   *string `json:"password,omitempty" validate:"minLength=6"`
+	Email      string  `json:"email" validate:"validemail"`
+	RePassword *string `json:"rePassword,omitempty" validate:"minLength=6"`
 }

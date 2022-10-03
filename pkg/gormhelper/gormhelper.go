@@ -2,9 +2,7 @@ package gormhelper
 
 import (
 	"fmt"
-	"net/url"
 	"reflect"
-	"strconv"
 
 	// gi "github.com/juliangruber/go-intersect"
 
@@ -30,7 +28,10 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 		iT := iV.Type() // input type
 		for i := 0; i < iV.NumField(); i++ {
 			iTF := iT.Field(i) // input type of the current field
-			opt := iTF.Name[len(iTF.Name)-4:]
+			opt := iTF.Name
+			if len(iTF.Name) >= 4 {
+				opt = iTF.Name[len(iTF.Name)-4:]
+			}
 
 			// skip option, page, or page_size
 			if opt == "_opt" || iTF.Name == "Page" || iTF.Name == "PageSize" {
@@ -69,32 +70,6 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-// Parsing incoming query to pagination struct and return pagination struct, if error when parsing return error
-func ParseQueryPagination(q url.Values) (p Pagination, err error) {
-	p.Page, err = strconv.Atoi(q.Get("page"))
-	if err != nil {
-		return
-	}
-
-	if p.Page == 0 {
-		p.Page = 1
-	}
-
-	p.PageSize, err = strconv.Atoi(q.Get("page_size"))
-	if err != nil {
-		return
-	}
-
-	switch {
-	case p.PageSize > 100000:
-		p.PageSize = 100000
-	case p.PageSize <= 0:
-		p.PageSize = 10
-	}
-
-	return
-}
-
 // Pageinate based on query parameters
 func Paginate(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
@@ -105,17 +80,29 @@ func Paginate(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 		// field pagination
 		fP := iV.FieldByName("Page")
 		fPS := iV.FieldByName("PageSize")
-		if fP.IsValid() && fP.Type().Kind() == reflect.Int {
-			p.Page = fP.Interface().(int)
-			if p.Page == 0 {
+		if fP.IsValid() {
+			if fP.Type().Kind() == reflect.Int {
+				p.Page = fP.Interface().(int)
+			} else if fP.Type().Kind() == reflect.Int64 {
+				p.Page = int(fP.Interface().(int64))
+			} else {
+				p.Page = 1
+			}
+			if p.Page <= 0 {
 				p.Page = 1
 			}
 		} else {
 			p.Page = 1
 		}
-		if fPS.IsValid() && fPS.Type().Kind() == reflect.Int {
-			p.PageSize = fPS.Interface().(int)
-			if p.PageSize < 5 && p.PageSize > 100 {
+		if fPS.IsValid() {
+			if fPS.Type().Kind() == reflect.Int {
+				p.PageSize = fPS.Interface().(int)
+			} else if fPS.Type().Kind() == reflect.Int64 {
+				p.PageSize = int(fPS.Interface().(int64))
+			} else {
+				p.PageSize = 10
+			}
+			if p.PageSize < 5 && p.PageSize > 10000 {
 				p.PageSize = 10
 			}
 		} else {

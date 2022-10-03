@@ -29,15 +29,35 @@ func SetError(scope, xtype, source, status, message string, data any) (any, erro
 	return nil, errors.New(message)
 }
 
-func getImgPath() (string, error) {
-	// path
+func GetResourcesPath() string {
 	wd, err := os.Getwd()
 	if err != nil {
-		return "", err
+		return ""
 	}
-	basePath := filepath.Join(wd, "../../", "resources", "img")
+	basePath := filepath.Join(wd, "../../", "resources")
+	os.MkdirAll(basePath, os.ModePerm)
+	return basePath
+}
+
+func getImgPath() (string, error) {
+	// path
+	resourcesPath := GetResourcesPath()
+	basePath := filepath.Join(resourcesPath, "img")
 	os.MkdirAll(basePath, os.ModePerm)
 	return basePath, nil
+}
+
+func CheckImage(b64Raw string) (err error) {
+	coI := strings.Index(string(b64Raw), ",")
+	switch strings.TrimSuffix(b64Raw[5:coI], ";base64") {
+	case "image/png":
+		return
+	case "image/jpeg":
+		return
+	default:
+		err = errors.New("unsupported mime type")
+	}
+	return
 }
 
 func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
