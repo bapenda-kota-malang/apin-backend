@@ -23,7 +23,14 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
+<<<<<<< HEAD
+	Title *string `json:"title" gorm:"size:100"`
+
+	Page     int   `json:"page"`
+	PageSize int64 `json:"page_size"`
+=======
 	Title    *string `json:"title" gorm:"size:100"`
 	Page     int     `json:"page"`
 	PageSize int     `json:"page_size"`
+>>>>>>> dev
 }
