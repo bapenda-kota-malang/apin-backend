@@ -12,8 +12,6 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	p "github.com/bapenda-kota-malang/apin-backend/pkg/password"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
-	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
-	sl "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/stringval"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 )
@@ -22,7 +20,7 @@ const source = "user"
 
 func init() {
 	a.AutoMigrate(&m.User{})
-	sv.RegisterValidator("validemail", sl.ValEmailValidator)
+	// sv.RegisterValidator("validemail", sl.ValEmailValidator)
 }
 
 func Create(input m.CreateDto) (any, error) {
