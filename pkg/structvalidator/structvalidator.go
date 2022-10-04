@@ -126,9 +126,14 @@ func ValidateIoReader(container interface{}, input io.Reader) map[string]Validat
 	decoder := json.NewDecoder(input)
 	err := decoder.Decode(&container)
 	if err != nil {
-		myType := fmt.Sprintf("%T", container)
+		// cI := reflect.ValueOf(container).E()
+		cI := reflect.ValueOf(container).Elem().Interface()
+		cV := reflect.ValueOf(cI)
+		// cT := reflect.TypeOf(cV)
+		// myType := cT.String()//
+		myType := fmt.Sprintf("%T", cV)
 		return map[string]ValidationError{
-			"struct": {fmt.Sprintf("parsing to type %v failed", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
+			"struct": {fmt.Sprintf("gagal mengambil data %v", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
 		}
 	}
 
@@ -254,12 +259,12 @@ func ValidateURL(container any, url url.URL) map[string]ValidationError {
 }
 
 // register a validator
-func RegisterValidator(tag string, validatorF validator) {
+func RegisterFieldChecker(tag string, validatorF validator) {
 	tagValidator[tag] = validatorF
 }
 
 // unregister a validator
-func UnregisterValidator(tag string) {
+func UnregisterFieldChecker(tag string) {
 	delete(tagValidator, tag)
 }
 

@@ -14,15 +14,15 @@ import (
 // register the field checkers
 func init() {
 	tagValidator = make(map[string]validator)
-	RegisterValidator("required", requiredTagValidator)
-	RegisterValidator("eq", eqTagValidator)
-	RegisterValidator("similar", eqTagValidator)
-	RegisterValidator("min", minTagValidator)
-	RegisterValidator("max", maxTagValidator)
-	RegisterValidator("minLength", minLengthTagValidator)
-	RegisterValidator("maxLength", maxLengthTagValidator)
-	RegisterValidator("validemail", maxLengthTagValidator)
-	RegisterValidator("base64", base64Validator)
+	RegisterFieldChecker("required", requiredTagValidator)
+	RegisterFieldChecker("eq", eqTagValidator)
+	RegisterFieldChecker("similar", eqTagValidator)
+	RegisterFieldChecker("min", minTagValidator)
+	RegisterFieldChecker("max", maxTagValidator)
+	RegisterFieldChecker("minLength", minLengthTagValidator)
+	RegisterFieldChecker("maxLength", maxLengthTagValidator)
+	RegisterFieldChecker("validemail", maxLengthTagValidator)
+	RegisterFieldChecker("base64", base64Validator)
 }
 
 ///// Field checkers
