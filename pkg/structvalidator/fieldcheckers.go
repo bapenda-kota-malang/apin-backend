@@ -1,27 +1,32 @@
+// built-in field checker
 package structvalidator
 
 import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 
 	h "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/helper"
 )
 
-// register default tag validator
+// register the field checkers
 func init() {
 	tagValidator = make(map[string]validator)
-	RegisterValidator("required", requiredTagValidator)
-	RegisterValidator("eq", eqTagValidator)
-	RegisterValidator("similar", eqTagValidator)
-	RegisterValidator("min", minTagValidator)
-	RegisterValidator("max", maxTagValidator)
-	RegisterValidator("minLength", minLengthTagValidator)
-	RegisterValidator("maxLength", maxLengthTagValidator)
+	RegisterFieldChecker("required", requiredTagValidator)
+	RegisterFieldChecker("eq", eqTagValidator)
+	RegisterFieldChecker("similar", eqTagValidator)
+	RegisterFieldChecker("min", minTagValidator)
+	RegisterFieldChecker("max", maxTagValidator)
+	RegisterFieldChecker("minLength", minLengthTagValidator)
+	RegisterFieldChecker("maxLength", maxLengthTagValidator)
+	RegisterFieldChecker("validemail", maxLengthTagValidator)
+	RegisterFieldChecker("base64", base64Validator)
 }
 
-// // for the default validator we have: required + comparisons
+///// Field checkers
+
 func requiredTagValidator(val reflect.Value, exptVal string) error {
 	if (val.Kind() == reflect.String && val.String() == "") || (val.Kind() == reflect.Ptr && val.IsNil()) {
 		val.Interface()
@@ -74,7 +79,28 @@ func maxLengthTagValidator(val reflect.Value, exptVal string) error {
 	return nil
 }
 
-// /// some helper for default validator func
+func emailValidator(val reflect.Value, exptVal string) error {
+	re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+	if re.MatchString(h.ValStringer(val)) == false {
+		return errors.New("harus memiliki format email yang benar")
+	}
+
+	return nil
+}
+
+func base64Validator(val reflect.Value, exptVal string) error {
+	re := regexp.MustCompile("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$")
+
+	if re.MatchString(h.ValStringer(val)) == false {
+		return errors.New("harus memiliki format base64")
+	}
+
+	return nil
+}
+
+///// some helper for the default field checker
+
 func valLimiter(val reflect.Value, exptVal string, mode string) error {
 	exptValFloat, err := strconv.ParseFloat(exptVal, 64)
 	if err != nil {
