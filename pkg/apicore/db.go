@@ -2,6 +2,8 @@ package apicore
 
 import (
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/esptd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -49,6 +51,16 @@ func init() {
 		&registration.Narahubung{},
 	}
 	AutoMigrate(listModelPendaftaran...)
+
+	listModelPenetapan := []interface{}{
+		&esptd.Espt{},
+		&detailesptd.DetailEsptAir{},
+		&detailesptd.DetailEsptHotel{},
+		&detailesptd.DetailEsptParkir{},
+		&detailesptd.DetailEsptResto{},
+		&detailesptd.DetailEsptReklame{},
+	}
+	autoMigrateList = append(autoMigrateList, listModelPenetapan...)
 
 	listModelPendataan := []interface{}{
 		&potensiopwp.PotensiOp{},
