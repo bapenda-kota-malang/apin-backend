@@ -2,8 +2,12 @@ package apicore
 
 import (
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptd"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/esptd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptreklame"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -53,12 +57,12 @@ func init() {
 	AutoMigrate(listModelPendaftaran...)
 
 	listModelPenetapan := []interface{}{
-		&esptd.Espt{},
-		&detailesptd.DetailEsptAir{},
-		&detailesptd.DetailEsptHotel{},
-		&detailesptd.DetailEsptParkir{},
-		&detailesptd.DetailEsptResto{},
-		&detailesptd.DetailEsptReklame{},
+		&espt.Espt{},
+		&detailesptair.DetailEsptAir{},
+		&detailespthotel.DetailEsptHotel{},
+		&detailesptparkir.DetailEsptParkir{},
+		&detailesptresto.DetailEsptResto{},
+		&detailesptreklame.DetailEsptReklame{},
 	}
 	autoMigrateList = append(autoMigrateList, listModelPenetapan...)
 

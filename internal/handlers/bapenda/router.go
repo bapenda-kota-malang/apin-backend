@@ -15,7 +15,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/auth"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/esptd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
@@ -146,10 +146,11 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", wajibpajak.GetDetail)
 	})
 
-	r.Route("/esptd", func(r chi.Router) {
-		r.Get("/", esptd.GetList)
-		r.Get("/{id}", esptd.GetDetail)
-		r.Delete("/{id}", esptd.Delete)
+	r.Route("/espt", func(r chi.Router) {
+		r.Post("/", espt.Create)
+		r.Get("/", espt.GetList)
+		r.Get("/{id}", espt.GetDetail)
+		r.Delete("/{id}", espt.Delete)
 	})
 
 	return r
