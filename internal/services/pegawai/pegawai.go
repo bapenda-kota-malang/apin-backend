@@ -47,7 +47,7 @@ func Create(input m.Create) (any, error) {
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data pegawai ke db satu if karena result dipakai sekali, +error
-		if result := a.DB.Create(&data); result.Error != nil {
+		if result := tx.Create(&data); result.Error != nil {
 			return errors.New("penyimpanan data pegawai gagal")
 		}
 
@@ -55,7 +55,7 @@ func Create(input m.Create) (any, error) {
 		dataU.Position = 1
 		dataU.Ref_Id = data.Id
 		dataU.RegMode = 1
-		dataUXTemp, err := su.Create(dataU)
+		dataUXTemp, err := su.Create(dataU, tx)
 		if err != nil {
 			return err
 		}
@@ -69,7 +69,7 @@ func Create(input m.Create) (any, error) {
 	}
 
 	dataUP := dataUX.(rp.OKSimple)
-  
+
 	dataU.Password = nil
 
 	return rp.OKSimple{Data: t.II{
