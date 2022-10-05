@@ -3,7 +3,7 @@ package potensiopwp
 import (
 	"time"
 
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
+	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 

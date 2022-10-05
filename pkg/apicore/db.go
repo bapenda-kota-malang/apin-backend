@@ -2,8 +2,9 @@ package apicore
 
 import (
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	npwpd "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
-	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
+	rnpwpd "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
@@ -36,17 +37,28 @@ func init() {
 		&adm.Kelurahan{},
 		&rm.Rekening{},
 		&skpd.Skpd{},
-		&registration.Registration{},
-		&registration.ObjekPajak{},
-		&registration.DetailOpAirTanah{},
-		&registration.DetailOpHiburan{},
-		&registration.DetailOpHotel{},
-		&registration.DetailOpParkir{},
-		&registration.DetailOpPpj{},
-		&registration.DetailOpReklame{},
-		&registration.DetailOpResto{},
-		&registration.PemilikWp{},
-		&registration.Narahubung{},
+		&npwpd.Npwpd{},
+		&npwpd.ObjekPajak{},
+		&npwpd.DetailOpAirTanah{},
+		&npwpd.DetailOpHiburan{},
+		&npwpd.DetailOpHotel{},
+		&npwpd.DetailOpParkir{},
+		&npwpd.DetailOpPpj{},
+		&npwpd.DetailOpReklame{},
+		&npwpd.DetailOpResto{},
+		&npwpd.PemilikWp{},
+		&npwpd.Narahubung{},
+		&rnpwpd.RegistrasiNpwpd{},
+		&rnpwpd.RegObjekPajak{},
+		&rnpwpd.DetailRegOpAirTanah{},
+		&rnpwpd.DetailRegOpHiburan{},
+		&rnpwpd.DetailRegOpHotel{},
+		&rnpwpd.DetailRegOpParkir{},
+		&rnpwpd.DetailRegOpPpj{},
+		&rnpwpd.DetailRegOpReklame{},
+		&rnpwpd.DetailRegOpResto{},
+		&rnpwpd.RegPemilikWp{},
+		&rnpwpd.RegNarahubung{},
 	}
 	AutoMigrate(listModelPendaftaran...)
 

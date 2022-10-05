@@ -19,11 +19,12 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
+	pendaftaran "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pendaftaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/registrasinpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	wajibPajak "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 )
@@ -82,14 +83,18 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", group.Delete)
 	})
 
-	r.Route("/registration", func(r chi.Router) {
+	r.Route("/npwpd", func(r chi.Router) {
 		r.Get("/", pendaftaran.GetList)
 		r.Get("/{id}", pendaftaran.GetDetail)
+		r.Get("/registrasinpwpd", registrasinpwpd.GetList)
+		r.Get("/registrasinpwpd/{id}", registrasinpwpd.GetDetail)
 		r.Post("/operator", pendaftaran.RegisterByOperator)
 		r.Patch("/{id}", pendaftaran.Update)
 		r.Patch("/user/{id}/verifikasi", pendaftaran.VerifyUser)
 		r.Patch("/npwpd/{id}/verifikasi", pendaftaran.VerifyNpwpd)
+		r.Patch("/registrasinpwpd/{id}/setstatus", registrasinpwpd.VerifyRegistrasiNpwpd)
 		r.Delete("/{id}", pendaftaran.Delete)
+
 	})
 
 	r.Route("/rekening", func(r chi.Router) {

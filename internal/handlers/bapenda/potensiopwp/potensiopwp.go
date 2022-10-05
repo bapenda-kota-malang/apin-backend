@@ -3,8 +3,8 @@ package potensiopwp
 import (
 	"net/http"
 
+	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"

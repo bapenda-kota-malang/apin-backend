@@ -1,12 +1,12 @@
-package pendaftaran
+package npwpd
 
 import (
 	"fmt"
 	"net/http"
 
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
+	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/registration"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
@@ -47,7 +47,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
-	fmt.Println("datahandler: ", data)
+	fmt.Println("datahandler: ", *data.DetailOp.JumlahOp)
 	result, err := s.Update(id, data)
 	hh.DataResponse(w, result, err)
 }
