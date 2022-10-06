@@ -12,10 +12,7 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
-
-	sair "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptair"
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
@@ -63,8 +60,9 @@ func GetDetail(id int) (any, error) {
 }
 
 // Service insert data for table espt:
-//  Create(input, tx) // for using transaction
-//  Create(input, nil) // for not using transaction
+//
+//	Create(input, tx) // for using transaction
+//	Create(input, nil) // for not using transaction
 func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
@@ -143,31 +141,4 @@ func Delete(id int) (any, error) {
 		},
 		Data: data,
 	}, nil
-}
-
-// Service create business flow for esptd air tanah
-func CreateAir(input m.CreateDetailAirDto) (interface{}, error) {
-	var data m.Espt
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		respEspt, err := Create(input.CreateDto, tx)
-		if err != nil {
-			return err
-		}
-		data = respEspt.(rp.OKSimple).Data.(m.Espt)
-
-		for _, v := range input.DataDetails {
-			v.Espt_Id = data.Id
-		}
-
-		respDetail, err := sair.Create(input.DataDetails, tx)
-		if err != nil {
-			return err
-		}
-		data.DetailEsptAir = respDetail.(rp.OKSimple).Data.(*[]detailesptair.DetailEsptAir)
-		return nil
-	})
-	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
-	}
-	return rp.OKSimple{Data: data}, nil
 }

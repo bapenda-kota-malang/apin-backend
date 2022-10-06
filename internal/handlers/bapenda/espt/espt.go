@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"reflect"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
@@ -11,25 +12,57 @@ import (
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/espt"
 )
 
-func checkCategory(w http.ResponseWriter, body io.ReadCloser, category, typeProcess string) (result interface{}, err error) {
+func validateDetail(w http.ResponseWriter, body io.ReadCloser, data interface{}) (err error) {
+	if !hh.ValidateStructByIOR(w, body, &data) {
+		err = errors.New("failed")
+		return
+	}
+	// using reflect check len dataDetails array
+	dVal := reflect.ValueOf(data)
+	if dVal.Kind() == reflect.Pointer {
+		dVal = dVal.Elem()
+	}
+	if field := dVal.FieldByName("DataDetails"); field.IsValid() {
+		if field.Kind() == reflect.Slice && field.Len() == 0 {
+			err = errors.New("data detail kosong")
+			return
+		}
+	}
+	return
+}
+
+func checkCategoryCreate(w http.ResponseWriter, body io.ReadCloser, category string) (result interface{}, err error) {
 	switch category {
 	case "air":
 		var input m.CreateDetailAirDto
-		if !hh.ValidateStructByIOR(w, body, &input) {
-			err = errors.New("failed")
-			break
-		}
-		if len(input.DataDetails) == 0 {
-			err = errors.New("data detail kosong")
+		if err = validateDetail(w, body, &input); err != nil {
 			break
 		}
 		result, err = s.CreateAir(input)
 	case "hotel":
 		var input m.CreateDetailHotelDto
-		if !hh.ValidateStructByIOR(w, body, &input) {
-			err = errors.New("failed")
+		if err = validateDetail(w, body, &input); err != nil {
 			break
 		}
+		result, err = s.CreateHotel(input)
+	case "parkir":
+		var input m.CreateDetailParkirDto
+		if err = validateDetail(w, body, &input); err != nil {
+			break
+		}
+		result, err = s.CreateParkir(input)
+	case "reklame":
+		var input m.CreateDetailReklameDto
+		if err = validateDetail(w, body, &input); err != nil {
+			break
+		}
+		result, err = s.CreateReklame(input)
+	case "resto":
+		var input m.CreateDetailRestoDto
+		if err = validateDetail(w, body, &input); err != nil {
+			break
+		}
+		result, err = s.CreateResto(input)
 	default:
 		err = errors.New("category tidak diketahui")
 	}
@@ -39,7 +72,7 @@ func checkCategory(w http.ResponseWriter, body io.ReadCloser, category, typeProc
 func Create(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	category := query.Get("category")
-	result, err := checkCategory(w, r.Body, category, "create")
+	result, err := checkCategoryCreate(w, r.Body, category)
 	if err.Error() == "failed" {
 		return
 	}

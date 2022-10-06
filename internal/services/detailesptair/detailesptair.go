@@ -16,7 +16,7 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "espt"
+const source = "detailesptair"
 
 func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {

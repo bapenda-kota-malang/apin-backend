@@ -2,7 +2,7 @@ package detailesptresto
 
 import "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
 
-type CreateDetailRestoDto struct {
+type CreateDto struct {
 	detailesptair.EsptIdDto
 	JumlahMeja       uint    `json:"jumlahMeja"  validate:"required"`
 	JumlahKursi      uint    `json:"jumlahKursi"  validate:"required"`
