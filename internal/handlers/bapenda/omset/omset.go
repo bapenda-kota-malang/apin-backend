@@ -1,12 +1,12 @@
-package rekening
+package omset
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/omset"
 )
 
 type Crud struct{}

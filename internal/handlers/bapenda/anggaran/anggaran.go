@@ -1,12 +1,12 @@
-package rekening
+package anggaran
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/anggaran"
 )
 
 type Crud struct{}

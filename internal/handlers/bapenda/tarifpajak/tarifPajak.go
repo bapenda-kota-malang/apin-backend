@@ -1,12 +1,12 @@
-package rekening
+package tarifpajak
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
 )
 
 type Crud struct{}

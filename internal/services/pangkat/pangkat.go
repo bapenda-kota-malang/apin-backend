@@ -1,29 +1,4 @@
-// package rekening
-
-// import (
-// 	"net/http"
-
-// 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-// 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
-// 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-// 	"gorm.io/gorm"
-// )
-
-// func GetAll(r *http.Request) (interface{}, error) {
-// 	var rekenings []*rekening.Rekening
-// 	err := apicore.DB.Model(&rekening.Rekening{}).Find(&rekenings).Error
-// 	if err == gorm.ErrRecordNotFound {
-// 		return nil, nil
-// 	}
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return responses.OK{
-// 		Data: rekenings,
-// 	}, nil
-// }
-
-package rekening
+package pangkat
 
 import (
 	"strconv"
@@ -35,18 +10,18 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "rekening"
+const source = "pangkat"
 
 func init() {
-	a.AutoMigrate(&m.Rekening{})
+	a.AutoMigrate(&m.Pangkat{})
 }
 
 func Create(input m.CreateDto) (any, error) {
-	var data m.Rekening
+	var data m.Pangkat
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -62,12 +37,12 @@ func Create(input m.CreateDto) (any, error) {
 }
 
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.Rekening
+	var data []m.Pangkat
 	var count int64
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.Rekening{}).
+		Model(&m.Pangkat{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -88,7 +63,7 @@ func GetList(input m.FilterDto) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.Rekening
+	var data *m.Pangkat
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -103,7 +78,7 @@ func GetDetail(id int) (any, error) {
 }
 
 func Update(id int, input m.UpdateDto) (any, error) {
-	var data *m.Rekening
+	var data *m.Pangkat
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -126,7 +101,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 }
 
 func Delete(id int) (any, error) {
-	var data *m.Rekening
+	var data *m.Pangkat
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil

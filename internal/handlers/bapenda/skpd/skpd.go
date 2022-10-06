@@ -1,12 +1,12 @@
-package rekening
+package skpd
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/skpd"
 )
 
 type Crud struct{}
