@@ -18,11 +18,11 @@ import (
 
 const source = "espt"
 
-func Create(input []m.CreateDetailAirDto, tx *gorm.DB) (any, error) {
+func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.DetailEsptAir
+	var data []m.DetailEsptAir
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -46,7 +46,7 @@ func Create(input []m.CreateDetailAirDto, tx *gorm.DB) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func Update(id int, input m.CreateDetailAirDto, tx *gorm.DB) (any, error) {
+func Update(id int, input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}

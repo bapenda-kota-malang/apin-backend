@@ -3,7 +3,7 @@ package detailesptreklame
 import "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
 
 type CreateDetailReklameDto struct {
-	detailesptair.CreateDto
+	detailesptair.EsptIdDto
 	TarifReklame_Id uint    `json:"tarifReklame_id"  validate:"required"`
 	Jumlah          uint    `json:"jumlah"  validate:"required"`
 	Sisi            uint    `json:"sisi"  validate:"required"`

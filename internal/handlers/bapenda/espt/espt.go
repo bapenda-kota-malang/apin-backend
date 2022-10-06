@@ -7,49 +7,42 @@ import (
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/espt"
 )
 
-func checkCategory(w http.ResponseWriter, body io.ReadCloser, category string) (dataInput []interface{}, err error) {
+func checkCategory(w http.ResponseWriter, body io.ReadCloser, category, typeProcess string) (result interface{}, err error) {
 	switch category {
 	case "air":
-		var inputDetail []detailesptair.CreateDto
-		if !hh.ValidateStructByIOR(w, body, &inputDetail) {
+		var input m.CreateDetailAirDto
+		if !hh.ValidateStructByIOR(w, body, &input) {
 			err = errors.New("failed")
 			break
 		}
-		dataInput = append(dataInput, inputDetail)
+		if len(input.DataDetails) == 0 {
+			err = errors.New("data detail kosong")
+			break
+		}
+		result, err = s.CreateAir(input)
 	case "hotel":
-		var inputDetail []detailespthotel.CreateDto
-		if !hh.ValidateStructByIOR(w, body, &inputDetail) {
+		var input m.CreateDetailHotelDto
+		if !hh.ValidateStructByIOR(w, body, &input) {
 			err = errors.New("failed")
 			break
 		}
-		dataInput = append(dataInput, inputDetail)
 	default:
 		err = errors.New("category tidak diketahui")
-		hh.DataResponse(w, nil, err)
 	}
 	return
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var input m.CreateDto
-	if !hh.ValidateStructByIOR(w, r.Body, &input) {
-		return
-	}
 	query := r.URL.Query()
 	category := query.Get("category")
-	// dataInput, err := checkCategory(w, r.Body, category)
-	// if err != nil {
-	// 	return
-	// }
-	dataInput := input.DataDetails
-
-	result, err := s.Create(input, dataInput, category)
+	result, err := checkCategory(w, r.Body, category, "create")
+	if err.Error() == "failed" {
+		return
+	}
 	hh.DataResponse(w, result, err)
 }
 

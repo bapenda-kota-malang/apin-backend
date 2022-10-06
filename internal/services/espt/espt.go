@@ -62,7 +62,13 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Create(input m.CreateDto, inputDetail []interface{}, category string) (any, error) {
+// Service insert data for table espt:
+//  Create(input, tx) // for using transaction
+//  Create(input, nil) // for not using transaction
+func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
 	var data m.Espt
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
@@ -78,37 +84,15 @@ func Create(input m.CreateDto, inputDetail []interface{}, category string) (any,
 
 	// static add value to field
 
-	// Transaction save to db
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		// simpan data ke db satu if karena result dipakai sekali, +error
-		if result := tx.Create(&data); result.Error != nil {
-			return result.Error
-		}
-		switch category {
-		case "air":
-			var listDataDetail []detailesptair.CreateDetailAirDto
-			for _, v := range inputDetail {
-				dataDetail := v.(detailesptair.CreateDetailAirDto)
-				dataDetail.Espt_Id = data.Id
-				listDataDetail = append(listDataDetail, dataDetail)
-			}
-			_, err := sair.Create(listDataDetail, tx)
-			if err != nil {
-				return err
-			}
-		case "hotel":
-
-		}
-		return nil
-	})
-
-	if err != nil {
+	// save to db
+	if result := tx.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
 }
 
+// Service update data for table espt
 func Update(id int, input m.UpdateDto) (any, error) {
 	var data m.Espt
 
@@ -137,6 +121,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 	}, nil
 }
 
+// Service soft delete data for table espt
 func Delete(id int) (any, error) {
 	var data *m.Espt
 	result := a.DB.First(&data, id)
@@ -158,4 +143,31 @@ func Delete(id int) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+// Service create business flow for esptd air tanah
+func CreateAir(input m.CreateDetailAirDto) (interface{}, error) {
+	var data m.Espt
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		respEspt, err := Create(input.CreateDto, tx)
+		if err != nil {
+			return err
+		}
+		data = respEspt.(rp.OKSimple).Data.(m.Espt)
+
+		for _, v := range input.DataDetails {
+			v.Espt_Id = data.Id
+		}
+
+		respDetail, err := sair.Create(input.DataDetails, tx)
+		if err != nil {
+			return err
+		}
+		data.DetailEsptAir = respDetail.(rp.OKSimple).Data.(*[]detailesptair.DetailEsptAir)
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+	return rp.OKSimple{Data: data}, nil
 }

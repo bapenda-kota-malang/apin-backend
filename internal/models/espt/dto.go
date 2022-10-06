@@ -1,6 +1,10 @@
 package espt
 
-import "gorm.io/datatypes"
+import (
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
+	"gorm.io/datatypes"
+)
 
 type FilterDto struct {
 	// fixed
@@ -26,9 +30,18 @@ type CreateDto struct {
 	Attachment      string         `json:"attachment"  validate:"required"`
 	JatuhTempo      datatypes.Date `json:"jatuhTempo"  validate:"required"`
 	Sunset          datatypes.Date `json:"sunset"  validate:"required"`
-	DataDetails     []interface{}  `json:"dataDetails" validate:"required"`
 }
 
 type UpdateDto struct {
 	CreateDto
+}
+
+type CreateDetailAirDto struct {
+	CreateDto
+	DataDetails []detailesptair.CreateDto `json:"dataDetails" validate:"required"`
+}
+
+type CreateDetailHotelDto struct {
+	CreateDto
+	DataDetails []detailespthotel.CreateDto `json:"dataDetails" validate:"required"`
 }
