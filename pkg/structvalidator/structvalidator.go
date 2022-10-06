@@ -38,7 +38,7 @@ var tagValidator map[string]validator
 // tag name to validate
 const tagName = "validate"
 
-// Validation of each elem
+// Validation of each field based on the registered field checkers
 func Validate(input interface{}, nameSpaces ...string) map[string]ValidationError {
 	// identiy value and loop if its pointer until reaches non pointer
 	inputV := reflect.ValueOf(input)
@@ -56,7 +56,11 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 	// namespace will be available if it is sub validation
 	nameSpace := ""
 	if len(nameSpaces) > 0 {
-		nameSpace += nameSpaces[0] + "."
+		if len(nameSpaces) > 1 && nameSpaces[1] != "" {
+			nameSpace += "(embedded:" + nameSpaces[0] + ")."
+		} else {
+			nameSpace += nameSpaces[0] + "."
+		}
 	}
 
 	// check each field
@@ -74,8 +78,15 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		// if current field is struct, validate again
 		// TODO: find information about this -> || fieldT.Type.Name() == ""
 		typeString := fieldT.Type.String()
-		if (fieldT.Type.Kind() == reflect.Struct || fieldT.Anonymous) && typeString != "time.Time" {
-			maps.Copy(errList, Validate(fieldV.Interface(), fieldT.Name))
+		if (fieldT.Type.Kind() == reflect.Struct) && typeString != "time.Time" {
+			embeddedMode := ""
+			if fieldT.Anonymous {
+				embeddedMode = "(embedded)"
+			}
+			// fmt.Println(fieldT.Name, "is skiped")
+			// fmt.Println(fieldT.Name, "is", fieldT.Type.Kind())
+
+			maps.Copy(errList, Validate(fieldV.Interface(), fieldT.Name, embeddedMode))
 			continue
 		}
 
@@ -84,8 +95,10 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 			parsedTag := parseTag(tag)
 			for _, kv := range parsedTag {
 				if _, ok := tagValidator[kv.Key]; ok {
+					fmt.Println(fieldT.Name, "is being validated")
 					err := tagValidator[kv.Key](fieldV, kv.Val)
 					if err != nil {
+						fmt.Println(fieldT.Name, "validation is failed")
 						key := fieldT.Tag.Get("json")
 						if key == "" {
 							key = fieldT.Name
@@ -113,9 +126,14 @@ func ValidateIoReader(container interface{}, input io.Reader) map[string]Validat
 	decoder := json.NewDecoder(input)
 	err := decoder.Decode(&container)
 	if err != nil {
-		myType := fmt.Sprintf("%T", container)
+		// cI := reflect.ValueOf(container).E()
+		cI := reflect.ValueOf(container).Elem().Interface()
+		cV := reflect.ValueOf(cI)
+		// cT := reflect.TypeOf(cV)
+		// myType := cT.String()//
+		myType := fmt.Sprintf("%T", cV)
 		return map[string]ValidationError{
-			"struct": {fmt.Sprintf("parsing to type %v failed", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
+			"struct": {fmt.Sprintf("gagal mengambil data %v", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
 		}
 	}
 
@@ -241,12 +259,12 @@ func ValidateURL(container any, url url.URL) map[string]ValidationError {
 }
 
 // register a validator
-func RegisterValidator(tag string, validatorF validator) {
+func RegisterFieldChecker(tag string, validatorF validator) {
 	tagValidator[tag] = validatorF
 }
 
 // unregister a validator
-func UnregisterValidator(tag string) {
+func UnregisterFieldChecker(tag string) {
 	delete(tagValidator, tag)
 }
 

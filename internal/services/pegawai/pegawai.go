@@ -13,8 +13,6 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
-	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
-	sl "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/stringval"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
@@ -27,7 +25,7 @@ const source = "pegawai"
 // migrate and register validator
 func init() {
 	a.AutoMigrate(&m.Pegawai{})
-	sv.RegisterValidator("validemail", sl.ValEmailValidator)
+	// sv.RegisterValidator("validemail", sl.ValEmailValidator)
 }
 
 ///// Exported funcs start here
@@ -69,7 +67,7 @@ func Create(input m.Create) (any, error) {
 	}
 
 	dataUP := dataUX.(rp.OKSimple)
-  
+
 	dataU.Password = nil
 
 	return rp.OKSimple{Data: t.II{
