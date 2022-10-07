@@ -2,7 +2,7 @@ package apicore
 
 import (
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
-	npwpd "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	rnpwpd "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"

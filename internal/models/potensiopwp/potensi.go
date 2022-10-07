@@ -3,19 +3,26 @@ package potensiopwp
 import (
 	"time"
 
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
+type Status int16
+
+const (
+	StatusBaru Status = 0 //baru
+	StatusLama Status = 1 //lama
+)
+
 type PotensiOp struct {
-	Id          uint        `json:"id" gorm:"primaryKey"`
-	Golongan    rm.Golongan `json:"golongan"`
-	Rekening_Id uint        `json:"rekening_id"`
+	Id          uint           `json:"id" gorm:"primaryKey"`
+	Golongan    npwpd.Golongan `json:"golongan"`
+	Rekening_Id uint           `json:"rekening_id"`
 	// Rekening      cm.Rekening          `gorm:"foreignKey:Rekening_Id"`
-	Status      rm.StatusPendaftaran `json:"status"`
-	ClosingDate *time.Time           `json:"closingDate"`
-	OpeningDate *time.Time           `json:"openingDate"`
-	User_Id     uint                 `json:"user_id"`
+	Status      npwpd.Status `json:"status"`
+	ClosingDate *time.Time   `json:"closingDate"`
+	OpeningDate *time.Time   `json:"openingDate"`
+	User_Id     uint         `json:"user_id"`
 	// User          um.User              `gorm:"foreignKey:User_Id"`
 	LuasBangunan  *string `json:"luasBangunan" gorm:"size:50"`
 	JamBuka       *string `json:"jamBuka" gorm:"size:50"`
@@ -49,8 +56,8 @@ type Potensi struct {
 	// Kecamatan    adm.Kecamatan       `gorm:"foreignKey:Kecamatan_Id"`
 	Kelurahan_Id uint `json:"kelurahan_id"`
 	// Kelurahan    adm.Kelurahan       `gorm:"foreignKey:Kelurahan_Id"`
-	Telp   string              `json:"telp" gorm:"size:20"`
-	Status rm.StatusObjekPajak `json:"status"`
+	Telp   string `json:"telp" gorm:"size:20"`
+	Status Status `json:"status"`
 	gormhelper.DateModel
 }
 

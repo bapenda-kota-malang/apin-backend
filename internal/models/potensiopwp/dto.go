@@ -75,17 +75,17 @@ type CreateDto struct {
 type FilterDto struct {
 	// dynamic from column table field
 	// potensiop
-	Golongan     *rm.Golongan          `json:"golongan"`
-	Status       *rm.StatusPendaftaran `json:"status"`
-	ClosingDate  *time.Time            `json:"closingDate"`
-	OpeningDate  *time.Time            `json:"openingDate"`
-	LuasBangunan *string               `json:"luasBangunan"`
-	JamBuka      *string               `json:"jamBuka"`
-	JamTutup     *string               `json:"jamTutup"`
-	Visitors     *string               `json:"visitors"`
-	OmsetOp      *string               `json:"omsetOp"`
-	Genset       *string               `json:"genset"`
-	AirTanah     *string               `json:"airTanah"`
+	Golongan     *rm.Golongan `json:"golongan"`
+	Status       *rm.Status   `json:"status"`
+	ClosingDate  *time.Time   `json:"closingDate"`
+	OpeningDate  *time.Time   `json:"openingDate"`
+	LuasBangunan *string      `json:"luasBangunan"`
+	JamBuka      *string      `json:"jamBuka"`
+	JamTutup     *string      `json:"jamTutup"`
+	Visitors     *string      `json:"visitors"`
+	OmsetOp      *string      `json:"omsetOp"`
+	Genset       *string      `json:"genset"`
+	AirTanah     *string      `json:"airTanah"`
 	// detail potensiop
 	JenisOp  *string `json:"jenisOp"`
 	JumlahOp *string `json:"jumlahOp"`

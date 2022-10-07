@@ -25,14 +25,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
-	pendaftaran "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/registrasinpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
@@ -131,16 +130,11 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/npwpd", func(r chi.Router) {
-		r.Get("/", pendaftaran.GetList)
-		r.Get("/{id}", pendaftaran.GetDetail)
-		r.Get("/registrasinpwpd", registrasinpwpd.GetList)
-		r.Get("/registrasinpwpd/{id}", registrasinpwpd.GetDetail)
-		r.Post("/operator", pendaftaran.RegisterByOperator)
-		r.Patch("/{id}", pendaftaran.Update)
-		r.Patch("/user/{id}/verifikasi", pendaftaran.VerifyUser)
-		r.Patch("/npwpd/{id}/verifikasi", pendaftaran.VerifyNpwpd)
-		r.Patch("/registrasinpwpd/{id}/setstatus", registrasinpwpd.VerifyRegistrasiNpwpd)
-		r.Delete("/{id}", pendaftaran.Delete)
+		r.Get("/", npwpd.GetList)
+		r.Get("/{id}", npwpd.GetDetail)
+		r.Post("/", npwpd.Create)
+		r.Patch("/{id}", npwpd.Update)
+		r.Delete("/{id}", npwpd.Delete)
 
 	})
 

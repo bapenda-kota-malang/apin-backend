@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
-	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
+	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -23,19 +23,19 @@ import (
 
 const source = "registrasiNpwpd"
 
-func insertDetailOp(objek string, data *[]registration.DetailRegOp, registerForm *registration.RegistrasiNpwpd) error {
+func insertDetailOp(objek string, data *[]rn.DetailRegOp, registerForm *rn.RegistrasiNpwpd) error {
 	var (
 		err      error
 		mActions map[string]reflect.Type = make(map[string]reflect.Type)
 		model    interface{}
 
-		detailRegOpHotel    registration.DetailRegOpHotel
-		detailRegOpResto    registration.DetailRegOpResto
-		detailRegOpHiburan  registration.DetailRegOpHiburan
-		detailRegOpReklame  registration.DetailRegOpReklame
-		detailRegOpPpj      registration.DetailRegOpPpj
-		detailRegOpParkir   registration.DetailRegOpParkir
-		detailRegOpAirTanah registration.DetailRegOpAirTanah
+		detailRegOpHotel    rn.DetailRegOpHotel
+		detailRegOpResto    rn.DetailRegOpResto
+		detailRegOpHiburan  rn.DetailRegOpHiburan
+		detailRegOpReklame  rn.DetailRegOpReklame
+		detailRegOpPpj      rn.DetailRegOpPpj
+		detailRegOpParkir   rn.DetailRegOpParkir
+		detailRegOpAirTanah rn.DetailRegOpAirTanah
 	)
 
 	mActions[`detailRegOpHotel`] = reflect.TypeOf(detailRegOpHotel)
@@ -86,7 +86,7 @@ func insertDetailOp(objek string, data *[]registration.DetailRegOp, registerForm
 	return nil
 }
 
-func Create(r *http.Request, reg registration.RegisterNpwpdCreate) (interface{}, error) {
+func Create(r *http.Request, reg rn.RegisterNpwpdCreate) (interface{}, error) {
 	var rekening *rm.Rekening
 	err := a.DB.Model(&rm.Rekening{}).First(&rekening, reg.Rekening_Id).Error
 	if err != nil {
@@ -97,7 +97,7 @@ func Create(r *http.Request, reg registration.RegisterNpwpdCreate) (interface{},
 
 		if reg.IsNomorRegistrasiAuto {
 			var tmp uint64
-			var tmpNpwpd registration.RegistrasiNpwpd
+			var tmpNpwpd rn.RegistrasiNpwpd
 			// row := a.DB.Table("Npwpd").Select("max(Nomor)").Row()
 			// row.Scan(&tmp)
 			nomor := a.DB.Last(&tmpNpwpd)
@@ -122,7 +122,7 @@ func Create(r *http.Request, reg registration.RegisterNpwpdCreate) (interface{},
 	// 	kodeJenisUsahaString = "xxxxx"
 	// }
 	// npwpdString := nomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString[:3]
-	register := registration.RegistrasiNpwpd{
+	register := rn.RegistrasiNpwpd{
 		// ModeRegistrasi: npwpd.ModeOperator,
 		Status:       npwpd.StatusAktif,
 		JenisPajak:   reg.JenisPajak,
@@ -202,11 +202,11 @@ func Create(r *http.Request, reg registration.RegisterNpwpdCreate) (interface{},
 
 func GetAll(pagination gormhelper.Pagination) (interface{}, error) {
 	var (
-		register []*registration.RegistrasiNpwpd
+		register []*rn.RegistrasiNpwpd
 		count    int64
 	)
 
-	result := a.DB.Model(&registration.RegistrasiNpwpd{}).
+	result := a.DB.Model(&rn.RegistrasiNpwpd{}).
 		Preload(clause.Associations).
 		//nested preload
 		//Preload("PemilikWps.Kelurahan").
@@ -226,8 +226,8 @@ func GetAll(pagination gormhelper.Pagination) (interface{}, error) {
 }
 
 func GetDetail(r *http.Request, regID int) (interface{}, error) {
-	var register *registration.RegistrasiNpwpd
-	err := a.DB.Model(&registration.RegistrasiNpwpd{}).
+	var register *rn.RegistrasiNpwpd
+	err := a.DB.Model(&rn.RegistrasiNpwpd{}).
 		Preload(clause.Associations).First(&register, regID).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -240,8 +240,8 @@ func GetDetail(r *http.Request, regID int) (interface{}, error) {
 	}, err
 }
 
-func VerifyNpwpd(id int, input registration.VerifikasiDto) (any, error) {
-	var data *registration.RegistrasiNpwpd
+func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
+	var data *rn.RegistrasiNpwpd
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
