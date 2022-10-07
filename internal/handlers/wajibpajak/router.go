@@ -88,6 +88,7 @@ func SetRoutes() http.Handler {
 		r.Get("/npwpd", npwpd.GetList)
 		r.Get("/npwpd/{id}", npwpd.GetDetail)
 		r.Patch("/npwpd/{id}", npwpd.Update)
+		r.Patch("/{id}/setverifystatus", registrasinpwpd.VerifyRegistrasiNpwpd)
 	})
 	return r
 }

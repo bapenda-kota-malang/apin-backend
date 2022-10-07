@@ -3,23 +3,23 @@ package potensiopwp
 import (
 	"time"
 
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	t "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 )
 
 type CreatePotensiOp struct {
-	Golongan      rm.Golongan `json:"golongan" validate:"required,oneof=badan orang_pribadi"`
-	Rekening_Id   uint        `json:"rekening_id" validate:"required,gt=0"`
-	ClosingDate   *time.Time  `json:"closingDate"`
-	OpeningDate   *time.Time  `json:"openingDate"`
-	User_Id       uint        `json:"user_id" validate:"required,gt=0"`
-	LuasBangunan  *string     `json:"luasBangunan"`
-	JamBuka       *string     `json:"jamBuka"`
-	JamTutup      *string     `json:"jamTutup"`
-	Visitors      string      `json:"visitors" validate:"required"`
-	OmsetOp       string      `json:"omsetOp" validate:"required"`
-	Genset        string      `json:"genset" validate:"required"`
-	AirTanah      string      `json:"airTanah" validate:"required"`
-	VendorEtax_Id *uint       `json:"vendorEtax_id"`
+	Golongan      t.Golongan `json:"golongan" validate:"required,oneof=badan orang_pribadi"`
+	Rekening_Id   uint       `json:"rekening_id" validate:"required,gt=0"`
+	ClosingDate   *time.Time `json:"closingDate"`
+	OpeningDate   *time.Time `json:"openingDate"`
+	User_Id       uint       `json:"user_id" validate:"required,gt=0"`
+	LuasBangunan  *string    `json:"luasBangunan"`
+	JamBuka       *string    `json:"jamBuka"`
+	JamTutup      *string    `json:"jamTutup"`
+	Visitors      string     `json:"visitors" validate:"required"`
+	OmsetOp       string     `json:"omsetOp" validate:"required"`
+	Genset        string     `json:"genset" validate:"required"`
+	AirTanah      string     `json:"airTanah" validate:"required"`
+	VendorEtax_Id *uint      `json:"vendorEtax_id"`
 }
 type CreateDetailPotensiOp struct {
 	Nama         string `json:"nama" validate:"required"`
@@ -75,17 +75,17 @@ type CreateDto struct {
 type FilterDto struct {
 	// dynamic from column table field
 	// potensiop
-	Golongan     *rm.Golongan `json:"golongan"`
-	Status       *rm.Status   `json:"status"`
-	ClosingDate  *time.Time   `json:"closingDate"`
-	OpeningDate  *time.Time   `json:"openingDate"`
-	LuasBangunan *string      `json:"luasBangunan"`
-	JamBuka      *string      `json:"jamBuka"`
-	JamTutup     *string      `json:"jamTutup"`
-	Visitors     *string      `json:"visitors"`
-	OmsetOp      *string      `json:"omsetOp"`
-	Genset       *string      `json:"genset"`
-	AirTanah     *string      `json:"airTanah"`
+	Golongan     *t.Golongan `json:"golongan"`
+	Status       *t.Status   `json:"status"`
+	ClosingDate  *time.Time  `json:"closingDate"`
+	OpeningDate  *time.Time  `json:"openingDate"`
+	LuasBangunan *string     `json:"luasBangunan"`
+	JamBuka      *string     `json:"jamBuka"`
+	JamTutup     *string     `json:"jamTutup"`
+	Visitors     *string     `json:"visitors"`
+	OmsetOp      *string     `json:"omsetOp"`
+	Genset       *string     `json:"genset"`
+	AirTanah     *string     `json:"airTanah"`
 	// detail potensiop
 	JenisOp  *string `json:"jenisOp"`
 	JumlahOp *string `json:"jumlahOp"`

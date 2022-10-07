@@ -3,6 +3,7 @@ package npwpd
 import (
 	"time"
 
+	t "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
@@ -11,16 +12,16 @@ import (
 
 type Npwpd struct {
 	Id                uint64             `json:"id" gorm:"primarykey"`
-	Golongan          Golongan           `json:"golongan"`
+	Golongan          t.Golongan         `json:"golongan"`
 	Nomor             *uint64            `json:"nomor"`
 	Npwp              *string            `json:"npwp" gorm:"size:50"`
 	TanggalPengukuhan *time.Time         `json:"tanggalPengukuhan"`
 	TanggalNpwpd      *time.Time         `json:"tanggalNpwpd"`
 	Npwpd             *string            `json:"npwpd" gorm:"size:22"`
-	Status            Status             `json:"status"`
+	Status            t.Status           `json:"status"`
 	TanggalTutup      *time.Time         `json:"tanggalTutup"`
 	TanggalBuka       *time.Time         `json:"tanggalBuka"`
-	JenisPajak        JenisPajak         `json:"jenisPajak" gorm:"size:2"`
+	JenisPajak        t.JenisPajak       `json:"jenisPajak" gorm:"size:2"`
 	Skpd_Id           *uint64            `json:"skpd_id"`
 	Skpd              *skpd.Skpd         `json:"skpd,omitempty" gorm:"foreignKey:Skpd_Id"`
 	Rekening_Id       *uint64            `json:"rekening_id"`
@@ -40,7 +41,7 @@ type Npwpd struct {
 	SuratIzinUsaha    *string            `json:"suratIzinUsaha" gorm:"size:50"`
 	LainLain          *string            `json:"lainLain" gorm:"size:50"`
 	FotoObjek         *string            `json:"fotoObjek" gorm:"size:50"`
-	JalurRegistrasi   JalurRegistrasi    `json:"modeRegistrasi"`
+	JalurRegistrasi   t.JalurRegistrasi  `json:"modeRegistrasi"`
 	// VerifyStatus      *VerifyPendaftaran `json:"verifyStatus"`
 	VerifiedAt    *time.Time `json:"verifiedAt"`
 	VendorEtax_Id *string    `json:"vendorEtax_id"`
@@ -62,9 +63,9 @@ type Npwpd struct {
 }
 
 type CreateDto struct {
-	JenisPajak JenisPajak `json:"jenisPajak" validate:"required"`
-	Golongan   Golongan   `json:"golongan" validate:"required"`
-	Npwp       *string    `json:"npwp" validate:"required"`
+	JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
+	Golongan   t.Golongan   `json:"golongan" validate:"required"`
+	Npwp       *string      `json:"npwp" validate:"required"`
 
 	Nomor                 *uint64 `json:"nomor"`
 	IsNomorRegistrasiAuto bool    `json:"isNomorRegistrasiAuto"`
@@ -93,9 +94,9 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
-	JenisPajak JenisPajak `json:"jenisPajak"`
-	Golongan   Golongan   `json:"golongan"`
-	Npwp       *string    `json:"npwp"`
+	JenisPajak t.JenisPajak `json:"jenisPajak"`
+	Golongan   t.Golongan   `json:"golongan"`
+	Npwp       *string      `json:"npwp"`
 
 	NomorRegistrasi       *string `json:"nomorRegistrasi"`
 	IsNomorRegistrasiAuto bool    `json:"isNomorRegistrasiAuto"`

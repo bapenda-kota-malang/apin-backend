@@ -2,6 +2,7 @@ package npwpd
 
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	t "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
@@ -18,7 +19,7 @@ type ObjekPajak struct {
 	Kelurahan_Id *uint64                 `json:"kelurahan_id"`
 	Kelurahan    *areadivision.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Id"`
 	Telp         *string                 `json:"telp" gorm:"size:20"`
-	Status       StatusBL                `json:"status"`
+	Status       t.StatusBL              `json:"status"`
 	IsNpwpd      uint64                  `json:"isNpwpd"`
 	gormhelper.DateModel
 }

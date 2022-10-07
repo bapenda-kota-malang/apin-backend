@@ -1,6 +1,9 @@
 package npwpd
 
-import "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+import (
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	t "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+)
 
 type PemilikWp struct {
 	Id           uint64                  `json:"id" gorm:"primaryKey"`
@@ -14,7 +17,7 @@ type PemilikWp struct {
 	Kelurahan_Id *uint64                 `json:"kelurahan_id"`
 	Kelurahan    *areadivision.Kelurahan `gorm:"foreignKey:Kelurahan_Id"`
 	Telp         *string                 `json:"telp" gorm:"size:20"`
-	Status       StatusBL                `json:"status"`
+	Status       t.StatusBL              `json:"status"`
 	NoIdPemilik  *string                 `json:"noIdPemilik" gorm:"size:20"`
 	Nik          *string                 `json:"nik" gorm:"size:20"`
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -101,8 +102,8 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 	}
 	npwpdString := nomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString
 	register := npwpd.Npwpd{
-		JalurRegistrasi: npwpd.JalurRegistrasiOperator,
-		Status:          npwpd.StatusAktif,
+		JalurRegistrasi: nt.JalurRegistrasiOperator,
+		Status:          nt.StatusAktif,
 		JenisPajak:      reg.JenisPajak,
 		Golongan:        reg.Golongan,
 		Npwp:            reg.Npwp,
@@ -137,7 +138,7 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 	// objekpajak
 	op := *reg.ObjekPajak
 	op.Npwpd_Id = register.Id
-	op.Status = npwpd.StatusBaru
+	op.Status = nt.StatusBaru
 	errOp := a.DB.Create(&op).Error
 	if errOp != nil {
 		return nil, err

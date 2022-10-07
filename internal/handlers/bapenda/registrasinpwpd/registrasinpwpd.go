@@ -10,7 +10,7 @@ import (
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var register rm.RegisterNpwpdCreate
+	var register rm.CreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &register) == false {
 		return
 	}

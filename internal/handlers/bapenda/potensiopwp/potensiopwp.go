@@ -3,7 +3,7 @@ package potensiopwp
 import (
 	"net/http"
 
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
@@ -39,9 +39,9 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch data.Golongan {
-	case rm.GolonganBadan:
+	case nt.GolonganBadan:
 		break
-	case rm.GolonganOrangPribadi:
+	case nt.GolonganOrangPribadi:
 		break
 	default:
 		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: "golongan tidak diketahui"}, nil)

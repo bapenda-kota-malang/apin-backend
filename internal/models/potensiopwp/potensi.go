@@ -3,7 +3,7 @@ package potensiopwp
 import (
 	"time"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	t "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
@@ -15,14 +15,14 @@ const (
 )
 
 type PotensiOp struct {
-	Id          uint           `json:"id" gorm:"primaryKey"`
-	Golongan    npwpd.Golongan `json:"golongan"`
-	Rekening_Id uint           `json:"rekening_id"`
+	Id          uint       `json:"id" gorm:"primaryKey"`
+	Golongan    t.Golongan `json:"golongan"`
+	Rekening_Id uint       `json:"rekening_id"`
 	// Rekening      cm.Rekening          `gorm:"foreignKey:Rekening_Id"`
-	Status      npwpd.Status `json:"status"`
-	ClosingDate *time.Time   `json:"closingDate"`
-	OpeningDate *time.Time   `json:"openingDate"`
-	User_Id     uint         `json:"user_id"`
+	Status      t.Status   `json:"status"`
+	ClosingDate *time.Time `json:"closingDate"`
+	OpeningDate *time.Time `json:"openingDate"`
+	User_Id     uint       `json:"user_id"`
 	// User          um.User              `gorm:"foreignKey:User_Id"`
 	LuasBangunan  *string `json:"luasBangunan" gorm:"size:50"`
 	JamBuka       *string `json:"jamBuka" gorm:"size:50"`

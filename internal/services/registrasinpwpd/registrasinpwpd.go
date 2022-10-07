@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -86,13 +86,13 @@ func insertDetailOp(objek string, data *[]rn.DetailRegOp, registerForm *rn.Regis
 	return nil
 }
 
-func Create(r *http.Request, reg rn.RegisterNpwpdCreate) (interface{}, error) {
+func Create(r *http.Request, reg rn.CreateDto) (interface{}, error) {
 	var rekening *rm.Rekening
 	err := a.DB.Model(&rm.Rekening{}).First(&rekening, reg.Rekening_Id).Error
 	if err != nil {
 		return nil, err
 	}
-	var tmpverify = npwpd.VerifiyPendaftaranBaru
+	var tmpverify = rn.VerifyStatusBaru
 	var nomorRegistrasiNpwpd = func() *uint64 {
 
 		if reg.IsNomorRegistrasiAuto {
@@ -124,7 +124,7 @@ func Create(r *http.Request, reg rn.RegisterNpwpdCreate) (interface{}, error) {
 	// npwpdString := nomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString[:3]
 	register := rn.RegistrasiNpwpd{
 		// ModeRegistrasi: npwpd.ModeOperator,
-		Status:       npwpd.StatusAktif,
+		Status:       nt.StatusAktif,
 		JenisPajak:   reg.JenisPajak,
 		Golongan:     reg.Golongan,
 		Npwp:         reg.Npwp,
@@ -145,7 +145,7 @@ func Create(r *http.Request, reg rn.RegisterNpwpdCreate) (interface{}, error) {
 		// 	}
 		// 	return &t
 		// }(),
-		Rekening_Id: &reg.Rekening_Id,
+		Rekening_Id: reg.Rekening_Id,
 		Rekening:    rekening,
 		TanggalMulaiUsaha: func() *time.Time {
 			t, err := time.Parse("2006-01-02", *reg.TanggalMulaiUsaha)
@@ -173,7 +173,7 @@ func Create(r *http.Request, reg rn.RegisterNpwpdCreate) (interface{}, error) {
 	// objekpajak
 	op := *reg.RegObjekPajak
 	op.RegistrasiNpwpd_Id = register.Id
-	op.Status = npwpd.StatusBaru
+	op.Status = nt.StatusBaru
 	errOp := a.DB.Create(&op).Error
 	if errOp != nil {
 		return nil, err
@@ -181,7 +181,7 @@ func Create(r *http.Request, reg rn.RegisterNpwpdCreate) (interface{}, error) {
 
 	for _, p := range *reg.RegPemilik {
 		p.RegistrasiNpwpd_Id = register.Id
-		p.Status = npwpd.StatusPemilikBaru
+		p.Status = nt.StatusBaru
 		err := a.DB.Create(&p).Error
 		if err != nil {
 			return nil, err
@@ -189,7 +189,7 @@ func Create(r *http.Request, reg rn.RegisterNpwpdCreate) (interface{}, error) {
 	}
 	for _, n := range *reg.RegNarahubung {
 		n.RegistrasiNpwpd_Id = register.Id
-		n.Status = npwpd.StatusNarahubungBaru
+		n.Status = nt.StatusBaru
 		err := a.DB.Create(&n).Error
 		if err != nil {
 			return nil, err
@@ -247,8 +247,8 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 	fmt.Println("verify kode: ", *data.VerifyStatus)
-	if *data.VerifyStatus != npwpd.VerifiyPendaftaranBaru {
-		if *data.VerifyStatus == npwpd.VerifiyPendaftaranDisetujui {
+	if *data.VerifyStatus != rn.VerifyStatusBaru {
+		if *data.VerifyStatus == rn.VerifyStatusDisetujui {
 			return nil, errors.New("data sudah disetujui")
 		}
 		return nil, errors.New("data sudah ditolak")
