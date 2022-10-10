@@ -22,20 +22,20 @@ import (
 
 const source = "wajibpajak"
 
-func Create(input m.CreateDto) (any, error) {
+func Create(input m.RegistrasiWajibPajak) (any, error) {
 	var data m.WajibPajak
 	var dataU mu.CreateDto
 	var respDataU interface{}
 	var imgNameChan = make(chan string)
 	var errChan = make(chan error)
 
-	go sh.SaveImage(input.FotoKtp, imgNameChan, errChan)
+	go sh.SaveImage(input.WajibPajak.FotoKtp, imgNameChan, errChan)
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
-	if err := sc.Copy(&data, &input); err != nil {
+	if err := sc.Copy(&data, &input.WajibPajak); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
-	if err := sc.Copy(&dataU, &input); err != nil {
+	if err := sc.Copy(&dataU, &input.User); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
