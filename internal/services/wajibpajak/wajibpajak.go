@@ -59,7 +59,7 @@ func Create(input m.CreateDto) (any, error) {
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data ke db satu if karena result dipakai sekali, +error
-		if result := a.DB.Create(&data); result.Error != nil {
+		if result := tx.Create(&data); result.Error != nil {
 			return result.Error
 		}
 
@@ -70,7 +70,7 @@ func Create(input m.CreateDto) (any, error) {
 		dataU.RegMode = 2
 		dataU.ValidPeriod = time.Now().AddDate(20, 0, 0)
 
-		tmpResp, err := su.Create(dataU)
+		tmpResp, err := su.Create(dataU, tx)
 		if err != nil {
 			return err
 		}
@@ -181,7 +181,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 func CheckerPOne(input m.CheckerPOneDto) (interface{}, error) {
 	var data m.WajibPajak
 	if result := a.DB.Where(&m.WajibPajak{Nik: input.Nik}).First(&data); result.RowsAffected != 0 {
-		return nil, errors.New("NIK telah terdaftar")
+		return nil, errors.New("nik telah terdaftar")
 	}
 	return rp.OKSimple{
 		Data: input,
@@ -190,16 +190,16 @@ func CheckerPOne(input m.CheckerPOneDto) (interface{}, error) {
 
 func CheckerPTwo(input m.CheckerPTwoDto) (interface{}, error) {
 	if result := a.DB.First(&mad.Kecamatan{}, input.Kecamatan_Id); result.RowsAffected == 0 {
-		return nil, errors.New("Kecamatan tidak ditemukan")
+		return nil, errors.New("kecamatan tidak ditemukan")
 	}
 	if result := a.DB.First(&mad.Kelurahan{}, input.Kelurahan_Id); result.RowsAffected == 0 {
-		return nil, errors.New("Kelurahan tidak ditemukan")
+		return nil, errors.New("kelurahan tidak ditemukan")
 	}
 	if result := a.DB.First(&mad.Daerah{}, input.Kota_id); result.RowsAffected == 0 {
-		return nil, errors.New("Daerah tidak ditemukan")
+		return nil, errors.New("daerah tidak ditemukan")
 	}
 	if result := a.DB.First(&mad.Provinsi{}, input.Provinsi_Id); result.RowsAffected == 0 {
-		return nil, errors.New("Provinsi tidak ditemukan")
+		return nil, errors.New("provinsi tidak ditemukan")
 	}
 	return rp.OKSimple{
 		Data: input,
