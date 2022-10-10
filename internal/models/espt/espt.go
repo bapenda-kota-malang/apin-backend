@@ -15,14 +15,14 @@ type Espt struct {
 	Npwpd_Id          uint                        `json:"npwp_id"`
 	ObjekPajak_Id     uint                        `json:"objekPajak_id"`
 	Rekening_Id       uint                        `json:"rekening_id"`
-	Location          string                      `json:"location" gorm:"size:50"`
+	Location          *string                     `json:"location,omitempty" gorm:"size:50"`
 	Description       *string                     `json:"description"`
 	PeriodeAwal       datatypes.Date              `json:"periodeAwal"`
 	PeriodeAkhir      datatypes.Date              `json:"periodeAkhir"`
 	TarifPajak_id     uint                        `json:"tarifPajak_id"`
-	EtaxSubTotal      string                      `json:"etaxSubTotal" gorm:"size:100"`
-	EtaxTotal         string                      `json:"etaxTotal" gorm:"size:100"`
-	EtaxJumlahPajak   string                      `json:"etaxJumlahPajak" gorm:"size:100"`
+	EtaxSubTotal      *string                     `json:"etaxSubTotal" gorm:"size:100"`
+	EtaxTotal         *string                     `json:"etaxTotal" gorm:"size:100"`
+	EtaxJumlahPajak   *string                     `json:"etaxJumlahPajak" gorm:"size:100"`
 	Omset             float64                     `json:"omset"`
 	JumlahPajak       float32                     `json:"jumlahPajak"`
 	Attachment        string                      `json:"attachment"`
