@@ -13,3 +13,20 @@ type DetailEsptHotel struct {
 	JumlahKamarYangLaku uint    `json:"jumlahKamarYangLaku"`
 	gormhelper.DateModel
 }
+
+type CreateDto struct {
+	Espt_Id             uint    `json:"espt_id"`
+	GolonganKamar       string  `json:"golonganKamar"  validate:"required"`
+	Tarif               float32 `json:"tarif"  validate:"required"`
+	JumlahKamar         uint    `json:"jumlahKamar"  validate:"required"`
+	JumlahKamarYangLaku uint    `json:"jumlahKamarYangLaku"  validate:"required"`
+}
+
+type UpdateDto struct {
+	Id                  uint    `json:"id"`
+	Espt_Id             uint    `json:"espt_id"`
+	GolonganKamar       string  `json:"golonganKamar"`
+	Tarif               float32 `json:"tarif"`
+	JumlahKamar         uint    `json:"jumlahKamar"`
+	JumlahKamarYangLaku uint    `json:"jumlahKamarYangLaku"`
+}

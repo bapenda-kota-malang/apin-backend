@@ -5,6 +5,7 @@ import (
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
@@ -21,25 +22,69 @@ import (
 	sres "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptresto"
 )
 
-// Service create business flow for esptd air tanah
-func CreateAir(input m.CreateDetailAirDto) (interface{}, error) {
+// Service create business flow for esptd via wajib pajak for lapor e-sptd
+//
+// function flow is:
+//
+// create for esptd, replace id, create for data details based on data type, assign data details to data espt for respond
+func CreateDetail(input m.CreateInput) (interface{}, error) {
 	var data m.Espt
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		respEspt, err := Create(input.Espt, tx)
+		respEspt, err := Create(input.GetEspt(), tx)
 		if err != nil {
 			return err
 		}
 		data = respEspt.(rp.OKSimple).Data.(m.Espt)
 
-		for i := range input.DataDetails {
-			input.DataDetails[i].Espt_Id = data.Id
-		}
+		input.ReplaceEsptId(data.Id)
 
-		respDetail, err := sair.Create(input.DataDetails, tx)
-		if err != nil {
-			return err
+		switch dataReal := input.GetDetails().(type) {
+		case []mdair.CreateDto:
+			respDetails, err := sair.Create(dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdair.DetailEsptAir)
+				data.DetailEsptAir = &details
+			}
+		case []mdhot.CreateDto:
+			respDetails, err := shot.Create(dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdhot.DetailEsptHotel)
+				data.DetailEsptHotel = &details
+			}
+		case []mdpar.CreateDto:
+			respDetails, err := spar.Create(dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdpar.DetailEsptParkir)
+				data.DetailEsptParkir = &details
+			}
+		case []mdrek.CreateDto:
+			respDetails, err := srek.Create(dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdrek.DetailEsptReklame)
+				data.DetailEsptReklame = &details
+			}
+		case []mdres.CreateDto:
+			respDetails, err := sres.Create(dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdres.DetailEsptResto)
+				data.DetailEsptResto = &details
+			}
 		}
-		data.DetailEsptAir = respDetail.(rp.OKSimple).Data.(*[]mdair.DetailEsptAir)
 		return nil
 	})
 	if err != nil {
@@ -48,104 +93,118 @@ func CreateAir(input m.CreateDetailAirDto) (interface{}, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func CreateHotel(input m.CreateDetailHotelDto) (interface{}, error) {
+// Service business flow for esptd via wajib pajak for update lapor e-sptd
+//
+// this function flow is:
+//
+// update data esptd with id, check data details type, loop for update every items, assign data details to data espt for respond
+func UpdateDetail(id int, input m.UpdateInput) (interface{}, error) {
 	var data m.Espt
+	affected := "0"
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		respEspt, err := Create(input.Espt, tx)
+		respEspt, err := Update(id, input.GetEspt(), tx)
 		if err != nil {
 			return err
 		}
-		data = respEspt.(rp.OKSimple).Data.(m.Espt)
+		data = respEspt.(rp.OK).Data.(m.Espt)
+		affected = respEspt.(rp.OK).Meta["affected"]
 
-		for i := range input.DataDetails {
-			input.DataDetails[i].Espt_Id = data.Id
+		switch dataReal := input.GetDetails().(type) {
+		case []mdair.UpdateDto:
+			var detailList []mdair.DetailEsptAir
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := sair.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdair.DetailEsptAir)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailEsptAir = &detailList
+		case []mdhot.UpdateDto:
+			var detailList []mdhot.DetailEsptHotel
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := shot.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdhot.DetailEsptHotel)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailEsptHotel = &detailList
+		case []mdpar.UpdateDto:
+			var detailList []mdpar.DetailEsptParkir
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := spar.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdpar.DetailEsptParkir)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailEsptParkir = &detailList
+		case []mdrek.UpdateDto:
+			var detailList []mdrek.DetailEsptReklame
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := srek.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdrek.DetailEsptReklame)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailEsptReklame = &detailList
+		case []mdres.UpdateDto:
+			var detailList []mdres.DetailEsptResto
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := sres.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdres.DetailEsptResto)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailEsptResto = &detailList
 		}
-
-		respDetail, err := shot.Create(input.DataDetails, tx)
-		if err != nil {
-			return err
-		}
-		data.DetailEsptHotel = respDetail.(rp.OKSimple).Data.(*[]mdhot.DetailEsptHotel)
 		return nil
 	})
 	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
-	return rp.OKSimple{Data: data}, nil
-}
-
-func CreateParkir(input m.CreateDetailParkirDto) (interface{}, error) {
-	var data m.Espt
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		respEspt, err := Create(input.Espt, tx)
-		if err != nil {
-			return err
-		}
-		data = respEspt.(rp.OKSimple).Data.(m.Espt)
-
-		for i := range input.DataDetails {
-			input.DataDetails[i].Espt_Id = data.Id
-		}
-
-		respDetail, err := spar.Create(input.DataDetails, tx)
-		if err != nil {
-			return err
-		}
-		data.DetailEsptParkir = respDetail.(rp.OKSimple).Data.(*[]mdpar.DetailEsptParkir)
-		return nil
-	})
-	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
-	}
-	return rp.OKSimple{Data: data}, nil
-}
-func CreateReklame(input m.CreateDetailReklameDto) (interface{}, error) {
-	var data m.Espt
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		respEspt, err := Create(input.Espt, tx)
-		if err != nil {
-			return err
-		}
-		data = respEspt.(rp.OKSimple).Data.(m.Espt)
-
-		for i := range input.DataDetails {
-			input.DataDetails[i].Espt_Id = data.Id
-		}
-
-		respDetail, err := srek.Create(input.DataDetails, tx)
-		if err != nil {
-			return err
-		}
-		data.DetailEsptReklame = respDetail.(rp.OKSimple).Data.(*[]mdrek.DetailEsptReklame)
-		return nil
-	})
-	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
-	}
-	return rp.OKSimple{Data: data}, nil
-}
-func CreateResto(input m.CreateDetailRestoDto) (interface{}, error) {
-	var data m.Espt
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		respEspt, err := Create(input.Espt, tx)
-		if err != nil {
-			return err
-		}
-		data = respEspt.(rp.OKSimple).Data.(m.Espt)
-
-		for i := range input.DataDetails {
-			input.DataDetails[i].Espt_Id = data.Id
-		}
-
-		respDetail, err := sres.Create(input.DataDetails, tx)
-		if err != nil {
-			return err
-		}
-		data.DetailEsptResto = respDetail.(rp.OKSimple).Data.(*[]mdres.DetailEsptResto)
-		return nil
-	})
-	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
-	}
-	return rp.OKSimple{Data: data}, nil
+	return rp.OK{
+		Meta: t.IS{
+			"affected": affected,
+		},
+		Data: data,
+	}, nil
 }

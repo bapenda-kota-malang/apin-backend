@@ -46,16 +46,22 @@ func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func Update(id int, input m.CreateDto, tx *gorm.DB) (any, error) {
+func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data m.DetailEsptReklame
 
 	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
-	dataRow := tx.First(&data, id).RowsAffected
-	if dataRow == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+
+	if id != 0 {
+		if dataRow := tx.First(&data, id).RowsAffected; dataRow == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+	}
+	// copy to model struct
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
 	// check relasi id tabel ke tabel relasi
@@ -69,10 +75,7 @@ func Update(id int, input m.CreateDto, tx *gorm.DB) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
-	return rp.OK{
-		Meta: t.IS{
-			"affected": strconv.Itoa(int(dataRow)),
-		},
+	return rp.OKSimple{
 		Data: data,
 	}, nil
 }

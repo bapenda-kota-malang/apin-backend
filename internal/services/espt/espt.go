@@ -6,6 +6,7 @@ import (
 
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -25,6 +26,7 @@ func GetList(input m.FilterDto) (any, error) {
 
 	var pagination gh.Pagination
 	result := a.DB.Model(&m.Espt{}).
+		// Joins("Npwpd").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -47,13 +49,27 @@ func GetList(input m.FilterDto) (any, error) {
 func GetDetail(id int) (any, error) {
 	var data *m.Espt
 
-	result := a.DB.First(&data, id)
+	result := a.DB.Preload(clause.Associations).First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
-
+	if len(*data.DetailEsptAir) == 0 {
+		data.DetailEsptAir = nil
+	}
+	if len(*data.DetailEsptHotel) == 0 {
+		data.DetailEsptHotel = nil
+	}
+	if len(*data.DetailEsptParkir) == 0 {
+		data.DetailEsptParkir = nil
+	}
+	if len(*data.DetailEsptReklame) == 0 {
+		data.DetailEsptReklame = nil
+	}
+	if len(*data.DetailEsptResto) == 0 {
+		data.DetailEsptResto = nil
+	}
 	return rp.OKSimple{
 		Data: data,
 	}, nil
@@ -81,6 +97,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	// }
 
 	// static add value to field
+	data.VerifyStatus = string(m.StatusBaru)
 
 	// save to db
 	if result := tx.Create(&data); result.Error != nil {
@@ -91,23 +108,30 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 }
 
 // Service update data for table espt
-func Update(id int, input m.UpdateDto) (any, error) {
+func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
 	var data m.Espt
 
 	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
-	dataRow := a.DB.First(&data, id).RowsAffected
+	dataRow := tx.First(&data, id).RowsAffected
 	if dataRow == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
+	}
+	// copy to model struct
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
 	// check relasi id tabel ke tabel relasi
 	// potensiop table
-	// if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
+	// if result := tx.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
 	// 	return nil, nil
 	// }
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
-	if result := a.DB.Save(&data); result.Error != nil {
+	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
