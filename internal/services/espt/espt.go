@@ -108,7 +108,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 }
 
 // Service update data for table espt
-func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
+func Update(id int, input any, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -129,6 +129,11 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	// if result := tx.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
 	// 	return nil, nil
 	// }
+
+	if _, ok := input.(m.VerifyDto); ok {
+		// TODO: add verify by user id
+		// data.VerifyBy_User_Id = 0
+	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Save(&data); result.Error != nil {

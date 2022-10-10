@@ -146,11 +146,11 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", wajibpajak.GetDetail)
 	})
 
+	// route for espt list data, verify espt, and get detail data for espt before verify
 	r.Route("/espt", func(r chi.Router) {
-		r.Post("/", espt.Create)
 		r.Get("/", espt.GetList)
 		r.Get("/{id}", espt.GetDetail)
-		r.Delete("/{id}", espt.Delete)
+		r.Patch("/{id}/verify", espt.Verify)
 	})
 
 	return r
