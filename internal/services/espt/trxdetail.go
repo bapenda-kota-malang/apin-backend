@@ -27,16 +27,20 @@ import (
 // function flow is:
 //
 // create for esptd, replace id, create for data details based on data type, assign data details to data espt for respond
-func CreateDetail(input m.CreateInput) (interface{}, error) {
+func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 	var data m.Espt
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		respEspt, err := Create(input.GetEspt(), tx)
+		respEspt, err := Create(input.GetEspt(), user_Id, tx)
 		if err != nil {
 			return err
 		}
 		data = respEspt.(rp.OKSimple).Data.(m.Espt)
 
 		input.ReplaceEsptId(data.Id)
+
+		if input.LenDetails() == 0 {
+			return nil
+		}
 
 		switch dataReal := input.GetDetails().(type) {
 		case []mdair.CreateDto:
@@ -98,16 +102,20 @@ func CreateDetail(input m.CreateInput) (interface{}, error) {
 // this function flow is:
 //
 // update data esptd with id, check data details type, loop for update every items, assign data details to data espt for respond
-func UpdateDetail(id int, input m.UpdateInput) (interface{}, error) {
+func UpdateDetail(id int, input m.UpdateInput, user_Id uint) (interface{}, error) {
 	var data m.Espt
 	affected := "0"
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		respEspt, err := Update(id, input.GetEspt(), tx)
+		respEspt, err := Update(id, input.GetEspt(), user_Id, tx)
 		if err != nil {
 			return err
 		}
 		data = respEspt.(rp.OK).Data.(m.Espt)
 		affected = respEspt.(rp.OK).Meta["affected"]
+
+		if input.LenDetails() == 0 {
+			return nil
+		}
 
 		switch dataReal := input.GetDetails().(type) {
 		case []mdair.UpdateDto:
@@ -199,7 +207,7 @@ func UpdateDetail(id int, input m.UpdateInput) (interface{}, error) {
 		return nil
 	})
 	if err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+		return sh.SetError("request", "update-data", source, "failed", err.Error(), data)
 	}
 	return rp.OK{
 		Meta: t.IS{

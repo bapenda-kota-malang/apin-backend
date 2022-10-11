@@ -6,6 +6,7 @@ import (
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/espt"
 )
 
@@ -40,6 +41,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Update(id, data, nil)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err := s.Update(id, data, uint(authInfo.User_Id), nil)
 	hh.DataResponse(w, result, err)
 }

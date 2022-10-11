@@ -14,13 +14,12 @@ type DetailEsptParkir struct {
 
 type CreateDto struct {
 	Espt_Id        uint `json:"espt_id"`
-	JenisKendaraan uint `json:"jenisKendaraan"  validate:"required"`
-	Kapasitas      uint `json:"kapasitas"  validate:"required"`
+	JenisKendaraan uint `json:"jenisKendaraan"`
+	Kapasitas      uint `json:"kapasitas"`
 }
 
 type UpdateDto struct {
 	Id             uint `json:"id"`
-	Espt_Id        uint `json:"espt_id"`
 	JenisKendaraan uint `json:"jenisKendaraan"`
 	Kapasitas      uint `json:"kapasitas"`
 }

@@ -21,6 +21,10 @@ func (input CreateDetailAirDto) GetDetails() interface{} {
 	return input.DataDetails
 }
 
+func (input CreateDetailAirDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
 func (input CreateDetailAirDto) ReplaceEsptId(id uint) {
 	for i := range input.DataDetails {
 		input.DataDetails[i].Espt_Id = id
@@ -40,9 +44,13 @@ func (input CreateDetailHotelDto) GetDetails() interface{} {
 	return input.DataDetails
 }
 
+func (input CreateDetailHotelDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
 func (input CreateDetailHotelDto) ReplaceEsptId(id uint) {
 	for i := range input.DataDetails {
-		input.DataDetails[i].Espt_Id = id
+		input.DataDetails[i].Espt_Id = &id
 	}
 }
 
@@ -57,6 +65,10 @@ func (input CreateDetailParkirDto) GetEspt() CreateDto {
 
 func (input CreateDetailParkirDto) GetDetails() interface{} {
 	return input.DataDetails
+}
+
+func (input CreateDetailParkirDto) LenDetails() int {
+	return len(input.DataDetails)
 }
 
 func (input CreateDetailParkirDto) ReplaceEsptId(id uint) {
@@ -78,6 +90,10 @@ func (input CreateDetailReklameDto) GetDetails() interface{} {
 	return input.DataDetails
 }
 
+func (input CreateDetailReklameDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
 func (input CreateDetailReklameDto) ReplaceEsptId(id uint) {
 	for i := range input.DataDetails {
 		input.DataDetails[i].Espt_Id = id
@@ -95,6 +111,10 @@ func (input CreateDetailRestoDto) GetEspt() CreateDto {
 
 func (input CreateDetailRestoDto) GetDetails() interface{} {
 	return input.DataDetails
+}
+
+func (input CreateDetailRestoDto) LenDetails() int {
+	return len(input.DataDetails)
 }
 
 func (input CreateDetailRestoDto) ReplaceEsptId(id uint) {
@@ -116,6 +136,10 @@ func (input UpdateDetailAirDto) GetDetails() interface{} {
 	return input.DataDetails
 }
 
+func (input UpdateDetailAirDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
 type UpdateDetailHotelDto struct {
 	Espt        UpdateDto                   `json:"espt" validate:"required"`
 	DataDetails []detailespthotel.UpdateDto `json:"dataDetails" validate:"required"`
@@ -127,6 +151,10 @@ func (input UpdateDetailHotelDto) GetEspt() UpdateDto {
 
 func (input UpdateDetailHotelDto) GetDetails() interface{} {
 	return input.DataDetails
+}
+
+func (input UpdateDetailHotelDto) LenDetails() int {
+	return len(input.DataDetails)
 }
 
 type UpdateDetailParkirDto struct {
@@ -142,6 +170,10 @@ func (input UpdateDetailParkirDto) GetDetails() interface{} {
 	return input.DataDetails
 }
 
+func (input UpdateDetailParkirDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
 type UpdateDetailReklameDto struct {
 	Espt        UpdateDto                     `json:"espt" validate:"required"`
 	DataDetails []detailesptreklame.UpdateDto `json:"dataDetails" validate:"required"`
@@ -155,6 +187,10 @@ func (input UpdateDetailReklameDto) GetDetails() interface{} {
 	return input.DataDetails
 }
 
+func (input UpdateDetailReklameDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
 type UpdateDetailRestoDto struct {
 	Espt        UpdateDto                   `json:"espt" validate:"required"`
 	DataDetails []detailesptresto.UpdateDto `json:"dataDetails" validate:"required"`
@@ -166,4 +202,8 @@ func (input UpdateDetailRestoDto) GetEspt() UpdateDto {
 
 func (input UpdateDetailRestoDto) GetDetails() interface{} {
 	return input.DataDetails
+}
+
+func (input UpdateDetailRestoDto) LenDetails() int {
+	return len(input.DataDetails)
 }

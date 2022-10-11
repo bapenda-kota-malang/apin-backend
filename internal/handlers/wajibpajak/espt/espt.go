@@ -4,13 +4,13 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"reflect"
 
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/espt"
 )
 
@@ -19,20 +19,6 @@ func validateDetail(w http.ResponseWriter, body io.ReadCloser, data interface{})
 	if !hh.ValidateStructByIOR(w, body, &data) {
 		err = errors.New("failed")
 		return
-	}
-	// using reflect check len dataDetails array
-	dVal := reflect.ValueOf(data)
-	// escape pointer
-	if dVal.Kind() == reflect.Pointer {
-		dVal = dVal.Elem()
-	}
-	// check if DataDetails field exist and check len of slice
-	if field := dVal.FieldByName("DataDetails"); field.IsValid() {
-		if field.Kind() == reflect.Slice && field.Len() == 0 {
-			err = errors.New("data detail kosong")
-			hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
-			return
-		}
 	}
 	return
 }
@@ -86,7 +72,8 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	result, err = s.CreateDetail(input)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err = s.CreateDetail(input, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 
@@ -163,7 +150,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	result, err = s.UpdateDetail(id, input)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err = s.UpdateDetail(id, input, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 

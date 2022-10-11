@@ -28,7 +28,6 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Id               uint    `json:"id"`
-	Espt_Id          uint    `json:"espt_id"`
 	JumlahMeja       uint    `json:"jumlahMeja"`
 	JumlahKursi      uint    `json:"jumlahKursi"`
 	TarifMinuman     float32 `json:"tarifMinuman"`

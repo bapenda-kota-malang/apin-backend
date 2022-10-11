@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -29,6 +30,16 @@ func SetError(scope, xtype, source, status, message string, data any) (any, erro
 	return nil, errors.New(message)
 }
 
+func GetUuidv4() (id string, err error) {
+	uid, err := uuid.NewV4()
+	if err != nil {
+		return
+	}
+	id = uid.String()
+	return
+}
+
+// get path for resource root folder
 func GetResourcesPath() string {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -39,6 +50,7 @@ func GetResourcesPath() string {
 	return basePath
 }
 
+// get path for resource/img folder
 func getImgPath() (string, error) {
 	// path
 	resourcesPath := GetResourcesPath()
@@ -47,6 +59,16 @@ func getImgPath() (string, error) {
 	return basePath, nil
 }
 
+// get path for resource/pdf folder
+func GetPdfPath() string {
+	// path
+	resourcesPath := GetResourcesPath()
+	basePath := filepath.Join(resourcesPath, "pdf")
+	os.MkdirAll(basePath, os.ModePerm)
+	return basePath
+}
+
+// check base64 is image with supported format
 func CheckImage(b64Raw string) (err error) {
 	coI := strings.Index(string(b64Raw), ",")
 	switch strings.TrimSuffix(b64Raw[5:coI], ";base64") {
@@ -60,6 +82,16 @@ func CheckImage(b64Raw string) (err error) {
 	return
 }
 
+// check base64 is pdf format
+func CheckPdf(b64Raw string) (err error) {
+	coI := strings.Index(string(b64Raw), ",")
+	if strings.TrimSuffix(b64Raw[5:coI], ";base64") != "application/pdf" {
+		err = errors.New("unsupported mime type")
+	}
+	return
+}
+
+// save new image from base64 string to img eiter jpeg/png to resource/img folder with filename uuidv4 generated
 func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 	defer close(imgNameCh)
 	defer close(errCh)
@@ -79,18 +111,22 @@ func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 	}
 
 	// create img name
-	uid, err := uuid.NewV4()
+	uid, err := GetUuidv4()
 	if err != nil {
 		errCh <- err
 		return
 	}
-	imgName := uid.String()
+	imgName := uid
 
 	// write img according file type
 	switch strings.TrimSuffix(b64Raw[5:coI], ";base64") {
 	case "image/png":
 		imgName += ".png"
 		f, err := os.OpenFile(fmt.Sprintf("%s/%s", basePath, imgName), os.O_WRONLY|os.O_CREATE, 0777)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		defer f.Close()
 		pngI, err := png.Decode(bReader)
 		if err != nil {
@@ -105,6 +141,10 @@ func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 	case "image/jpeg":
 		imgName += ".jpeg"
 		f, err := os.OpenFile(fmt.Sprintf("%s/%s", basePath, imgName), os.O_WRONLY|os.O_CREATE, 0777)
+		if err != nil {
+			errCh <- err
+			return
+		}
 		defer f.Close()
 		jpgI, err := jpeg.Decode(bReader)
 		if err != nil {
@@ -124,6 +164,7 @@ func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 	imgNameCh <- imgName
 }
 
+// save new image and delete old image from resource/img folder
 func ReplaceImage(oImgName, b64Raw string, imgNameCh chan string, errCh chan error) {
 	defer close(errCh)
 	saveErrCh := make(chan error)
@@ -145,4 +186,75 @@ func ReplaceImage(oImgName, b64Raw string, imgNameCh chan string, errCh chan err
 		return
 	}
 	errCh <- nil
+}
+
+// save base64 string to file
+func SaveFile(b64Raw, fileName, path string, errCh chan error) {
+	defer close(errCh)
+	coI := strings.Index(string(b64Raw), ",")
+	rawFiles := string(b64Raw)[coI+1:]
+	dec, err := base64.StdEncoding.DecodeString(rawFiles)
+	if err != nil {
+		errCh <- err
+		return
+	}
+
+	f, err := os.Create(fmt.Sprintf("%s/%s", path, fileName))
+	if err != nil {
+		errCh <- err
+		return
+	}
+	defer f.Close()
+	if _, err := f.Write(dec); err != nil {
+		errCh <- err
+		return
+	}
+	if err := f.Sync(); err != nil {
+		errCh <- err
+		return
+	}
+	errCh <- nil
+}
+
+func ReplaceFile(oldFileName, b64Raw, newFileName, path string, errCh chan error) {
+	defer close(errCh)
+	saveErrCh := make(chan error)
+
+	go SaveFile(b64Raw, newFileName, path, saveErrCh)
+	if err := <-saveErrCh; err != nil {
+		errCh <- err
+		return
+	}
+	if err := os.Remove(fmt.Sprintf("%s/%s", path, oldFileName)); err != nil {
+		errCh <- err
+		return
+	}
+	errCh <- nil
+}
+
+// get beginning of month
+//
+// e.g now = 2022-10-11 22:33:44 +0700 WIB
+//
+// BeginningOfMonth(now) = 2022-10-01 00:00:00 +0700 WIB
+func BeginningOfMonth(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, t.Location())
+}
+
+// get beginning of previous month
+//
+// e.g now = 2022-10-11 22:33:44 +0700 WIB
+//
+// BeginningOfPreviosMonth() = 2022-09-01 00:00:00 +0700 WIB
+func BeginningOfPreviosMonth() time.Time {
+	return BeginningOfMonth(time.Now()).AddDate(0, -1, 0)
+}
+
+// get end of month
+//
+// e.g now = 2022-10-11 22:33:44 +0700 WIB
+//
+// EndOfMonth(now) = 2022-10-31 23:59:59.999999999 +0700 WIB
+func EndOfMonth(date time.Time) time.Time {
+	return BeginningOfMonth(date).AddDate(0, 1, 0).Add(-time.Nanosecond)
 }

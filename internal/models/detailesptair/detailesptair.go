@@ -5,8 +5,8 @@ import (
 )
 
 type DetailEspt struct {
-	Id      uint `json:"id" gorm:"primarykey"`
-	Espt_Id uint `json:"espt_id"`
+	Id      uint  `json:"id" gorm:"primarykey"`
+	Espt_Id *uint `json:"espt_id"`
 }
 
 type DetailEsptAir struct {
@@ -26,7 +26,6 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Id         uint    `json:"id"`
-	Espt_Id    uint    `json:"espt_id"`
 	Peruntukan string  `json:"peruntukan"`
 	JenisAbt   string  `json:"jenisAbt"`
 	Pengenaan  float32 `json:"pengenaan"`

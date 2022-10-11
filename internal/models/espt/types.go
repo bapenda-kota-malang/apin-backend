@@ -11,10 +11,12 @@ const (
 type CreateInput interface {
 	GetEspt() CreateDto
 	GetDetails() interface{}
+	LenDetails() int
 	ReplaceEsptId(id uint)
 }
 
 type UpdateInput interface {
 	GetEspt() UpdateDto
 	GetDetails() interface{}
+	LenDetails() int
 }
