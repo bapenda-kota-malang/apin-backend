@@ -13,8 +13,6 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
-	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
-	sl "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/stringval"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
@@ -27,7 +25,7 @@ const source = "pegawai"
 // migrate and register validator
 func init() {
 	a.AutoMigrate(&m.Pegawai{})
-	sv.RegisterValidator("validemail", sl.ValEmailValidator)
+	// sv.RegisterValidator("validemail", sl.ValEmailValidator)
 }
 
 ///// Exported funcs start here
@@ -47,7 +45,7 @@ func Create(input m.Create) (any, error) {
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data pegawai ke db satu if karena result dipakai sekali, +error
-		if result := a.DB.Create(&data); result.Error != nil {
+		if result := tx.Create(&data); result.Error != nil {
 			return errors.New("penyimpanan data pegawai gagal")
 		}
 
@@ -55,7 +53,7 @@ func Create(input m.Create) (any, error) {
 		dataU.Position = 1
 		dataU.Ref_Id = data.Id
 		dataU.RegMode = 1
-		dataUXTemp, err := su.Create(dataU)
+		dataUXTemp, err := su.Create(dataU, tx)
 		if err != nil {
 			return err
 		}
@@ -69,7 +67,7 @@ func Create(input m.Create) (any, error) {
 	}
 
 	dataUP := dataUX.(rp.OKSimple)
-  
+
 	dataU.Password = nil
 
 	return rp.OKSimple{Data: t.II{

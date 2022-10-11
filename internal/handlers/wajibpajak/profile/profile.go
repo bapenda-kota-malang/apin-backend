@@ -35,7 +35,7 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var data m.CreateDto
+	var data m.RegistrasiWajibPajak
 	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
+	"gorm.io/gorm"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -12,8 +13,6 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	p "github.com/bapenda-kota-malang/apin-backend/pkg/password"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
-	sv "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator"
-	sl "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/stringval"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 )
@@ -22,10 +21,13 @@ const source = "user"
 
 func init() {
 	a.AutoMigrate(&m.User{})
-	sv.RegisterValidator("validemail", sl.ValEmailValidator)
+	// sv.RegisterValidator("validemail", sl.ValEmailValidator)
 }
 
-func Create(input m.CreateDto) (any, error) {
+func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
 	var data m.User
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
@@ -40,7 +42,7 @@ func Create(input m.CreateDto) (any, error) {
 	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
-	if result := a.DB.Create(&data); result.Error != nil {
+	if result := tx.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data user: "+result.Error.Error(), data)
 	}
 
