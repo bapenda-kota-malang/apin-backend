@@ -4,6 +4,7 @@ import (
 	"time"
 
 	// adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
@@ -34,7 +35,6 @@ type WajibPajak struct {
 }
 
 type CreateDto struct {
-	// Wajib Pajak
 	Nik          string    `json:"nik" validate:"required"`
 	Nama         string    `json:"nama" validate:"required"`
 	Alamat       string    `json:"alamat" validate:"required"`
@@ -45,16 +45,18 @@ type CreateDto struct {
 	Telp         string    `json:"telp" validate:"required"`
 	KodePos      string    `json:"kodePos" validate:"required"`
 	RtRw         string    `json:"rtRw" validate:"required"`
+	Email        string    `json:"email" validate:"validemail"`
 	FotoKtp      string    `json:"fotoKtp" validate:"required"`
 	TempatLahir  string    `json:"tempatLahir" validate:"required"`
 	TanggalLahir time.Time `json:"tanggalLahir" validate:"required"`
 	Gender       uint8     `json:"gender" validate:"required,min=1"`
 	Pekerjaan    string    `json:"pekerjaan" validate:"required"`
+}
+type RegistrasiWajibPajak struct {
+	// Wajib Pajak
+	WajibPajak CreateDto `json:"wajibPajak"`
 	// User
-	Name       string `json:"name" validate:"required"`
-	Password   string `json:"password" validate:"required"`
-	RePassword string `json:"rePassword" validate:"required"`
-	Email      string `json:"email" validate:"required,validemail"`
+	User user.RegisterDto `json:"user"`
 }
 
 type UpdateDto struct {

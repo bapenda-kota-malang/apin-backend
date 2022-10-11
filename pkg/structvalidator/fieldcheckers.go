@@ -21,7 +21,7 @@ func init() {
 	RegisterFieldChecker("max", maxTagValidator)
 	RegisterFieldChecker("minLength", minLengthTagValidator)
 	RegisterFieldChecker("maxLength", maxLengthTagValidator)
-	RegisterFieldChecker("validemail", maxLengthTagValidator)
+	RegisterFieldChecker("validemail", emailValidator)
 	RegisterFieldChecker("base64", base64Validator)
 }
 
