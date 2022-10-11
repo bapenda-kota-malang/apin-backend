@@ -3,18 +3,18 @@ package ppat
 import "time"
 
 type Ppat struct {
-	Id          int    `json:"id" gorm:"primaryKey;autoIncrement"`
-	NamaLengkap string `json:"namaLengkap" validate:"required"`
-	Alamat      string `json:"alamat" validate:"required"`
-	Nik         string `json:"nik" validate:"required"`
+	Id     int    `json:"id" gorm:"primaryKey;autoIncrement"`
+	Nama   string `json:"nama" validate:"required"`
+	Alamat string `json:"alamat" validate:"required"`
+	Nik    string `json:"nik" validate:"required"`
 }
 
 // create ppat data alongside with user data
 type Create struct {
 	// for ppat
-	NamaLengkap string `json:"namaLengkap" validate:"required"`
-	Alamat      string `json:"alamat" validate:"required"`
-	Nik         string `json:"nik" validate:"required"`
+	Nama   string `json:"nama" validate:"required"`
+	Alamat string `json:"alamat" validate:"required"`
+	Nik    string `json:"nik" validate:"required"`
 
 	// for user
 	Name     string `json:"name" validate:"required"`
@@ -29,9 +29,9 @@ type Create struct {
 
 type Update struct {
 	// for ppat
-	NamaLengkap string `json:"namaLengkap" validate:"required"`
-	Alamat      string `json:"alamat" validate:"required"`
-	Nik         string `json:"nik" validate:"required"`
+	Nama   string `json:"nama" validate:"required"`
+	Alamat string `json:"alamat" validate:"required"`
+	Nik    string `json:"nik" validate:"required"`
 
 	// for user
 	// Position    int16     `json:"position"`
@@ -43,6 +43,6 @@ type Update struct {
 }
 
 type Filter struct {
-	NamaLengkap string `json:"namaLengkap"`
-	Nik         string `json:"nip"`
+	Nama string `json:"nama"`
+	Nik  string `json:"nip"`
 }

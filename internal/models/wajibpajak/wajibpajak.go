@@ -8,7 +8,7 @@ import (
 )
 
 type WajibPajak struct {
-	Id          uint   `json:"id" gorm:"primaryKey"`
+	Id          int    `json:"id" gorm:"primaryKey"`
 	Nik         string `json:"nik" gorm:"size:255;unique"`
 	Nama        string `json:"nama" gorm:"size:100"`
 	Alamat      string `json:"alamat"`

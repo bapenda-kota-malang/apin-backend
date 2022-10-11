@@ -12,19 +12,18 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt"
 	"github.com/spf13/viper"
+	"gorm.io/gorm"
 
 	ac "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	r "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	p "github.com/bapenda-kota-malang/apin-backend/pkg/password"
 
+	pm "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	am "github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	um "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
+	wm "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 )
-
-type AccessDetails struct {
-	Uuid    string
-	User_Id uint64
-}
 
 var rdClient *redis.Client
 
@@ -43,40 +42,66 @@ func init() {
 
 // Generates token and store in redis at one place
 func GenToken(input um.LoginDto) (interface{}, error) {
+	// Get User
 	var user um.User
-	result := ac.DB.Where(um.User{Name: input.Name, Position: input.Position}).Find(&user)
-	if result.Error != nil {
-		return nil, errors.New("gagal mengambil data")
-	} else if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+	var result *gorm.DB
+	if err := getAndCheck(result, &user, um.User{Name: input.Name, Position: input.Position}); err != nil {
+		return nil, err
 	}
-
-	if p.Check(input.Password, *user.Password) == false {
+	if user.Status == 3 {
+		return nil, errors.New("user tidak dapat login karena diblokir")
+	} else if user.Status == 4 {
+		return nil, errors.New("user tidak dapat login karena pengajuan pendaftaran ditolak")
+	} else if p.Check(input.Password, *user.Password) == false {
 		return nil, errors.New("username atau password tidak sesuai")
 	}
 
-	// Access token uuid prep
+	// Get Ref
+	ref := t.II{}
+	ref_type := ""
+	if user.Position == 1 {
+		var refData pm.Pegawai
+		if err := getAndCheck(result, &refData, pm.Pegawai{Id: user.Ref_Id}); err != nil {
+			return nil, err
+		}
+		ref_type = "pegawai"
+		ref["nama"] = refData.Nama
+		ref["nip"] = refData.Nip
+
+	} else if user.Position == 2 {
+		var refData am.Ppat
+		if err := getAndCheck(result, &refData, am.Ppat{Id: user.Ref_Id}); err != nil {
+			return nil, err
+		}
+		ref_type = "ppat"
+		ref["nama"] = refData.Nama
+		ref["nik"] = refData.Nik
+	} else if user.Position == 3 {
+		var refData wm.WajibPajak
+		if err := getAndCheck(result, &refData, wm.WajibPajak{Id: user.Ref_Id}); err != nil {
+			return nil, err
+		}
+		ref_type = "wajibPajak"
+		ref["nama"] = refData.Nama
+		ref["nik"] = refData.Nik
+	}
+
+	// Access token prep
 	id, err := uuid.NewV4()
 	if err != nil {
 		panic(fmt.Sprintf("gagal mebuat UUID access token: %v", err))
 	}
-	aUuid := id.String()
-	atExpires := time.Now().Add(time.Minute * 15).Unix()
-	atSecretKey := viper.GetString("authConf.atSecretKey")
-
-	// Refresh token uuid prep
-	id, err = uuid.NewV4()
-	if err != nil {
-		panic(fmt.Sprintf("gagal mebuat UUID untuk refresh token: %v", err))
+	duration := time.Hour * 24
+	if input.LongTerm {
+		duration = time.Hour * 24 * 30
 	}
-	rUuid := id.String()
-	rtExpires := time.Now().Add(time.Hour * 24 * 7).Unix()
-	rtSecretKey := viper.GetString("authConf.rtSecretKey")
-
+	aUuid := id.String()
+	atExpires := time.Now().Add(duration).Unix()
+	atSecretKey := viper.GetString("authConf.atSecretKey")
 	// Creating Access Token
 	atClaims := jwt.MapClaims{}
 	atClaims["user_id"] = user.Id
-	atClaims["user_name"] = user.Name
+	atClaims["ref_id"] = user.Ref_Id
 	atClaims["exp"] = atExpires
 	atClaims["uuid"] = aUuid
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
@@ -84,49 +109,60 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 	if err != nil {
 		return "", err
 	}
-
-	// Creating Refresh Token
-	rtClaims := jwt.MapClaims{}
-	rtClaims["user_id"] = user.Id
-	rtClaims["ref_id"] = user.Ref_Id
-	rtClaims["exp"] = rtExpires
-	rtClaims["uuid"] = rUuid
-	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
-	rts, err := rt.SignedString([]byte(rtSecretKey))
-	if err != nil {
-		return nil, err
-	}
-
 	// Save to redis
-	atx := time.Unix(atExpires, 0) //converting Unix to UTC(to Time object)
-	rtx := time.Unix(rtExpires, 0)
 	now := time.Now()
+	atx := time.Unix(atExpires, 0) //converting Unix to UTC(to Time object)
 	errAccess := rdClient.Set(aUuid, strconv.Itoa(user.Id), atx.Sub(now)).Err()
 	if errAccess != nil {
 		return nil, errAccess
 	}
-	errRefresh := rdClient.Set(rUuid, strconv.Itoa(user.Id), rtx.Sub(now)).Err()
-	if errRefresh != nil {
-		return nil, errRefresh
+
+	// // Refresh token uuid prep // WE DON'T NEED THIS FOR NOW
+	// id, err = uuid.NewV4()
+	// if err != nil {
+	// 	panic(fmt.Sprintf("gagal mebuat UUID untuk refresh token: %v", err))
+	// }
+	// rUuid := id.String()
+	// rtExpires := time.Now().Add(time.Hour * 24 * 7).Unix()
+	// rtSecretKey := viper.GetString("authConf.rtSecretKey")
+	// // Creating Refresh Token // WE DON'T NEED THIS FOR NOW
+	// rtClaims := jwt.MapClaims{}
+	// rtClaims["user_id"] = user.Id
+	// rtClaims["ref_id"] = user.Ref_Id
+	// rtClaims["exp"] = rtExpires
+	// rtClaims["uuid"] = rUuid
+	// rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
+	// rts, err := rt.SignedString([]byte(rtSecretKey))
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// Save to redis
+	// rtx := time.Unix(rtExpires, 0)
+	// errRefresh := rdClient.Set(rUuid, strconv.Itoa(user.Id), rtx.Sub(now)).Err()
+	// if errRefresh != nil {
+	// 	return nil, errRefresh
+	// }
+
+	// Current data
+	data := t.II{
+		"accessToken": ats,
+		// "refreshToken": rts,
+		"user": t.IS{
+			"id":     strconv.Itoa(user.Id),
+			"name":   user.Name,
+			"email":  user.Email,
+			"status": strconv.Itoa(int(user.Status)),
+		},
+		ref_type: ref,
 	}
 
-	return r.OKSimple{
-		Data: t.II{
-			"user": t.IS{
-				"id":    strconv.Itoa(user.Id),
-				"name":  user.Name,
-				"email": user.Email,
-			},
-			"accessToken":  ats,
-			"refreshToken": rts,
-		},
-	}, nil
+	return r.OKSimple{Data: data}, nil
 }
 
 func RevokeToken() {
 }
 
-func VerifyToken(r *http.Request, tokenType string) (*jwt.Token, error) {
+func VerifyToken(r *http.Request, tokenType TokenType) (*jwt.Token, error) {
 	auth := r.Header.Get("Authorization")
 	authArr := strings.Split(auth, " ")
 	if len(authArr) == 2 {
@@ -138,7 +174,7 @@ func VerifyToken(r *http.Request, tokenType string) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		if tokenType == "access" {
+		if tokenType == AccessToken {
 			return []byte(viper.GetString("authConf.atSecretKey")), nil
 		} else {
 			return []byte(viper.GetString("authConf.rtSecretKey")), nil
@@ -150,7 +186,7 @@ func VerifyToken(r *http.Request, tokenType string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func ExtractToken(r *http.Request, tokenType string) (interface{}, error) {
+func ExtractToken(r *http.Request, tokenType TokenType) (*AuthInfo, error) {
 	token, err := VerifyToken(r, tokenType)
 	if err != nil {
 		return nil, err
@@ -161,13 +197,18 @@ func ExtractToken(r *http.Request, tokenType string) (interface{}, error) {
 		if !ok {
 			return nil, err
 		}
-		userId, err := strconv.ParseUint(fmt.Sprintf("%.f", claims["user_id"]), 10, 64)
+		user_id, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["user_id"]), 10, 64)
 		if err != nil {
 			return nil, err
 		}
-		return &AccessDetails{
+		ref_id, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["ref_id"]), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		return &AuthInfo{
 			Uuid:    accessUuid,
-			User_Id: userId,
+			User_Id: int(user_id),
+			Ref_Id:  int(ref_id),
 		}, nil
 	}
 	return nil, err
