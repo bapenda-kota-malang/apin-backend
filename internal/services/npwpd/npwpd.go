@@ -18,6 +18,7 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -114,11 +115,11 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 		}(),
 		Nomor:             nomorNpwpd,
 		Npwpd:             &npwpdString,
-		TanggalPengukuhan: parseTime(*reg.TanggalPengukuhan),
-		TanggalNpwpd:      parseTime(*reg.TanggalNpwpd),
+		TanggalPengukuhan: th.ParseTime(*reg.TanggalPengukuhan),
+		TanggalNpwpd:      th.ParseTime(*reg.TanggalNpwpd),
 		Rekening_Id:       &reg.Rekening_Id,
 		Rekening:          rekening,
-		TanggalMulaiUsaha: parseTime(*reg.TanggalMulaiUsaha),
+		TanggalMulaiUsaha: th.ParseTime(*reg.TanggalMulaiUsaha),
 		LuasBangunan:      reg.LuasBangunan,
 		JamBukaUsaha:      reg.JamBukaUsaha,
 		JamTutupUsaha:     reg.JamTutupUsaha,

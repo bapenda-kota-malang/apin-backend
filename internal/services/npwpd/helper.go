@@ -2,7 +2,6 @@ package npwpd
 
 import (
 	"reflect"
-	"time"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -67,12 +66,4 @@ func insertDetailOp(objek string, data *[]npwpd.DetailOp, registerForm *npwpd.Np
 	}
 
 	return nil
-}
-
-func parseTime(input string) *time.Time {
-	t, err := time.Parse("2006-01-02", input)
-	if err != nil {
-		return nil
-	}
-	return &t
 }

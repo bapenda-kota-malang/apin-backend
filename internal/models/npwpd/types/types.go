@@ -17,7 +17,7 @@ const (
 	StatusTutup          Status = 3 //tutup
 
 	JenisPajakSA JenisPajak = "SA" //self_assessment
-	JenisPajakOA JenisPajak = "OS" //official_assessment
+	JenisPajakOA JenisPajak = "OA" //official_assessment
 
 	StatusBaru StatusBL = 0 //baru
 	StatusLama StatusBL = 1 //lama

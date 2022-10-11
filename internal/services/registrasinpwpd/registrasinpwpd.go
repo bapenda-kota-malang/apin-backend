@@ -16,12 +16,17 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 const source = "registrasiNpwpd"
+
+func init() {
+	a.AutoMigrate(&rn.RegistrasiNpwpd{})
+}
 
 func insertDetailOp(objek string, data *[]rn.DetailRegOp, registerForm *rn.RegistrasiNpwpd) error {
 	var (
@@ -145,22 +150,16 @@ func Create(r *http.Request, reg rn.CreateDto) (interface{}, error) {
 		// 	}
 		// 	return &t
 		// }(),
-		Rekening_Id: reg.Rekening_Id,
-		Rekening:    rekening,
-		TanggalMulaiUsaha: func() *time.Time {
-			t, err := time.Parse("2006-01-02", *reg.TanggalMulaiUsaha)
-			if err != nil {
-				return nil
-			}
-			return &t
-		}(),
-		LuasBangunan:  reg.LuasBangunan,
-		JamBukaUsaha:  reg.JamBukaUsaha,
-		JamTutupUsaha: reg.JamTutupUsaha,
-		Pengunjung:    reg.Pengunjung,
-		OmsetOp:       reg.OmsetOp,
-		Genset:        &reg.Genset,
-		AirTanah:      &reg.AirTanah,
+		Rekening_Id:       reg.Rekening_Id,
+		Rekening:          rekening,
+		TanggalMulaiUsaha: th.ParseTime(*reg.TanggalMulaiUsaha),
+		LuasBangunan:      reg.LuasBangunan,
+		JamBukaUsaha:      reg.JamBukaUsaha,
+		JamTutupUsaha:     reg.JamTutupUsaha,
+		Pengunjung:        reg.Pengunjung,
+		OmsetOp:           reg.OmsetOp,
+		Genset:            &reg.Genset,
+		AirTanah:          &reg.AirTanah,
 	}
 	err = a.DB.Create(&register).Error
 	if err != nil {
