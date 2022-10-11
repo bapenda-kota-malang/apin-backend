@@ -28,6 +28,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
+
+	_ "github.com/bapenda-kota-malang/apin-backend/internal/models/adbmigration"
 )
 
 func SetRoutes() http.Handler {

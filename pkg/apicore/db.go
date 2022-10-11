@@ -1,19 +1,6 @@
 package apicore
 
 import (
-	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptreklame"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
-	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -32,54 +19,8 @@ type dbConf struct {
 var autoMigrateList []interface{}
 
 func init() {
-	// autoMigrateList = make([]interface{})
-	listModelPendaftaran := []interface{}{
-		&user.User{},
-		&wajibpajak.WajibPajak{},
-		&adm.Provinsi{},
-		&adm.Daerah{},
-		&adm.Kecamatan{},
-		&adm.Kelurahan{},
-		&rm.Rekening{},
-		&skpd.Skpd{},
-		&registration.Registration{},
-		&registration.ObjekPajak{},
-		&registration.DetailOpAirTanah{},
-		&registration.DetailOpHiburan{},
-		&registration.DetailOpHotel{},
-		&registration.DetailOpParkir{},
-		&registration.DetailOpPpj{},
-		&registration.DetailOpReklame{},
-		&registration.DetailOpResto{},
-		&registration.PemilikWp{},
-		&registration.Narahubung{},
-	}
-	AutoMigrate(listModelPendaftaran...)
-
-	listModelPenetapan := []interface{}{
-		&espt.Espt{},
-		&detailesptair.DetailEsptAir{},
-		&detailespthotel.DetailEsptHotel{},
-		&detailesptparkir.DetailEsptParkir{},
-		&detailesptresto.DetailEsptResto{},
-		&detailesptreklame.DetailEsptReklame{},
-	}
-	autoMigrateList = append(autoMigrateList, listModelPenetapan...)
-
-	listModelPendataan := []interface{}{
-		&potensiopwp.PotensiOp{},
-		&potensiopwp.PotensiPemilikWp{},
-		&potensiopwp.PotensiNarahubung{},
-		&potensiopwp.DetailPotensiOp{},
-		&potensiopwp.DetailPotensiAirTanah{},
-		&potensiopwp.DetailPotensiHiburan{},
-		&potensiopwp.DetailPotensiHotel{},
-		&potensiopwp.DetailPotensiPPJ{},
-		&potensiopwp.DetailPotensiParkir{},
-		&potensiopwp.DetailPotensiReklame{},
-		&potensiopwp.DetailPotensiResto{},
-	}
-	AutoMigrate(listModelPendataan...)
+	// PINDAH KE internal/models/adbmigration
+	// /pkg ga boleh ada flow terkait proses bisnis
 }
 
 func (a *app) initDb() {
