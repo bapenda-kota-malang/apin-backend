@@ -66,6 +66,7 @@ type FilterDto struct {
 	Position *int16  `json:"position"`
 	Email    *string `json:"email"`
 	Status   *int16  `json:"status"`
+	Ref_Id   *int    `json:"ref_id"`
 
 	// fixed fields
 	Page     int   `json:"page"`

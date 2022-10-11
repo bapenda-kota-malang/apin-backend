@@ -41,7 +41,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
-	wajibPajak "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 )
 
 func SetRoutes() http.Handler {
@@ -120,6 +120,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", user.GetDetail)
 		r.Patch("/{id}", user.Update)
 		r.Delete("/{id}", user.Delete)
+		r.Patch("/{id}/verifikasi", user.Verifikasi)
 	})
 
 	r.Route("/group", func(r chi.Router) {
@@ -184,8 +185,8 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/wajibpajak", func(r chi.Router) {
-		r.Get("/", wajibPajak.GetList)
-		r.Get("/{id}", wajibPajak.GetDetail)
+		r.Get("/", wajibpajak.GetList)
+		r.Get("/{id}", wajibpajak.GetDetail)
 	})
 
 	r.Route("/spt", func(r chi.Router) {

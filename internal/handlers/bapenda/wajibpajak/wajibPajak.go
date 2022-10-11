@@ -1,4 +1,4 @@
-package wajibPajak
+package wajibpajak
 
 import (
 	"net/http"
