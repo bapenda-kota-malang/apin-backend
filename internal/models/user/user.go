@@ -59,6 +59,7 @@ type LoginDto struct {
 	Name     string `json:"name" validate:"required"`
 	Password string `json:"password" validate:"required"`
 	Position int16  `json:"position"`
+	LongTerm bool   `json:"long"`
 }
 
 type FilterDto struct {

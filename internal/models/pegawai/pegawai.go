@@ -6,27 +6,27 @@ import (
 )
 
 type Pegawai struct {
-	Id          int       `json:"id" gorm:"primaryKey;autoIncrement"`
-	NamaLengkap string    `json:"namaLengkap" gorm:"size:100"`
-	Nip         string    `json:"nip" gorm:"size:30;index"`
-	Jabatan_Id  int       `json:"jabatan_id" gorm:"index"`
-	Pangkat_Id  int       `json:"pangkat_id" gorm:"index"`
-	Skpd_Id     int       `json:"skpd_id"`
-	StartDate   time.Time `json:"startDate"`
-	EndDate     time.Time `json:"endDate"`
-	Aktif       int16     `json:"aktif"`
+	Id         int       `json:"id" gorm:"primaryKey;autoIncrement"`
+	Nama       string    `json:"nama" gorm:"size:100"`
+	Nip        string    `json:"nip" gorm:"size:30;index"`
+	Jabatan_Id int       `json:"jabatan_id" gorm:"index"`
+	Pangkat_Id int       `json:"pangkat_id" gorm:"index"`
+	Skpd_Id    int       `json:"skpd_id"`
+	StartDate  time.Time `json:"startDate"`
+	EndDate    time.Time `json:"endDate"`
+	Aktif      int16     `json:"aktif"`
 }
 
 // Creates pegawai data alongside with user data
 type Create struct {
 	// for pegawai
-	NamaLengkap string    `json:"namaLengkap" validate:"required;maxLength=100"`
-	Nip         string    `json:"nip" validate:"required;maxLength=30"`
-	Jabatan_Id  int       `json:"jabatan_id" validate:"required;min=1"`
-	Pangkat_Id  int       `json:"pangkat_id" validate:"required;min=1"`
-	Skpd_Id     int       `json:"skpd_id" validate:"required;min=1"`
-	StartDate   time.Time `json:"startDate"`
-	EndDate     time.Time `json:"endDate"`
+	Nama       string    `json:"nama" validate:"required;maxLength=100"`
+	Nip        string    `json:"nip" validate:"required;maxLength=30"`
+	Jabatan_Id int       `json:"jabatan_id" validate:"required;min=1"`
+	Pangkat_Id int       `json:"pangkat_id" validate:"required;min=1"`
+	Skpd_Id    int       `json:"skpd_id" validate:"required;min=1"`
+	StartDate  time.Time `json:"startDate"`
+	EndDate    time.Time `json:"endDate"`
 
 	// user.Create	// using embed composition is not good since structvalidation inlcudes the parent namespace
 	// for user
@@ -43,13 +43,13 @@ type Create struct {
 // Creates pegawai data alongside with user data
 type Update struct {
 	// for pegawai
-	NamaLengkap string    `json:"namaLengkap" validate:"required;maxLength=100"`
-	Nip         string    `json:"nip" validate:"required;maxLength=30"`
-	Jabatan_Id  int       `json:"jabatan_id" validate:"required;min=1"`
-	Pangkat_Id  int       `json:"pangkat_id" validate:"required;min=1"`
-	Skpd_Id     int       `json:"skpd_id" validate:"required;min=1"`
-	StartDate   time.Time `json:"startDate"`
-	EndDate     time.Time `json:"endDate"`
+	Nama       string    `json:"nama" validate:"required;maxLength=100"`
+	Nip        string    `json:"nip" validate:"required;maxLength=30"`
+	Jabatan_Id int       `json:"jabatan_id" validate:"required;min=1"`
+	Pangkat_Id int       `json:"pangkat_id" validate:"required;min=1"`
+	Skpd_Id    int       `json:"skpd_id" validate:"required;min=1"`
+	StartDate  time.Time `json:"startDate"`
+	EndDate    time.Time `json:"endDate"`
 
 	// user.Create	// using composition is not good since structvalidation inlcudes the parent namespace
 	// for user
@@ -62,7 +62,7 @@ type Update struct {
 }
 
 type Filter struct {
-	// NamaLengkap string `json:"namaLengkap"`
+	// Nama string `json:"nama"`
 	// Nip         string `json:"nip"`
 	// Jabatan_Id  int    `json:"jabatan_id"`
 	// Pangkat_Id  int    `json:"pangkat_id"`

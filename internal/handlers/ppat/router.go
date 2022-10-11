@@ -5,7 +5,6 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 )
 
@@ -16,7 +15,7 @@ func SetRoutes() *httprouter.Router {
 
 	// TODO: Use group for routing
 
-	router.HandlerFunc(http.MethodGet, "/auth/login", auth.Login)
+	// router.HandlerFunc(http.MethodGet, "/auth/login", auth.Login)
 
 	return router
 }
