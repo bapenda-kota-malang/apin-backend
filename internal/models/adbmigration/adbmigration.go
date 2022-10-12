@@ -6,6 +6,12 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptreklame"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
@@ -24,6 +30,16 @@ func init() {
 		&skpd.Skpd{},
 	}
 	a.AutoMigrate(listModelPendaftaran...)
+
+	listModelPenetapan := []interface{}{
+		&espt.Espt{},
+		&detailesptair.DetailEsptAir{},
+		&detailespthotel.DetailEsptHotel{},
+		&detailesptparkir.DetailEsptParkir{},
+		&detailesptresto.DetailEsptResto{},
+		&detailesptreklame.DetailEsptReklame{},
+	}
+	a.AutoMigrate(listModelPenetapan...)
 
 	listModelPendataan := []interface{}{
 		&potensiopwp.PotensiOp{},

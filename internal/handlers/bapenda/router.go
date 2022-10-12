@@ -14,7 +14,7 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/esptd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
@@ -150,10 +150,11 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", wajibpajak.GetDetail)
 	})
 
-	r.Route("/esptd", func(r chi.Router) {
-		r.Get("/", esptd.GetList)
-		r.Get("/{id}", esptd.GetDetail)
-		r.Delete("/{id}", esptd.Delete)
+	// route for espt list data, verify espt, and get detail data for espt before verify
+	r.Route("/espt", func(r chi.Router) {
+		r.Get("/", espt.GetList)
+		r.Get("/{id}", espt.GetDetail)
+		r.Patch("/{id}/verify", espt.Verify)
 	})
 
 	return r

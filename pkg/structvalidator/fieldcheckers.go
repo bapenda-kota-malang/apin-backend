@@ -82,7 +82,7 @@ func maxLengthTagValidator(val reflect.Value, exptVal string) error {
 func emailValidator(val reflect.Value, exptVal string) error {
 	re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
-	if re.MatchString(h.ValStringer(val)) == false {
+	if !re.MatchString(h.ValStringer(val)) {
 		return errors.New("harus memiliki format email yang benar")
 	}
 
@@ -90,9 +90,12 @@ func emailValidator(val reflect.Value, exptVal string) error {
 }
 
 func base64Validator(val reflect.Value, exptVal string) error {
-	re := regexp.MustCompile("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$")
+	if !val.IsValid() {
+		return nil
+	}
+	re := regexp.MustCompile(`^(data:)([\w\/\+-]*)(;charset=[\w-]+|;base64){0,1},([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$`)
 
-	if re.MatchString(h.ValStringer(val)) == false {
+	if !re.MatchString(h.ValStringer(val)) {
 		return errors.New("harus memiliki format base64")
 	}
 
