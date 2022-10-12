@@ -26,6 +26,7 @@ func SetRoutes() http.Handler {
 		"/register",
 		"/account/register",
 		"/account/reset-password",
+		"/account/change-password",
 	}
 	auth.Position = 3
 
