@@ -33,12 +33,20 @@ import (
 )
 
 func SetRoutes() http.Handler {
+	// Config
+	auth.SkipAuhPaths = []string{
+		"/auth/login",
+		"/auth/logout",
+		"/account/reset-password",
+		"/account/change-password",
+	}
 	auth.Position = 1
 
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
+	r.Use(auth.GuardMW)
 
 	r.NotFound(er.NotFoundResponse)
 	r.MethodNotAllowed(er.MethodNotAllowedResponse)
@@ -53,6 +61,8 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/account", func(r chi.Router) {
+		// r.Post("/register", account.Create) // replaced withr register
+		r.Get("/check", account.Check)
 		r.Patch("/reset-password", account.ResetPassword)
 		r.Patch("/change-password", account.ChangePassword)
 	})
