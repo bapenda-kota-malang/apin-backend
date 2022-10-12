@@ -41,9 +41,9 @@ type RegistrasiNpwpd struct {
 	gormhelper.DateModel
 	VerifyStatus   *VerifyStatus `json:"verifyStatus"`
 	VerifiedAt     *time.Time    `json:"verifiedAt"`
-	FotoKtp        *string       `json:"fotoKtp" gorm:"size:50"`
+	FotoKtp        string        `json:"fotoKtp" gorm:"size:50"`
 	SuratIzinUsaha *string       `json:"suratIzinUsaha" gorm:"size:50"`
-	LainLain       *string       `json:"lainLain" gorm:"size:50"`
+	LainLain       string        `json:"lainLain" gorm:"size:50"`
 	FotoObjek      *string       `json:"fotoObjek" gorm:"size:50"`
 	// ModeRegistrasi    npwpd.Mode               `json:"modeRegistrasi"`
 	// VendorEtax         *configurationmodel.VendorEtax `gorm:"foreignKey:VendorEtaxID"`
@@ -84,9 +84,9 @@ type CreateDto struct {
 	JamTutupUsaha     *string `json:"jamTutupUsaha"`
 	Pengunjung        *string `json:"pengunjung"`
 	OmsetOp           *string `json:"omsetOp"`
-	FotoKtp           *string `json:"fotoKtp"`
+	FotoKtp           string  `json:"fotoKtp"`
 	SuratIzinUsaha    *string `json:"suratIzinUsaha"`
-	LainLain          *string `json:"lainLain"`
+	LainLain          string  `json:"lainLain"`
 	FotoObjek         *string `json:"fotoObjek"`
 
 	Genset   bool `json:"genset"`

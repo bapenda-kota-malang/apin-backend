@@ -27,6 +27,16 @@ const source = "registrasiNpwpd"
 
 func init() {
 	a.AutoMigrate(&rn.RegistrasiNpwpd{})
+	a.AutoMigrate(&rn.DetailRegOpHotel{})
+	a.AutoMigrate(&rn.DetailRegOpAirTanah{})
+	a.AutoMigrate(&rn.DetailRegOpParkir{})
+	a.AutoMigrate(&rn.DetailRegOpReklame{})
+	a.AutoMigrate(&rn.DetailRegOpPpj{})
+	a.AutoMigrate(&rn.DetailRegOpHiburan{})
+	a.AutoMigrate(&rn.DetailRegOpResto{})
+	a.AutoMigrate(&rn.RegObjekPajak{})
+	a.AutoMigrate(&rn.RegNarahubung{})
+	a.AutoMigrate(&rn.RegPemilikWp{})
 }
 
 func insertDetailOp(objek string, data *[]rn.DetailRegOp, registerForm *rn.RegistrasiNpwpd) error {
@@ -118,41 +128,24 @@ func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
 		}
 		return reg.Nomor
 	}()
+	// foto ktp
+	var imgNameChan = make(chan string)
+	var errChan = make(chan error)
 
-	//ubah nomor ke string untuk pembuatan npwpd
-	// nomorString := strconv.Itoa(int(*nomorRegistrasiNpwpd))
-	// kecamatanIdString := strconv.Itoa(int(*reg.RegObjekPajak.Kecamatan_Id))
-	// kodeJenisUsahaString := *rekening.KodeJenisUsaha
-	// fmt.Println("data rekening: ", *rekening.Nama)
-	// fmt.Println("kodejenisusaha: ", kodeJenisUsahaString)
-	// if kodeJenisUsahaString == "" {
-	// 	kodeJenisUsahaString = "xxxxx"
-	// }
-	// npwpdString := nomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString[:3]
+	go sh.SaveImage(reg.FotoKtp, imgNameChan, errChan)
+	if err := <-errChan; err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "image unsupported", reg)
+	}
+	var tmp string = <-imgNameChan
 	register := rn.RegistrasiNpwpd{
 		// ModeRegistrasi: npwpd.ModeOperator,
-		Status:       nt.StatusAktif,
-		JenisPajak:   reg.JenisPajak,
-		User_Id:      &user_IdConv,
-		Golongan:     reg.Golongan,
-		Npwp:         reg.Npwp,
-		VerifyStatus: &tmpverify,
-		Nomor:        nomorRegistrasiNpwpd,
-		// Npwpd:        &npwpdString,
-		// TanggalPengukuhan: func() *time.Time {
-		// 	t, err := time.Parse("2006-01-02", *reg.TanggalPengukuhan)
-		// 	if err != nil {
-		// 		return nil
-		// 	}
-		// 	return &t
-		// }(),
-		// TanggalNpwpd: func() *time.Time {
-		// 	t, err := time.Parse("2006-01-02", *reg.TanggalNpwpd)
-		// 	if err != nil {
-		// 		return nil
-		// 	}
-		// 	return &t
-		// }(),
+		Status:            nt.StatusAktif,
+		JenisPajak:        reg.JenisPajak,
+		User_Id:           &user_IdConv,
+		Golongan:          reg.Golongan,
+		Npwp:              reg.Npwp,
+		VerifyStatus:      &tmpverify,
+		Nomor:             nomorRegistrasiNpwpd,
 		Rekening_Id:       reg.Rekening_Id,
 		Rekening:          rekening,
 		TanggalMulaiUsaha: th.ParseTime(*reg.TanggalMulaiUsaha),
@@ -163,6 +156,7 @@ func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
 		OmsetOp:           reg.OmsetOp,
 		Genset:            &reg.Genset,
 		AirTanah:          &reg.AirTanah,
+		FotoKtp:           tmp,
 	}
 	err = a.DB.Create(&register).Error
 	if err != nil {
