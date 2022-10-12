@@ -73,9 +73,6 @@ func GetDetail(id int) (any, error) {
 	if len(*data.DetailEsptParkir) == 0 {
 		data.DetailEsptParkir = nil
 	}
-	if len(*data.DetailEsptReklame) == 0 {
-		data.DetailEsptReklame = nil
-	}
 	if len(*data.DetailEsptResto) == 0 {
 		data.DetailEsptResto = nil
 	}
