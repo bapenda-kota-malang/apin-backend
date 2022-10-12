@@ -7,14 +7,15 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/auth"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
@@ -42,24 +43,42 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
+
+	_ "github.com/bapenda-kota-malang/apin-backend/internal/models/adbmigration"
 )
 
 func SetRoutes() http.Handler {
+	// Config
+	auth.SkipAuhPaths = []string{
+		"/auth/login",
+		"/auth/logout",
+		"/account/reset-password",
+		"/account/change-password",
+	}
+	auth.Position = 1
+
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
+	r.Use(auth.GuardMW)
 
 	r.NotFound(er.NotFoundResponse)
 	r.MethodNotAllowed(er.MethodNotAllowedResponse)
 
 	r.Get("/", home.Index)
 
+	fs := http.FileServer(http.Dir(servicehelper.GetResourcesPath()))
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", auth.Login)
 	})
 
 	r.Route("/account", func(r chi.Router) {
+		// r.Post("/register", account.Create) // replaced withr register
+		r.Get("/check", account.Check)
 		r.Patch("/reset-password", account.ResetPassword)
 		r.Patch("/change-password", account.ChangePassword)
 	})
@@ -195,6 +214,12 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", spt.GetDetail)
 		r.Patch("/{id}/{category}", spt.Update)
 		r.Delete("/{id}", spt.Delete)
+	})
+	// route for espt list data, verify espt, and get detail data for espt before verify
+	r.Route("/espt", func(r chi.Router) {
+		r.Get("/", espt.GetList)
+		r.Get("/{id}", espt.GetDetail)
+		r.Patch("/{id}/verify", espt.Verify)
 	})
 
 	return r

@@ -12,18 +12,32 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/auth"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/registrasinpwpd"
 )
 
 func SetRoutes() http.Handler {
+	// Config
+	auth.SkipAuhPaths = []string{
+		"/auth/login",
+		"/auth/logout",
+		"/register",
+		"/account/register",
+		"/account/reset-password",
+		"/account/change-password",
+	}
+	auth.Position = 3
+
+	// Start routing
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
+	r.Use(auth.GuardMW)
 
 	r.NotFound(er.NotFoundResponse)
 	r.MethodNotAllowed(er.MethodNotAllowedResponse)
@@ -40,6 +54,7 @@ func SetRoutes() http.Handler {
 
 	r.Route("/account", func(r chi.Router) {
 		// r.Post("/register", account.Create) // replaced withr register
+		r.Get("/check", account.Check)
 		r.Get("/confirm-by-email", account.ConfirmByEmail)
 		r.Get("/resend-confirmation", account.ResendConfirmation)
 		r.Patch("/change-pass", account.ChangePassword)
@@ -90,5 +105,13 @@ func SetRoutes() http.Handler {
 		r.Patch("/npwpd/{id}", npwpd.Update)
 		r.Patch("/{id}/setverifystatus", registrasinpwpd.VerifyRegistrasiNpwpd)
 	})
+	r.Route("/espt", func(r chi.Router) {
+		r.Post("/", espt.Create)
+		r.Get("/", espt.GetList)
+		r.Get("/{id}", espt.GetDetail)
+		r.Patch("/{id}", espt.Update)
+		r.Delete("/{id}", espt.Delete)
+	})
+
 	return r
 }

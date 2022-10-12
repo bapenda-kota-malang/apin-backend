@@ -1,14 +1,6 @@
 package apicore
 
 import (
-	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
-	rnpwpd "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -27,55 +19,8 @@ type dbConf struct {
 var autoMigrateList []interface{}
 
 func init() {
-	// autoMigrateList = make([]interface{})
-	listModelPendaftaran := []interface{}{
-		&user.User{},
-		&wajibpajak.WajibPajak{},
-		&adm.Provinsi{},
-		&adm.Daerah{},
-		&adm.Kecamatan{},
-		&adm.Kelurahan{},
-		&rm.Rekening{},
-		&skpd.Skpd{},
-		&npwpd.Npwpd{},
-		&npwpd.ObjekPajak{},
-		&npwpd.DetailOpAirTanah{},
-		&npwpd.DetailOpHiburan{},
-		&npwpd.DetailOpHotel{},
-		&npwpd.DetailOpParkir{},
-		&npwpd.DetailOpPpj{},
-		&npwpd.DetailOpReklame{},
-		&npwpd.DetailOpResto{},
-		&npwpd.PemilikWp{},
-		&npwpd.Narahubung{},
-		&rnpwpd.RegistrasiNpwpd{},
-		&rnpwpd.RegObjekPajak{},
-		&rnpwpd.DetailRegOpAirTanah{},
-		&rnpwpd.DetailRegOpHiburan{},
-		&rnpwpd.DetailRegOpHotel{},
-		&rnpwpd.DetailRegOpParkir{},
-		&rnpwpd.DetailRegOpPpj{},
-		&rnpwpd.DetailRegOpReklame{},
-		&rnpwpd.DetailRegOpResto{},
-		&rnpwpd.RegPemilikWp{},
-		&rnpwpd.RegNarahubung{},
-	}
-	AutoMigrate(listModelPendaftaran...)
-
-	listModelPendataan := []interface{}{
-		&potensiopwp.PotensiOp{},
-		&potensiopwp.PotensiPemilikWp{},
-		&potensiopwp.PotensiNarahubung{},
-		&potensiopwp.DetailPotensiOp{},
-		&potensiopwp.DetailPotensiAirTanah{},
-		&potensiopwp.DetailPotensiHiburan{},
-		&potensiopwp.DetailPotensiHotel{},
-		&potensiopwp.DetailPotensiPPJ{},
-		&potensiopwp.DetailPotensiParkir{},
-		&potensiopwp.DetailPotensiReklame{},
-		&potensiopwp.DetailPotensiResto{},
-	}
-	AutoMigrate(listModelPendataan...)
+	// PINDAH KE internal/models/adbmigration
+	// /pkg ga boleh ada flow terkait proses bisnis
 }
 
 func (a *app) initDb() {

@@ -52,13 +52,14 @@ type UpdateDto struct {
 type RegisterDto struct {
 	Name     string `json:"name" validate:"required"`
 	Password string `json:"password" validate:"required"`
-	Email    string `json:"email"`
+	Email    string `json:"email" validate:"validemail"`
 }
 
 type LoginDto struct {
 	Name     string `json:"name" validate:"required"`
 	Password string `json:"password" validate:"required"`
 	Position int16  `json:"position"`
+	LongTerm bool   `json:"long"`
 }
 
 type FilterDto struct {
