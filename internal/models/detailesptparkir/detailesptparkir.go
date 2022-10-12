@@ -13,7 +13,7 @@ type DetailEsptParkir struct {
 }
 
 type CreateDto struct {
-	Espt_Id        uint `json:"espt_id"`
+	Espt_Id        uint
 	JenisKendaraan uint `json:"jenisKendaraan"`
 	Kapasitas      uint `json:"kapasitas"`
 }

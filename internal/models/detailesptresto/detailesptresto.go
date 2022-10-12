@@ -12,18 +12,18 @@ type DetailEsptResto struct {
 	TarifMinuman     float32 `json:"tarifMinuman"`
 	TarifMakanan     float32 `json:"tarifMakanan"`
 	JumlahPengunjung uint    `json:"jumlahPengunjung"`
-	LdBt             uint    `json:"ldBt"`
+	IdBt             uint    `json:"idBt"`
 	gormhelper.DateModel
 }
 
 type CreateDto struct {
-	Espt_Id          uint    `json:"espt_id"`
+	Espt_Id          uint
 	JumlahMeja       uint    `json:"jumlahMeja"  validate:"required"`
 	JumlahKursi      uint    `json:"jumlahKursi"  validate:"required"`
 	TarifMinuman     float32 `json:"tarifMinuman"  validate:"required"`
 	TarifMakanan     float32 `json:"tarifMakanan"  validate:"required"`
 	JumlahPengunjung uint    `json:"jumlahPengunjung"  validate:"required"`
-	LdBt             uint    `json:"ldBt"  validate:"required"`
+	IdBt             uint    `json:"idBt"  validate:"required"`
 }
 
 type UpdateDto struct {
@@ -33,5 +33,5 @@ type UpdateDto struct {
 	TarifMinuman     float32 `json:"tarifMinuman"`
 	TarifMakanan     float32 `json:"tarifMakanan"`
 	JumlahPengunjung uint    `json:"jumlahPengunjung"`
-	LdBt             uint    `json:"ldBt"`
+	IdBt             uint    `json:"idBt"`
 }

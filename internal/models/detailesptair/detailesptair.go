@@ -18,7 +18,7 @@ type DetailEsptAir struct {
 }
 
 type CreateDto struct {
-	Espt_Id    uint    `json:"espt_id"`
+	Espt_Id    uint
 	Peruntukan string  `json:"peruntukan"  validate:"required"`
 	JenisAbt   string  `json:"jenisAbt"  validate:"required"`
 	Pengenaan  float32 `json:"pengenaan"  validate:"min=1"`

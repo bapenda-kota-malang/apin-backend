@@ -15,7 +15,7 @@ type DetailEsptHotel struct {
 }
 
 type CreateDto struct {
-	Espt_Id             *uint    `json:"espt_id"`
+	Espt_Id             *uint
 	GolonganKamar       *string  `json:"golonganKamar"`
 	Tarif               *float32 `json:"tarif"`
 	JumlahKamar         *uint    `json:"jumlahKamar"`
