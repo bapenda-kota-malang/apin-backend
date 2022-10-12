@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/registration"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )

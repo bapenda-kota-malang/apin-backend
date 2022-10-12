@@ -9,3 +9,8 @@ func ParseTime(input string) *time.Time {
 	}
 	return &t
 }
+
+func TimeNow() *time.Time {
+	t := time.Now()
+	return &t
+}

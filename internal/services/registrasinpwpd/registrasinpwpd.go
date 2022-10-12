@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	nm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -91,7 +92,8 @@ func insertDetailOp(objek string, data *[]rn.DetailRegOp, registerForm *rn.Regis
 	return nil
 }
 
-func Create(r *http.Request, reg rn.CreateDto) (interface{}, error) {
+func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
+	user_IdConv := uint64(user_Id)
 	var rekening *rm.Rekening
 	err := a.DB.Model(&rm.Rekening{}).First(&rekening, reg.Rekening_Id).Error
 	if err != nil {
@@ -131,6 +133,7 @@ func Create(r *http.Request, reg rn.CreateDto) (interface{}, error) {
 		// ModeRegistrasi: npwpd.ModeOperator,
 		Status:       nt.StatusAktif,
 		JenisPajak:   reg.JenisPajak,
+		User_Id:      &user_IdConv,
 		Golongan:     reg.Golongan,
 		Npwp:         reg.Npwp,
 		VerifyStatus: &tmpverify,
@@ -263,24 +266,190 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
-	// var dataNpwpd *npwpd.Npwpd
-	// dataNpwpd.Golongan = data.Golongan
-	// dataNpwpd.Nomor = data.Nomor
-	// dataNpwpd.Npwp = data.Npwp
-	// dataNpwpd.Status = data.Status
-	// dataNpwpd.TanggalTutup = data.TanggalPenutupan
-	// dataNpwpd.TanggalBuka = data.TanggalBuka
-	// dataNpwpd.JenisPajak = data.JenisPajak
-	// dataNpwpd.Skpd_Id = data.Skpd_Id
-	// dataNpwpd.Rekening_Id = data.Rekening_Id
-	// dataNpwpd.OmsetOp = data.OmsetOp
-	// dataNpwpd.Genset = data.Genset
-	// dataNpwpd.VerifyStatus = data.VerifyStatus
-	// dataNpwpd.VerifiedAt = data.VerifiedAt
+	var dataNpwpd nm.Npwpd
+	if err := sc.Copy(&dataNpwpd, &data); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
 
-	// if result = a.DB.Create(&dataNpwpd); result.Error != nil {
-	// 	return sh.SetError("request", "update-data", source, "failed", "gagal membuat data", dataNpwpd)
-	// }
+	//rekening
+	var rekening *rm.Rekening
+	err := a.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
+	if err != nil {
+		return nil, err
+	}
+	// kecamatan_id from regobjekpajak
+	var dataRegOp *rn.RegObjekPajak
+	err = a.DB.Where(rn.RegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}).First(&dataRegOp).Error
+	if err != nil {
+		return nil, err
+	}
+
+	//creating npwpd
+	nomorString := strconv.Itoa(int(*data.Nomor))
+	kecamatanIdString := strconv.Itoa(int(*dataRegOp.Kecamatan_Id))
+	kodeJenisUsahaString := *rekening.KodeJenisUsaha
+	fmt.Println("data rekening: ", *rekening.Nama)
+	fmt.Println("kodejenisusaha: ", kodeJenisUsahaString)
+	if kodeJenisUsahaString == "" {
+		kodeJenisUsahaString = "xxx"
+	}
+	npwpdString := nomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString
+	dataNpwpd.Npwpd = &npwpdString
+
+	//tanggal
+	dataNpwpd.TanggalPengukuhan = th.TimeNow()
+	dataNpwpd.TanggalNpwpd = th.TimeNow()
+	err = a.DB.Create(&dataNpwpd).Error
+	if err != nil {
+		return nil, err
+	}
+
+	//transfer detail from reg
+
+	switch *rekening.Objek {
+	case "01":
+		var dataReg []*rn.DetailRegOpHotel
+		result := a.DB.Where(rn.DetailRegOpHotel{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailOpHotel
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+			}
+
+			dataOp.Npwpd_Id = dataNpwpd.Id
+
+			err = a.DB.Create(&dataOp).Error
+			if err != nil {
+				return nil, err
+			}
+		}
+
+	case "02":
+		var dataReg []*rn.DetailRegOpResto
+		result := a.DB.Where(rn.DetailRegOpResto{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailOpResto
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+			}
+
+			dataOp.Npwpd_Id = dataNpwpd.Id
+
+			err = a.DB.Create(&dataOp).Error
+			if err != nil {
+				return nil, err
+			}
+		}
+	case "03":
+		var dataReg []*rn.DetailRegOpHiburan
+		result := a.DB.Where(rn.DetailRegOpHiburan{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailOpHiburan
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+			}
+
+			dataOp.Npwpd_Id = dataNpwpd.Id
+
+			err = a.DB.Create(&dataOp).Error
+			if err != nil {
+				return nil, err
+			}
+		}
+	case "04":
+		var dataReg []*rn.DetailRegOpReklame
+		result := a.DB.Where(rn.DetailRegOpReklame{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailOpReklame
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+			}
+
+			dataOp.Npwpd_Id = dataNpwpd.Id
+
+			err = a.DB.Create(&dataOp).Error
+			if err != nil {
+				return nil, err
+			}
+		}
+	case "05":
+		var dataReg []*rn.DetailRegOpPpj
+		result := a.DB.Where(rn.DetailRegOpPpj{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailOpPpj
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+			}
+
+			dataOp.Npwpd_Id = dataNpwpd.Id
+
+			err = a.DB.Create(&dataOp).Error
+			if err != nil {
+				return nil, err
+			}
+		}
+	case "06":
+		var dataReg []*rn.DetailRegOpParkir
+		result := a.DB.Where(rn.DetailRegOpParkir{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailOpParkir
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+			}
+
+			dataOp.Npwpd_Id = dataNpwpd.Id
+
+			err = a.DB.Create(&dataOp).Error
+			if err != nil {
+				return nil, err
+			}
+		}
+	case "07":
+		var dataReg []*rn.DetailRegOpAirTanah
+		result := a.DB.Where(rn.DetailRegOpAirTanah{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailOpAirTanah
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+			}
+
+			dataOp.Npwpd_Id = dataNpwpd.Id
+
+			err = a.DB.Create(&dataOp).Error
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	return rp.OK{
 		Meta: t.IS{
 			"affected": strconv.Itoa(int(result.RowsAffected)),

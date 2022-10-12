@@ -93,7 +93,13 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 	}()
 
 	//ubah nomor ke string untuk pembuatan npwpd
-	nomorString := strconv.Itoa(int(*nomorNpwpd))
+	var nomorString string
+	if nomorNpwpd == nil {
+		nomorString = "0001"
+	} else {
+
+		nomorString = strconv.Itoa(int(*nomorNpwpd))
+	}
 	kecamatanIdString := strconv.Itoa(int(*reg.ObjekPajak.Kecamatan_Id))
 	kodeJenisUsahaString := *rekening.KodeJenisUsaha
 	fmt.Println("data rekening: ", *rekening.Nama)
