@@ -26,6 +26,11 @@ func SetRoutes() http.Handler {
 		"/register",
 		"/account/register",
 		"/account/reset-password",
+		"/account/change-password",
+		"/provinsi",
+		"/daerah",
+		"/kecamatan",
+		"/kelurahan",
 	}
 	auth.Position = 3
 
@@ -64,35 +69,23 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/provinsi", func(r chi.Router) {
-		r.Post("/", provinsi.Create)
 		r.Get("/", provinsi.GetList)
 		r.Get("/{id}", provinsi.GetDetail)
-		r.Patch("/{id}", provinsi.Update)
-		r.Delete("/{id}", provinsi.Delete)
 	})
 
 	r.Route("/daerah", func(r chi.Router) {
-		r.Post("/", daerah.Create)
 		r.Get("/", daerah.GetList)
 		r.Get("/{id}", daerah.GetDetail)
-		r.Patch("/{id}", daerah.Update)
-		r.Delete("/{id}", daerah.Delete)
 	})
 
 	r.Route("/kecamatan", func(r chi.Router) {
-		r.Post("/", kecamatan.Create)
 		r.Get("/", kecamatan.GetList)
 		r.Get("/{id}", kecamatan.GetDetail)
-		r.Patch("/{id}", kecamatan.Update)
-		r.Delete("/{id}", kecamatan.Delete)
 	})
 
 	r.Route("/kelurahan", func(r chi.Router) {
-		r.Post("/", kelurahan.Create)
 		r.Get("/", kelurahan.GetList)
 		r.Get("/{id}", kelurahan.GetDetail)
-		r.Patch("/{id}", kelurahan.Update)
-		r.Delete("/{id}", kelurahan.Delete)
 	})
 
 	r.Route("/espt", func(r chi.Router) {
