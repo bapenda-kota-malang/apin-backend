@@ -19,11 +19,6 @@ import (
 
 const source = "user"
 
-func init() {
-	a.AutoMigrate(&m.User{})
-	// sv.RegisterValidator("validemail", sl.ValEmailValidator)
-}
-
 func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB

@@ -16,10 +16,6 @@ import (
 
 const source = "provinsi"
 
-func init() {
-	a.AutoMigrate(&m.Provinsi{})
-}
-
 func Create(input m.ProvinsiCreateDto) (any, error) {
 	var data m.Provinsi
 	if err := sc.Copy(&data, input); err != nil {

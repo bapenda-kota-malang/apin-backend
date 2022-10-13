@@ -1,7 +1,7 @@
 package areadivision
 
 type Provinsi struct {
-	ID     uint64    `json:"id" gorm:"primaryKey"`
+	Id     uint64    `json:"id" gorm:"primaryKey"`
 	Kode   string    `json:"kode" gorm:"unique;size:2"`
 	Nama   string    `json:"nama" gorm:"size:100"`
 	Daerah []*Daerah `json:"daerah,omitempty" gorm:"foreignKey:Provinsi_Kode;references:Kode"`

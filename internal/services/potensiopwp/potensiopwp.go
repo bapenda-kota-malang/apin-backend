@@ -15,8 +15,8 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
-	registration "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
 
 	mr "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 
@@ -190,7 +190,7 @@ func Create(input m.CreateDto) (any, error) {
 	}
 
 	// static add value to field
-	dataPotensiOp.Status = registration.StatusAktif
+	dataPotensiOp.Status = nt.StatusAktif
 
 	// Transaction save to db
 	err := a.DB.Transaction(func(tx *gorm.DB) error {

@@ -16,6 +16,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/registrasinpwpd"
 )
 
 func SetRoutes() http.Handler {
@@ -88,6 +89,12 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", kelurahan.GetDetail)
 	})
 
+	r.Route("/registrasinpwpd", func(r chi.Router) {
+		r.Post("/", registrasinpwpd.Create)
+		r.Get("/", registrasinpwpd.GetList)
+		r.Get("/", registrasinpwpd.GetDetail)
+
+	})
 	r.Route("/espt", func(r chi.Router) {
 		r.Post("/", espt.Create)
 		r.Get("/", espt.GetList)

@@ -11,20 +11,37 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/registrasinpwpd"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jabatan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jalan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jurnal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pendaftaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambong"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambongrek"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -69,6 +86,38 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/menu", menu.Crud{})
 
+	rh.RegCrud(r, "/skpd", skpd.Crud{})
+
+	rh.RegCrud(r, "/jabatan", jabatan.Crud{})
+
+	rh.RegCrud(r, "/pangkat", pangkat.Crud{})
+
+	rh.RegCrud(r, "/sektor", sektor.Crud{})
+
+	rh.RegCrud(r, "/omset", omset.Crud{})
+
+	rh.RegCrud(r, "/anggaran", anggaran.Crud{})
+
+	rh.RegCrud(r, "/sumberdana", sumberdana.Crud{})
+
+	rh.RegCrud(r, "/jurnal", jurnal.Crud{})
+
+	rh.RegCrud(r, "/tarifjambongrek", tarifjambongrek.Crud{})
+
+	rh.RegCrud(r, "/tarifjambong", tarifjambong.Crud{})
+
+	rh.RegCrud(r, "/tarifreklame", tarifreklame.Crud{})
+
+	rh.RegCrud(r, "/klasifikasijalan", klasifikasijalan.Crud{})
+
+	rh.RegCrud(r, "/jalan", jalan.Crud{})
+
+	rh.RegCrud(r, "/hargadasarair", hargadasarair.Crud{})
+
+	rh.RegCrud(r, "/tarifpajak", tarifpajak.Crud{})
+
+	rh.RegCrud(r, "/rekening", rekening.Crud{})
+
 	r.Route("/pegawai", func(r chi.Router) {
 		r.Post("/", pegawai.Create)
 		r.Get("/", pegawai.GetList)
@@ -102,18 +151,21 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", group.Delete)
 	})
 
-	r.Route("/registration", func(r chi.Router) {
-		r.Get("/", pendaftaran.GetList)
-		r.Get("/{id}", pendaftaran.GetDetail)
-		r.Post("/operator", pendaftaran.RegisterByOperator)
-		r.Patch("/{id}", pendaftaran.Update)
-		r.Patch("/npwpd/{id}/verifikasi", pendaftaran.VerifyNpwpd)
-		r.Delete("/{id}", pendaftaran.Delete)
+	r.Route("/npwpd", func(r chi.Router) {
+		r.Get("/", npwpd.GetList)
+		r.Get("/{id}", npwpd.GetDetail)
+		r.Post("/", npwpd.Create)
+		r.Patch("/{id}", npwpd.Update)
+		r.Delete("/{id}", npwpd.Delete)
+
 	})
 
-	r.Route("/rekening", func(r chi.Router) {
-		r.Get("/", rekening.GetList)
+	r.Route("/registrasinpwpd", func(r chi.Router) {
+		r.Patch("/{id}/setverifystatus", registrasinpwpd.VerifyRegistrasiNpwpd)
 	})
+	// r.Route("/rekening", func(r chi.Router) {
+	// 	r.Get("/", rekening.GetList)
+	// })
 
 	r.Route("/potensiopwp", func(r chi.Router) {
 		r.Post("/", potensiopwp.Create)
@@ -160,6 +212,13 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", wajibpajak.GetDetail)
 	})
 
+	r.Route("/spt", func(r chi.Router) {
+		r.Post("/{category}", spt.Create)
+		r.Get("/", spt.GetList)
+		r.Get("/{id}", spt.GetDetail)
+		r.Patch("/{id}/{category}", spt.Update)
+		r.Delete("/{id}", spt.Delete)
+	})
 	// route for espt list data, verify espt, and get detail data for espt before verify
 	r.Route("/espt", func(r chi.Router) {
 		r.Get("/", espt.GetList)

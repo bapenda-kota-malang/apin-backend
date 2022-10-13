@@ -16,7 +16,7 @@ func ImportRekening() {
 		return
 	}
 
-	f, err := excelize.OpenFile("assets/rekening.xlsx")
+	f, err := excelize.OpenFile("assets/dataDummyRekening.xlsx")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,28 +28,39 @@ func ImportRekening() {
 		if i > 1 {
 			n := strconv.Itoa(i)
 
-			cTipe := f.GetCellValue(sheet, "B"+n)
-			cKelompok := f.GetCellValue(sheet, "C"+n)
-			cJenis := f.GetCellValue(sheet, "D"+n)
-			cObjek := f.GetCellValue(sheet, "E"+n)
-			cRincian := f.GetCellValue(sheet, "F"+n)
-			cSub1 := f.GetCellValue(sheet, "G"+n)
-			cSub2 := f.GetCellValue(sheet, "H"+n)
-			cSub3 := f.GetCellValue(sheet, "I"+n)
-			cKode := f.GetCellValue(sheet, "J"+n)
-			cNama := f.GetCellValue(sheet, "K"+n)
+			// cParentId := f.GetCellValue(sheet, "B"+n)
+			cTipe := f.GetCellValue(sheet, "C"+n)
+			cKelompok := f.GetCellValue(sheet, "D"+n)
+			cJenis := f.GetCellValue(sheet, "E"+n)
+			cObjek := f.GetCellValue(sheet, "F"+n)
+			cRincian := f.GetCellValue(sheet, "G"+n)
+			cSub1 := f.GetCellValue(sheet, "H"+n)
+			cSub2 := f.GetCellValue(sheet, "I"+n)
+			cSub3 := f.GetCellValue(sheet, "J"+n)
+			cKode := f.GetCellValue(sheet, "K"+n)
+			cNama := f.GetCellValue(sheet, "L"+n)
+			cKodeJenisPajak := f.GetCellValue(sheet, "O"+n)
+			cKodeVaJatim := f.GetCellValue(sheet, "P"+n)
+			cKodeBilling := f.GetCellValue(sheet, "Q"+n)
+			cKodeJenisUsaha := f.GetCellValue(sheet, "R"+n)
+			cJenisUsaha := f.GetCellValue(sheet, "S"+n)
 
 			rekening = append(rekening, rm.Rekening{
-				Tipe:     &cTipe,
-				Kelompok: &cKelompok,
-				Jenis:    &cJenis,
-				Objek:    &cObjek,
-				Rincian:  &cRincian,
-				Sub1:     &cSub1,
-				Sub2:     &cSub2,
-				Sub3:     &cSub3,
-				Kode:     &cKode,
-				Nama:     &cNama,
+				Tipe:           &cTipe,
+				Kelompok:       &cKelompok,
+				Jenis:          &cJenis,
+				Objek:          &cObjek,
+				Rincian:        &cRincian,
+				Sub1:           &cSub1,
+				Sub2:           &cSub2,
+				Sub3:           &cSub3,
+				Kode:           &cKode,
+				Nama:           &cNama,
+				KodeJenisPajak: &cKodeJenisPajak,
+				KodeVaJatim:    &cKodeVaJatim,
+				KodeBilling:    &cKodeBilling,
+				KodeJenisUsaha: &cKodeJenisUsaha,
+				JenisUsaha:     &cJenisUsaha,
 			})
 		}
 	}
