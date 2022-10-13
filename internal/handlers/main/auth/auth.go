@@ -48,7 +48,7 @@ func GuardMW(next http.Handler) http.Handler {
 		}
 		accessDetail, err := as.ExtractToken(r, as.AccessToken)
 		if err != nil {
-			http.Error(w, http.StatusText(403), 403)
+			http.Error(w, "user tidak memiliki akses untuk data terkait.", 403)
 			return
 		}
 		ctx := context.WithValue(r.Context(), "authInfo", accessDetail)
