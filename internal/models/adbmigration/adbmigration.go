@@ -9,6 +9,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
@@ -36,6 +37,7 @@ func init() {
 		&detailespthotel.DetailEsptHotel{},
 		&detailesptparkir.DetailEsptParkir{},
 		&detailesptresto.DetailEsptResto{},
+		&detailesptreklame.DetailEsptReklame{},
 	}
 	a.AutoMigrate(listModelPenetapan...)
 
