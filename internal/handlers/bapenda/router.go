@@ -11,6 +11,7 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/registrasinpwpd"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
@@ -159,6 +160,9 @@ func SetRoutes() http.Handler {
 
 	})
 
+	r.Route("/registrasinpwpd", func(r chi.Router) {
+		r.Patch("/{id}/setverifystatus", registrasinpwpd.VerifyRegistrasiNpwpd)
+	})
 	// r.Route("/rekening", func(r chi.Router) {
 	// 	r.Get("/", rekening.GetList)
 	// })

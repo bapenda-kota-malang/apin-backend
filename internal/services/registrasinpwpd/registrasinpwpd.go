@@ -293,6 +293,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 	//tanggal
 	dataNpwpd.TanggalPengukuhan = th.TimeNow()
 	dataNpwpd.TanggalNpwpd = th.TimeNow()
+	dataNpwpd.Id = 0
 	err = a.DB.Create(&dataNpwpd).Error
 	if err != nil {
 		return nil, err
@@ -315,7 +316,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
-
+			dataOp.Id = 0
 			err = a.DB.Create(&dataOp).Error
 			if err != nil {
 				return nil, err
@@ -336,7 +337,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
-
+			dataOp.Id = 0
 			err = a.DB.Create(&dataOp).Error
 			if err != nil {
 				return nil, err
@@ -356,7 +357,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
-
+			dataOp.Id = 0
 			err = a.DB.Create(&dataOp).Error
 			if err != nil {
 				return nil, err
@@ -376,7 +377,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
-
+			dataOp.Id = 0
 			err = a.DB.Create(&dataOp).Error
 			if err != nil {
 				return nil, err
@@ -396,7 +397,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
-
+			dataOp.Id = 0
 			err = a.DB.Create(&dataOp).Error
 			if err != nil {
 				return nil, err
@@ -416,7 +417,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
-
+			dataOp.Id = 0
 			err = a.DB.Create(&dataOp).Error
 			if err != nil {
 				return nil, err
@@ -436,7 +437,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
-
+			dataOp.Id = 0
 			err = a.DB.Create(&dataOp).Error
 			if err != nil {
 				return nil, err

@@ -9,7 +9,6 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -100,10 +99,9 @@ func SetRoutes() http.Handler {
 
 	r.Route("/registrasinpwpd", func(r chi.Router) {
 		r.Post("/", registrasinpwpd.Create)
-		r.Get("/npwpd", npwpd.GetList)
-		r.Get("/npwpd/{id}", npwpd.GetDetail)
-		r.Patch("/npwpd/{id}", npwpd.Update)
-		r.Patch("/{id}/setverifystatus", registrasinpwpd.VerifyRegistrasiNpwpd)
+		r.Get("/", registrasinpwpd.GetList)
+		r.Get("/", registrasinpwpd.GetDetail)
+
 	})
 	r.Route("/espt", func(r chi.Router) {
 		r.Post("/", espt.Create)
