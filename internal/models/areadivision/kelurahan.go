@@ -1,7 +1,7 @@
 package areadivision
 
 type Kelurahan struct {
-	ID             uint64     `json:"id" gorm:"primaryKey"`
+	Id             uint64     `json:"id" gorm:"primaryKey"`
 	Kecamatan_Kode string     `json:"kecamatan_kode" gorn:"size:7"`
 	Kecamatan      *Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_Kode;references:Kode"`
 	Kode           string     `json:"kode" gorm:"unique;size:10"`

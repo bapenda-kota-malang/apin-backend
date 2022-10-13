@@ -16,10 +16,6 @@ import (
 
 const source = "menu"
 
-func init() {
-	a.AutoMigrate(&m.Menu{})
-}
-
 func Create(input m.CreateDto) (any, error) {
 	var data m.Menu
 

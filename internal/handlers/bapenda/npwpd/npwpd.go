@@ -1,11 +1,11 @@
-package pendaftaran
+package npwpd
 
 import (
 	"fmt"
 	"net/http"
 
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrationmodel"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/registration"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
@@ -26,13 +26,13 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func RegisterByOperator(w http.ResponseWriter, r *http.Request) {
-	var register rm.RegisterByOperator
-	if hh.ValidateStructByIOR(w, r.Body, &register) == false {
+func Create(w http.ResponseWriter, r *http.Request) {
+	var input m.CreateDto
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
 
-	result, err := s.RegisterByOperator(r, register)
+	result, err := s.Create(r, input)
 	hh.DataResponse(w, result, err)
 }
 
@@ -42,11 +42,11 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data rm.RegisterUpdate
+	var data m.UpdateDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
-	fmt.Println("datahandler: ", data)
+	fmt.Println("datahandler: ", *data.DetailOp.JumlahOp)
 	result, err := s.Update(id, data)
 	hh.DataResponse(w, result, err)
 }
@@ -58,20 +58,5 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := s.Delete(id)
-	hh.DataResponse(w, result, err)
-}
-
-func VerifyNpwpd(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
-		return
-	}
-
-	var input rm.VerifikasiDto
-	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		return
-	}
-
-	result, err := s.VerifyNpwpd(id, input)
 	hh.DataResponse(w, result, err)
 }

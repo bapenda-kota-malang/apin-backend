@@ -17,10 +17,6 @@ import (
 
 const source = "group"
 
-func init() {
-	a.AutoMigrate(&m.Group{})
-}
-
 func Create(input m.CreateDto) (any, error) {
 	var data m.Group
 
