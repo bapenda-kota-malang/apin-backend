@@ -1,4 +1,4 @@
-package detailsptParkir
+package detailsptparkir
 
 import mt "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/types"
 

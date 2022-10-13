@@ -16,10 +16,6 @@ import (
 
 const source = "skpd"
 
-func init() {
-	a.AutoMigrate(&m.Skpd{})
-}
-
 func Create(input m.CreateDto) (any, error) {
 	var data m.Skpd
 

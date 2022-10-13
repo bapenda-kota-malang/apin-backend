@@ -16,10 +16,6 @@ import (
 
 const source = "pangkat"
 
-func init() {
-	a.AutoMigrate(&m.Pangkat{})
-}
-
 func Create(input m.CreateDto) (any, error) {
 	var data m.Pangkat
 

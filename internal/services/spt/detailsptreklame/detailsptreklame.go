@@ -16,11 +16,6 @@ import (
 
 const source = "detailSptReklame"
 
-func init() {
-	a.AutoMigrate(&ms.Spt{})
-	a.AutoMigrate(&mdsrek.DetailSptReklame{})
-}
-
 func Create(input ms.CreateReklameDto) (any, error) {
 	var dataS ms.Spt
 	var dataD mdsrek.DetailSptReklame

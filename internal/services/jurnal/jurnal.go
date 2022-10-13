@@ -16,10 +16,6 @@ import (
 
 const source = "jurnal"
 
-func init() {
-	a.AutoMigrate(&m.Jurnal{})
-}
-
 func Create(input m.CreateDto) (any, error) {
 	var data m.Jurnal
 

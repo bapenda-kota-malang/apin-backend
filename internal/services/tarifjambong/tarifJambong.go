@@ -16,10 +16,6 @@ import (
 
 const source = "tarifjambong"
 
-func init() {
-	a.AutoMigrate(&m.TarifJambong{})
-}
-
 func Create(input m.CreateDto) (any, error) {
 	var data m.TarifJambong
 

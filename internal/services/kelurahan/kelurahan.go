@@ -16,10 +16,6 @@ import (
 
 const source = "kelurahan"
 
-func init() {
-	a.AutoMigrate(&m.Kelurahan{})
-}
-
 func Create(input m.KelurahanCreateDto) (any, error) {
 	var data m.Kelurahan
 	var dataK m.Kecamatan

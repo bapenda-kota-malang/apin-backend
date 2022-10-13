@@ -12,11 +12,6 @@ import (
 
 const source = "detailSptParkir"
 
-func init() {
-	a.AutoMigrate(&ms.Spt{})
-	a.AutoMigrate(&mdsp.DetailSptParkir{})
-}
-
 func Create(input ms.CreateParkirDto) (any, error) {
 	var dataS ms.Spt
 

@@ -26,20 +26,6 @@ import (
 
 const source = "npwpd"
 
-func init() {
-	a.AutoMigrate(&npwpd.Npwpd{})
-	a.AutoMigrate(&npwpd.PemilikWp{})
-	a.AutoMigrate(&npwpd.ObjekPajak{})
-	a.AutoMigrate(&npwpd.Narahubung{})
-	a.AutoMigrate(&npwpd.DetailOpHotel{})
-	a.AutoMigrate(&npwpd.DetailOpAirTanah{})
-	a.AutoMigrate(&npwpd.DetailOpParkir{})
-	a.AutoMigrate(&npwpd.DetailOpReklame{})
-	a.AutoMigrate(&npwpd.DetailOpPpj{})
-	a.AutoMigrate(&npwpd.DetailOpHiburan{})
-	a.AutoMigrate(&npwpd.DetailOpResto{})
-}
-
 func GetAll(pagination gormhelper.Pagination) (interface{}, error) {
 	var (
 		register []*npwpd.Npwpd

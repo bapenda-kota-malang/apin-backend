@@ -41,10 +41,6 @@ import (
 
 const source = "rekening"
 
-func init() {
-	a.AutoMigrate(&m.Rekening{})
-}
-
 func Create(input m.CreateDto) (any, error) {
 	var data m.Rekening
 

@@ -16,10 +16,6 @@ import (
 
 const source = "omset"
 
-func init() {
-	a.AutoMigrate(&m.Omset{})
-}
-
 func Create(input m.CreateDto) (any, error) {
 	var data m.Omset
 

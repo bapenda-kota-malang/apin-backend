@@ -16,11 +16,6 @@ import (
 
 const source = "detailSptAir"
 
-func init() {
-	a.AutoMigrate(&ms.Spt{})
-	a.AutoMigrate(&mdsa.DetailSptAir{})
-}
-
 func Create(input ms.CreateAirDto) (any, error) {
 	var dataS ms.Spt
 	var dataD mdsa.DetailSptAir

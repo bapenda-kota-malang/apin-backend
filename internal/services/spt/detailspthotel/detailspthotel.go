@@ -12,11 +12,6 @@ import (
 
 const source = "detailSptHotel"
 
-func init() {
-	a.AutoMigrate(&ms.Spt{})
-	a.AutoMigrate(&mdsh.DetailSptHotel{})
-}
-
 func Create(input ms.CreateHotelDto) (any, error) {
 	var dataS ms.Spt
 

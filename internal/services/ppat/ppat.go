@@ -22,12 +22,6 @@ import (
 // /// Private funcs start here
 const source = "pegawai"
 
-// migrate and register validator
-func init() {
-	a.AutoMigrate(&m.Ppat{})
-	// sv.RegisterValidator("validemail", sl.ValEmailValidator)
-}
-
 ///// Exported funcs start here
 
 func Create(input m.Create) (any, error) {

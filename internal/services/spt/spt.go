@@ -21,10 +21,6 @@ import (
 
 const source = "spt"
 
-func init() {
-	a.AutoMigrate(&m.Spt{})
-}
-
 func GetList(input m.FilterDto) (any, error) {
 	var data []m.Spt
 	var count int64

@@ -25,20 +25,6 @@ import (
 
 const source = "registrasiNpwpd"
 
-func init() {
-	a.AutoMigrate(&rn.RegistrasiNpwpd{})
-	a.AutoMigrate(&rn.DetailRegOpHotel{})
-	a.AutoMigrate(&rn.DetailRegOpAirTanah{})
-	a.AutoMigrate(&rn.DetailRegOpParkir{})
-	a.AutoMigrate(&rn.DetailRegOpReklame{})
-	a.AutoMigrate(&rn.DetailRegOpPpj{})
-	a.AutoMigrate(&rn.DetailRegOpHiburan{})
-	a.AutoMigrate(&rn.DetailRegOpResto{})
-	a.AutoMigrate(&rn.RegObjekPajak{})
-	a.AutoMigrate(&rn.RegNarahubung{})
-	a.AutoMigrate(&rn.RegPemilikWp{})
-}
-
 func insertDetailOp(objek string, data *[]rn.DetailRegOp, registerForm *rn.RegistrasiNpwpd) error {
 	var (
 		err      error

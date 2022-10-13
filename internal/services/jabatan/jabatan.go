@@ -16,10 +16,6 @@ import (
 
 const source = "jabatan"
 
-func init() {
-	a.AutoMigrate(&m.Jabatan{})
-}
-
 func Create(input m.CreateDto) (any, error) {
 	var data m.Jabatan
 
