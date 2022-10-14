@@ -4,7 +4,6 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 )
 
@@ -72,29 +71,6 @@ func (input CreateDetailParkirDto) LenDetails() int {
 }
 
 func (input CreateDetailParkirDto) ReplaceEsptId(id uint) {
-	for i := range input.DataDetails {
-		input.DataDetails[i].Espt_Id = id
-	}
-}
-
-type CreateDetailReklameDto struct {
-	Espt        CreateDto                     `json:"espt" validate:"required"`
-	DataDetails []detailesptreklame.CreateDto `json:"dataDetails" validate:"required"`
-}
-
-func (input CreateDetailReklameDto) GetEspt() CreateDto {
-	return input.Espt
-}
-
-func (input CreateDetailReklameDto) GetDetails() interface{} {
-	return input.DataDetails
-}
-
-func (input CreateDetailReklameDto) LenDetails() int {
-	return len(input.DataDetails)
-}
-
-func (input CreateDetailReklameDto) ReplaceEsptId(id uint) {
 	for i := range input.DataDetails {
 		input.DataDetails[i].Espt_Id = id
 	}
@@ -171,23 +147,6 @@ func (input UpdateDetailParkirDto) GetDetails() interface{} {
 }
 
 func (input UpdateDetailParkirDto) LenDetails() int {
-	return len(input.DataDetails)
-}
-
-type UpdateDetailReklameDto struct {
-	Espt        UpdateDto                     `json:"espt" validate:"required"`
-	DataDetails []detailesptreklame.UpdateDto `json:"dataDetails" validate:"required"`
-}
-
-func (input UpdateDetailReklameDto) GetEspt() UpdateDto {
-	return input.Espt
-}
-
-func (input UpdateDetailReklameDto) GetDetails() interface{} {
-	return input.DataDetails
-}
-
-func (input UpdateDetailReklameDto) LenDetails() int {
 	return len(input.DataDetails)
 }
 

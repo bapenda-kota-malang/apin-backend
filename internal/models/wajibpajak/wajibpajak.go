@@ -45,12 +45,12 @@ type CreateDto struct {
 	Telp         string    `json:"telp" validate:"required"`
 	KodePos      string    `json:"kodePos" validate:"required"`
 	RtRw         string    `json:"rtRw" validate:"required"`
-	Email        string    `json:"email" validate:"validemail"`
 	FotoKtp      string    `json:"fotoKtp" validate:"required"`
 	TempatLahir  string    `json:"tempatLahir" validate:"required"`
 	TanggalLahir time.Time `json:"tanggalLahir" validate:"required"`
 	Gender       uint8     `json:"gender" validate:"required,min=1"`
 	Pekerjaan    string    `json:"pekerjaan" validate:"required"`
+	Email        string
 }
 type RegistrasiWajibPajak struct {
 	// Wajib Pajak

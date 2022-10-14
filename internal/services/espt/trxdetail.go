@@ -11,14 +11,12 @@ import (
 	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
 	mdhot "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	mdpar "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
-	mdrek "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptreklame"
 	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 
 	sair "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptair"
 	shot "github.com/bapenda-kota-malang/apin-backend/internal/services/detailespthotel"
 	spar "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptparkir"
-	srek "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptreklame"
 	sres "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptresto"
 )
 
@@ -69,15 +67,6 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 			if respDetails != nil {
 				details := respDetails.(rp.OKSimple).Data.([]mdpar.DetailEsptParkir)
 				data.DetailEsptParkir = &details
-			}
-		case []mdrek.CreateDto:
-			respDetails, err := srek.Create(dataReal, tx)
-			if err != nil {
-				return err
-			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.([]mdrek.DetailEsptReklame)
-				data.DetailEsptReklame = &details
 			}
 		case []mdres.CreateDto:
 			respDetails, err := sres.Create(dataReal, tx)
@@ -169,23 +158,6 @@ func UpdateDetail(id int, input m.UpdateInput, user_Id uint) (interface{}, error
 				}
 			}
 			data.DetailEsptParkir = &detailList
-		case []mdrek.UpdateDto:
-			var detailList []mdrek.DetailEsptReklame
-			for i := range dataReal {
-				id := 0
-				if dataReal[i].Id != 0 {
-					id = int(dataReal[i].Id)
-				}
-				respDetails, err := srek.Update(id, dataReal[i], tx)
-				if err != nil {
-					return err
-				}
-				if respDetails != nil {
-					details := respDetails.(rp.OKSimple).Data.(mdrek.DetailEsptReklame)
-					detailList = append(detailList, details)
-				}
-			}
-			data.DetailEsptReklame = &detailList
 		case []mdres.UpdateDto:
 			var detailList []mdres.DetailEsptResto
 			for i := range dataReal {

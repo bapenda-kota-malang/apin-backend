@@ -51,13 +51,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		input = tmp
-	case "reklame":
-		var tmp m.CreateDetailReklameDto
-		err = validateDetail(w, r.Body, &tmp)
-		if err != nil {
-			return
-		}
-		input = tmp
 	case "resto":
 		var tmp m.CreateDetailRestoDto
 		err = validateDetail(w, r.Body, &tmp)
@@ -124,13 +117,6 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		input = tmp
 	case "parkir":
 		var tmp m.UpdateDetailParkirDto
-		err = validateDetail(w, r.Body, &tmp)
-		if err != nil {
-			return
-		}
-		input = tmp
-	case "reklame":
-		var tmp m.UpdateDetailReklameDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
