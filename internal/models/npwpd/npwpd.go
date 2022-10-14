@@ -125,3 +125,9 @@ type UpdateDto struct {
 	// Narahubung *[]Narahubung `json:"narahubung"`
 	Narahubung *NarahubungUpdateDto `json:"narahubung"`
 }
+
+type FilterDto struct {
+	User_Id  *uint64 `json:"user_id"`
+	Page     int     `json:"page"`
+	PageSize int     `json:"page_size"`
+}

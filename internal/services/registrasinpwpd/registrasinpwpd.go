@@ -12,6 +12,7 @@ import (
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -437,4 +438,197 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func Delete(id int) (any, error) {
+
+	var status string
+	// data pemilikwp
+	var dataPemilik []*rn.RegPemilikWp
+	result := a.DB.Where(rn.RegPemilikWp{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataPemilik)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	for _, v := range dataPemilik {
+
+		result = a.DB.Where(rn.RegPemilikWp{RegistrasiNpwpd_Id: uint64(id)}).Delete(&v)
+		status = "deleted"
+		if result.RowsAffected == 0 {
+			dataPemilik = nil
+			status = "no deletion"
+		}
+	}
+
+	// data narahubung
+	var dataNarahubung []*rn.RegNarahubung
+	result = a.DB.Where(rn.RegNarahubung{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataNarahubung)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	for _, v := range dataNarahubung {
+		result = a.DB.Where(rn.RegNarahubung{RegistrasiNpwpd_Id: uint64(id)}).Delete(&v)
+		status = "deleted"
+		if result.RowsAffected == 0 {
+			dataPemilik = nil
+			status = "no deletion"
+		}
+	}
+
+	// data objekpajak
+	var dataObjekPajak []*rn.RegObjekPajak
+	result = a.DB.Where(rn.RegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataObjekPajak)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	for _, v := range dataObjekPajak {
+		result = a.DB.Where(rn.RegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}).Delete(&v)
+		status = "deleted"
+		if result.RowsAffected == 0 {
+			dataPemilik = nil
+			status = "no deletion"
+		}
+	}
+
+	// data regis
+	var data *rn.RegistrasiNpwpd
+	result = a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	// data rekening
+	var rekening *rm.Rekening
+	err := apicore.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("data rekening: ", *rekening.Objek)
+	// delete detail OP
+	switch *rekening.Objek {
+	case "01":
+		// model = reflect.Zero(mActions["detailOpHotel"]).Interface()
+		var DataOp []*rn.DetailRegOpHotel
+		result := a.DB.Where(rn.DetailRegOpHotel{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range DataOp {
+			result = a.DB.Where(rn.DetailRegOpHotel{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			status = "deleted"
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+				status = "no deletion"
+			}
+		}
+
+	case "02":
+		// model = reflect.Zero(mActions["detailOpResto"]).Interface()
+		var DataOp []*rn.DetailRegOpResto
+		result := a.DB.Where(rn.DetailRegOpResto{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+		for _, v := range DataOp {
+			result = a.DB.Where(rn.DetailRegOpResto{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			status = "deleted"
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+				status = "no deletion"
+			}
+		}
+	case "03":
+		// model = reflect.Zero(mActions["detailOpHiburan"]).Interface()
+		var DataOp []*rn.DetailRegOpHiburan
+		result := a.DB.Where(rn.DetailRegOpHiburan{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+		for _, v := range DataOp {
+			result = a.DB.Where(rn.DetailRegOpHiburan{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			status = "deleted"
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+				status = "no deletion"
+			}
+		}
+	case "04":
+		// model = reflect.Zero(mActions["detailOpReklame"]).Interface()
+		var DataOp []*rn.DetailRegOpReklame
+		result := a.DB.Where(rn.DetailRegOpReklame{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+		for _, v := range DataOp {
+			result = a.DB.Where(rn.DetailRegOpReklame{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			status = "deleted"
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+				status = "no deletion"
+			}
+		}
+	case "05":
+		// model = reflect.Zero(mActions["detailOpPpj"]).Interface()
+		var DataOp []*rn.DetailRegOpPpj
+		result := a.DB.Where(rn.DetailRegOpPpj{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+		for _, v := range DataOp {
+			result = a.DB.Where(rn.DetailRegOpPpj{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			status = "deleted"
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+				status = "no deletion"
+			}
+		}
+	case "06":
+		// model = reflect.Zero(mActions["detailOpParkir"]).Interface()
+		var DataOp []*rn.DetailRegOpParkir
+		result := a.DB.Where(rn.DetailRegOpParkir{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+		for _, v := range DataOp {
+			result = a.DB.Where(rn.DetailRegOpParkir{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			status = "deleted"
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+				status = "no deletion"
+			}
+		}
+	case "07":
+		// model = reflect.Zero(mActions["detailOpAirTanah"]).Interface()
+		var DataOp []*rn.DetailRegOpAirTanah
+		result := a.DB.Where(rn.DetailRegOpAirTanah{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+		for _, v := range DataOp {
+			result = a.DB.Where(rn.DetailRegOpAirTanah{rn.DetailRegOp{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			status = "deleted"
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+				status = "no deletion"
+			}
+		}
+	}
+
+	result = a.DB.Delete(&data, id)
+	status = "deleted"
+	if result.RowsAffected == 0 {
+		data = nil
+		status = "no deletion"
+	}
+	return rp.OK{
+		Meta: t.IS{
+			"count":  strconv.Itoa(int(result.RowsAffected)),
+			"status": status,
+		},
+		Data: data,
+	}, nil
+
 }

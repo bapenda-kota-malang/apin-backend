@@ -9,6 +9,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -103,5 +104,10 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", espt.Delete)
 	})
 
+	r.Route("/npwpd", func(r chi.Router) {
+		r.Get("/", npwpd.GetListForWp)
+		r.Get("/{id}", npwpd.GetDetailByUser)
+
+	})
 	return r
 }

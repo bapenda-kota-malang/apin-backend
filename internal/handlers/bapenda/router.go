@@ -164,10 +164,8 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/setverifystatus", registrasinpwpd.VerifyRegistrasiNpwpd)
 		r.Get("/", registrasinpwpd.GetList)
 		r.Get("/{id}", registrasinpwpd.GetDetail)
+		r.Delete("/{id}", registrasinpwpd.Delete)
 	})
-	// r.Route("/rekening", func(r chi.Router) {
-	// 	r.Get("/", rekening.GetList)
-	// })
 
 	r.Route("/potensiopwp", func(r chi.Router) {
 		r.Post("/", potensiopwp.Create)

@@ -16,7 +16,7 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
@@ -26,7 +26,7 @@ import (
 
 const source = "npwpd"
 
-func GetAll(pagination gormhelper.Pagination) (interface{}, error) {
+func GetAll(pagination gh.Pagination) (interface{}, error) {
 	var (
 		register []*npwpd.Npwpd
 		count    int64
@@ -598,3 +598,47 @@ func VerifyUser(id int, input mu.VerifikasiDto) (any, error) {
 // 		Data: data,
 // 	}, nil
 // }
+
+func GetListForWp(input npwpd.FilterDto) (any, error) {
+	var data []npwpd.Npwpd
+	var count int64
+
+	var pagination gh.Pagination
+	result := a.DB.
+		Model(&npwpd.Npwpd{}).
+		Scopes(gh.Filter(input)).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Preload("User").
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
+}
+
+func GetDetailByUser(regID int, user_id uint) (interface{}, error) {
+	user_IdConv := uint64(user_id)
+	var register *npwpd.Npwpd
+	err := a.DB.Model(&npwpd.Npwpd{}).
+		Where(npwpd.Npwpd{User_Id: &user_IdConv, Id: uint64(regID)}).
+		Preload(clause.Associations).First(&register, regID).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return rp.OKSimple{
+		Data: register,
+	}, err
+}

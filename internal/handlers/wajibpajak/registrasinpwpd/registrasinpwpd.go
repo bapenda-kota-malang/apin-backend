@@ -51,3 +51,13 @@ func VerifyRegistrasiNpwpd(w http.ResponseWriter, r *http.Request) {
 	result, err := s.VerifyNpwpd(id, input)
 	hh.DataResponse(w, result, err)
 }
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	result, err := s.Delete(id)
+	hh.DataResponse(w, result, err)
+}
