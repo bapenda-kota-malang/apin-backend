@@ -258,3 +258,22 @@ func BeginningOfPreviosMonth() time.Time {
 func EndOfMonth(date time.Time) time.Time {
 	return BeginningOfMonth(date).AddDate(0, 1, 0).Add(-time.Nanosecond)
 }
+
+// array photo
+func GetArrayPhoto(input []string) string {
+	var result []string
+	for _, v := range input {
+		var imgNameChan = make(chan string)
+		var errChan = make(chan error)
+
+		go SaveImage(v, imgNameChan, errChan)
+		if err := <-errChan; err != nil {
+			return ""
+		}
+		var tmp string = <-imgNameChan
+		result = append(result, tmp)
+	}
+
+	bytes, _ := json.Marshal(result)
+	return string(bytes)
+}

@@ -1,7 +1,6 @@
 package npwpd
 
 import (
-	"fmt"
 	"net/http"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
@@ -43,12 +42,13 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data m.UpdateDto
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	var input m.UpdateDto
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
-	fmt.Println("datahandler: ", *data.DetailOp.JumlahOp)
-	result, err := s.Update(id, data)
+
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err := s.Update(id, input, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 

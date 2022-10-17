@@ -3,15 +3,14 @@ package registrasinpwpd
 import (
 	"net/http"
 
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
+	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd"
-	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var register rm.CreateDto
+	var register rn.CreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &register) == false {
 		return
 	}
@@ -22,9 +21,16 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	// parameter dan getAll service harus diganti filterDTO
-	var pagination gh.Pagination
-	result, err := s.GetAll(pagination)
+	var input rn.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+
+	// authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	// user_id := uint64(authInfo.User_Id)
+	// input.User_Id = &user_id
+
+	result, err := s.GetList(input)
 	hh.DataResponse(w, result, err)
 }
 
@@ -43,7 +49,7 @@ func VerifyRegistrasiNpwpd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var input rm.VerifikasiDto
+	var input rn.VerifikasiDto
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
@@ -59,5 +65,21 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := s.Delete(id)
+	hh.DataResponse(w, result, err)
+}
+
+func Update(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	var input rn.UpdateDto
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
+		return
+	}
+
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err := s.Update(id, input, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
