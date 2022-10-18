@@ -59,6 +59,15 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 				details := respDetails.(rp.OKSimple).Data.([]mdhot.DetailEsptHotel)
 				data.DetailEsptHotel = &details
 			}
+		// case []mdhib.CreateDto:
+		// 	respDetails, err := shot.Create(dataReal, tx)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	if respDetails != nil {
+		// 		details := respDetails.(rp.OKSimple).Data.([]mdhot.DetailEsptHotel)
+		// 		data.DetailEsptHotel = &details
+		// 	}
 		case []mdpar.CreateDto:
 			respDetails, err := spar.Create(dataReal, tx)
 			if err != nil {
