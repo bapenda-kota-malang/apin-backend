@@ -178,9 +178,17 @@ func ValidateURL(container any, url url.URL) map[string]ValidationError {
 			} else {
 				v = false
 			}
-			fieldV.Set(reflect.ValueOf(&v))
+			if fieldV.Kind() == reflect.Ptr {
+				fieldV.Set(reflect.ValueOf(&v))
+			} else {
+				fieldV.Set(reflect.ValueOf(v))
+			}
 		case string, *string:
-			fieldV.Set(reflect.ValueOf(&vals[0]))
+			if fieldV.Kind() == reflect.Ptr {
+				fieldV.Set(reflect.ValueOf(&vals[0]))
+			} else {
+				fieldV.Set(reflect.ValueOf(vals[0]))
+			}
 		case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64:
 			if valInt, err := strconv.Atoi(vals[0]); err != nil {
 				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}

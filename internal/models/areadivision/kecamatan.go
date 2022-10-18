@@ -22,9 +22,10 @@ type KecamatanUpdateDto struct {
 }
 
 type KecamatanFilterDto struct {
-	Daerah_Kode *string `json:"daerah_kode"`
-	// Kode       *string `json:"kode"`
-	// Nama       string  `json:"nama"`
-	Page     int   `json:"page"`
-	PageSize int64 `json:"pageSize"`
+	Daerah_Kode  *string `json:"daerah_kode"`
+	Kode         *string `json:"kode"`
+	Nama         string  `json:"nama"`
+	Page         int     `json:"page"`
+	PageSize     int64   `json:"pageSize"`
+	NoPagination bool    `json:"no_pagination"`
 }
