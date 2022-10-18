@@ -84,6 +84,8 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 				tmp = strconv.Itoa(intconv)
 			}
 			return tmp
+		} else {
+
 		}
 		return reg.Nomor
 	}()
