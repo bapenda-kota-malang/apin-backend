@@ -117,8 +117,8 @@ func Paginate(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 			} else {
 				p.PageSize = 10
 			}
-			if p.PageSize <= 0 {
-				p.PageSize = 5
+			if p.PageSize <= 5 {
+				p.PageSize = 10
 			}
 		} else {
 			p.PageSize = 10
