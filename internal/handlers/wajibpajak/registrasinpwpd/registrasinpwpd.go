@@ -26,9 +26,9 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-	// user_id := uint64(authInfo.User_Id)
-	// input.User_Id = &user_id
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	user_id := uint64(authInfo.User_Id)
+	input.User_Id = &user_id
 
 	result, err := s.GetList(input)
 	hh.DataResponse(w, result, err)
