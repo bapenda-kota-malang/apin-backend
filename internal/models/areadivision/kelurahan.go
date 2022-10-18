@@ -26,4 +26,5 @@ type KelurahanFilterDto struct {
 	Nama           *string `json:"nama"`
 	Page           int     `json:"page"`
 	PageSize       int64   `json:"page_size"`
+	NoPagination   bool    `json:"no_pagination"`
 }

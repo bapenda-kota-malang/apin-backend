@@ -33,8 +33,8 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 				opt = iTF.Name[len(iTF.Name)-4:]
 			}
 
-			// skip option, page, or page_size
-			if opt == "_Opt" || iTF.Name == "Page" || iTF.Name == "PageSize" {
+			// skip option and pagination related
+			if opt == "_Opt" || iTF.Name == "Page" || iTF.Name == "PageSize" || iTF.Name == "NoPagination" {
 				continue
 			}
 
@@ -89,6 +89,12 @@ func Paginate(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 		// field pagination
 		fP := iV.FieldByName("Page")
 		fPS := iV.FieldByName("PageSize")
+		fNP := iV.FieldByName("NoPagination")
+		if fNP.IsValid() {
+			if fNP.Type().Kind() == reflect.Bool && bool(fNP.Interface().(bool)) {
+				return db
+			}
+		}
 		if fP.IsValid() {
 			if fP.Type().Kind() == reflect.Int {
 				p.Page = fP.Interface().(int)
