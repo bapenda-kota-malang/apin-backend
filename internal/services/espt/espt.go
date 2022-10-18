@@ -121,7 +121,7 @@ func Create(input m.CreateDto, user_Id uint, tx *gorm.DB) (any, error) {
 	data.PeriodeAwal = datatypes.Date(prevMonth)
 	data.PeriodeAkhir = datatypes.Date(sh.EndOfMonth(prevMonth))
 	data.JatuhTempo = datatypes.Date(sh.EndOfMonth(time.Now()))
-	data.VerifyStatus = string(m.StatusBaru)
+	data.VerifyStatus = m.StatusBaru
 	data.LaporBy_User_Id = user_Id
 	data.Attachment = fileName
 

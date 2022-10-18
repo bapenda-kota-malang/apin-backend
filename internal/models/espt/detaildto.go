@@ -2,6 +2,7 @@ package espt
 
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthiburan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
@@ -48,6 +49,29 @@ func (input CreateDetailHotelDto) LenDetails() int {
 }
 
 func (input CreateDetailHotelDto) ReplaceEsptId(id uint) {
+	for i := range input.DataDetails {
+		input.DataDetails[i].Espt_Id = &id
+	}
+}
+
+type CreateDetailHiburanDto struct {
+	Espt        CreateDto                     `json:"espt" validate:"required"`
+	DataDetails []detailespthiburan.CreateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input CreateDetailHiburanDto) GetEspt() CreateDto {
+	return input.Espt
+}
+
+func (input CreateDetailHiburanDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input CreateDetailHiburanDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
+func (input CreateDetailHiburanDto) ReplaceEsptId(id uint) {
 	for i := range input.DataDetails {
 		input.DataDetails[i].Espt_Id = &id
 	}
@@ -130,6 +154,23 @@ func (input UpdateDetailHotelDto) GetDetails() interface{} {
 }
 
 func (input UpdateDetailHotelDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
+type UpdateDetailHiburanDto struct {
+	Espt        UpdateDto                     `json:"espt" validate:"required"`
+	DataDetails []detailespthiburan.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input UpdateDetailHiburanDto) GetEspt() UpdateDto {
+	return input.Espt
+}
+
+func (input UpdateDetailHiburanDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input UpdateDetailHiburanDto) LenDetails() int {
 	return len(input.DataDetails)
 }
 

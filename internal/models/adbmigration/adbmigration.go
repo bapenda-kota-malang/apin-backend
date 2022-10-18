@@ -6,6 +6,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthiburan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptreklame"
@@ -121,6 +122,7 @@ func init() {
 		&espt.Espt{},
 		&detailesptair.DetailEsptAir{},
 		&detailespthotel.DetailEsptHotel{},
+		&detailespthiburan.DetailEsptHiburan{},
 		&detailesptparkir.DetailEsptParkir{},
 		&detailesptresto.DetailEsptResto{},
 		&detailesptreklame.DetailEsptReklame{},
