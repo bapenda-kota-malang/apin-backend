@@ -21,3 +21,24 @@ type RegPemilikWp struct {
 	NoIdPemilik        *string                 `json:"noIdPemilik" gorm:"size:20"`
 	Nik                *string                 `json:"nik" gorm:"size:20"`
 }
+
+type RegPemilikWpCreate struct {
+	Nama         *string `json:"nama" gorm:"size:50"`
+	Alamat       *string `json:"alamat" gorm:"size:50"`
+	RtRw         *string `json:"rtRw" gorm:"size:10"`
+	Kecamatan_Id *uint64 `json:"kecamatan_id"`
+	Kelurahan_Id *uint64 `json:"kelurahan_id"`
+	Telp         *string `json:"telp" gorm:"size:20"`
+	Nik          *string `json:"nik" gorm:"size:20"`
+}
+
+type RegPemilikWpUpdate struct {
+	Id           uint64  `json:"id" gorm:"primaryKey"`
+	Nama         *string `json:"nama" gorm:"size:50"`
+	Alamat       *string `json:"alamat" gorm:"size:50"`
+	RtRw         *string `json:"rtRw" gorm:"size:10"`
+	Kecamatan_Id *uint64 `json:"kecamatan_id"`
+	Kelurahan_Id *uint64 `json:"kelurahan_id"`
+	Telp         *string `json:"telp" gorm:"size:20"`
+	Nik          *string `json:"nik" gorm:"size:20"`
+}

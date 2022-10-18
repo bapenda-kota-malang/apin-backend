@@ -277,3 +277,54 @@ func GetArrayPhoto(input []string) string {
 	bytes, _ := json.Marshal(result)
 	return string(bytes)
 }
+
+// add multiply photo
+func AddMorePhotos(input []string, dataBefore string) string {
+	var result []string
+	cnvUnmarshal := json.Unmarshal([]byte(dataBefore), &result)
+	if cnvUnmarshal != nil {
+		return ""
+	}
+	for _, v := range input {
+		var imgNameChan = make(chan string)
+		var errChan = make(chan error)
+
+		go SaveImage(v, imgNameChan, errChan)
+		if err := <-errChan; err != nil {
+			return ""
+		}
+		var tmp string = <-imgNameChan
+		result = append(result, tmp)
+	}
+
+	bytes, _ := json.Marshal(result)
+	return string(bytes)
+}
+
+// remove photo from array
+func DeletePhoto(input string, data string) string {
+	var result []string
+	cnvUnmarshal := json.Unmarshal([]byte(data), &result)
+	if cnvUnmarshal != nil {
+		return ""
+	}
+	for k, v := range result {
+		if v == input {
+			result = append(result[:k], result[k+1:]...)
+
+		}
+	}
+	// basePath, err := getImgPath()
+	// if err != nil {
+	// 	fmt.Println("HERE")
+	// 	return ""
+	// }
+
+	// if err := os.Remove(fmt.Sprintf("%s/%s", basePath, input)); err != nil {
+	// 	fmt.Println("here")
+	// 	return ""
+	// }
+
+	bytes, _ := json.Marshal(result)
+	return string(bytes)
+}

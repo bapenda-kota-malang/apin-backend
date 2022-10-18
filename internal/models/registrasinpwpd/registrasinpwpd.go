@@ -103,25 +103,21 @@ type UpdateDto struct {
 	Rekening_Id      *uint64 `json:"rekening_id"`
 	User_Name        *string `json:"user_name"`
 
-	TanggalMulaiUsaha *string  `json:"tanggalMulaiUsaha"`
-	LuasBangunan      *string  `json:"luasBangunan"`
-	JamBukaUsaha      *string  `json:"jamBukaUsaha"`
-	JamTutupUsaha     *string  `json:"jamTutupUsaha"`
-	Pengunjung        *string  `json:"pengunjung"`
-	OmsetOp           *string  `json:"omsetOp"`
-	FotoKtp           string   `json:"fotoKtp"`
-	SuratIzinUsaha    []string `json:"suratIzinUsaha"`
-	LainLain          []string `json:"lainLain"`
-	FotoObjek         []string `json:"fotoObjek"`
+	TanggalMulaiUsaha *string `json:"tanggalMulaiUsaha"`
+	LuasBangunan      *string `json:"luasBangunan"`
+	JamBukaUsaha      *string `json:"jamBukaUsaha"`
+	JamTutupUsaha     *string `json:"jamTutupUsaha"`
+	Pengunjung        *string `json:"pengunjung"`
+	OmsetOp           *string `json:"omsetOp"`
 
 	Genset   bool `json:"genset"`
 	AirTanah bool `json:"airTanah"`
 
-	DetailRegOp []DetailRegOp `json:"detail_reg_op"`
+	DetailRegOp []DetailRegOpUpdate `json:"detail_reg_op"`
 
-	RegObjekPajak RegObjekPajak   `json:"regObjekPajak"`
-	RegPemilik    []RegPemilikWp  `json:"regPemilik"`
-	RegNarahubung []RegNarahubung `json:"regNarahubung"`
+	RegObjekPajak RegObjekPajakUpdate   `json:"regObjekPajak"`
+	RegPemilik    []RegPemilikWpUpdate  `json:"regPemilik"`
+	RegNarahubung []RegNarahubungUpdate `json:"regNarahubung"`
 }
 
 type VerifikasiDto struct {

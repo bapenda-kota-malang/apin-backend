@@ -27,7 +27,7 @@ type Npwpd struct {
 	Rekening_Id       *uint64            `json:"rekening_id"`
 	Rekening          *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
 	Nama              *string            `json:"nama" gorm:"size:20"`
-	User_Id           uint64             `json:"user_id"`
+	User_Id           *uint64            `json:"user_id"`
 	User              *user.User         `gorm:"foreignKey:User_Id"`
 	OmsetOp           *string            `json:"omsetOp" gorm:"size:50"`
 	Genset            *bool              `json:"genset"`
@@ -37,10 +37,10 @@ type Npwpd struct {
 	JamBukaUsaha      *string            `json:"jamBukaUsaha" gorm:"size:50"`
 	JamTutupUsaha     *string            `json:"jamTutupUsaha" gorm:"size:50"`
 	Pengunjung        *string            `json:"pengunjung" gorm:"size:50"`
-	FotoKtp           *string            `json:"fotoKtp" gorm:"size:50"`
-	SuratIzinUsaha    *string            `json:"suratIzinUsaha" gorm:"size:2048"`
-	LainLain          *string            `json:"lainLain" gorm:"size:2048"`
-	FotoObjek         *string            `json:"fotoObjek" gorm:"size:2048"`
+	FotoKtp           string             `json:"fotoKtp" gorm:"size:50"`
+	SuratIzinUsaha    string             `json:"suratIzinUsaha" gorm:"size:2048"`
+	LainLain          string             `json:"lainLain" gorm:"size:2048"`
+	FotoObjek         string             `json:"fotoObjek" gorm:"size:2048"`
 	JalurRegistrasi   t.JalurRegistrasi  `json:"modeRegistrasi"`
 	// VerifyStatus      *VerifyPendaftaran `json:"verifyStatus"`
 	VerifiedAt    *time.Time `json:"verifiedAt"`
@@ -73,7 +73,7 @@ type CreateDto struct {
 	Npwpd             *string `json:"npwpd"`
 	TanggalPengukuhan *string `json:"tanggalPengukuhan"`
 	TanggalNpwpd      *string `json:"tanggalNpwpd"`
-
+	// User_Id           uint64  `json:"user_id"`
 	TanggalMulaiUsaha *string `json:"tanggalMulaiUsaha"`
 	LuasBangunan      *string `json:"luasBangunan"`
 	JamBukaUsaha      *string `json:"jamBukaUsaha"`
@@ -130,4 +130,11 @@ type FilterDto struct {
 	User_Id  *uint64 `json:"user_id"`
 	Page     int     `json:"page"`
 	PageSize int     `json:"page_size"`
+}
+
+type PhotoUpdate struct {
+	FotoKtp        string   `json:"fotoKtp"`
+	SuratIzinUsaha []string `json:"suratIzinUsaha"`
+	LainLain       []string `json:"lainLain"`
+	FotoObjek      []string `json:"fotoObjek"`
 }
