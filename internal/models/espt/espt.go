@@ -18,7 +18,7 @@ type Espt struct {
 	ObjekPajak_Id    uint            `json:"objekPajak_id"`
 	Rekening_Id      uint            `json:"rekening_id"`
 	Location         *string         `json:"location,omitempty" gorm:"size:50"`
-	LuasLokasi       *uint           `json:"luasLokasi,omitempty" gorm:"comment:'untuk pajak parkir'"`
+	LuasLokasi       *uint           `json:"luasLokasi,omitempty" gorm:"comment:untuk pajak parkir"`
 	Description      *string         `json:"description,omitempty"`
 	PeriodeAwal      datatypes.Date  `json:"periodeAwal"`
 	PeriodeAkhir     datatypes.Date  `json:"periodeAkhir"`
@@ -35,13 +35,13 @@ type Espt struct {
 	VerifyBy_User_Id *uint           `json:"verifyBy_user_id"`
 	VerifyStatus     Status          `json:"verifyStatus" gorm:"size:20"`
 	// Rekening         *rekening.Rekening        `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
-	LaporUser         *user.User                  `json:"laporUser,omitempty" gorm:"foreignKey:LaporBy_User_Id"`
-	VerifyUser        *user.User                  `json:"verifyUser,omitempty" gorm:"foreignKey:VerifyBy_User_Id"`
-	DetailEsptAir     *[]mdair.DetailEsptAir      `json:"detailEsptAir,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptHotel   *[]mdhot.DetailEsptHotel    `json:"detailEsptHotel,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptHiburan *[]mdhib.DetaileEsptHiburan `json:"detailEsptHiburan,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptParkir  *[]mdpar.DetailEsptParkir   `json:"detailEsptParkir,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptReklame *[]mdrek.DetailEsptReklame  `json:"detailEsptReklame,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptResto   *[]mdres.DetailEsptResto    `json:"detailEsptResto,omitempty" gorm:"foreignKey:Espt_Id"`
+	LaporUser         *user.User                 `json:"laporUser,omitempty" gorm:"foreignKey:LaporBy_User_Id"`
+	VerifyUser        *user.User                 `json:"verifyUser,omitempty" gorm:"foreignKey:VerifyBy_User_Id"`
+	DetailEsptAir     *[]mdair.DetailEsptAir     `json:"detailEsptAir,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptHotel   *[]mdhot.DetailEsptHotel   `json:"detailEsptHotel,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptHiburan *[]mdhib.DetailEsptHiburan `json:"detailEsptHiburan,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptParkir  *[]mdpar.DetailEsptParkir  `json:"detailEsptParkir,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptReklame *[]mdrek.DetailEsptReklame `json:"detailEsptReklame,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptResto   *[]mdres.DetailEsptResto   `json:"detailEsptResto,omitempty" gorm:"foreignKey:Espt_Id"`
 	gormhelper.DateModel
 }
