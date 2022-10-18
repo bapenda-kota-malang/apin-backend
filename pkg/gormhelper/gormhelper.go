@@ -1,7 +1,6 @@
 package gormhelper
 
 import (
-	"fmt"
 	"reflect"
 
 	// gi "github.com/juliangruber/go-intersect"
@@ -45,8 +44,7 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 			}
 
 			// check field value
-			v := fmt.Sprintf("%v", iVF.Interface())
-			if v == "<nil>" { // a bit tricky here, nil is not detected as normal nil, TODO: find out about this
+			if !iVF.IsValid() || iVF.IsZero() || iVF.IsNil() {
 				continue
 			}
 
@@ -102,8 +100,8 @@ func Paginate(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 			} else {
 				p.PageSize = 10
 			}
-			if p.PageSize < 5 && p.PageSize > 10000 {
-				p.PageSize = 10
+			if p.PageSize <= 0 {
+				p.PageSize = 5
 			}
 		} else {
 			p.PageSize = 10
