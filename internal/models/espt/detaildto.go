@@ -5,6 +5,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthiburan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjnonpln"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 )
 
@@ -123,6 +124,29 @@ func (input CreateDetailRestoDto) ReplaceEsptId(id uint) {
 	}
 }
 
+type CreateDetailPpjNonPlnDto struct {
+	Espt        CreateDto                       `json:"espt" validate:"required"`
+	DataDetails []detailesptppjnonpln.CreateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input CreateDetailPpjNonPlnDto) GetEspt() CreateDto {
+	return input.Espt
+}
+
+func (input CreateDetailPpjNonPlnDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input CreateDetailPpjNonPlnDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
+func (input CreateDetailPpjNonPlnDto) ReplaceEsptId(id uint) {
+	for i := range input.DataDetails {
+		input.DataDetails[i].Espt_Id = id
+	}
+}
+
 type UpdateDetailAirDto struct {
 	Espt        UpdateDto                 `json:"espt"`
 	DataDetails []detailesptair.UpdateDto `json:"dataDetails" validate:"required"`
@@ -205,5 +229,22 @@ func (input UpdateDetailRestoDto) GetDetails() interface{} {
 }
 
 func (input UpdateDetailRestoDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
+type UpdateDetailPpjNonPlnDto struct {
+	Espt        UpdateDto                       `json:"espt" validate:"required"`
+	DataDetails []detailesptppjnonpln.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input UpdateDetailPpjNonPlnDto) GetEspt() UpdateDto {
+	return input.Espt
+}
+
+func (input UpdateDetailPpjNonPlnDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input UpdateDetailPpjNonPlnDto) LenDetails() int {
 	return len(input.DataDetails)
 }
