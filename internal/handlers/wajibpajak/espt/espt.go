@@ -44,6 +44,13 @@ func Create(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		input = tmp
+	case "hiburan":
+		var tmp m.CreateDetailHiburanDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = tmp
 	case "parkir":
 		var tmp m.CreateDetailParkirDto
 		err = validateDetail(w, r.Body, &tmp)
@@ -110,6 +117,13 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		input = tmp
 	case "hotel":
 		var tmp m.UpdateDetailHotelDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = tmp
+	case "hiburan":
+		var tmp m.UpdateDetailHiburanDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return

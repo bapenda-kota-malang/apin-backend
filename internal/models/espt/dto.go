@@ -21,22 +21,22 @@ type FilterDto struct {
 
 type CreateDto struct {
 	// esptd
-	Npwpd_Id      uint    `json:"npwpd_id" validate:"min=1"`
-	ObjekPajak_Id uint    `json:"objekPajak_id" validate:"min=1"`
-	Rekening_Id   uint    `json:"rekening_id" validate:"min=1"`
+	Npwpd_Id      uint    `json:"npwpd_id" validate:"required;min=1"`
+	ObjekPajak_Id uint    `json:"objekPajak_id" validate:"required;min=1"`
+	Rekening_Id   uint    `json:"rekening_id" validate:"required;min=1"`
 	Location      *string `json:"location"`
-	TarifPajak_id uint    `json:"tarifPajak_id" validate:"min=1"`
+	TarifPajak_id uint    `json:"tarifPajak_id" validate:"required;min=1"`
 	Omset         float64 `json:"omset"`
-	JumlahPajak   float32 `json:"jumlahPajak" validate:"min=1"`
+	JumlahPajak   float32 `json:"jumlahPajak"`
 	Attachment    string  `json:"attachment" validate:"base64"`
 }
 
 type UpdateDto struct {
-	Npwpd_Id      *uint    `json:"npwpd_id"`
-	ObjekPajak_Id *uint    `json:"objekPajak_id"`
-	Rekening_Id   *uint    `json:"rekening_id"`
+	Npwpd_Id      *uint    `json:"npwpd_id" validate:"min=1"`
+	ObjekPajak_Id *uint    `json:"objekPajak_id" validate:"min=1"`
+	Rekening_Id   *uint    `json:"rekening_id" validate:"min=1"`
 	Location      *string  `json:"location"`
-	TarifPajak_id *uint    `json:"tarifPajak_id"`
+	TarifPajak_id *uint    `json:"tarifPajak_id" validate:"min=1"`
 	Omset         *float64 `json:"omset"`
 	JumlahPajak   *float32 `json:"jumlahPajak"`
 	Attachment    *string  `json:"attachment" validate:"base64"`

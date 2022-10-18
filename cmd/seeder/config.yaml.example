@@ -1,0 +1,5 @@
+name: Seeder
+version: 0.1
+
+dbName: apin-migrate-old
+username: ubuntu

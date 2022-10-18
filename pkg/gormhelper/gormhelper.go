@@ -38,8 +38,13 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 				continue
 			}
 
-			// check field value
+			// proceed value
 			iVF := iV.Field(i) // input value of the current field
+			for iVF.Kind() == reflect.Ptr {
+				iVF = iVF.Elem()
+			}
+
+			// check field value
 			v := fmt.Sprintf("%v", iVF.Interface())
 			if v == "<nil>" { // a bit tricky here, nil is not detected as normal nil, TODO: find out about this
 				continue
@@ -51,11 +56,6 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 			if o.IsValid() && o.Interface() != nil {
 				vOpt = o.String()
 				continue
-			}
-
-			// escape pointer
-			for iVF.Kind() == reflect.Ptr {
-				iVF = iVF.Elem()
 			}
 
 			// add where query
