@@ -72,6 +72,9 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		fieldT := inputT.Field(i)
 		fieldV := inputV.Field(i)
 		for fieldV.Kind() == reflect.Pointer {
+			if !fieldV.Elem().IsValid() {
+				break
+			}
 			fieldV = fieldV.Elem()
 		}
 
