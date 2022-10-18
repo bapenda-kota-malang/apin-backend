@@ -1,6 +1,7 @@
 package gormhelper
 
 import (
+	"fmt"
 	"reflect"
 
 	// gi "github.com/juliangruber/go-intersect"
@@ -22,7 +23,7 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 		}
 
 		// allowed option, the default is without like and between
-		opts := []string{"=", "<", ">", "<=", ">=", "<>"}
+		opts := []string{"=", "<", ">", "<=", ">=", "<>", "left", "mid", "right"}
 
 		iT := iV.Type() // input type
 		for i := 0; i < iV.NumField(); i++ {
@@ -33,18 +34,20 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 			}
 
 			// skip option, page, or page_size
-			if opt == "_opt" || iTF.Name == "Page" || iTF.Name == "PageSize" {
+			if opt == "_Opt" || iTF.Name == "Page" || iTF.Name == "PageSize" {
 				continue
 			}
 
 			// proceed value
 			iVF := iV.Field(i) // input value of the current field
+			fmt.Println(iTF.Type.Kind())
 			for iVF.Kind() == reflect.Ptr {
 				iVF = iVF.Elem()
 			}
 
 			// check field value
-			if !iVF.IsValid() || iVF.IsZero() || iVF.IsNil() {
+			lastITF := reflect.TypeOf(iVF)
+			if !iVF.IsValid() || iVF.IsZero() || (lastITF.Kind() == reflect.Ptr && iVF.IsNil()) {
 				continue
 			}
 
@@ -52,13 +55,21 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 			vOpt := "="
 			o := iV.FieldByName(iTF.Name + "_Opt") // option
 			if o.IsValid() && o.Interface() != nil {
-				vOpt = o.String()
-				continue
+				if o.Kind() == reflect.Ptr {
+					o = o.Elem()
+				}
+				vOpt = o.Interface().(string)
 			}
 
 			// add where query
-			if stringInSlice(vOpt, opts) {
+			if stringInSlice(vOpt, opts[0:6]) {
 				db.Where("\""+iTF.Name+"\" "+vOpt+" ?", iVF.Interface()) // F-KING BUG
+			} else if vOpt == "left" {
+				db.Where("\""+iTF.Name+"\" LIKE ?", fmt.Sprintf("%v%v", iVF.Interface(), "%"))
+			} else if vOpt == "mid" {
+				db.Where("\""+iTF.Name+"\" LIKE ?", fmt.Sprintf("%v%v%v", "%", iVF.Interface(), "%"))
+			} else if vOpt == "right" {
+				db.Where("\""+iTF.Name+"\" LIKE ?", fmt.Sprintf("%v%v", "%", iVF.Interface()))
 			} else {
 				db.Where("\""+iTF.Name+"\" = ?", iVF.Interface()) // F-KING BUG
 			}
