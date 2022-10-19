@@ -23,7 +23,7 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 		}
 
 		// allowed option, the default is without like and between
-		opts := []string{"=", "<", ">", "<=", ">=", "<>"}
+		opts := []string{"=", "<", ">", "<=", ">=", "<>", "left", "mid", "right"}
 
 		iT := iV.Type() // input type
 		for i := 0; i < iV.NumField(); i++ {
@@ -33,20 +33,21 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 				opt = iTF.Name[len(iTF.Name)-4:]
 			}
 
-			// skip option, page, or page_size
-			if opt == "_opt" || iTF.Name == "Page" || iTF.Name == "PageSize" {
+			// skip option and pagination related
+			if opt == "_Opt" || iTF.Name == "Page" || iTF.Name == "PageSize" || iTF.Name == "NoPagination" {
 				continue
 			}
 
 			// proceed value
 			iVF := iV.Field(i) // input value of the current field
+			fmt.Println(iTF.Type.Kind())
 			for iVF.Kind() == reflect.Ptr {
 				iVF = iVF.Elem()
 			}
 
 			// check field value
-			v := fmt.Sprintf("%v", iVF.Interface())
-			if v == "<nil>" { // a bit tricky here, nil is not detected as normal nil, TODO: find out about this
+			lastITF := reflect.TypeOf(iVF)
+			if !iVF.IsValid() || iVF.IsZero() || (lastITF.Kind() == reflect.Ptr && iVF.IsNil()) {
 				continue
 			}
 
@@ -54,13 +55,21 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 			vOpt := "="
 			o := iV.FieldByName(iTF.Name + "_Opt") // option
 			if o.IsValid() && o.Interface() != nil {
-				vOpt = o.String()
-				continue
+				if o.Kind() == reflect.Ptr {
+					o = o.Elem()
+				}
+				vOpt = o.Interface().(string)
 			}
 
 			// add where query
-			if stringInSlice(vOpt, opts) {
+			if stringInSlice(vOpt, opts[0:6]) {
 				db.Where("\""+iTF.Name+"\" "+vOpt+" ?", iVF.Interface()) // F-KING BUG
+			} else if vOpt == "left" {
+				db.Where("\""+iTF.Name+"\" LIKE ?", fmt.Sprintf("%v%v", iVF.Interface(), "%"))
+			} else if vOpt == "mid" {
+				db.Where("\""+iTF.Name+"\" LIKE ?", fmt.Sprintf("%v%v%v", "%", iVF.Interface(), "%"))
+			} else if vOpt == "right" {
+				db.Where("\""+iTF.Name+"\" LIKE ?", fmt.Sprintf("%v%v", "%", iVF.Interface()))
 			} else {
 				db.Where("\""+iTF.Name+"\" = ?", iVF.Interface()) // F-KING BUG
 			}
@@ -80,6 +89,12 @@ func Paginate(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 		// field pagination
 		fP := iV.FieldByName("Page")
 		fPS := iV.FieldByName("PageSize")
+		fNP := iV.FieldByName("NoPagination")
+		if fNP.IsValid() {
+			if fNP.Type().Kind() == reflect.Bool && bool(fNP.Interface().(bool)) {
+				return db
+			}
+		}
 		if fP.IsValid() {
 			if fP.Type().Kind() == reflect.Int {
 				p.Page = fP.Interface().(int)
@@ -102,7 +117,7 @@ func Paginate(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 			} else {
 				p.PageSize = 10
 			}
-			if p.PageSize < 5 && p.PageSize > 10000 {
+			if p.PageSize <= 5 {
 				p.PageSize = 10
 			}
 		} else {
