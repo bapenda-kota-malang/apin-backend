@@ -92,19 +92,16 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 
 	kecamatanIdString := strconv.Itoa(int(*reg.ObjekPajak.Kecamatan_Id))
 	kodeJenisUsahaString := *rekening.KodeJenisUsaha
-	fmt.Println("data rekening: ", *rekening.Nama)
-	fmt.Println("kodejenisusaha: ", kodeJenisUsahaString)
 	if kodeJenisUsahaString == "" {
 		kodeJenisUsahaString = "xxx"
 	}
 	npwpdString := tmpNomor + "." + kecamatanIdString + "." + kodeJenisUsahaString
 	register := npwpd.Npwpd{
-		JalurRegistrasi: nt.JalurRegistrasiOperator,
-		Status:          nt.StatusAktif,
-		JenisPajak:      reg.JenisPajak,
-		Golongan:        reg.Golongan,
-		Npwp:            reg.Npwp,
-		// VerifyStatus:   &tmpverify,
+		JalurRegistrasi:   nt.JalurRegistrasiOperator,
+		Status:            nt.StatusAktif,
+		JenisPajak:        reg.JenisPajak,
+		Golongan:          reg.Golongan,
+		Npwp:              reg.Npwp,
 		VerifiedAt:        th.TimeNow(),
 		Nomor:             tmpNomor,
 		Npwpd:             &npwpdString,
@@ -168,7 +165,7 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 	}
 
 	userIdConv := uint64(user_Id)
-	if data.User_Id != userIdConv {
+	if *data.User_Id != userIdConv {
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
@@ -354,35 +351,33 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 }
 
 func Delete(id int) (any, error) {
-
+	status := "no deletion"
 	// data pemilikwp
-	var dataPemilik *npwpd.PemilikWp
-	result := a.DB.Where(npwpd.PemilikWp{Npwpd_Id: uint64(id)}).First(&dataPemilik)
+	var dataPemilik []*npwpd.PemilikWp
+	result := a.DB.Where(npwpd.PemilikWp{Npwpd_Id: uint64(id)}).Find(&dataPemilik)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
-
-	result = a.DB.Where(npwpd.PemilikWp{Npwpd_Id: uint64(id)}).Delete(&dataPemilik)
-	status := "deleted"
-	if result.RowsAffected == 0 {
-		dataPemilik = nil
-		status = "no deletion"
+	for _, v := range dataPemilik {
+		result = a.DB.Where(npwpd.PemilikWp{Npwpd_Id: uint64(id)}).Delete(&v)
+		if result.RowsAffected == 0 {
+			dataPemilik = nil
+		}
 	}
 
 	// data narahubung
-	var dataNarahubung *npwpd.Narahubung
-	result = a.DB.Where(npwpd.Narahubung{Npwpd_Id: uint64(id)}).First(&dataNarahubung)
+	var dataNarahubung []*npwpd.Narahubung
+	result = a.DB.Where(npwpd.Narahubung{Npwpd_Id: uint64(id)}).Find(&dataNarahubung)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	result = a.DB.Where(npwpd.Narahubung{Npwpd_Id: uint64(id)}).Delete(&dataNarahubung)
-	status = "deleted"
-	if result.RowsAffected == 0 {
-		dataPemilik = nil
-		status = "no deletion"
+	for _, v := range dataNarahubung {
+		result = a.DB.Where(npwpd.Narahubung{Npwpd_Id: uint64(id)}).Delete(&v)
+		if result.RowsAffected == 0 {
+			dataPemilik = nil
+		}
 	}
-
 	// data objekpajak
 	var dataObjekPajak *npwpd.ObjekPajak
 	result = a.DB.Where(npwpd.ObjekPajak{Npwpd_Id: uint64(id)}).First(&dataObjekPajak)
@@ -397,21 +392,6 @@ func Delete(id int) (any, error) {
 		status = "no deletion"
 	}
 
-	// // data detailop
-
-	// var dataDetailOp *npwpd.DetailOpHiburan
-	// result = a.DB.Where(npwpd.DetailOpHiburan{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).First(&dataDetailOp)
-	// if result.RowsAffected == 0 {
-	// 	return nil, errors.New("data tidak dapat ditemukan")
-	// }
-
-	// result = a.DB.Where(npwpd.DetailOpHiburan{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Delete(&dataDetailOp)
-	// status = "deleted"
-	// if result.RowsAffected == 0 {
-	// 	dataPemilik = nil
-	// 	status = "no deletion"
-	// }
-
 	// data regis
 	var data *npwpd.Npwpd
 	result = a.DB.First(&data, id)
@@ -425,7 +405,6 @@ func Delete(id int) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("data rekening: ", *rekening.Objek)
 	// delete detail OP
 	switch *rekening.Objek {
 	case "01":
@@ -576,30 +555,6 @@ func VerifyUser(id int, input mu.VerifikasiDto) (any, error) {
 	}, nil
 }
 
-// func VerifyNpwpd(id int, input npwpd.VerifikasiDto) (any, error) {
-// 	var data *npwpd.Npwpd
-// 	result := a.DB.First(&data, id)
-// 	if result.RowsAffected == 0 {
-// 		return nil, errors.New("data tidak dapat ditemukan")
-// 	}
-
-// 	if err := sc.Copy(&data, &input); err != nil {
-// 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
-// 	}
-
-// 	var tmp = time.Now()
-// 	data.VerifiedAt = &tmp
-// 	if result := a.DB.Save(&data); result.Error != nil {
-// 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
-// 	}
-// 	return rp.OK{
-// 		Meta: t.IS{
-// 			"affected": strconv.Itoa(int(result.RowsAffected)),
-// 		},
-// 		Data: data,
-// 	}, nil
-// }
-
 func GetListForWp(input npwpd.FilterDto) (any, error) {
 	var data []npwpd.Npwpd
 	var count int64
@@ -631,7 +586,7 @@ func GetDetailByUser(regID int, user_id uint) (interface{}, error) {
 	user_IdConv := uint64(user_id)
 	var register *npwpd.Npwpd
 	err := a.DB.Model(&npwpd.Npwpd{}).
-		Where(npwpd.Npwpd{User_Id: user_IdConv, Id: uint64(regID)}).
+		Where(npwpd.Npwpd{User_Id: &user_IdConv, Id: uint64(regID)}).
 		Preload(clause.Associations).First(&register, regID).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -642,4 +597,188 @@ func GetDetailByUser(regID int, user_id uint) (interface{}, error) {
 	return rp.OKSimple{
 		Data: register,
 	}, err
+}
+
+func AddPhotoLainLain(id int, input npwpd.PhotoUpdate, user_id uint64) (any, error) {
+	var data *npwpd.Npwpd
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if *data.User_Id != user_id {
+		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
+	}
+
+	data.LainLain = sh.AddMorePhotos(input.LainLain, data.LainLain)
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+func AddPhotoSuratIzin(id int, input npwpd.PhotoUpdate, user_id uint64) (any, error) {
+	var data *npwpd.Npwpd
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if *data.User_Id != user_id {
+		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
+	}
+
+	data.SuratIzinUsaha = sh.AddMorePhotos(input.SuratIzinUsaha, data.SuratIzinUsaha)
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+func AddPhotoObject(id int, input npwpd.PhotoUpdate, user_id uint64) (any, error) {
+	var data *npwpd.Npwpd
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if *data.User_Id != user_id {
+		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
+	}
+
+	data.FotoObjek = sh.AddMorePhotos(input.FotoObjek, data.FotoObjek)
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func AddPhotoKtp(id int, input npwpd.PhotoUpdate, user_id uint64) (any, error) {
+	var data *npwpd.Npwpd
+	var imgNameChan = make(chan string)
+	var errChan = make(chan error)
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if *data.User_Id != user_id {
+		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
+	}
+
+	go sh.ReplaceImage(data.FotoKtp, input.FotoKtp, imgNameChan, errChan)
+	if err := <-errChan; err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "image unsupported", data)
+	}
+	data.FotoKtp = <-imgNameChan
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func DeletePhotoLainLain(id int, input string, user_id uint64) (any, error) {
+	var data *npwpd.Npwpd
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if *data.User_Id != user_id {
+		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
+	}
+
+	resultDelete, errDelete := sh.DeletePhoto(input, data.LainLain)
+	if errDelete != nil {
+		return sh.SetError("request", "delete-data", source, "failed", errDelete.Error(), input)
+	}
+	data.LainLain = resultDelete
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "delete-data", source, "failed", "gagal menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func DeletePhotoObject(id int, input string, user_id uint64) (any, error) {
+	var data *npwpd.Npwpd
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if *data.User_Id != user_id {
+		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
+	}
+
+	resultDelete, errDelete := sh.DeletePhoto(input, data.LainLain)
+	if errDelete != nil {
+		return sh.SetError("request", "delete-data", source, "failed", errDelete.Error(), input)
+	}
+	data.FotoObjek = resultDelete
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func DeletePhotoSuratIzin(id int, input string, user_id uint64) (any, error) {
+	var data *npwpd.Npwpd
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	if *data.User_Id != user_id {
+		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
+	}
+
+	resultDelete, errDelete := sh.DeletePhoto(input, data.LainLain)
+	if errDelete != nil {
+		return sh.SetError("request", "delete-data", source, "failed", errDelete.Error(), input)
+	}
+	data.SuratIzinUsaha = resultDelete
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "deletedata", source, "failed", "gagal menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
 }

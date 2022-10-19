@@ -107,7 +107,9 @@ func SetRoutes() http.Handler {
 	r.Route("/npwpd", func(r chi.Router) {
 		r.Get("/", npwpd.GetListForWp)
 		r.Get("/{id}", npwpd.GetDetailByUser)
-
+		r.Patch("/{id}", npwpd.Update)
+		r.Patch("/{id}/{category}", npwpd.UpdatePhoto)
+		r.Delete("/{id}/{category}/{filename}", npwpd.DeletePhoto)
 	})
 	return r
 }
