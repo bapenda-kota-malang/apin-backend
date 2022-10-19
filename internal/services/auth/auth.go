@@ -62,7 +62,9 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 	if user.Position == 1 {
 		var refData pm.Pegawai
 		if err := getAndCheck(result, &refData, pm.Pegawai{Id: user.Ref_Id}); err != nil {
-			return nil, err
+			if user.SysAdmin == false {
+				return nil, err
+			}
 		}
 		ref_type = "pegawai"
 		ref["nama"] = refData.Nama
