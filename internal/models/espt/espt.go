@@ -6,7 +6,7 @@ import (
 	mdhot "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	mdpar "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
 	mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjnonpln"
-	mdrek "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptreklame"
+	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjpln"
 	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
@@ -18,7 +18,7 @@ type Espt struct {
 	Npwpd_Id         uint            `json:"npwp_id"`
 	ObjekPajak_Id    uint            `json:"objekPajak_id"`
 	Rekening_Id      uint            `json:"rekening_id"`
-	Location         *string         `json:"location,omitempty" gorm:"size:50"`
+	Location         *string         `json:"location,omitempty" gorm:"size:50;comment:untuk pajak air"`
 	LuasLokasi       *uint           `json:"luasLokasi,omitempty" gorm:"comment:untuk pajak parkir"`
 	Description      *string         `json:"description,omitempty"`
 	PeriodeAwal      datatypes.Date  `json:"periodeAwal"`
@@ -42,8 +42,8 @@ type Espt struct {
 	DetailEsptHotel     *[]mdhot.DetailEsptHotel        `json:"detailEsptHotel,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptHiburan   *[]mdhib.DetailEsptHiburan      `json:"detailEsptHiburan,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptParkir    *[]mdpar.DetailEsptParkir       `json:"detailEsptParkir,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptReklame   *[]mdrek.DetailEsptReklame      `json:"detailEsptReklame,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptResto     *[]mdres.DetailEsptResto        `json:"detailEsptResto,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptPpjNonPln *[]mdnonpln.DetailEsptPpjNonPln `json:"detailEsptPpjNonPln,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptPpjPln    *[]mdpln.DetailEsptPpjPln       `json:"detailEsptPpjPln,omitempty" gorm:"foreignKey:Espt_Id"`
 	gormhelper.DateModel
 }

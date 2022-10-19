@@ -5,9 +5,24 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
-type DetailEsptPpjNonPln struct {
+type DetailEsptPpjPln struct {
 	detailesptair.DetailEspt
-	JumlahPelanggan string `json:"jenisMesinPenggerak" gorm:""`
-	JumlahRekening  string `json:"tahunMesin"`
+	JenisPPJ_Id     uint   `json:"jenisPpj_Id"`
+	JumlahPelanggan string `json:"jumlahPelanggan" gorm:""`
+	JumlahRekening  string `json:"jumlahRekening"`
 	gormhelper.DateModel
+}
+
+type CreateDto struct {
+	Espt_Id         uint
+	JenisPPJ_Id     uint   `json:"jenisPpj_Id"`
+	JumlahPelanggan string `json:"jumlahPelanggan"`
+	JumlahRekening  string `json:"jumlahRekening"`
+}
+
+type UpdateDto struct {
+	Id              uint    `json:"id"`
+	JenisPPJ_Id     *uint   `json:"jenisPpj_Id"`
+	JumlahPelanggan *string `json:"jumlahPelanggan"`
+	JumlahRekening  *string `json:"jumlahRekening"`
 }

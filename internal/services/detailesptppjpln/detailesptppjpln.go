@@ -1,4 +1,4 @@
-package detailesptreklame
+package detailesptppjpln
 
 import (
 	"errors"
@@ -11,18 +11,18 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptreklame"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjpln"
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "detailesptreklame"
+const source = "detailesptppjnonpln"
 
 func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data []m.DetailEsptReklame
+	var data []m.DetailEsptPpjPln
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -50,10 +50,9 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.DetailEsptReklame
+	var data m.DetailEsptPpjPln
 
 	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
-
 	if id != 0 {
 		if dataRow := tx.First(&data, id).RowsAffected; dataRow == 0 {
 			return nil, errors.New("data tidak dapat ditemukan")
@@ -84,7 +83,7 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.DetailEsptReklame
+	var data *m.DetailEsptPpjPln
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")

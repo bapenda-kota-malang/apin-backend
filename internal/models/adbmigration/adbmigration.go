@@ -9,7 +9,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthiburan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptreklame"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjnonpln"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjpln"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/group"
@@ -125,7 +126,8 @@ func init() {
 		&detailespthiburan.DetailEsptHiburan{},
 		&detailesptparkir.DetailEsptParkir{},
 		&detailesptresto.DetailEsptResto{},
-		&detailesptreklame.DetailEsptReklame{},
+		&detailesptppjnonpln.DetailEsptPpjNonPln{},
+		&detailesptppjpln.DetailEsptPpjPln{},
 	}
 	a.AutoMigrate(listModelPenetapan...)
 }

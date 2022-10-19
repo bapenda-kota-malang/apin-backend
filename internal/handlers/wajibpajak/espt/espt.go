@@ -72,6 +72,13 @@ func Create(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		input = tmp
+	case "ppjpln":
+		var tmp m.CreateDetailPpjPlnDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = tmp
 	default:
 		err = errors.New("category tidak diketahui")
 		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
@@ -152,6 +159,13 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		input = tmp
 	case "ppjnonpln":
 		var tmp m.UpdateDetailPpjNonPlnDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = tmp
+	case "ppjpln":
+		var tmp m.UpdateDetailPpjPlnDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return

@@ -13,7 +13,7 @@ type DetailEsptPpjNonPln struct {
 	BebanMesin          *string `json:"bebanMesin"`
 	JumlahJam           *uint8  `json:"jumlahJam"`
 	JumlahHari          *uint8  `json:"jumlahHari"`
-	ListrikPLN          bool    `json:"listrikPLN"`
+	ListrikPLN          bool    `json:"listrikPln"`
 	gormhelper.DateModel
 }
 
@@ -25,16 +25,16 @@ type CreateDto struct {
 	BebanMesin          *string `json:"bebanMesin"`
 	JumlahJam           *uint8  `json:"jumlahJam"`
 	JumlahHari          *uint8  `json:"jumlahHari"`
-	ListrikPLN          bool    `json:"listrikPLN"`
+	ListrikPLN          bool    `json:"listrikPln"`
 }
 
 type UpdateDto struct {
 	Id                  uint    `json:"id"`
-	JenisMesinPenggerak string  `json:"jenisMesinPenggerak"`
-	TahunMesin          string  `json:"tahunMesin"`
-	DayaMesin           string  `json:"dayaMesin"`
+	JenisMesinPenggerak *string `json:"jenisMesinPenggerak"`
+	TahunMesin          *string `json:"tahunMesin"`
+	DayaMesin           *string `json:"dayaMesin"`
 	BebanMesin          *string `json:"bebanMesin"`
 	JumlahJam           *uint8  `json:"jumlahJam"`
 	JumlahHari          *uint8  `json:"jumlahHari"`
-	ListrikPLN          bool    `json:"listrikPLN"`
+	ListrikPLN          *bool   `json:"listrikPln"`
 }
