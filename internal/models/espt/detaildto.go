@@ -5,6 +5,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthiburan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjnonpln"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjpln"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 )
 
@@ -14,6 +16,7 @@ type CreateDetailAirDto struct {
 }
 
 func (input CreateDetailAirDto) GetEspt() CreateDto {
+	input.Espt.LuasLokasi = nil
 	return input.Espt
 }
 
@@ -37,6 +40,8 @@ type CreateDetailHotelDto struct {
 }
 
 func (input CreateDetailHotelDto) GetEspt() CreateDto {
+	input.Espt.Location = nil
+	input.Espt.LuasLokasi = nil
 	return input.Espt
 }
 
@@ -50,7 +55,7 @@ func (input CreateDetailHotelDto) LenDetails() int {
 
 func (input CreateDetailHotelDto) ReplaceEsptId(id uint) {
 	for i := range input.DataDetails {
-		input.DataDetails[i].Espt_Id = &id
+		input.DataDetails[i].Espt_Id = id
 	}
 }
 
@@ -60,6 +65,8 @@ type CreateDetailHiburanDto struct {
 }
 
 func (input CreateDetailHiburanDto) GetEspt() CreateDto {
+	input.Espt.Location = nil
+	input.Espt.LuasLokasi = nil
 	return input.Espt
 }
 
@@ -73,7 +80,7 @@ func (input CreateDetailHiburanDto) LenDetails() int {
 
 func (input CreateDetailHiburanDto) ReplaceEsptId(id uint) {
 	for i := range input.DataDetails {
-		input.DataDetails[i].Espt_Id = &id
+		input.DataDetails[i].Espt_Id = id
 	}
 }
 
@@ -83,6 +90,7 @@ type CreateDetailParkirDto struct {
 }
 
 func (input CreateDetailParkirDto) GetEspt() CreateDto {
+	input.Espt.Location = nil
 	return input.Espt
 }
 
@@ -106,6 +114,8 @@ type CreateDetailRestoDto struct {
 }
 
 func (input CreateDetailRestoDto) GetEspt() CreateDto {
+	input.Espt.Location = nil
+	input.Espt.LuasLokasi = nil
 	return input.Espt
 }
 
@@ -123,12 +133,63 @@ func (input CreateDetailRestoDto) ReplaceEsptId(id uint) {
 	}
 }
 
+type CreateDetailPpjNonPlnDto struct {
+	Espt        CreateDto                       `json:"espt" validate:"required"`
+	DataDetails []detailesptppjnonpln.CreateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input CreateDetailPpjNonPlnDto) GetEspt() CreateDto {
+	input.Espt.Location = nil
+	input.Espt.LuasLokasi = nil
+	return input.Espt
+}
+
+func (input CreateDetailPpjNonPlnDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input CreateDetailPpjNonPlnDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
+func (input CreateDetailPpjNonPlnDto) ReplaceEsptId(id uint) {
+	for i := range input.DataDetails {
+		input.DataDetails[i].Espt_Id = id
+	}
+}
+
+type CreateDetailPpjPlnDto struct {
+	Espt        CreateDto                    `json:"espt" validate:"required"`
+	DataDetails []detailesptppjpln.CreateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input CreateDetailPpjPlnDto) GetEspt() CreateDto {
+	input.Espt.Location = nil
+	input.Espt.LuasLokasi = nil
+	return input.Espt
+}
+
+func (input CreateDetailPpjPlnDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input CreateDetailPpjPlnDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
+func (input CreateDetailPpjPlnDto) ReplaceEsptId(id uint) {
+	for i := range input.DataDetails {
+		input.DataDetails[i].Espt_Id = id
+	}
+}
+
 type UpdateDetailAirDto struct {
 	Espt        UpdateDto                 `json:"espt"`
 	DataDetails []detailesptair.UpdateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input UpdateDetailAirDto) GetEspt() UpdateDto {
+	input.Espt.LuasLokasi = nil
 	return input.Espt
 }
 
@@ -146,6 +207,8 @@ type UpdateDetailHotelDto struct {
 }
 
 func (input UpdateDetailHotelDto) GetEspt() UpdateDto {
+	input.Espt.Location = nil
+	input.Espt.LuasLokasi = nil
 	return input.Espt
 }
 
@@ -163,6 +226,8 @@ type UpdateDetailHiburanDto struct {
 }
 
 func (input UpdateDetailHiburanDto) GetEspt() UpdateDto {
+	input.Espt.Location = nil
+	input.Espt.LuasLokasi = nil
 	return input.Espt
 }
 
@@ -180,6 +245,7 @@ type UpdateDetailParkirDto struct {
 }
 
 func (input UpdateDetailParkirDto) GetEspt() UpdateDto {
+	input.Espt.Location = nil
 	return input.Espt
 }
 
@@ -197,6 +263,8 @@ type UpdateDetailRestoDto struct {
 }
 
 func (input UpdateDetailRestoDto) GetEspt() UpdateDto {
+	input.Espt.Location = nil
+	input.Espt.LuasLokasi = nil
 	return input.Espt
 }
 
@@ -205,5 +273,43 @@ func (input UpdateDetailRestoDto) GetDetails() interface{} {
 }
 
 func (input UpdateDetailRestoDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
+type UpdateDetailPpjNonPlnDto struct {
+	Espt        UpdateDto                       `json:"espt" validate:"required"`
+	DataDetails []detailesptppjnonpln.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input UpdateDetailPpjNonPlnDto) GetEspt() UpdateDto {
+	input.Espt.Location = nil
+	input.Espt.LuasLokasi = nil
+	return input.Espt
+}
+
+func (input UpdateDetailPpjNonPlnDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input UpdateDetailPpjNonPlnDto) LenDetails() int {
+	return len(input.DataDetails)
+}
+
+type UpdateDetailPpjPlnDto struct {
+	Espt        UpdateDto                    `json:"espt" validate:"required"`
+	DataDetails []detailesptppjpln.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input UpdateDetailPpjPlnDto) GetEspt() UpdateDto {
+	input.Espt.Location = nil
+	input.Espt.LuasLokasi = nil
+	return input.Espt
+}
+
+func (input UpdateDetailPpjPlnDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input UpdateDetailPpjPlnDto) LenDetails() int {
 	return len(input.DataDetails)
 }

@@ -7,6 +7,7 @@ import (
 )
 
 type FilterDto struct {
+	LuasLokasi   *uint           `json:"luasLokasi"`
 	Omset        *float64        `json:"omset"`
 	JumlahPajak  *float32        `json:"jumlahPajak"`
 	JatuhTempo   *datatypes.Date `json:"jatuhTempo"`
@@ -25,6 +26,7 @@ type CreateDto struct {
 	ObjekPajak_Id uint    `json:"objekPajak_id" validate:"required;min=1"`
 	Rekening_Id   uint    `json:"rekening_id" validate:"required;min=1"`
 	Location      *string `json:"location"`
+	LuasLokasi    *uint   `json:"luasLokasi"`
 	TarifPajak_id uint    `json:"tarifPajak_id" validate:"required;min=1"`
 	Omset         float64 `json:"omset"`
 	JumlahPajak   float32 `json:"jumlahPajak"`
@@ -36,6 +38,7 @@ type UpdateDto struct {
 	ObjekPajak_Id *uint    `json:"objekPajak_id" validate:"min=1"`
 	Rekening_Id   *uint    `json:"rekening_id" validate:"min=1"`
 	Location      *string  `json:"location"`
+	LuasLokasi    *uint    `json:"luasLokasi"`
 	TarifPajak_id *uint    `json:"tarifPajak_id" validate:"min=1"`
 	Omset         *float64 `json:"omset"`
 	JumlahPajak   *float32 `json:"jumlahPajak"`

@@ -32,7 +32,6 @@ func GetList(input m.FilterDto) (any, error) {
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
-		Joins("Rekening").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
@@ -70,14 +69,20 @@ func GetDetail(id int) (any, error) {
 	if len(*data.DetailEsptHotel) == 0 {
 		data.DetailEsptHotel = nil
 	}
+	if len(*data.DetailEsptHiburan) == 0 {
+		data.DetailEsptHiburan = nil
+	}
 	if len(*data.DetailEsptParkir) == 0 {
 		data.DetailEsptParkir = nil
 	}
-	if len(*data.DetailEsptReklame) == 0 {
-		data.DetailEsptReklame = nil
-	}
 	if len(*data.DetailEsptResto) == 0 {
 		data.DetailEsptResto = nil
+	}
+	if len(*data.DetailEsptPpjNonPln) == 0 {
+		data.DetailEsptPpjNonPln = nil
+	}
+	if len(*data.DetailEsptPpjPln) == 0 {
+		data.DetailEsptPpjPln = nil
 	}
 	return rp.OKSimple{
 		Data: data,
