@@ -91,6 +91,10 @@ func CheckPdf(b64Raw string) (err error) {
 	return
 }
 
+func removeFile(path, filename string) error {
+	return os.Remove(fmt.Sprintf("%s/%s", path, filename))
+}
+
 // save new image from base64 string to img eiter jpeg/png to resource/img folder with filename uuidv4 generated
 func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 	defer close(imgNameCh)
@@ -181,7 +185,7 @@ func ReplaceImage(oImgName, b64Raw string, imgNameCh chan string, errCh chan err
 		return
 	}
 
-	if err := os.Remove(fmt.Sprintf("%s/%s", basePath, oImgName)); err != nil {
+	if err := removeFile(basePath, oImgName); err != nil {
 		errCh <- err
 		return
 	}
@@ -225,7 +229,7 @@ func ReplaceFile(oldFileName, b64Raw, newFileName, path string, errCh chan error
 		errCh <- err
 		return
 	}
-	if err := os.Remove(fmt.Sprintf("%s/%s", path, oldFileName)); err != nil {
+	if err := removeFile(path, oldFileName); err != nil {
 		errCh <- err
 		return
 	}
@@ -311,7 +315,6 @@ func DeletePhoto(input string, data string) (string, error) {
 	for k, v := range result {
 		if v == input {
 			result = append(result[:k], result[k+1:]...)
-
 		}
 	}
 	basePath, err := getImgPath()
