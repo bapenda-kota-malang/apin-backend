@@ -3,9 +3,7 @@ package wajibpajak
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
@@ -17,6 +15,9 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/registrasinpwpd"
+	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func SetRoutes() http.Handler {
@@ -102,6 +103,8 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", espt.Update)
 		r.Delete("/{id}", espt.Delete)
 	})
+
+	rh.RegCrud(r, "/rekening", rekening.Crud{})
 
 	return r
 }
