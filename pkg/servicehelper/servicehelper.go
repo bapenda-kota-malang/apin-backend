@@ -302,11 +302,11 @@ func AddMorePhotos(input []string, dataBefore string) string {
 }
 
 // remove photo from array
-func DeletePhoto(input string, data string) string {
+func DeletePhoto(input string, data string) (string, error) {
 	var result []string
 	cnvUnmarshal := json.Unmarshal([]byte(data), &result)
 	if cnvUnmarshal != nil {
-		return ""
+		return "", errors.New("data tidak bisa diunmarshal")
 	}
 	for k, v := range result {
 		if v == input {
@@ -314,17 +314,15 @@ func DeletePhoto(input string, data string) string {
 
 		}
 	}
-	// basePath, err := getImgPath()
-	// if err != nil {
-	// 	fmt.Println("HERE")
-	// 	return ""
-	// }
+	basePath, err := getImgPath()
+	if err != nil {
+		return "", errors.New("tidak dapat mengambil data get image path")
+	}
 
-	// if err := os.Remove(fmt.Sprintf("%s/%s", basePath, input)); err != nil {
-	// 	fmt.Println("here")
-	// 	return ""
-	// }
+	if err := os.Remove(fmt.Sprintf("%s/%s", basePath, input)); err != nil {
+		return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
+	}
 
 	bytes, _ := json.Marshal(result)
-	return string(bytes)
+	return string(bytes), nil
 }

@@ -708,9 +708,13 @@ func DeletePhotoLainLain(id int, input string, user_id uint64) (any, error) {
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	data.LainLain = sh.DeletePhoto(input, data.LainLain)
+	resultDelete, errDelete := sh.DeletePhoto(input, data.LainLain)
+	if errDelete != nil {
+		return sh.SetError("request", "delete-data", source, "failed", errDelete.Error(), input)
+	}
+	data.LainLain = resultDelete
 	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
+		return sh.SetError("request", "delete-data", source, "failed", "gagal menyimpan data", data)
 	}
 
 	return rp.OK{
@@ -732,7 +736,11 @@ func DeletePhotoObject(id int, input string, user_id uint64) (any, error) {
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	data.FotoObjek = sh.DeletePhoto(input, data.FotoObjek)
+	resultDelete, errDelete := sh.DeletePhoto(input, data.LainLain)
+	if errDelete != nil {
+		return sh.SetError("request", "delete-data", source, "failed", errDelete.Error(), input)
+	}
+	data.FotoObjek = resultDelete
 	if result := a.DB.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
 	}
@@ -756,9 +764,13 @@ func DeletePhotoSuratIzin(id int, input string, user_id uint64) (any, error) {
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	data.SuratIzinUsaha = sh.DeletePhoto(input, data.SuratIzinUsaha)
+	resultDelete, errDelete := sh.DeletePhoto(input, data.LainLain)
+	if errDelete != nil {
+		return sh.SetError("request", "delete-data", source, "failed", errDelete.Error(), input)
+	}
+	data.SuratIzinUsaha = resultDelete
 	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
+		return sh.SetError("request", "deletedata", source, "failed", "gagal menyimpan data", data)
 	}
 
 	return rp.OK{
