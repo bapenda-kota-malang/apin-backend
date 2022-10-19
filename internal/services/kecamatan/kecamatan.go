@@ -43,10 +43,8 @@ func GetList(input m.KecamatanFilterDto) (interface{}, error) {
 	query := a.DB.
 		Model(&m.Kecamatan{}).
 		Scopes(gh.Filter(input)).
-		Count(&count)
-	if input.Daerah_Kode == nil {
-		query = query.Scopes(gh.Paginate(input, &pagination))
-	}
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination))
 	result := query.Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)

@@ -23,8 +23,9 @@ type DaerahUpdateDto struct {
 
 type DaerahFilterDto struct {
 	Provinsi_Kode *string `json:"provinsi_kode"`
-	// Kode         *string `json:"kode"`
-	// Nama         *string `json:"nama"`
-	Page     int   `json:"page"`
-	PageSize int64 `json:"page_size"`
+	Kode          *string `json:"kode"`
+	Nama          *string `json:"nama"`
+	Page          int     `json:"page"`
+	PageSize      int64   `json:"page_size"`
+	NoPagination  bool    `json:"no_pagination"`
 }
