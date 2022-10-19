@@ -28,10 +28,10 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Id               uint     `json:"id"`
-	JumlahMeja       uint     `json:"jumlahMeja"`
-	JumlahKursi      uint     `json:"jumlahKursi"`
+	JumlahMeja       *uint    `json:"jumlahMeja"`
+	JumlahKursi      *uint    `json:"jumlahKursi"`
 	TarifMinuman     *float32 `json:"tarifMinuman"`
 	TarifMakanan     *float32 `json:"tarifMakanan"`
-	JumlahPengunjung uint     `json:"jumlahPengunjung"`
+	JumlahPengunjung *uint    `json:"jumlahPengunjung"`
 	IdBt             *uint    `json:"idBt"`
 }
