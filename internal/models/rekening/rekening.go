@@ -63,24 +63,26 @@ type UpdateDto struct {
 	JenisUsaha     string `json:"jenisUsaha"`
 }
 type FilterDto struct {
-	Parent_Id      *string `json:"parent_id"`
-	Tipe           *string `json:"tipe"`
-	Kelompok       *string `json:"kelompok"`
-	Jenis          *string `json:"jenis"`
-	Objek          *string `json:"objek"`
-	Rincian        *string `json:"rincian"`
-	Sub1           *string `json:"sub1"`
-	Sub2           *string `json:"sub2"`
-	Sub3           *string `json:"sub3"`
-	Kode           *string `json:"kode"`
-	Nama           *string `json:"nama"`
-	Level          *int    `json:"level"`
-	KodeBaru       *string `json:"kodeBaru"`
-	KodeJenisPajak *string `json:"kodeJenisPajak"`
-	KodeVaJatim    *string `json:"kodeVaJatim"`
-	KodeBilling    *string `json:"kodeBilling"`
-	KodeJenisUsaha *string `json:"kodeJenisUsaha"`
-	JenisUsaha     *string `json:"jenisUsaha"`
-	Page           int     `json:"page"`
-	PageSize       int     `json:"page_size"`
+	Parent_Id          *string `json:"parent_id"`
+	Tipe               *string `json:"tipe"`
+	Kelompok           *string `json:"kelompok"`
+	Jenis              *string `json:"jenis"`
+	Objek              *string `json:"objek"`
+	Rincian            *string `json:"rincian"`
+	Sub1               *string `json:"sub1"`
+	Sub2               *string `json:"sub2"`
+	Sub3               *string `json:"sub3"`
+	Kode               *string `json:"kode"`
+	Nama               *string `json:"nama"`
+	Level              *int    `json:"level"`
+	KodeBaru           *string `json:"kodeBaru"`
+	KodeJenisPajak     *string `json:"kodeJenisPajak"`
+	KodeVaJatim        *string `json:"kodeVaJatim"`
+	KodeBilling        *string `json:"kodeBilling"`
+	KodeJenisUsaha     *string `json:"kodeJenisUsaha"`
+	KodeJenisUsaha_Opt *string `json:"kodeJenisUsaha_opt"`
+	JenisUsaha         *string `json:"jenisUsaha"`
+	Page               int     `json:"page"`
+	PageSize           int     `json:"page_size"`
+	NoPagination       bool    `json:"no_pagination"`
 }

@@ -9,6 +9,7 @@ import (
 
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	su "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/wajibpajak"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
@@ -25,12 +26,10 @@ import (
 
 // Return data detail Objek Pajak
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
-		return
-	}
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	// result, err := s.Create(register, uint(authInfo.User_Id))
 
-	result, err := s.GetDetail(id)
+	result, err := s.GetDetail(authInfo.Ref_Id)
 	hh.DataResponse(w, result, err)
 }
 

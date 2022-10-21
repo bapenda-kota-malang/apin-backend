@@ -31,23 +31,23 @@ func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
 		return nil, err
 	}
 	var tmpverify = rn.VerifyStatusBaru
-	var tmpNomor = func() string {
+	// var tmpNomor = func() string {
 
-		if reg.IsNomorRegistrasiAuto {
-			var tmp string
-			var tmpNpwpd rn.RegistrasiNpwpd
-			nomor := a.DB.Last(&tmpNpwpd)
-			if nomor.Error != nil {
-				return "1000"
-			} else {
-				intconv, _ := strconv.Atoi(tmpNpwpd.Nomor)
-				intconv++
-				tmp = strconv.Itoa(intconv)
-			}
-			return tmp
-		}
-		return reg.Nomor
-	}()
+	// 	if reg.IsNomorRegistrasiAuto {
+	// 		var tmp string
+	// 		var tmpNpwpd rn.RegistrasiNpwpd
+	// 		nomor := a.DB.Last(&tmpNpwpd)
+	// 		if nomor.Error != nil {
+	// 			return "1000"
+	// 		} else {
+	// 			intconv, _ := strconv.Atoi(tmpNpwpd.Nomor)
+	// 			intconv++
+	// 			tmp = strconv.Itoa(intconv)
+	// 		}
+	// 		return tmp
+	// 	}
+	// 	return reg.Nomor
+	// }()
 	// foto ktp
 	var imgNameChan = make(chan string)
 	var errChan = make(chan error)
@@ -60,13 +60,13 @@ func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
 
 	register := rn.RegistrasiNpwpd{
 		// ModeRegistrasi: npwpd.ModeOperator,
-		Status:            nt.StatusAktif,
-		JenisPajak:        reg.JenisPajak,
-		User_Id:           user_IdConv,
-		Golongan:          reg.Golongan,
-		Npwp:              reg.Npwp,
-		VerifyStatus:      &tmpverify,
-		Nomor:             tmpNomor,
+		Status: nt.StatusAktif,
+		// JenisPajak:        reg.JenisPajak,
+		User_Id:      user_IdConv,
+		Golongan:     reg.Golongan,
+		Npwp:         reg.Npwp,
+		VerifyStatus: &tmpverify,
+		// Nomor:             tmpNomor,
 		Rekening_Id:       reg.Rekening_Id,
 		Rekening:          rekening,
 		TanggalMulaiUsaha: th.ParseTime(*reg.TanggalMulaiUsaha),

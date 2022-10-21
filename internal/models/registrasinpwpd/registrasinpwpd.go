@@ -62,12 +62,12 @@ type RegistrasiNpwpd struct {
 }
 
 type CreateDto struct {
-	JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
-	Golongan   t.Golongan   `json:"golongan" validate:"required"`
-	Npwp       *string      `json:"npwp" validate:"required"`
+	// JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
+	Golongan t.Golongan `json:"golongan" validate:"required"`
+	Npwp     *string    `json:"npwp"`
 
-	Nomor                 string `json:"nomor"`
-	IsNomorRegistrasiAuto bool   `json:"isNomorRegistrasiAuto"`
+	// Nomor                 string `json:"nomor"`
+	// IsNomorRegistrasiAuto bool   `json:"isNomorRegistrasiAuto"`
 
 	TanggalPenutupan *string `json:"tanggalPenutupan"`
 	TanggalBuka      *string `json:"tanggalBuka"`

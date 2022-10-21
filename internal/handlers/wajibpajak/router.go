@@ -34,6 +34,7 @@ func SetRoutes() http.Handler {
 		"/daerah",
 		"/kecamatan",
 		"/kelurahan",
+		"/rekening",
 	}
 	auth.Position = 3
 
@@ -67,7 +68,7 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/profile", func(r chi.Router) {
-		// 	r.Get("/", p.Login)   // EXECUTE
+		r.Get("/", profile.GetDetail) // EXECUTE
 		r.Patch("/{id}", profile.Update)
 	})
 
