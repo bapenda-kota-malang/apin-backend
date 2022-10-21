@@ -12,6 +12,8 @@ import (
 	mdhib "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthiburan"
 	mdhot "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
 	mdpar "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
+	mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjnonpln"
+	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjpln"
 	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 
@@ -19,6 +21,8 @@ import (
 	shib "github.com/bapenda-kota-malang/apin-backend/internal/services/detailespthiburan"
 	shot "github.com/bapenda-kota-malang/apin-backend/internal/services/detailespthotel"
 	spar "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptparkir"
+	snonpln "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptppjnonpln"
+	spln "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptppjpln"
 	sres "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptresto"
 )
 
@@ -87,6 +91,24 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 			if respDetails != nil {
 				details := respDetails.(rp.OKSimple).Data.([]mdres.DetailEsptResto)
 				data.DetailEsptResto = &details
+			}
+		case []mdnonpln.CreateDto:
+			respDetails, err := snonpln.Create(dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdnonpln.DetailEsptPpjNonPln)
+				data.DetailEsptPpjNonPln = &details
+			}
+		case []mdpln.CreateDto:
+			respDetails, err := spln.Create(dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdpln.DetailEsptPpjPln)
+				data.DetailEsptPpjPln = &details
 			}
 		}
 		return nil
@@ -203,6 +225,40 @@ func UpdateDetail(id int, input m.UpdateInput, user_Id uint) (interface{}, error
 				}
 			}
 			data.DetailEsptResto = &detailList
+		case []mdnonpln.UpdateDto:
+			var detailList []mdnonpln.DetailEsptPpjNonPln
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := snonpln.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdnonpln.DetailEsptPpjNonPln)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailEsptPpjNonPln = &detailList
+		case []mdpln.UpdateDto:
+			var detailList []mdpln.DetailEsptPpjPln
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := spln.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdpln.DetailEsptPpjPln)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailEsptPpjPln = &detailList
 		}
 		return nil
 	})

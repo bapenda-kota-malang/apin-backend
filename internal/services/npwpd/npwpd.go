@@ -91,6 +91,8 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 				tmp++
 			}
 			return tmp
+		} else {
+
 		}
 		return reg.Nomor
 	}()
