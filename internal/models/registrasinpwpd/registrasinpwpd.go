@@ -11,13 +11,12 @@ import (
 )
 
 type RegistrasiNpwpd struct {
-	Id       uint64     `json:"id" gorm:"primarykey"`
-	Golongan t.Golongan `json:"golongan"`
-	Nomor    string     `json:"nomor" gorm:"type:varchar(10)"`
-	Npwp     *string    `json:"npwp" gorm:"size:50"`
-	// TanggalPengukuhan *time.Time               `json:"tanggalPengukuhan"`
-	// TanggalNpwpd      *time.Time               `json:"tanggalNpwpd"`
-	// Npwpd             *string                  `json:"npwpd" gorm:"size:22"`
+	Id                uint64             `json:"id" gorm:"primarykey"`
+	RegObjekPajak_Id  uint64             `json:"regObjekPajak_id"`
+	RegObjekPajak     *RegObjekPajak     `json:"regObjekPajak,omitempty" gorm:"foreignKey:regObjekPajak_Id;references:Id"`
+	Golongan          t.Golongan         `json:"golongan"`
+	Nomor             int                `json:"nomor"`
+	Npwp              *string            `json:"npwp" gorm:"size:50"`
 	Status            t.Status           `json:"status"`
 	TanggalPenutupan  *time.Time         `json:"tanggalPenutupan"`
 	TanggalBuka       *time.Time         `json:"tanggalBuka"`
@@ -48,17 +47,16 @@ type RegistrasiNpwpd struct {
 	// ModeRegistrasi    npwpd.Mode               `json:"modeRegistrasi"`
 	// VendorEtax         *configurationmodel.VendorEtax `gorm:"foreignKey:VendorEtaxID"`
 
-	RegObjekPajaks []*RegObjekPajak `json:"regobjekPajak,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 	RegPemilikWps  []*RegPemilikWp  `json:"regpemilik,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 	RegNarahubungs []*RegNarahubung `json:"regnarahubung,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 
-	DetailRegOpAirTanah []*DetailRegOpAirTanah `json:"detail_reg_op_air_tanah,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpHiburan  []*DetailRegOpHiburan  `json:"detail_reg_op_hiburan,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpHotel    []*DetailRegOpHotel    `json:"detail_reg_op_hotel,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpParkir   []*DetailRegOpParkir   `json:"detail_reg_op_parkir,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpPpj      []*DetailRegOpPpj      `json:"detail_reg_op_ppj,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpReklame  []*DetailRegOpReklame  `json:"detail_reg_op_reklame,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpResto    []*DetailRegOpResto    `json:"detail_reg_op_resto,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	DetailRegOpAirTanah []*DetailRegObjekPajakAirTanah `json:"detail_reg_op_air_tanah,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	DetailRegOpHiburan  []*DetailRegObjekPajakHiburan  `json:"detail_reg_op_hiburan,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	DetailRegOpHotel    []*DetailRegObjekPajakHotel    `json:"detail_reg_op_hotel,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	DetailRegOpParkir   []*DetailRegObjekPajakParkir   `json:"detail_reg_op_parkir,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	DetailRegOpPpj      []*DetailRegObjekPajakPpj      `json:"detail_reg_op_ppj,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	DetailRegOpReklame  []*DetailRegObjekPajakReklame  `json:"detail_reg_op_reklame,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	DetailRegOpResto    []*DetailRegObjekPajakResto    `json:"detail_reg_op_resto,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 }
 
 type CreateDto struct {
@@ -66,8 +64,8 @@ type CreateDto struct {
 	Golongan   t.Golongan   `json:"golongan" validate:"required"`
 	Npwp       *string      `json:"npwp" validate:"required"`
 
-	Nomor                 string `json:"nomor"`
-	IsNomorRegistrasiAuto bool   `json:"isNomorRegistrasiAuto"`
+	// Nomor                 int  `json:"nomor"`
+	// IsNomorRegistrasiAuto bool `json:"isNomorRegistrasiAuto"`
 
 	TanggalPenutupan *string `json:"tanggalPenutupan"`
 	TanggalBuka      *string `json:"tanggalBuka"`
@@ -89,7 +87,7 @@ type CreateDto struct {
 	Genset   bool `json:"genset"`
 	AirTanah bool `json:"airTanah"`
 
-	DetailRegOp *[]DetailRegOp `json:"detail_reg_op"`
+	DetailRegOp *[]DetailRegObjekPajak `json:"detailRegObjekPajak"`
 
 	RegObjekPajak *RegObjekPajak   `json:"regObjekPajak"`
 	RegPemilik    *[]RegPemilikWp  `json:"regPemilik"`
@@ -113,7 +111,7 @@ type UpdateDto struct {
 	Genset   bool `json:"genset"`
 	AirTanah bool `json:"airTanah"`
 
-	DetailRegOp []DetailRegOpUpdate `json:"detail_reg_op"`
+	DetailRegObjekPajak []DetailRegObjekPajakUpdate `json:"detailRegObjekPajak"`
 
 	RegObjekPajak RegObjekPajakUpdate   `json:"regObjekPajak"`
 	RegPemilik    []RegPemilikWpUpdate  `json:"regPemilik"`

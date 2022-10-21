@@ -2,7 +2,6 @@ package npwpd
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -64,24 +63,32 @@ func GetDetail(r *http.Request, regID int) (interface{}, error) {
 }
 
 func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
+	var err error
+	// objekpajak
+	op := *reg.ObjekPajak
+	op.Status = nt.StatusBaru
+	errOp := a.DB.Create(&op).Error
+	if errOp != nil {
+		return nil, err
+	}
+
 	var rekening *rm.Rekening
-	err := a.DB.Model(&rm.Rekening{}).First(&rekening, reg.Rekening_Id).Error
+	err = a.DB.Model(&rm.Rekening{}).First(&rekening, reg.Rekening_Id).Error
 	if err != nil {
 		return nil, err
 	}
 	// var tmpverify = npwpd.VerifiyPendaftaranDisetujui
-	var tmpNomor = func() string {
+	var tmpNomor = func() int {
 
 		if reg.IsNomorRegistrasiAuto {
-			var tmp string
+			var tmp int
 			var tmpNpwpd npwpd.Npwpd
 			nomor := a.DB.Last(&tmpNpwpd)
 			if nomor.Error != nil {
-				return "1000"
+				return 1
 			} else {
-				intconv, _ := strconv.Atoi(tmpNpwpd.Nomor)
-				intconv++
-				tmp = strconv.Itoa(intconv)
+				tmp = tmpNpwpd.Nomor
+				tmp++
 			}
 			return tmp
 		}
@@ -93,11 +100,20 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 	if kodeJenisUsahaString == "" {
 		kodeJenisUsahaString = "xxx"
 	}
-	npwpdString := tmpNomor + "." + kecamatanIdString + "." + kodeJenisUsahaString
+	tmpNomorString := strconv.Itoa(tmpNomor)
+	if len(tmpNomorString) == 1 {
+		tmpNomorString = "000" + tmpNomorString
+	} else if len(tmpNomorString) == 2 {
+		tmpNomorString = "00" + tmpNomorString
+	} else if len(tmpNomorString) == 3 {
+		tmpNomorString = "0" + tmpNomorString
+	}
+	npwpdString := tmpNomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString
 	register := npwpd.Npwpd{
 		JalurRegistrasi:   nt.JalurRegistrasiOperator,
 		Status:            nt.StatusAktif,
 		JenisPajak:        reg.JenisPajak,
+		ObjekPajak_Id:     op.Id,
 		Golongan:          reg.Golongan,
 		Npwp:              reg.Npwp,
 		VerifiedAt:        th.TimeNow(),
@@ -122,14 +138,6 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 	}
 	err = insertDetailOp(*rekening.Objek, reg.DetailOp, &register)
 	if err != nil {
-		return nil, err
-	}
-	// objekpajak
-	op := *reg.ObjekPajak
-	op.Npwpd_Id = register.Id
-	op.Status = nt.StatusBaru
-	errOp := a.DB.Create(&op).Error
-	if errOp != nil {
 		return nil, err
 	}
 
@@ -180,11 +188,10 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Data rekening: ", *rekening.Objek)
 	switch *rekening.Objek {
 	case "01":
-		for _, v := range input.DetailOp {
-			var dataDetail *npwpd.DetailOpHotel
+		for _, v := range input.DetailObjekPajak {
+			var dataDetail *npwpd.DetailObjekPajakHotel
 			result := a.DB.First(&dataDetail, v.Id)
 			if result.RowsAffected == 0 {
 				return nil, errors.New("data tidak dapat ditemukan")
@@ -199,8 +206,8 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 			}
 		}
 	case "02":
-		for _, v := range input.DetailOp {
-			var dataDetail *npwpd.DetailOpResto
+		for _, v := range input.DetailObjekPajak {
+			var dataDetail *npwpd.DetailObjekPajakResto
 			result := a.DB.First(&dataDetail, v.Id)
 			if result.RowsAffected == 0 {
 				return nil, errors.New("data tidak dapat ditemukan")
@@ -215,8 +222,8 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 			}
 		}
 	case "03":
-		for _, v := range input.DetailOp {
-			var dataDetail *npwpd.DetailOpHiburan
+		for _, v := range input.DetailObjekPajak {
+			var dataDetail *npwpd.DetailObjekPajakHiburan
 			result := a.DB.First(&dataDetail, v.Id)
 			if result.RowsAffected == 0 {
 				return nil, errors.New("data tidak dapat ditemukan")
@@ -231,8 +238,8 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 			}
 		}
 	case "04":
-		for _, v := range input.DetailOp {
-			var dataDetail *npwpd.DetailOpReklame
+		for _, v := range input.DetailObjekPajak {
+			var dataDetail *npwpd.DetailObjekPajakReklame
 			result := a.DB.First(&dataDetail, v.Id)
 			if result.RowsAffected == 0 {
 				return nil, errors.New("data tidak dapat ditemukan")
@@ -247,8 +254,8 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 			}
 		}
 	case "05":
-		for _, v := range input.DetailOp {
-			var dataDetail *npwpd.DetailOpPpj
+		for _, v := range input.DetailObjekPajak {
+			var dataDetail *npwpd.DetailObjekPajakPpj
 			result := a.DB.First(&dataDetail, v.Id)
 			if result.RowsAffected == 0 {
 				return nil, errors.New("data tidak dapat ditemukan")
@@ -263,8 +270,8 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 			}
 		}
 	case "06":
-		for _, v := range input.DetailOp {
-			var dataDetail *npwpd.DetailOpParkir
+		for _, v := range input.DetailObjekPajak {
+			var dataDetail *npwpd.DetailObjekPajakParkir
 			result := a.DB.First(&dataDetail, v.Id)
 			if result.RowsAffected == 0 {
 				return nil, errors.New("data tidak dapat ditemukan")
@@ -279,8 +286,8 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 			}
 		}
 	case "07":
-		for _, v := range input.DetailOp {
-			var dataDetail *npwpd.DetailOpAirTanah
+		for _, v := range input.DetailObjekPajak {
+			var dataDetail *npwpd.DetailObjekPajakAirTanah
 			result := a.DB.First(&dataDetail, v.Id)
 			if result.RowsAffected == 0 {
 				return nil, errors.New("data tidak dapat ditemukan")
@@ -296,19 +303,18 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 		}
 	}
 
-	var dataObjekPajak *npwpd.ObjekPajak
-	result = a.DB.First(&dataObjekPajak, input.ObjekPajak.Id)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
-	if err := sc.Copy(&dataObjekPajak, &input.ObjekPajak); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataObjekPajak)
-	}
+	// var dataObjekPajak *op.ObjekPajak
+	// result = a.DB.First(&dataObjekPajak, input.ObjekPajak.Id)
+	// if result.RowsAffected == 0 {
+	// 	return nil, errors.New("data tidak dapat ditemukan")
+	// }
+	// if err := sc.Copy(&dataObjekPajak, &input.ObjekPajak); err != nil {
+	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataObjekPajak)
+	// }
 
-	dataObjekPajak.Npwpd_Id = data.Id
-	if result := a.DB.Save(&dataObjekPajak); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataObjekPajak)
-	}
+	// if result := a.DB.Save(&dataObjekPajak); result.Error != nil {
+	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataObjekPajak)
+	// }
 
 	for _, v := range input.Narahubung {
 		var dataN *npwpd.Narahubung
@@ -376,19 +382,19 @@ func Delete(id int) (any, error) {
 			dataPemilik = nil
 		}
 	}
-	// data objekpajak
-	var dataObjekPajak *npwpd.ObjekPajak
-	result = a.DB.Where(npwpd.ObjekPajak{Npwpd_Id: uint64(id)}).First(&dataObjekPajak)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
+	// // data objekpajak
+	// var dataObjekPajak *op.ObjekPajak
+	// result = a.DB.Where(op.ObjekPajak{Npwpd_Id: uint64(id)}).First(&dataObjekPajak)
+	// if result.RowsAffected == 0 {
+	// 	return nil, errors.New("data tidak dapat ditemukan")
+	// }
 
-	result = a.DB.Where(npwpd.ObjekPajak{Npwpd_Id: uint64(id)}).Delete(&dataObjekPajak)
-	status = "deleted"
-	if result.RowsAffected == 0 {
-		dataPemilik = nil
-		status = "no deletion"
-	}
+	// result = a.DB.Where(op.ObjekPajak{Npwpd_Id: uint64(id)}).Delete(&dataObjekPajak)
+	// status = "deleted"
+	// if result.RowsAffected == 0 {
+	// 	dataPemilik = nil
+	// 	status = "no deletion"
+	// }
 
 	// data regis
 	var data *npwpd.Npwpd
@@ -407,14 +413,14 @@ func Delete(id int) (any, error) {
 	switch *rekening.Objek {
 	case "01":
 		// model = reflect.Zero(mActions["detailOpHotel"]).Interface()
-		var DataOp []*npwpd.DetailOpHotel
-		result := a.DB.Where(npwpd.DetailOpHotel{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Find(&DataOp)
+		var DataOp []*npwpd.DetailObjekPajakHotel
+		result := a.DB.Where(npwpd.DetailObjekPajakHotel{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data tidak dapat ditemukan")
 		}
 
 		for _, v := range DataOp {
-			result = a.DB.Where(npwpd.DetailOpHotel{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(npwpd.DetailObjekPajakHotel{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -424,13 +430,13 @@ func Delete(id int) (any, error) {
 
 	case "02":
 		// model = reflect.Zero(mActions["detailOpResto"]).Interface()
-		var DataOp []*npwpd.DetailOpResto
-		result := a.DB.Where(npwpd.DetailOpResto{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Find(&DataOp)
+		var DataOp []*npwpd.DetailObjekPajakResto
+		result := a.DB.Where(npwpd.DetailObjekPajakResto{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(npwpd.DetailOpResto{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(npwpd.DetailObjekPajakResto{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -439,13 +445,13 @@ func Delete(id int) (any, error) {
 		}
 	case "03":
 		// model = reflect.Zero(mActions["detailOpHiburan"]).Interface()
-		var DataOp []*npwpd.DetailOpHiburan
-		result := a.DB.Where(npwpd.DetailOpHiburan{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Find(&DataOp)
+		var DataOp []*npwpd.DetailObjekPajakHiburan
+		result := a.DB.Where(npwpd.DetailObjekPajakHiburan{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(npwpd.DetailOpHiburan{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(npwpd.DetailObjekPajakHiburan{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -454,13 +460,13 @@ func Delete(id int) (any, error) {
 		}
 	case "04":
 		// model = reflect.Zero(mActions["detailOpReklame"]).Interface()
-		var DataOp []*npwpd.DetailOpReklame
-		result := a.DB.Where(npwpd.DetailOpReklame{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Find(&DataOp)
+		var DataOp []*npwpd.DetailObjekPajakReklame
+		result := a.DB.Where(npwpd.DetailObjekPajakReklame{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(npwpd.DetailOpReklame{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(npwpd.DetailObjekPajakReklame{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -469,13 +475,13 @@ func Delete(id int) (any, error) {
 		}
 	case "05":
 		// model = reflect.Zero(mActions["detailOpPpj"]).Interface()
-		var DataOp []*npwpd.DetailOpPpj
-		result := a.DB.Where(npwpd.DetailOpPpj{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Find(&DataOp)
+		var DataOp []*npwpd.DetailObjekPajakPpj
+		result := a.DB.Where(npwpd.DetailObjekPajakPpj{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(npwpd.DetailOpPpj{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(npwpd.DetailObjekPajakPpj{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -484,13 +490,13 @@ func Delete(id int) (any, error) {
 		}
 	case "06":
 		// model = reflect.Zero(mActions["detailOpParkir"]).Interface()
-		var DataOp []*npwpd.DetailOpParkir
-		result := a.DB.Where(npwpd.DetailOpParkir{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Find(&DataOp)
+		var DataOp []*npwpd.DetailObjekPajakParkir
+		result := a.DB.Where(npwpd.DetailObjekPajakParkir{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(npwpd.DetailOpParkir{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(npwpd.DetailObjekPajakParkir{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -499,13 +505,13 @@ func Delete(id int) (any, error) {
 		}
 	case "07":
 		// model = reflect.Zero(mActions["detailOpAirTanah"]).Interface()
-		var DataOp []*npwpd.DetailOpAirTanah
-		result := a.DB.Where(npwpd.DetailOpAirTanah{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Find(&DataOp)
+		var DataOp []*npwpd.DetailObjekPajakAirTanah
+		result := a.DB.Where(npwpd.DetailObjekPajakAirTanah{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(npwpd.DetailOpAirTanah{npwpd.DetailOp{Npwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(npwpd.DetailObjekPajakAirTanah{npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil

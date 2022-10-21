@@ -15,6 +15,7 @@ import (
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"gorm.io/datatypes"
 )
 
 type Spt struct {
@@ -33,9 +34,9 @@ type Spt struct {
 	Alamat_objekPajak *string            `json:"alamat_objekPajak" gorm:"type:varchar(200)"`
 	Location          *string            `json:"location" gorm:"type:varchar(50)"`
 	Description       *string            `json:"description" gorm:"type:varchar(255)"`
-	StartDate         *time.Time         `json:"startDate"`
-	EndDate           *time.Time         `json:"endDate"`
-	DueDate           *time.Time         `json:"dueDate"`
+	StartDate         datatypes.Date     `json:"startDate"`
+	EndDate           datatypes.Date     `json:"endDate"`
+	DueDate           datatypes.Date     `json:"dueDate"`
 	Jumlah            *float64           `json:"jumlah" gorm:"type:decimal"`
 	TarifRp           *float64           `json:"tarifRp" gorm:"type:decimal"`
 	TarifPersen       *float64           `json:"tarifPersen" gorm:"type:decimal"`
