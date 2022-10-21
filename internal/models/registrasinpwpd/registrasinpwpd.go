@@ -4,6 +4,7 @@ import (
 	"time"
 
 	t "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	rop "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
@@ -13,7 +14,7 @@ import (
 type RegistrasiNpwpd struct {
 	Id                uint64             `json:"id" gorm:"primarykey"`
 	RegObjekPajak_Id  uint64             `json:"regObjekPajak_id"`
-	RegObjekPajak     *RegObjekPajak     `json:"regObjekPajak,omitempty" gorm:"foreignKey:RegObjekPajak_Id"`
+	RegObjekPajak     *rop.RegObjekPajak `json:"regObjekPajak,omitempty" gorm:"foreignKey:RegObjekPajak_Id"`
 	Golongan          t.Golongan         `json:"golongan"`
 	Nomor             int                `json:"nomor"`
 	Npwp              *string            `json:"npwp" gorm:"size:50"`
@@ -38,12 +39,12 @@ type RegistrasiNpwpd struct {
 	Pengunjung        *string            `json:"pengunjung" gorm:"size:50"`
 	VendorEtax_Id     *string            `json:"vendorEtax_id"`
 	gormhelper.DateModel
-	VerifyStatus   *VerifyStatus `json:"verifyStatus"`
-	VerifiedAt     *time.Time    `json:"verifiedAt"`
-	FotoKtp        string        `json:"fotoKtp" gorm:"size:50"`
-	SuratIzinUsaha string        `json:"suratIzinUsaha" gorm:"size:2048"`
-	LainLain       string        `json:"lainLain" gorm:"size:2048"`
-	FotoObjek      string        `json:"fotoObjek" gorm:"size:2048"`
+	VerifyStatus   VerifyStatus `json:"verifyStatus"`
+	VerifiedAt     *time.Time   `json:"verifiedAt"`
+	FotoKtp        string       `json:"fotoKtp" gorm:"size:50"`
+	SuratIzinUsaha string       `json:"suratIzinUsaha" gorm:"size:2048"`
+	LainLain       string       `json:"lainLain" gorm:"size:2048"`
+	FotoObjek      string       `json:"fotoObjek" gorm:"size:2048"`
 	// ModeRegistrasi    npwpd.Mode               `json:"modeRegistrasi"`
 	// VendorEtax         *configurationmodel.VendorEtax `gorm:"foreignKey:VendorEtaxID"`
 
@@ -89,9 +90,9 @@ type CreateDto struct {
 
 	DetailRegOp *[]DetailRegObjekPajak `json:"detailRegObjekPajak"`
 
-	RegObjekPajak *RegObjekPajak   `json:"regObjekPajak"`
-	RegPemilik    *[]RegPemilikWp  `json:"regPemilik"`
-	RegNarahubung *[]RegNarahubung `json:"regNarahubung"`
+	RegObjekPajak *rop.RegObjekPajak `json:"regObjekPajak"`
+	RegPemilik    *[]RegPemilikWp    `json:"regPemilik"`
+	RegNarahubung *[]RegNarahubung   `json:"regNarahubung"`
 }
 
 type UpdateDto struct {
@@ -113,9 +114,9 @@ type UpdateDto struct {
 
 	DetailRegObjekPajak []DetailRegObjekPajakUpdate `json:"detailRegObjekPajak"`
 
-	RegObjekPajak RegObjekPajakUpdate   `json:"regObjekPajak"`
-	RegPemilik    []RegPemilikWpUpdate  `json:"regPemilik"`
-	RegNarahubung []RegNarahubungUpdate `json:"regNarahubung"`
+	RegObjekPajak rop.RegObjekPajakUpdate `json:"regObjekPajak"`
+	RegPemilik    []RegPemilikWpUpdate    `json:"regPemilik"`
+	RegNarahubung []RegNarahubungUpdate   `json:"regNarahubung"`
 }
 
 type VerifikasiDto struct {

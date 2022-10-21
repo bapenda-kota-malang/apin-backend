@@ -5,6 +5,7 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	mdsa "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	mdsh "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthotel"
@@ -21,7 +22,7 @@ import (
 type Spt struct {
 	Id                uint64             `json:"id" gorm:"primaryKey"`
 	ObjekPajak_Id     *uint64            `json:"objekPajak_id"`
-	ObjekPajak        *npwpd.ObjekPajak  `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
+	ObjekPajak        *op.ObjekPajak     `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
 	Rekening_Id       *uint64            `json:"rekening_id"`
 	Rekening          *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
 	SptDate           time.Time          `json:"sptDate"`

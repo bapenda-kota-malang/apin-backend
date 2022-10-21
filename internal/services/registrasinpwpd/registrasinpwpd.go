@@ -8,7 +8,9 @@ import (
 
 	nm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
+	rop "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -38,7 +40,6 @@ func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	var tmpverify = rn.VerifyStatusBaru
 	// var tmpNomor = func() string {
 
 	// 	if reg.IsNomorRegistrasiAuto {
@@ -74,7 +75,7 @@ func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
 		Golongan:         reg.Golongan,
 		RegObjekPajak_Id: op.Id,
 		Npwp:             reg.Npwp,
-		VerifyStatus:     &tmpverify,
+		VerifyStatus:     rn.VerifyStatusBaru,
 		// Nomor:             tmpNomor,
 		Rekening_Id:       reg.Rekening_Id,
 		Rekening:          rekening,
@@ -171,16 +172,50 @@ func GetDetail(r *http.Request, regID int) (interface{}, error) {
 }
 
 func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
+	if input.VerifyStatus > 2 {
+		return nil, errors.New("status tidak diketahui")
+	}
+
 	var data *rn.RegistrasiNpwpd
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
-	if *data.VerifyStatus != rn.VerifyStatusBaru {
-		if *data.VerifyStatus == rn.VerifyStatusDisetujui {
+	if data.VerifyStatus != rn.VerifyStatusBaru {
+		if data.VerifyStatus == rn.VerifyStatusDisetujui {
 			return nil, errors.New("data sudah disetujui")
+		} else if data.VerifyStatus == rn.VerifyStatusDitolak {
+			return nil, errors.New("data sudah ditolak")
 		}
-		return nil, errors.New("data sudah ditolak")
+	}
+
+	if input.VerifyStatus == 2 {
+		data.VerifyStatus = rn.VerifyStatusDitolak
+		if result := a.DB.Save(&data); result.Error != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+		}
+		return rp.OK{
+			Meta: t.IS{
+				"affected": strconv.Itoa(int(result.RowsAffected)),
+			},
+			Data: data,
+		}, nil
+	}
+	var dataROP *rop.RegObjekPajak
+	result = a.DB.Where(rop.RegObjekPajak{Id: uint64(id)}).First(&dataROP)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	var dataObjekPajak op.ObjekPajak
+	if err := sc.Copy(&dataObjekPajak, dataROP); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataROP)
+	}
+
+	dataObjekPajak.Id = 0
+	err := a.DB.Create(&dataObjekPajak).Error
+	if err != nil {
+		return nil, err
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
@@ -199,13 +234,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 
 	//rekening
 	var rekening *rm.Rekening
-	err := a.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
+	err = a.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
 	if err != nil {
 		return nil, err
 	}
 	// kecamatan_id from regobjekpajak
-	var dataRegOp *rn.RegObjekPajak
-	err = a.DB.Where(rn.RegObjekPajak{Id: data.RegObjekPajak_Id}).First(&dataRegOp).Error
+	var dataRegOp *rop.RegObjekPajak
+	err = a.DB.Where(rop.RegObjekPajak{Id: data.RegObjekPajak_Id}).First(&dataRegOp).Error
 	if err != nil {
 		return nil, err
 	}
@@ -246,6 +281,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 	dataNpwpd.TanggalPengukuhan = th.TimeNow()
 	dataNpwpd.TanggalNpwpd = th.TimeNow()
 	dataNpwpd.Id = 0
+	dataNpwpd.ObjekPajak_Id = dataObjekPajak.Id
 	err = a.DB.Create(&dataNpwpd).Error
 	if err != nil {
 		return nil, err
@@ -442,24 +478,6 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			return nil, err
 		}
 	}
-
-	// var dataROP *rop.RegObjekPajak
-	// result = a.DB.Where(rop.RegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}).First(&dataROP)
-	// if result.RowsAffected == 0 {
-	// 	return nil, errors.New("data tidak dapat ditemukan")
-	// }
-
-	// var dataObjekPajak op.ObjekPajak
-	// if err := sc.Copy(&dataObjekPajak, dataROP); err != nil {
-	// 	return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataROP)
-	// }
-
-	// dataObjekPajak.Npwpd_Id = dataNpwpd.Id
-	// dataObjekPajak.Id = 0
-	// err = a.DB.Create(&dataObjekPajak).Error
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	return rp.OK{
 		Meta: t.IS{

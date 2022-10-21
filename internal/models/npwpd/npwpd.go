@@ -4,6 +4,7 @@ import (
 	"time"
 
 	t "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
@@ -13,7 +14,7 @@ import (
 type Npwpd struct {
 	Id                uint64             `json:"id" gorm:"primarykey"`
 	ObjekPajak_Id     uint64             `json:"objekPajak_id"`
-	ObjekPajak        *ObjekPajak        `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
+	ObjekPajak        *op.ObjekPajak     `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
 	Golongan          t.Golongan         `json:"golongan"`
 	Nomor             int                `json:"nomor"`
 	Npwp              *string            `json:"npwp" gorm:"size:50"`
@@ -88,9 +89,9 @@ type CreateDto struct {
 
 	DetailOp *[]DetailObjekPajak `json:"detailObjekPajak"`
 
-	ObjekPajak *ObjekPajak   `json:"objekPajak"`
-	Pemilik    *[]PemilikWp  `json:"pemilik"`
-	Narahubung *[]Narahubung `json:"narahubung"`
+	ObjekPajak *op.ObjekPajak `json:"objekPajak"`
+	Pemilik    *[]PemilikWp   `json:"pemilik"`
+	Narahubung *[]Narahubung  `json:"narahubung"`
 }
 
 type UpdateDto struct {
@@ -120,9 +121,9 @@ type UpdateDto struct {
 	DetailObjekPajak []DetailObjekPajak `json:"detailObjekPajak"`
 	// DetailOp DetailOpUpdateDto `json:"detail_op"`
 
-	ObjekPajak ObjekPajak   `json:"objekPajak"`
-	Pemilik    []PemilikWp  `json:"pemilik"`
-	Narahubung []Narahubung `json:"narahubung"`
+	ObjekPajak op.ObjekPajak `json:"objekPajak"`
+	Pemilik    []PemilikWp   `json:"pemilik"`
+	Narahubung []Narahubung  `json:"narahubung"`
 	// Narahubung NarahubungUpdateDto `json:"narahubung"`
 }
 

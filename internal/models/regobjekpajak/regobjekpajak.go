@@ -1,4 +1,4 @@
-package npwpd
+package regobjekpajak
 
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
@@ -6,7 +6,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
-type ObjekPajak struct {
+type RegObjekPajak struct {
 	Id           uint64                  `json:"id" gorm:"primarykey"`
 	Nama         *string                 `json:"nama" gorm:"size:200"`
 	Nop          *string                 `json:"nop" gorm:"size:50"`
@@ -19,23 +19,20 @@ type ObjekPajak struct {
 	Telp         *string                 `json:"telp" gorm:"size:20"`
 	Status       t.StatusBL              `json:"status"`
 	IsNpwpd      uint64                  `json:"isNpwpd"`
-	// Npwpd        []*Npwpd                `json:"npwpd,omitempty" gorm:"foreignKey:ObjekPajak_Id;references:Id"`
 	gormhelper.DateModel
 }
 
-type ObjekPajakCreate struct {
-	Nama         *string    `json:"nama" gorm:"size:200"`
-	Nop          *string    `json:"nop" gorm:"size:50"`
-	Alamat       *string    `json:"alamat" gorm:"size:200"`
-	RtRw         *string    `json:"rtRw" gorm:"size:10"`
-	Kecamatan_Id *uint64    `json:"kecamatan_id"`
-	Kelurahan_Id *uint64    `json:"kelurahan_id"`
-	Telp         *string    `json:"telp" gorm:"size:20"`
-	Npwpd_Id     uint64     `json:"npwpd_id"`
-	Status       t.StatusBL `json:"status"`
+type RegObjekPajakCreate struct {
+	Nama         *string `json:"nama" gorm:"size:200"`
+	Nop          *string `json:"nop" gorm:"size:50"`
+	Alamat       *string `json:"alamat" gorm:"size:200"`
+	RtRw         *string `json:"rtRw" gorm:"size:10"`
+	Kecamatan_Id *uint64 `json:"kecamatan_id"`
+	Kelurahan_Id *uint64 `json:"kelurahan_id"`
+	Telp         *string `json:"telp" gorm:"size:20"`
 }
 
-type ObjekPajakUpdate struct {
+type RegObjekPajakUpdate struct {
 	Id           uint64  `json:"id" gorm:"primaryKey"`
 	Nama         *string `json:"nama" gorm:"size:200"`
 	Nop          *string `json:"nop" gorm:"size:50"`

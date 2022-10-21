@@ -7,8 +7,10 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
+	sop "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajak"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -63,15 +65,18 @@ func GetDetail(r *http.Request, regID int) (interface{}, error) {
 }
 
 func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
-	var err error
 	// objekpajak
-	op := *reg.ObjekPajak
-	op.Status = nt.StatusBaru
-	errOp := a.DB.Create(&op).Error
-	if errOp != nil {
+	var dataObjekPajak op.ObjekPajakCreate
+	if err := sc.Copy(&dataObjekPajak, reg.ObjekPajak); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", reg.ObjekPajak)
+	}
+	resultObjekPajak, err := sop.Create(dataObjekPajak)
+	if err != nil {
 		return nil, err
 	}
+	resultCastObjekPajak := resultObjekPajak.(rp.OKSimple).Data.(op.ObjekPajak)
 
+	// data rekening
 	var rekening *rm.Rekening
 	err = a.DB.Model(&rm.Rekening{}).First(&rekening, reg.Rekening_Id).Error
 	if err != nil {
@@ -91,8 +96,6 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 				tmp++
 			}
 			return tmp
-		} else {
-
 		}
 		return reg.Nomor
 	}()
@@ -115,7 +118,7 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 		JalurRegistrasi:   nt.JalurRegistrasiOperator,
 		Status:            nt.StatusAktif,
 		JenisPajak:        reg.JenisPajak,
-		ObjekPajak_Id:     op.Id,
+		ObjekPajak_Id:     resultCastObjekPajak.Id,
 		Golongan:          reg.Golongan,
 		Npwp:              reg.Npwp,
 		VerifiedAt:        th.TimeNow(),
@@ -305,18 +308,15 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 		}
 	}
 
-	// var dataObjekPajak *op.ObjekPajak
-	// result = a.DB.First(&dataObjekPajak, input.ObjekPajak.Id)
-	// if result.RowsAffected == 0 {
-	// 	return nil, errors.New("data tidak dapat ditemukan")
-	// }
-	// if err := sc.Copy(&dataObjekPajak, &input.ObjekPajak); err != nil {
-	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataObjekPajak)
-	// }
+	var dataObjekPajak op.ObjekPajakUpdate
+	if err := sc.Copy(&dataObjekPajak, &input.ObjekPajak); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataObjekPajak)
+	}
 
-	// if result := a.DB.Save(&dataObjekPajak); result.Error != nil {
-	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataObjekPajak)
-	// }
+	_, err = sop.Update(int(input.ObjekPajak.Id), dataObjekPajak)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, v := range input.Narahubung {
 		var dataN *npwpd.Narahubung
@@ -384,19 +384,6 @@ func Delete(id int) (any, error) {
 			dataPemilik = nil
 		}
 	}
-	// // data objekpajak
-	// var dataObjekPajak *op.ObjekPajak
-	// result = a.DB.Where(op.ObjekPajak{Npwpd_Id: uint64(id)}).First(&dataObjekPajak)
-	// if result.RowsAffected == 0 {
-	// 	return nil, errors.New("data tidak dapat ditemukan")
-	// }
-
-	// result = a.DB.Where(op.ObjekPajak{Npwpd_Id: uint64(id)}).Delete(&dataObjekPajak)
-	// status = "deleted"
-	// if result.RowsAffected == 0 {
-	// 	dataPemilik = nil
-	// 	status = "no deletion"
-	// }
 
 	// data regis
 	var data *npwpd.Npwpd
@@ -404,10 +391,24 @@ func Delete(id int) (any, error) {
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
+	objekPajakId := int(data.ObjekPajak_Id)
+	result = a.DB.Delete(&data, id)
+	status = "deleted"
+	if result.RowsAffected == 0 {
+		data = nil
+		status = "no deletion"
+	}
+
+	// data objekpajak
+
+	_, err := sop.Delete(objekPajakId)
+	if err != nil {
+		status = "no deletion"
+	}
 
 	// data rekening
 	var rekening *rm.Rekening
-	err := a.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
+	err = a.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -522,12 +523,6 @@ func Delete(id int) (any, error) {
 		}
 	}
 
-	result = a.DB.Delete(&data, id)
-	status = "deleted"
-	if result.RowsAffected == 0 {
-		data = nil
-		status = "no deletion"
-	}
 	return rp.OK{
 		Meta: t.IS{
 			"count":  strconv.Itoa(int(result.RowsAffected)),
