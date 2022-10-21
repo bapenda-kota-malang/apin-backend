@@ -23,13 +23,13 @@ import (
 
 const source = "espt"
 
-func GetList(input m.FilterDto, user_Id uint, wp bool) (any, error) {
+func GetList(input m.FilterDto, user_Id uint) (any, error) {
 	var data []m.Espt
 	var count int64
 
 	var pagination gh.Pagination
 	baseQuery := a.DB.Model(&m.Espt{})
-	if wp {
+	if user_Id != 0 {
 		baseQuery = baseQuery.Where(&m.Espt{LaporBy_User_Id: user_Id})
 	}
 
@@ -53,11 +53,11 @@ func GetList(input m.FilterDto, user_Id uint, wp bool) (any, error) {
 	}, nil
 }
 
-func GetDetail(id int, user_Id uint, wp bool) (any, error) {
+func GetDetail(id int, user_Id uint) (any, error) {
 	var data *m.Espt
 
 	baseQuery := a.DB.Preload(clause.Associations)
-	if wp {
+	if user_Id != 0 {
 		baseQuery = baseQuery.Where(&m.Espt{LaporBy_User_Id: user_Id})
 	}
 
