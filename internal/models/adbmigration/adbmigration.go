@@ -26,6 +26,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
+
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sektor"
@@ -75,32 +76,32 @@ func init() {
 	a.AutoMigrate(listModelManagementUser...)
 
 	listModelRegNpwpd := []interface{}{
-		&rn.RegistrasiNpwpd{},
-		&rn.DetailRegOpHotel{},
-		&rn.DetailRegOpAirTanah{},
-		&rn.DetailRegOpParkir{},
-		&rn.DetailRegOpReklame{},
-		&rn.DetailRegOpPpj{},
-		&rn.DetailRegOpHiburan{},
-		&rn.DetailRegOpResto{},
 		&rn.RegObjekPajak{},
+		&rn.RegistrasiNpwpd{},
+		&rn.DetailRegObjekPajakHotel{},
+		&rn.DetailRegObjekPajakAirTanah{},
+		&rn.DetailRegObjekPajakParkir{},
+		&rn.DetailRegObjekPajakReklame{},
+		&rn.DetailRegObjekPajakPpj{},
+		&rn.DetailRegObjekPajakHiburan{},
+		&rn.DetailRegObjekPajakResto{},
 		&rn.RegNarahubung{},
 		&rn.RegPemilikWp{},
 	}
 	a.AutoMigrate(listModelRegNpwpd...)
 
 	listModelNpwpd := []interface{}{
+		&npwpd.ObjekPajak{},
 		&npwpd.Npwpd{},
 		&npwpd.PemilikWp{},
-		&npwpd.ObjekPajak{},
 		&npwpd.Narahubung{},
-		&npwpd.DetailOpHotel{},
-		&npwpd.DetailOpAirTanah{},
-		&npwpd.DetailOpParkir{},
-		&npwpd.DetailOpReklame{},
-		&npwpd.DetailOpPpj{},
-		&npwpd.DetailOpHiburan{},
-		&npwpd.DetailOpResto{},
+		&npwpd.DetailObjekPajakHotel{},
+		&npwpd.DetailObjekPajakAirTanah{},
+		&npwpd.DetailObjekPajakParkir{},
+		&npwpd.DetailObjekPajakReklame{},
+		&npwpd.DetailObjekPajakPpj{},
+		&npwpd.DetailObjekPajakHiburan{},
+		&npwpd.DetailObjekPajakResto{},
 	}
 	a.AutoMigrate(listModelNpwpd...)
 

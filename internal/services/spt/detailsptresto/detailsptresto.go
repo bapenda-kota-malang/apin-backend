@@ -12,6 +12,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
+	"gorm.io/datatypes"
 )
 
 const source = "detailSptResto"
@@ -57,10 +58,11 @@ func Update(id int, input ms.UpdateRestoDto) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
+	prevMonth := sh.BeginningOfPreviosMonth()
 	data.SptDate = time.Now()
-	data.StartDate = th.ParseTime(input.StartDate)
-	data.EndDate = th.ParseTime(input.EndDate)
-	data.DueDate = th.ParseTime(input.DueDate)
+	data.StartDate = datatypes.Date(prevMonth)
+	data.EndDate = datatypes.Date(sh.EndOfMonth(prevMonth))
+	data.DueDate = datatypes.Date(sh.EndOfMonth(time.Now()))
 	data.TanggalLunas = th.ParseTime(input.TanggalLunas)
 	data.CancelledAt = th.ParseTime(input.CancelledAt)
 	if result := a.DB.Save(&data); result.Error != nil {

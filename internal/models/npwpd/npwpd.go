@@ -12,8 +12,10 @@ import (
 
 type Npwpd struct {
 	Id                uint64             `json:"id" gorm:"primarykey"`
+	ObjekPajak_Id     uint64             `json:"objekPajak_id"`
+	ObjekPajak        *ObjekPajak        `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
 	Golongan          t.Golongan         `json:"golongan"`
-	Nomor             string             `json:"nomor" gorm:"type:varchar(10)"`
+	Nomor             int                `json:"nomor"`
 	Npwp              *string            `json:"npwp" gorm:"size:50"`
 	TanggalPengukuhan *time.Time         `json:"tanggalPengukuhan"`
 	TanggalNpwpd      *time.Time         `json:"tanggalNpwpd"`
@@ -47,18 +49,16 @@ type Npwpd struct {
 	VendorEtax_Id *string    `json:"vendorEtax_id"`
 	// VendorEtax         *configurationmodel.VendorEtax `gorm:"foreignKey:VendorEtaxID"`
 
-	ObjekPajaks []*ObjekPajak `json:"objekPajak,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
 	PemilikWps  []*PemilikWp  `json:"pemilik,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
 	Narahubungs []*Narahubung `json:"narahubung,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
 
-	DetailOpAirTanah []*DetailOpAirTanah `json:"detail_op_air_tanah,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
-	DetailOpHiburan  []*DetailOpHiburan  `json:"detail_op_hiburan,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
-	DetailOpHotel    []*DetailOpHotel    `json:"detail_op_hotel,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
-	DetailOpParkir   []*DetailOpParkir   `json:"detail_op_parkir,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
-	DetailOpPpj      []*DetailOpPpj      `json:"detail_op_ppj,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
-	DetailOpReklame  []*DetailOpReklame  `json:"detail_op_reklame,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
-	DetailOpResto    []*DetailOpResto    `json:"detail_op_resto,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
-
+	DetailOpAirTanah []*DetailObjekPajakAirTanah `json:"detailObjekPajakAirTanah,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
+	DetailOpHiburan  []*DetailObjekPajakHiburan  `json:"detailObjekPajakHiburan,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
+	DetailOpHotel    []*DetailObjekPajakHotel    `json:"detailObjekPajakHotel,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
+	DetailOpParkir   []*DetailObjekPajakParkir   `json:"detailObjekPajakParkir,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
+	DetailOpPpj      []*DetailObjekPajakPpj      `json:"detailObjekPajakPpj,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
+	DetailOpReklame  []*DetailObjekPajakReklame  `json:"detailObjekPajakReklame,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
+	DetailOpResto    []*DetailObjekPajakResto    `json:"detailObjekPajakResto,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
 	gormhelper.DateModel
 }
 
@@ -67,8 +67,8 @@ type CreateDto struct {
 	Golongan   t.Golongan   `json:"golongan" validate:"required"`
 	Npwp       *string      `json:"npwp" validate:"required"`
 
-	Nomor                 string `json:"nomor"`
-	IsNomorRegistrasiAuto bool   `json:"isNomorRegistrasiAuto"`
+	Nomor                 int  `json:"nomor"`
+	IsNomorRegistrasiAuto bool `json:"isNomorRegistrasiAuto"`
 
 	Npwpd             *string `json:"npwpd"`
 	TanggalPengukuhan *string `json:"tanggalPengukuhan"`
@@ -86,7 +86,7 @@ type CreateDto struct {
 	Genset   bool `json:"genset"`
 	AirTanah bool `json:"airTanah"`
 
-	DetailOp *[]DetailOp `json:"detail_op"`
+	DetailOp *[]DetailObjekPajak `json:"detailObjekPajak"`
 
 	ObjekPajak *ObjekPajak   `json:"objekPajak"`
 	Pemilik    *[]PemilikWp  `json:"pemilik"`
@@ -117,7 +117,7 @@ type UpdateDto struct {
 	Genset   bool `json:"genset"`
 	AirTanah bool `json:"airTanah"`
 
-	DetailOp []DetailOp `json:"detail_op"`
+	DetailObjekPajak []DetailObjekPajak `json:"detailObjekPajak"`
 	// DetailOp DetailOpUpdateDto `json:"detail_op"`
 
 	ObjekPajak ObjekPajak   `json:"objekPajak"`

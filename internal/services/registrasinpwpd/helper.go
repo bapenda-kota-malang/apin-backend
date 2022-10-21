@@ -7,54 +7,52 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 )
 
-func insertDetailOp(objek string, data *[]rn.DetailRegOp, registerForm *rn.RegistrasiNpwpd) error {
+func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajak, registerForm *rn.RegistrasiNpwpd) error {
 	var (
 		err      error
 		mActions map[string]reflect.Type = make(map[string]reflect.Type)
 		model    interface{}
 
-		detailRegOpHotel    rn.DetailRegOpHotel
-		detailRegOpResto    rn.DetailRegOpResto
-		detailRegOpHiburan  rn.DetailRegOpHiburan
-		detailRegOpReklame  rn.DetailRegOpReklame
-		detailRegOpPpj      rn.DetailRegOpPpj
-		detailRegOpParkir   rn.DetailRegOpParkir
-		detailRegOpAirTanah rn.DetailRegOpAirTanah
+		detailRegObjekPajakHotel    rn.DetailRegObjekPajakHotel
+		detailRegObjekPajakResto    rn.DetailRegObjekPajakResto
+		detailRegObjekPajakHiburan  rn.DetailRegObjekPajakHiburan
+		detailRegObjekPajakReklame  rn.DetailRegObjekPajakReklame
+		detailRegObjekPajakPpj      rn.DetailRegObjekPajakPpj
+		detailRegObjekPajakParkir   rn.DetailRegObjekPajakParkir
+		detailRegObjekPajakAirTanah rn.DetailRegObjekPajakAirTanah
 	)
 
-	mActions[`detailRegOpHotel`] = reflect.TypeOf(detailRegOpHotel)
-	mActions[`detailRegOpResto`] = reflect.TypeOf(detailRegOpResto)
-	mActions[`detailRegOpHiburan`] = reflect.TypeOf(detailRegOpHiburan)
-	mActions[`detailRegOpReklame`] = reflect.TypeOf(detailRegOpReklame)
-	mActions[`detailRegOpPpj`] = reflect.TypeOf(detailRegOpPpj)
-	mActions[`detailRegOpParkir`] = reflect.TypeOf(detailRegOpParkir)
-	mActions[`detailRegOpAirTanah`] = reflect.TypeOf(detailRegOpAirTanah)
+	mActions[`detailRegObjekPajakHotel`] = reflect.TypeOf(detailRegObjekPajakHotel)
+	mActions[`detailRegObjekPajakResto`] = reflect.TypeOf(detailRegObjekPajakResto)
+	mActions[`detailRegObjekPajakHiburan`] = reflect.TypeOf(detailRegObjekPajakHiburan)
+	mActions[`detailRegObjekPajakReklame`] = reflect.TypeOf(detailRegObjekPajakReklame)
+	mActions[`detailRegObjekPajakPpj`] = reflect.TypeOf(detailRegObjekPajakPpj)
+	mActions[`detailRegObjekPajakParkir`] = reflect.TypeOf(detailRegObjekPajakParkir)
+	mActions[`detailRegObjekPajakAirTanah`] = reflect.TypeOf(detailRegObjekPajakAirTanah)
 
 	switch objek {
 	case "01":
-		model = reflect.Zero(mActions["detailRegOpHotel"]).Interface()
+		model = reflect.Zero(mActions["detailRegObjekPajakHotel"]).Interface()
 	case "02":
-		model = reflect.Zero(mActions["detailRegOpResto"]).Interface()
+		model = reflect.Zero(mActions["detailRegObjekPajakResto"]).Interface()
 	case "03":
-		model = reflect.Zero(mActions["detailRegOpHiburan"]).Interface()
+		model = reflect.Zero(mActions["detailRegObjekPajakHiburan"]).Interface()
 	case "04":
-		model = reflect.Zero(mActions["detailRegOpReklame"]).Interface()
+		model = reflect.Zero(mActions["detailRegObjekPajakReklame"]).Interface()
 	case "05":
-		model = reflect.Zero(mActions["detailRegOpPpj"]).Interface()
+		model = reflect.Zero(mActions["detailRegObjekPajakPpj"]).Interface()
 	case "06":
-		model = reflect.Zero(mActions["detailRegOpParkir"]).Interface()
+		model = reflect.Zero(mActions["detailRegObjekPajakParkir"]).Interface()
 	case "07":
-		model = reflect.Zero(mActions["detailRegOpAirTanah"]).Interface()
+		model = reflect.Zero(mActions["detailRegObjekPajakAirTanah"]).Interface()
 	}
 
 	for _, dop := range *data {
 		dop.JenisOp = registerForm.Rekening.Nama
 		dop.RegistrasiNpwpd_Id = registerForm.Id
-		// dop.Pendaftaran_Npwpd = registerForm.Npwpd
 
 		m := make(map[string]interface{})
 		m["RegistrasiNpwpd_Id"] = dop.RegistrasiNpwpd_Id
-		// m["Pendaftaran_Npwpd"] = dop.Pendaftaran_Npwpd
 		m["JenisOp"] = dop.JenisOp
 		m["JumlahOp"] = dop.JumlahOp
 		m["TarifOp"] = dop.TarifOp
