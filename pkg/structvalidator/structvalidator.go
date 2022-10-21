@@ -88,6 +88,11 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 			}
 			// fmt.Println(fieldT.Name, "is skiped")
 			// fmt.Println(fieldT.Name, "is", fieldT.Type.Kind())
+			tag := fieldT.Tag.Get("json")
+			if tag == "" {
+				tag = fieldT.Name
+			}
+			maps.Copy(errList, Validate(fieldV.Interface(), tag, embeddedMode))
 
 			maps.Copy(errList, Validate(fieldV.Interface(), fieldT.Name, embeddedMode))
 			continue

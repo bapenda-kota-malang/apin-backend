@@ -56,7 +56,7 @@ func Create(input m.RegistrasiWajibPajak) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "image unsupported", data)
 	}
 	data.FotoKtp = <-imgNameChan
-	data.Email = dataU.Email
+	// data.Email = dataU.Email
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data ke db satu if karena result dipakai sekali, +error

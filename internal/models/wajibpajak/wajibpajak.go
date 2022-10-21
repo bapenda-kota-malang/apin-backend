@@ -21,9 +21,9 @@ type WajibPajak struct {
 	// Kecamatan    adm.Kecamatan `gorm:"foreignKey:Kecamatan_Id"`
 	Kelurahan_Id uint `json:"kelurahan_id"`
 	// Kelurahan    adm.Kelurahan `gorm:"foreignKey:Kelurahan_Id"`
-	Telp         string    `json:"telp" gorm:"size:20"`
-	KodePos      string    `json:"kodePos" gorm:"size:50"`
-	Email        string    `json:"email" gorm:"size:100;unique"`
+	Telp    string `json:"telp" gorm:"size:20"`
+	KodePos string `json:"kodePos" gorm:"size:50"`
+	// Email        string    `json:"email" gorm:"size:100;unique"`
 	RtRw         string    `json:"rtRw" gorm:"size:10"`
 	FotoKtp      string    `json:"fotoKtp" gorm:"size:255"`
 	Status       uint8     `json:"status"`
@@ -50,7 +50,7 @@ type CreateDto struct {
 	TanggalLahir time.Time `json:"tanggalLahir" validate:"required"`
 	Gender       uint8     `json:"gender" validate:"required,min=1"`
 	Pekerjaan    string    `json:"pekerjaan" validate:"required"`
-	Email        string
+	// Email        string
 }
 type RegistrasiWajibPajak struct {
 	// Wajib Pajak
@@ -75,7 +75,7 @@ type UpdateDto struct {
 	Gender       *uint8     `json:"gender"`
 	Pekerjaan    *string    `json:"pekerjaan"`
 	// User
-	Email *string `json:"email" validate:"validemail"`
+	// Email *string `json:"email" validate:"validemail"`
 }
 
 type FilterDto struct {
