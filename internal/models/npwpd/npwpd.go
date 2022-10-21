@@ -13,7 +13,7 @@ import (
 type Npwpd struct {
 	Id                uint64             `json:"id" gorm:"primarykey"`
 	ObjekPajak_Id     uint64             `json:"objekPajak_id"`
-	ObjekPajak        *ObjekPajak        `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id;references;Id"`
+	ObjekPajak        *ObjekPajak        `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
 	Golongan          t.Golongan         `json:"golongan"`
 	Nomor             int                `json:"nomor"`
 	Npwp              *string            `json:"npwp" gorm:"size:50"`

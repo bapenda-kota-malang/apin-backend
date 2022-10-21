@@ -13,7 +13,7 @@ import (
 type RegistrasiNpwpd struct {
 	Id                uint64             `json:"id" gorm:"primarykey"`
 	RegObjekPajak_Id  uint64             `json:"regObjekPajak_id"`
-	RegObjekPajak     *RegObjekPajak     `json:"regObjekPajak,omitempty" gorm:"foreignKey:regObjekPajak_Id;references:Id"`
+	RegObjekPajak     *RegObjekPajak     `json:"regObjekPajak,omitempty" gorm:"foreignKey:RegObjekPajak_Id"`
 	Golongan          t.Golongan         `json:"golongan"`
 	Nomor             int                `json:"nomor"`
 	Npwp              *string            `json:"npwp" gorm:"size:50"`
@@ -60,9 +60,9 @@ type RegistrasiNpwpd struct {
 }
 
 type CreateDto struct {
-	// JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
-	Golongan t.Golongan `json:"golongan" validate:"required"`
-	Npwp     *string    `json:"npwp"`
+	JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
+	Golongan   t.Golongan   `json:"golongan" validate:"required"`
+	Npwp       *string      `json:"npwp"`
 
 	// Nomor                 int  `json:"nomor"`
 	// IsNomorRegistrasiAuto bool `json:"isNomorRegistrasiAuto"`
