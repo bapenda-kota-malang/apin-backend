@@ -40,23 +40,7 @@ func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	// var tmpNomor = func() string {
 
-	// 	if reg.IsNomorRegistrasiAuto {
-	// 		var tmp string
-	// 		var tmpNpwpd rn.RegistrasiNpwpd
-	// 		nomor := a.DB.Last(&tmpNpwpd)
-	// 		if nomor.Error != nil {
-	// 			return "1000"
-	// 		} else {
-	// 			intconv, _ := strconv.Atoi(tmpNpwpd.Nomor)
-	// 			intconv++
-	// 			tmp = strconv.Itoa(intconv)
-	// 		}
-	// 		return tmp
-	// 	}
-	// 	return reg.Nomor
-	// }()
 	// foto ktp
 	var imgNameChan = make(chan string)
 	var errChan = make(chan error)
@@ -129,6 +113,7 @@ func GetList(input rn.FilterDto) (interface{}, error) {
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&rn.RegistrasiNpwpd{}).
+		Preload("User").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -869,6 +854,33 @@ func Update(id int, input rn.UpdateDto, user_Id uint) (any, error) {
 	return rp.OK{
 		Meta: t.IS{
 			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func GetListForWp(input rn.FilterDto) (any, error) {
+	var data []rn.RegistrasiNpwpd
+	var count int64
+
+	var pagination gh.Pagination
+	result := a.DB.
+		Model(&rn.RegistrasiNpwpd{}).
+		Scopes(gh.Filter(input)).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Preload("User").
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
 		Data: data,
 	}, nil
