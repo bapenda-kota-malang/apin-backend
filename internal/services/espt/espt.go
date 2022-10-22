@@ -23,12 +23,17 @@ import (
 
 const source = "espt"
 
-func GetList(input m.FilterDto) (any, error) {
+func GetList(input m.FilterDto, user_Id uint) (any, error) {
 	var data []m.Espt
 	var count int64
 
 	var pagination gh.Pagination
-	result := a.DB.Model(&m.Espt{}).
+	baseQuery := a.DB.Model(&m.Espt{})
+	if user_Id != 0 {
+		baseQuery = baseQuery.Where(&m.Espt{LaporBy_User_Id: user_Id})
+	}
+
+	result := baseQuery.
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -48,10 +53,15 @@ func GetList(input m.FilterDto) (any, error) {
 	}, nil
 }
 
-func GetDetail(id int) (any, error) {
+func GetDetail(id int, user_Id uint) (any, error) {
 	var data *m.Espt
 
-	result := a.DB.Preload(clause.Associations).First(&data, id)
+	baseQuery := a.DB.Preload(clause.Associations)
+	if user_Id != 0 {
+		baseQuery = baseQuery.Where(&m.Espt{LaporBy_User_Id: user_Id})
+	}
+
+	result := baseQuery.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
