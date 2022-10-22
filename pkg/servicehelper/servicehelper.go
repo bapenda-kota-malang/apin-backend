@@ -91,6 +91,10 @@ func CheckPdf(b64Raw string) (err error) {
 	return
 }
 
+func removeFile(path, filename string) error {
+	return os.Remove(fmt.Sprintf("%s/%s", path, filename))
+}
+
 // save new image from base64 string to img eiter jpeg/png to resource/img folder with filename uuidv4 generated
 func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 	defer close(imgNameCh)
@@ -181,7 +185,7 @@ func ReplaceImage(oImgName, b64Raw string, imgNameCh chan string, errCh chan err
 		return
 	}
 
-	if err := os.Remove(fmt.Sprintf("%s/%s", basePath, oImgName)); err != nil {
+	if err := removeFile(basePath, oImgName); err != nil {
 		errCh <- err
 		return
 	}
@@ -225,7 +229,7 @@ func ReplaceFile(oldFileName, b64Raw, newFileName, path string, errCh chan error
 		errCh <- err
 		return
 	}
-	if err := os.Remove(fmt.Sprintf("%s/%s", path, oldFileName)); err != nil {
+	if err := removeFile(path, oldFileName); err != nil {
 		errCh <- err
 		return
 	}
@@ -257,4 +261,71 @@ func BeginningOfPreviosMonth() time.Time {
 // EndOfMonth(now) = 2022-10-31 23:59:59.999999999 +0700 WIB
 func EndOfMonth(date time.Time) time.Time {
 	return BeginningOfMonth(date).AddDate(0, 1, 0).Add(-time.Nanosecond)
+}
+
+// array photo
+func GetArrayPhoto(input []string) string {
+	var result []string
+	for _, v := range input {
+		var imgNameChan = make(chan string)
+		var errChan = make(chan error)
+
+		go SaveImage(v, imgNameChan, errChan)
+		if err := <-errChan; err != nil {
+			return ""
+		}
+		var tmp string = <-imgNameChan
+		result = append(result, tmp)
+	}
+
+	bytes, _ := json.Marshal(result)
+	return string(bytes)
+}
+
+// add multiply photo
+func AddMorePhotos(input []string, dataBefore string) string {
+	var result []string
+	cnvUnmarshal := json.Unmarshal([]byte(dataBefore), &result)
+	if cnvUnmarshal != nil {
+		return ""
+	}
+	for _, v := range input {
+		var imgNameChan = make(chan string)
+		var errChan = make(chan error)
+
+		go SaveImage(v, imgNameChan, errChan)
+		if err := <-errChan; err != nil {
+			return ""
+		}
+		var tmp string = <-imgNameChan
+		result = append(result, tmp)
+	}
+
+	bytes, _ := json.Marshal(result)
+	return string(bytes)
+}
+
+// remove photo from array
+func DeletePhoto(input string, data string) (string, error) {
+	var result []string
+	cnvUnmarshal := json.Unmarshal([]byte(data), &result)
+	if cnvUnmarshal != nil {
+		return "", errors.New("data tidak bisa diunmarshal")
+	}
+	for k, v := range result {
+		if v == input {
+			result = append(result[:k], result[k+1:]...)
+		}
+	}
+	basePath, err := getImgPath()
+	if err != nil {
+		return "", errors.New("tidak dapat mengambil data get image path")
+	}
+
+	if err := os.Remove(fmt.Sprintf("%s/%s", basePath, input)); err != nil {
+		return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
+	}
+
+	bytes, _ := json.Marshal(result)
+	return string(bytes), nil
 }

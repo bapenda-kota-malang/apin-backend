@@ -5,6 +5,7 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	mdsa "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	mdsh "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthotel"
@@ -15,12 +16,13 @@ import (
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"gorm.io/datatypes"
 )
 
 type Spt struct {
 	Id                uint64             `json:"id" gorm:"primaryKey"`
 	ObjekPajak_Id     *uint64            `json:"objekPajak_id"`
-	ObjekPajak        *npwpd.ObjekPajak  `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
+	ObjekPajak        *op.ObjekPajak     `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
 	Rekening_Id       *uint64            `json:"rekening_id"`
 	Rekening          *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
 	SptDate           time.Time          `json:"sptDate"`
@@ -33,9 +35,9 @@ type Spt struct {
 	Alamat_objekPajak *string            `json:"alamat_objekPajak" gorm:"type:varchar(200)"`
 	Location          *string            `json:"location" gorm:"type:varchar(50)"`
 	Description       *string            `json:"description" gorm:"type:varchar(255)"`
-	StartDate         *time.Time         `json:"startDate"`
-	EndDate           *time.Time         `json:"endDate"`
-	DueDate           *time.Time         `json:"dueDate"`
+	StartDate         datatypes.Date     `json:"startDate"`
+	EndDate           datatypes.Date     `json:"endDate"`
+	DueDate           datatypes.Date     `json:"dueDate"`
 	Jumlah            *float64           `json:"jumlah" gorm:"type:decimal"`
 	TarifRp           *float64           `json:"tarifRp" gorm:"type:decimal"`
 	TarifPersen       *float64           `json:"tarifPersen" gorm:"type:decimal"`

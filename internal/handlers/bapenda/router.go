@@ -28,6 +28,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
@@ -118,6 +119,8 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/rekening", rekening.Crud{})
 
+	rh.RegCrud(r, "/objekpajak", objekpajak.Crud{})
+
 	r.Route("/pegawai", func(r chi.Router) {
 		r.Post("/", pegawai.Create)
 		r.Get("/", pegawai.GetList)
@@ -162,10 +165,10 @@ func SetRoutes() http.Handler {
 
 	r.Route("/registrasinpwpd", func(r chi.Router) {
 		r.Patch("/{id}/setverifystatus", registrasinpwpd.VerifyRegistrasiNpwpd)
+		r.Get("/", registrasinpwpd.GetList)
+		r.Get("/{id}", registrasinpwpd.GetDetail)
+		r.Delete("/{id}", registrasinpwpd.Delete)
 	})
-	// r.Route("/rekening", func(r chi.Router) {
-	// 	r.Get("/", rekening.GetList)
-	// })
 
 	r.Route("/potensiopwp", func(r chi.Router) {
 		r.Post("/", potensiopwp.Create)

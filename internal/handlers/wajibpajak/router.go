@@ -7,6 +7,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -33,6 +34,7 @@ func SetRoutes() http.Handler {
 		"/daerah",
 		"/kecamatan",
 		"/kelurahan",
+		"/rekening",
 	}
 	auth.Position = 3
 
@@ -66,7 +68,7 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/profile", func(r chi.Router) {
-		// 	r.Get("/", p.Login)   // EXECUTE
+		r.Get("/", profile.GetDetail) // EXECUTE
 		r.Patch("/{id}", profile.Update)
 	})
 
@@ -93,8 +95,8 @@ func SetRoutes() http.Handler {
 	r.Route("/registrasinpwpd", func(r chi.Router) {
 		r.Post("/", registrasinpwpd.Create)
 		r.Get("/", registrasinpwpd.GetList)
-		r.Get("/", registrasinpwpd.GetDetail)
-
+		r.Get("/{id}", registrasinpwpd.GetDetail)
+		r.Patch("/{id}", registrasinpwpd.Update)
 	})
 	r.Route("/espt", func(r chi.Router) {
 		r.Post("/", espt.Create)
@@ -106,5 +108,12 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/rekening", rekening.Crud{})
 
+	r.Route("/npwpd", func(r chi.Router) {
+		r.Get("/", npwpd.GetListForWp)
+		r.Get("/{id}", npwpd.GetDetailByUser)
+		r.Patch("/{id}", npwpd.Update)
+		r.Patch("/{id}/{category}", npwpd.UpdatePhoto)
+		r.Delete("/{id}/{category}/{filename}", npwpd.DeletePhoto)
+	})
 	return r
 }

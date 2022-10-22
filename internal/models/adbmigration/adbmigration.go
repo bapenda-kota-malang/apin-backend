@@ -21,11 +21,14 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
+
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sektor"
@@ -75,32 +78,32 @@ func init() {
 	a.AutoMigrate(listModelManagementUser...)
 
 	listModelRegNpwpd := []interface{}{
+		&regobjekpajak.RegObjekPajak{},
 		&rn.RegistrasiNpwpd{},
-		&rn.DetailRegOpHotel{},
-		&rn.DetailRegOpAirTanah{},
-		&rn.DetailRegOpParkir{},
-		&rn.DetailRegOpReklame{},
-		&rn.DetailRegOpPpj{},
-		&rn.DetailRegOpHiburan{},
-		&rn.DetailRegOpResto{},
-		&rn.RegObjekPajak{},
+		&rn.DetailRegObjekPajakHotel{},
+		&rn.DetailRegObjekPajakAirTanah{},
+		&rn.DetailRegObjekPajakParkir{},
+		&rn.DetailRegObjekPajakReklame{},
+		&rn.DetailRegObjekPajakPpj{},
+		&rn.DetailRegObjekPajakHiburan{},
+		&rn.DetailRegObjekPajakResto{},
 		&rn.RegNarahubung{},
 		&rn.RegPemilikWp{},
 	}
 	a.AutoMigrate(listModelRegNpwpd...)
 
 	listModelNpwpd := []interface{}{
+		&objekpajak.ObjekPajak{},
 		&npwpd.Npwpd{},
 		&npwpd.PemilikWp{},
-		&npwpd.ObjekPajak{},
 		&npwpd.Narahubung{},
-		&npwpd.DetailOpHotel{},
-		&npwpd.DetailOpAirTanah{},
-		&npwpd.DetailOpParkir{},
-		&npwpd.DetailOpReklame{},
-		&npwpd.DetailOpPpj{},
-		&npwpd.DetailOpHiburan{},
-		&npwpd.DetailOpResto{},
+		&npwpd.DetailObjekPajakHotel{},
+		&npwpd.DetailObjekPajakAirTanah{},
+		&npwpd.DetailObjekPajakParkir{},
+		&npwpd.DetailObjekPajakReklame{},
+		&npwpd.DetailObjekPajakPpj{},
+		&npwpd.DetailObjekPajakHiburan{},
+		&npwpd.DetailObjekPajakResto{},
 	}
 	a.AutoMigrate(listModelNpwpd...)
 
