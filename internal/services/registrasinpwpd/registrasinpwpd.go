@@ -52,9 +52,8 @@ func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
 	var tmp string = <-imgNameChan
 
 	register := rn.RegistrasiNpwpd{
-		// ModeRegistrasi: npwpd.ModeOperator,
+		JenisPajak:       nt.JenisPajakSA,
 		Status:           nt.StatusAktif,
-		JenisPajak:       reg.JenisPajak,
 		User_Id:          user_IdConv,
 		Golongan:         reg.Golongan,
 		RegObjekPajak_Id: op.Id,
