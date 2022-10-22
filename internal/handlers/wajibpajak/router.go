@@ -7,13 +7,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/registrasinpwpd"
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
@@ -109,8 +109,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/rekening", rekening.Crud{})
 
 	r.Route("/npwpd", func(r chi.Router) {
-		r.Get("/", npwpd.GetListForWp)
-		r.Get("/{id}", npwpd.GetDetailByUser)
+		r.Get("/", npwpd.GetList)
+		r.Get("/{id}", npwpd.GetDetail)
 		r.Patch("/{id}", npwpd.Update)
 		r.Patch("/{id}/{category}", npwpd.UpdatePhoto)
 		r.Delete("/{id}/{category}/{filename}", npwpd.DeletePhoto)
