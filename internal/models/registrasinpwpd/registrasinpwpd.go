@@ -28,7 +28,7 @@ type RegistrasiNpwpd struct {
 	Rekening          *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
 	User_Name         *string            `json:"user_name" gorm:"size:20"`
 	User_Id           uint64             `json:"user_id"`
-	User              *user.User         `gorm:"foreignKey:User_Id;references:Id"`
+	User              *user.User         `json:"user" gorm:"foreignKey:User_Id;references:Id"`
 	OmsetOp           *string            `json:"omsetOp" gorm:"size:50"`
 	Genset            *bool              `json:"genset"`
 	AirTanah          *bool              `json:"airTanah"`
