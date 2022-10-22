@@ -4,6 +4,7 @@ This flow
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
 
 	"github.com/spf13/viper"
 )
@@ -47,9 +49,9 @@ func (c *Config) loadConfig() (err error) {
 }
 
 // list files in sqls folder
-func getListFile() ([]string, error) {
+func getListFile(basePath string) ([]string, error) {
 	// open folder
-	f, err := os.Open("sqls")
+	f, err := os.Open(basePath)
 	if err != nil {
 		return nil, err
 	}
@@ -73,11 +75,57 @@ func getListFile() ([]string, error) {
 	return fileArr, nil
 }
 
-// import sql file to database use exec from bash psql command
-func importToDb(username, database, basePath, sqlFile string) error {
-	seedPath := path.Join(basePath, sqlFile)
+// write new formatted string sql file to seed.sql (unique)
+func writeSeedSql(files []string) error {
+	// open file
+	f, err := os.OpenFile("seed.sql", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("psql -U %s -d %s < %s", username, database, seedPath))
+	// read file
+	lineChan := make(chan string)
+	go func(ch chan string) {
+		scanner := bufio.NewScanner(f)
+		re := regexp.MustCompile(`\\i sqls\/data-\w*.sql`)
+		for scanner.Scan() {
+			line := scanner.Text()
+			if !re.MatchString(line) {
+				continue
+			}
+			ch <- line
+		}
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+		close(ch)
+	}(lineChan)
+
+	// create unique map old line sql file
+	oldLineMap := make(map[string]struct{})
+	for vLine := range lineChan {
+		if _, ok := oldLineMap[vLine]; !ok {
+			oldLineMap[vLine] = struct{}{}
+		}
+	}
+
+	// check list files from folder sqls already writed to seed.sql if not yet will append to end of file
+	for iFile := range files {
+		lineStr := fmt.Sprintf("\\i sqls/%s", files[iFile])
+		if _, ok := oldLineMap[lineStr]; !ok {
+			if _, err := f.WriteString(fmt.Sprintf("%s\n", lineStr)); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// import sql file to database use exec from bash psql command
+func importToDb(username, database string) error {
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("psql -U %s -d %s -1 -f seed.sql", username, database))
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		return fmt.Errorf("exec stderrpipe: %v", err)
@@ -112,14 +160,18 @@ func main() {
 	basePath := path.Join(wd, "sqls")
 
 	// get list files
-	files, err := getListFile()
+	files, err := getListFile(basePath)
 	if err != nil {
 		log.Fatalf("get list file: %s", err)
 	}
-	for _, v := range files {
-		if err := importToDb(c.Username, c.DbName, basePath, v); err != nil {
-			log.Fatalf("seeding failed: %s: %s", v, err)
-		}
+
+	// create seed.sql for make one file sql
+	if err := writeSeedSql(files); err != nil {
+		log.Fatalf("write sql file: %s", err)
+	}
+
+	if err := importToDb(c.Username, c.DbName); err != nil {
+		log.Fatalf("seeding failed: %s", err)
 	}
 	log.Println("seeding done")
 }

@@ -97,7 +97,9 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.GetList(input)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	result, err := s.GetList(input, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 
@@ -107,7 +109,9 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.GetDetail(id)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	result, err := s.GetDetail(id, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 
