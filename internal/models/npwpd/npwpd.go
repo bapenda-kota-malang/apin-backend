@@ -129,6 +129,7 @@ type UpdateDto struct {
 
 type FilterDto struct {
 	User_Id  *uint64 `json:"user_id"`
+	Npwpd    string  `json:"npwpd"`
 	Page     int     `json:"page"`
 	PageSize int     `json:"page_size"`
 }

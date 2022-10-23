@@ -567,6 +567,7 @@ func GetListForWp(input npwpd.FilterDto) (any, error) {
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
 		Preload("User").
+		Preload("Rekening").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
