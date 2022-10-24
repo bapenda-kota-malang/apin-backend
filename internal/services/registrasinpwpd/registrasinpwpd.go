@@ -101,14 +101,17 @@ func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
 		}
 	}
 
-	for _, d := range *reg.RegDirektur {
-		d.RegistrasiNpwpd_Id = register.Id
-		// n.Status = nt.StatusBaru
-		err := a.DB.Create(&d).Error
-		if err != nil {
-			return nil, err
+	if reg.Golongan == 2 {
+		for _, d := range *reg.RegDirektur {
+			d.RegistrasiNpwpd_Id = register.Id
+			// n.Status = nt.StatusBaru
+			err := a.DB.Create(&d).Error
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
+
 	return rp.OKSimple{
 		Data: register,
 	}, nil
@@ -471,24 +474,25 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			return nil, err
 		}
 	}
-
-	var dataRD []*rn.RegDirektur
-	result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataRD)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
-
-	for _, v := range dataRD {
-		var dataD nm.Direktur
-		if err := sc.Copy(&dataD, v); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+	if dataNpwpd.Golongan == 2 {
+		var dataRD []*rn.RegDirektur
+		result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataRD)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
 		}
 
-		dataD.Npwpd_Id = dataNpwpd.Id
-		dataD.Id = 0
-		err = a.DB.Create(&dataD).Error
-		if err != nil {
-			return nil, err
+		for _, v := range dataRD {
+			var dataD nm.Direktur
+			if err := sc.Copy(&dataD, v); err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+			}
+
+			dataD.Npwpd_Id = dataNpwpd.Id
+			dataD.Id = 0
+			err = a.DB.Create(&dataD).Error
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -536,19 +540,28 @@ func Delete(id int) (any, error) {
 		}
 	}
 
-	// data direktur
-	var dataDirektur []*rn.RegDirektur
-	result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataDirektur)
+	// data regis
+	var data *rn.RegistrasiNpwpd
+	result = a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	for _, v := range dataDirektur {
-		result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Delete(&v)
-		status = "deleted"
+	// data direktur
+	if data.Golongan == 2 {
+		var dataDirektur []*rn.RegDirektur
+		result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataDirektur)
 		if result.RowsAffected == 0 {
-			dataPemilik = nil
-			status = "no deletion"
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range dataDirektur {
+			result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Delete(&v)
+			status = "deleted"
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+				status = "no deletion"
+			}
 		}
 	}
 
@@ -567,13 +580,6 @@ func Delete(id int) (any, error) {
 	// 		status = "no deletion"
 	// 	}
 	// }
-
-	// data regis
-	var data *rn.RegistrasiNpwpd
-	result = a.DB.First(&data, id)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
 
 	// data rekening
 	var rekening *rm.Rekening

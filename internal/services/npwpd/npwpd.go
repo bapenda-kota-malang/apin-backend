@@ -163,14 +163,17 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 		}
 	}
 
-	for _, d := range *reg.Direktur {
-		d.Npwpd_Id = register.Id
-		// n.Status = npwpd.StatusNarahubungBaru
-		err := a.DB.Create(&d).Error
-		if err != nil {
-			return nil, err
+	if reg.Golongan == 2 {
+		for _, d := range *reg.Direktur {
+			d.Npwpd_Id = register.Id
+			// n.Status = npwpd.StatusNarahubungBaru
+			err := a.DB.Create(&d).Error
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
+
 	return rp.OKSimple{
 		Data: register,
 	}, nil
@@ -357,18 +360,20 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 		}
 	}
 
-	for _, v := range input.Direktur {
-		var dataD *npwpd.Direktur
-		result := a.DB.First(&dataD, v.Id)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
-		}
-		if err := sc.Copy(&dataD, &v); err != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataD)
-		}
-		dataD.Npwpd_Id = data.Id
-		if result := a.DB.Save(&dataD); result.Error != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataD)
+	if data.Golongan == 2 {
+		for _, v := range input.Direktur {
+			var dataD *npwpd.Direktur
+			result := a.DB.First(&dataD, v.Id)
+			if result.RowsAffected == 0 {
+				return nil, errors.New("data tidak dapat ditemukan")
+			}
+			if err := sc.Copy(&dataD, &v); err != nil {
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataD)
+			}
+			dataD.Npwpd_Id = data.Id
+			if result := a.DB.Save(&dataD); result.Error != nil {
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataD)
+			}
 		}
 	}
 
@@ -409,26 +414,29 @@ func Delete(id int) (any, error) {
 		}
 	}
 
-	// data direktur
-	var dataDirektur []*npwpd.Direktur
-	result = a.DB.Where(npwpd.Direktur{Npwpd_Id: uint64(id)}).Find(&dataDirektur)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
-
-	for _, v := range dataDirektur {
-		result = a.DB.Where(npwpd.Direktur{Npwpd_Id: uint64(id)}).Delete(&v)
-		if result.RowsAffected == 0 {
-			dataPemilik = nil
-		}
-	}
-
 	// data regis
 	var data *npwpd.Npwpd
 	result = a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
+
+	// data direktur
+	if data.Golongan == 2 {
+		var dataDirektur []*npwpd.Direktur
+		result = a.DB.Where(npwpd.Direktur{Npwpd_Id: uint64(id)}).Find(&dataDirektur)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range dataDirektur {
+			result = a.DB.Where(npwpd.Direktur{Npwpd_Id: uint64(id)}).Delete(&v)
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+			}
+		}
+	}
+
 	objekPajakId := int(data.ObjekPajak_Id)
 	result = a.DB.Delete(&data, id)
 	status = "deleted"
