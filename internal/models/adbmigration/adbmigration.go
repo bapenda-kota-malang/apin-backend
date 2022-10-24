@@ -89,6 +89,7 @@ func init() {
 		&rn.DetailRegObjekPajakResto{},
 		&rn.RegNarahubung{},
 		&rn.RegPemilikWp{},
+		&rn.RegDirektur{},
 	}
 	a.AutoMigrate(listModelRegNpwpd...)
 
@@ -97,6 +98,7 @@ func init() {
 		&npwpd.Npwpd{},
 		&npwpd.PemilikWp{},
 		&npwpd.Narahubung{},
+		&npwpd.Direktur{},
 		&npwpd.DetailObjekPajakHotel{},
 		&npwpd.DetailObjekPajakAirTanah{},
 		&npwpd.DetailObjekPajakParkir{},

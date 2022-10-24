@@ -28,7 +28,7 @@ type RegistrasiNpwpd struct {
 	Rekening          *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
 	User_Name         *string            `json:"user_name" gorm:"size:20"`
 	User_Id           uint64             `json:"user_id"`
-	User              *user.User         `gorm:"foreignKey:User_Id;references:Id"`
+	User              *user.User         `json:"user" gorm:"foreignKey:User_Id;references:Id"`
 	OmsetOp           *string            `json:"omsetOp" gorm:"size:50"`
 	Genset            *bool              `json:"genset"`
 	AirTanah          *bool              `json:"airTanah"`
@@ -48,8 +48,9 @@ type RegistrasiNpwpd struct {
 	// ModeRegistrasi    npwpd.Mode               `json:"modeRegistrasi"`
 	// VendorEtax         *configurationmodel.VendorEtax `gorm:"foreignKey:VendorEtaxID"`
 
-	RegPemilikWps  []*RegPemilikWp  `json:"regpemilik,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	RegNarahubungs []*RegNarahubung `json:"regnarahubung,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	RegPemilikWps  []*RegPemilikWp  `json:"regPemilik,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	RegNarahubungs []*RegNarahubung `json:"regNarahubung,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	RegDirekturs   []*RegDirektur   `json:"regDirektur,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 
 	DetailRegOpAirTanah []*DetailRegObjekPajakAirTanah `json:"detail_reg_op_air_tanah,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 	DetailRegOpHiburan  []*DetailRegObjekPajakHiburan  `json:"detail_reg_op_hiburan,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
@@ -61,9 +62,9 @@ type RegistrasiNpwpd struct {
 }
 
 type CreateDto struct {
-	JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
-	Golongan   t.Golongan   `json:"golongan" validate:"required"`
-	Npwp       *string      `json:"npwp"`
+	// JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
+	Golongan t.Golongan `json:"golongan" validate:"required"`
+	Npwp     *string    `json:"npwp"`
 
 	// Nomor                 int  `json:"nomor"`
 	// IsNomorRegistrasiAuto bool `json:"isNomorRegistrasiAuto"`
@@ -93,6 +94,7 @@ type CreateDto struct {
 	RegObjekPajak *rop.RegObjekPajak `json:"regObjekPajak"`
 	RegPemilik    *[]RegPemilikWp    `json:"regPemilik"`
 	RegNarahubung *[]RegNarahubung   `json:"regNarahubung"`
+	RegDirektur   *[]RegDirektur     `json:"regDirektur"`
 }
 
 type UpdateDto struct {
@@ -117,6 +119,7 @@ type UpdateDto struct {
 	RegObjekPajak rop.RegObjekPajakUpdate `json:"regObjekPajak"`
 	RegPemilik    []RegPemilikWpUpdate    `json:"regPemilik"`
 	RegNarahubung []RegNarahubungUpdate   `json:"regNarahubung"`
+	RegDirektur   []RegDirektur           `json:"regDirektur"`
 }
 
 type VerifikasiDto struct {

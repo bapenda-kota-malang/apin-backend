@@ -135,7 +135,7 @@ func Delete(id int) (any, error) {
 				status = "no deletion"
 			}
 		}
-	case "06":
+	case "07":
 		var DataOp []mdsp.DetailSptParkir
 		result := a.DB.Where(mdsp.DetailSptParkir{Spt_Id: uint64(id)}).Find(&DataOp)
 		if result.RowsAffected == 0 {
@@ -149,7 +149,7 @@ func Delete(id int) (any, error) {
 				status = "no deletion"
 			}
 		}
-	case "07":
+	case "08":
 		var DataOp []mdsa.DetailSptAir
 		result := a.DB.Where(mdsa.DetailSptAir{Spt_Id: uint64(id)}).Find(&DataOp)
 		if result.RowsAffected == 0 {

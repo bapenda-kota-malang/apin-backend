@@ -26,10 +26,6 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-	user_id := uint64(authInfo.User_Id)
-	input.User_Id = &user_id
-
 	result, err := s.GetList(input)
 	hh.DataResponse(w, result, err)
 }
@@ -81,5 +77,19 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 	result, err := s.Update(id, input, uint(authInfo.User_Id))
+	hh.DataResponse(w, result, err)
+}
+
+func GetListForWp(w http.ResponseWriter, r *http.Request) {
+	var input rn.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	user_id := uint64(authInfo.User_Id)
+	input.User_Id = &user_id
+
+	result, err := s.GetListForWp(input)
 	hh.DataResponse(w, result, err)
 }

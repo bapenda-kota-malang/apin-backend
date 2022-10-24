@@ -8,6 +8,10 @@ import (
 )
 
 func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajak, registerForm *rn.RegistrasiNpwpd) error {
+	if data == nil {
+		return nil
+	}
+
 	var (
 		err      error
 		mActions map[string]reflect.Type = make(map[string]reflect.Type)
