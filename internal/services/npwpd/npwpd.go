@@ -162,6 +162,15 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 			return nil, err
 		}
 	}
+
+	for _, d := range *reg.Direktur {
+		d.Npwpd_Id = register.Id
+		// n.Status = npwpd.StatusNarahubungBaru
+		err := a.DB.Create(&d).Error
+		if err != nil {
+			return nil, err
+		}
+	}
 	return rp.OKSimple{
 		Data: register,
 	}, nil
@@ -348,6 +357,21 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 		}
 	}
 
+	for _, v := range input.Direktur {
+		var dataD *npwpd.Direktur
+		result := a.DB.First(&dataD, v.Id)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+		if err := sc.Copy(&dataD, &v); err != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataD)
+		}
+		dataD.Npwpd_Id = data.Id
+		if result := a.DB.Save(&dataD); result.Error != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataD)
+		}
+	}
+
 	return rp.OK{
 		Meta: t.IS{
 			"affected": strconv.Itoa(int(result.RowsAffected)),
@@ -380,6 +404,20 @@ func Delete(id int) (any, error) {
 
 	for _, v := range dataNarahubung {
 		result = a.DB.Where(npwpd.Narahubung{Npwpd_Id: uint64(id)}).Delete(&v)
+		if result.RowsAffected == 0 {
+			dataPemilik = nil
+		}
+	}
+
+	// data direktur
+	var dataDirektur []*npwpd.Direktur
+	result = a.DB.Where(npwpd.Direktur{Npwpd_Id: uint64(id)}).Find(&dataDirektur)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	for _, v := range dataDirektur {
+		result = a.DB.Where(npwpd.Direktur{Npwpd_Id: uint64(id)}).Delete(&v)
 		if result.RowsAffected == 0 {
 			dataPemilik = nil
 		}
@@ -568,6 +606,7 @@ func GetListForWp(input npwpd.FilterDto) (any, error) {
 		Scopes(gh.Paginate(input, &pagination)).
 		Preload("User").
 		Preload("Rekening").
+		Preload("ObjekPajak").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)

@@ -52,6 +52,7 @@ type Npwpd struct {
 
 	PemilikWps  []*PemilikWp  `json:"pemilik,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
 	Narahubungs []*Narahubung `json:"narahubung,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
+	Direkturs   []*Direktur   `json:"direktur,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
 
 	DetailOpAirTanah []*DetailObjekPajakAirTanah `json:"detailObjekPajakAirTanah,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
 	DetailOpHiburan  []*DetailObjekPajakHiburan  `json:"detailObjekPajakHiburan,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
@@ -92,6 +93,7 @@ type CreateDto struct {
 	ObjekPajak *op.ObjekPajak `json:"objekPajak"`
 	Pemilik    *[]PemilikWp   `json:"pemilik"`
 	Narahubung *[]Narahubung  `json:"narahubung"`
+	Direktur   *[]Direktur    `json:"direktur"`
 }
 
 type UpdateDto struct {
@@ -124,6 +126,7 @@ type UpdateDto struct {
 	ObjekPajak op.ObjekPajak `json:"objekPajak"`
 	Pemilik    []PemilikWp   `json:"pemilik"`
 	Narahubung []Narahubung  `json:"narahubung"`
+	Direktur   []Direktur    `json:"direktur"`
 	// Narahubung NarahubungUpdateDto `json:"narahubung"`
 }
 

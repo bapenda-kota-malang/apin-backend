@@ -100,6 +100,15 @@ func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
 			return nil, err
 		}
 	}
+
+	for _, d := range *reg.RegDirektur {
+		d.RegistrasiNpwpd_Id = register.Id
+		// n.Status = nt.StatusBaru
+		err := a.DB.Create(&d).Error
+		if err != nil {
+			return nil, err
+		}
+	}
 	return rp.OKSimple{
 		Data: register,
 	}, nil
@@ -112,7 +121,7 @@ func GetList(input rn.FilterDto) (interface{}, error) {
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&rn.RegistrasiNpwpd{}).
-		Preload("User").
+		Preload(clause.Associations).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -463,6 +472,26 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		}
 	}
 
+	var dataRD []*rn.RegDirektur
+	result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataRD)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	for _, v := range dataRD {
+		var dataD nm.Direktur
+		if err := sc.Copy(&dataD, v); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+		}
+
+		dataD.Npwpd_Id = dataNpwpd.Id
+		dataD.Id = 0
+		err = a.DB.Create(&dataD).Error
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return rp.OK{
 		Meta: t.IS{
 			"affected": strconv.Itoa(int(result.RowsAffected)),
@@ -500,6 +529,22 @@ func Delete(id int) (any, error) {
 
 	for _, v := range dataNarahubung {
 		result = a.DB.Where(rn.RegNarahubung{RegistrasiNpwpd_Id: uint64(id)}).Delete(&v)
+		status = "deleted"
+		if result.RowsAffected == 0 {
+			dataPemilik = nil
+			status = "no deletion"
+		}
+	}
+
+	// data direktur
+	var dataDirektur []*rn.RegDirektur
+	result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataDirektur)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	for _, v := range dataDirektur {
+		result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Delete(&v)
 		status = "deleted"
 		if result.RowsAffected == 0 {
 			dataPemilik = nil
@@ -647,13 +692,27 @@ func Delete(id int) (any, error) {
 			}
 		}
 	}
-
+	tmpObjekPajakId := data.RegObjekPajak_Id
 	result = a.DB.Delete(&data, id)
 	status = "deleted"
 	if result.RowsAffected == 0 {
 		data = nil
 		status = "no deletion"
 	}
+
+	// data objek pajak
+	var dataObjekPajak []*rop.RegObjekPajak
+	result = a.DB.Where(rop.RegObjekPajak{Id: uint64(tmpObjekPajakId)}).First(&dataObjekPajak)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+	result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Delete(&dataObjekPajak)
+	status = "deleted"
+	if result.RowsAffected == 0 {
+		dataPemilik = nil
+		status = "no deletion"
+	}
+
 	return rp.OK{
 		Meta: t.IS{
 			"count":  strconv.Itoa(int(result.RowsAffected)),
@@ -715,18 +774,33 @@ func Update(id int, input rn.UpdateDto, user_Id uint) (any, error) {
 		}
 	}
 
-	// var dataOP *rn.RegObjekPajak
-	// result = a.DB.First(&dataOP, input.RegObjekPajak.Id)
-	// if result.RowsAffected == 0 {
-	// 	return nil, errors.New("data tidak dapat ditemukan")
-	// }
-	// if err := sc.Copy(&dataOP, &input.RegObjekPajak); err != nil {
-	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataOP)
-	// }
-	// dataOP.RegistrasiNpwpd_Id = data.Id
-	// if result := a.DB.Save(&dataOP); result.Error != nil {
-	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataOP)
-	// }
+	for _, v := range input.RegDirektur {
+		var dataD *rn.RegDirektur
+		result := a.DB.First(&dataD, v.Id)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+		if err := sc.Copy(&dataD, &v); err != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataD)
+		}
+		dataD.RegistrasiNpwpd_Id = data.Id
+		if result := a.DB.Save(&dataD); result.Error != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataD)
+		}
+	}
+
+	var dataOP *rop.RegObjekPajak
+	result = a.DB.First(&dataOP, data.RegObjekPajak_Id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+	if err := sc.Copy(&dataOP, &input.RegObjekPajak); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataOP)
+	}
+	dataOP.Id = data.RegObjekPajak_Id
+	if result := a.DB.Save(&dataOP); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataOP)
+	}
 
 	//cek rekening objek, dgn mengambil data rekening menggunakan rekening id
 	var rekening *rm.Rekening
@@ -868,7 +942,7 @@ func GetListForWp(input rn.FilterDto) (any, error) {
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
-		Preload("User").
+		Preload(clause.Associations).
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)

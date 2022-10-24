@@ -50,6 +50,7 @@ type RegistrasiNpwpd struct {
 
 	RegPemilikWps  []*RegPemilikWp  `json:"regpemilik,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 	RegNarahubungs []*RegNarahubung `json:"regnarahubung,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	RegDirekturs   []*RegDirektur   `json:"regdirektur,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 
 	DetailRegOpAirTanah []*DetailRegObjekPajakAirTanah `json:"detail_reg_op_air_tanah,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 	DetailRegOpHiburan  []*DetailRegObjekPajakHiburan  `json:"detail_reg_op_hiburan,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
@@ -93,6 +94,7 @@ type CreateDto struct {
 	RegObjekPajak *rop.RegObjekPajak `json:"regObjekPajak"`
 	RegPemilik    *[]RegPemilikWp    `json:"regPemilik"`
 	RegNarahubung *[]RegNarahubung   `json:"regNarahubung"`
+	RegDirektur   *[]RegDirektur     `json:"regDirektur"`
 }
 
 type UpdateDto struct {
@@ -117,6 +119,7 @@ type UpdateDto struct {
 	RegObjekPajak rop.RegObjekPajakUpdate `json:"regObjekPajak"`
 	RegPemilik    []RegPemilikWpUpdate    `json:"regPemilik"`
 	RegNarahubung []RegNarahubungUpdate   `json:"regNarahubung"`
+	RegDirektur   []RegDirektur           `json:"regDirektur"`
 }
 
 type VerifikasiDto struct {
