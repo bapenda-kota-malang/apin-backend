@@ -26,14 +26,17 @@ const source = "npwpd"
 
 func GetAll(pagination gh.Pagination) (interface{}, error) {
 	var (
-		register []*npwpd.Npwpd
+		register []npwpd.Npwpd
 		count    int64
 	)
 
 	result := a.DB.Model(&npwpd.Npwpd{}).
 		Preload(clause.Associations).
 		//nested preload
-		//Preload("PemilikWps.Kelurahan").
+		Preload("ObjekPajak").
+		Preload("ObjekPajak.Kelurahan").
+		Preload("ObjekPajak.Kecamatan").
+		// Preload("PemilikWps.Kelurahan").
 		Count(&count).
 		// Scopes(gormhelper.Paginate(&pagination)).
 		Find(&register)

@@ -122,6 +122,10 @@ func GetList(input rn.FilterDto) (interface{}, error) {
 	result := a.DB.
 		Model(&rn.RegistrasiNpwpd{}).
 		Preload(clause.Associations).
+		Preload("RegPemilikWps").
+		Preload("RegObjekPajak").
+		Preload("RegObjekPajak.Kecamatan").
+		Preload("RegObjekPajak.Kelurahan").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).

@@ -48,9 +48,9 @@ type RegistrasiNpwpd struct {
 	// ModeRegistrasi    npwpd.Mode               `json:"modeRegistrasi"`
 	// VendorEtax         *configurationmodel.VendorEtax `gorm:"foreignKey:VendorEtaxID"`
 
-	RegPemilikWps  []*RegPemilikWp  `json:"regpemilik,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	RegNarahubungs []*RegNarahubung `json:"regnarahubung,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	RegDirekturs   []*RegDirektur   `json:"regdirektur,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	RegPemilikWps  []*RegPemilikWp  `json:"regPemilik,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	RegNarahubungs []*RegNarahubung `json:"regNarahubung,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	RegDirekturs   []*RegDirektur   `json:"regDirektur,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 
 	DetailRegOpAirTanah []*DetailRegObjekPajakAirTanah `json:"detail_reg_op_air_tanah,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 	DetailRegOpHiburan  []*DetailRegObjekPajakHiburan  `json:"detail_reg_op_hiburan,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
