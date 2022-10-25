@@ -218,7 +218,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 	var data *rn.RegistrasiNpwpd
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return nil, errors.New("data registrasi npwpd tidak dapat ditemukan")
 	}
 	if data.VerifyStatus != rn.VerifyStatusBaru {
 		if data.VerifyStatus == rn.VerifyStatusDisetujui {
@@ -231,7 +231,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 	if input.VerifyStatus == 2 {
 		data.VerifyStatus = rn.VerifyStatusDitolak
 		if result := a.DB.Save(&data); result.Error != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data registrasi npwpd", data)
 		}
 		return rp.OK{
 			Meta: t.IS{
@@ -243,12 +243,12 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 	var dataROP *rop.RegObjekPajak
 	result = a.DB.Where(rop.RegObjekPajak{Id: uint64(id)}).First(&dataROP)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return nil, errors.New("data reg objek pajak tidak dapat ditemukan")
 	}
 
 	var dataObjekPajak op.ObjekPajak
 	if err := sc.Copy(&dataObjekPajak, dataROP); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataROP)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload objek pajak", dataROP)
 	}
 
 	dataObjekPajak.Id = 0
@@ -258,17 +258,17 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload registrasi npwpd", data)
 	}
 
 	data.VerifiedAt = th.TimeNow()
 	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data registrasi npwpd", data)
 	}
 
 	var dataNpwpd nm.Npwpd
 	if err := sc.Copy(&dataNpwpd, &data); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload npwpd", data)
 	}
 
 	//rekening
@@ -308,13 +308,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		var dataReg []*rn.DetailRegObjekPajakHotel
 		result := a.DB.Where(rn.DetailRegObjekPajakHotel{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
+			return nil, errors.New("data detail reg objek pajak hotel tidak dapat ditemukan")
 		}
 
 		for _, v := range dataReg {
 			var dataOp nm.DetailObjekPajakHotel
 			if err := sc.Copy(&dataOp, v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload detail objek pajak hotel", v)
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
@@ -330,13 +330,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		// TODO: change struct literal to key - fields
 		result := a.DB.Where(rn.DetailRegObjekPajakResto{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
+			return nil, errors.New("data detail reg objek pajak resto tidak dapat ditemukan")
 		}
 
 		for _, v := range dataReg {
 			var dataOp nm.DetailObjekPajakResto
 			if err := sc.Copy(&dataOp, v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload detail reg objek pajak resto", v)
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
@@ -351,13 +351,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		// TODO: change struct literal to key - fields
 		result := a.DB.Where(rn.DetailRegObjekPajakHiburan{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
+			return nil, errors.New("data detail reg objek pajak hiburan tidak dapat ditemukan")
 		}
 
 		for _, v := range dataReg {
 			var dataOp nm.DetailObjekPajakHiburan
 			if err := sc.Copy(&dataOp, v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload detail reg objek pajak hiburan", v)
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
@@ -372,13 +372,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		// TODO: change struct literal to key - fields
 		result := a.DB.Where(rn.DetailRegObjekPajakReklame{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
+			return nil, errors.New("data detail reg objek pajak reklame tidak dapat ditemukan")
 		}
 
 		for _, v := range dataReg {
 			var dataOp nm.DetailObjekPajakReklame
 			if err := sc.Copy(&dataOp, v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload detail reg objek pajak reklame", v)
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
@@ -393,13 +393,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		// TODO: change struct literal to key - fields
 		result := a.DB.Where(rn.DetailRegObjekPajakPpj{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
+			return nil, errors.New("data detail reg objek pajak ppj tidak dapat ditemukan")
 		}
 
 		for _, v := range dataReg {
 			var dataOp nm.DetailObjekPajakPpj
 			if err := sc.Copy(&dataOp, v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload detail reg objek pajak ppj", v)
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
@@ -414,13 +414,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		// TODO: change struct literal to key - fields
 		result := a.DB.Where(rn.DetailRegObjekPajakParkir{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
+			return nil, errors.New("data detail reg objek pajak parkir tidak dapat ditemukan")
 		}
 
 		for _, v := range dataReg {
 			var dataOp nm.DetailObjekPajakParkir
 			if err := sc.Copy(&dataOp, v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload detail reg objek pajak parkir", v)
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
@@ -435,13 +435,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		// TODO: change struct literal to key - fields
 		result := a.DB.Where(rn.DetailRegObjekPajakAirTanah{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
+			return nil, errors.New("data detail reg objek pajak air tanah tidak dapat ditemukan")
 		}
 
 		for _, v := range dataReg {
 			var dataOp nm.DetailObjekPajakAirTanah
 			if err := sc.Copy(&dataOp, v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload detail reg objek pajak air tanah", v)
 			}
 
 			dataOp.Npwpd_Id = dataNpwpd.Id
@@ -456,13 +456,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 	var dataRP []*rn.RegPemilikWp
 	result = a.DB.Where(rn.RegPemilikWp{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataRP)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return nil, errors.New("data reg pemilik tidak dapat ditemukan")
 	}
 
 	for _, v := range dataRP {
 		var dataP nm.PemilikWp
 		if err := sc.Copy(&dataP, v); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg pemilik", v)
 		}
 
 		dataP.Npwpd_Id = dataNpwpd.Id
@@ -476,13 +476,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 	var dataRN []*rn.RegNarahubung
 	result = a.DB.Where(rn.RegNarahubung{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataRN)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return nil, errors.New("data reg narahubung tidak dapat ditemukan")
 	}
 
 	for _, v := range dataRN {
 		var dataN nm.Narahubung
 		if err := sc.Copy(&dataN, v); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg narahubung", v)
 		}
 
 		dataN.Npwpd_Id = dataNpwpd.Id
@@ -496,13 +496,13 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		var dataRD []*rn.RegDirektur
 		result = a.DB.Where(rn.RegDirektur{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataRD)
 		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
+			return nil, errors.New("data reg direktur tidak dapat ditemukan")
 		}
 
 		for _, v := range dataRD {
 			var dataD nm.Direktur
 			if err := sc.Copy(&dataD, v); err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg direktur", v)
 			}
 
 			dataD.Npwpd_Id = dataNpwpd.Id
