@@ -86,37 +86,22 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 		return nil, err
 	}
 	// var tmpverify = npwpd.VerifiyPendaftaranDisetujui
-	var tmpNomor = func() int {
-
-		if reg.IsNomorRegistrasiAuto {
-			var tmp int
-			var tmpNpwpd npwpd.Npwpd
-			nomor := a.DB.Last(&tmpNpwpd)
-			if nomor.Error != nil {
-				return 1
-			} else {
-				tmp = tmpNpwpd.Nomor
-				tmp++
-			}
-			return tmp
-		}
-		return reg.Nomor
-	}()
-
-	kecamatanIdString := strconv.Itoa(int(*reg.ObjekPajak.Kecamatan_Id))
-	kodeJenisUsahaString := *rekening.KodeJenisUsaha
-	if kodeJenisUsahaString == "" {
-		kodeJenisUsahaString = "xxx"
-	}
-	tmpNomorString := strconv.Itoa(tmpNomor)
-	if len(tmpNomorString) == 1 {
-		tmpNomorString = "000" + tmpNomorString
-	} else if len(tmpNomorString) == 2 {
-		tmpNomorString = "00" + tmpNomorString
-	} else if len(tmpNomorString) == 3 {
-		tmpNomorString = "0" + tmpNomorString
-	}
-	npwpdString := tmpNomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString
+	var tmpNomor = generateNomor(reg.IsNomorRegistrasiAuto, reg.Nomor)
+	var tmpNpwpd = GenerateNpwpd(tmpNomor, *reg.ObjekPajak.Kecamatan_Id, *rekening.KodeJenisUsaha)
+	// kecamatanIdString := strconv.Itoa(int(*reg.ObjekPajak.Kecamatan_Id))
+	// kodeJenisUsahaString := *rekening.KodeJenisUsaha
+	// if kodeJenisUsahaString == "" {
+	// 	kodeJenisUsahaString = "xxx"
+	// }
+	// tmpNomorString := strconv.Itoa(tmpNomor)
+	// if len(tmpNomorString) == 1 {
+	// 	tmpNomorString = "000" + tmpNomorString
+	// } else if len(tmpNomorString) == 2 {
+	// 	tmpNomorString = "00" + tmpNomorString
+	// } else if len(tmpNomorString) == 3 {
+	// 	tmpNomorString = "0" + tmpNomorString
+	// }
+	// npwpdString := tmpNomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString
 	register := npwpd.Npwpd{
 		JalurRegistrasi:   nt.JalurRegistrasiOperator,
 		Status:            nt.StatusAktif,
@@ -126,7 +111,7 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 		Npwp:              reg.Npwp,
 		VerifiedAt:        th.TimeNow(),
 		Nomor:             tmpNomor,
-		Npwpd:             &npwpdString,
+		Npwpd:             &tmpNpwpd,
 		TanggalPengukuhan: th.ParseTime(*reg.TanggalPengukuhan),
 		TanggalNpwpd:      th.ParseTime(*reg.TanggalNpwpd),
 		Rekening_Id:       &reg.Rekening_Id,
@@ -166,14 +151,17 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 		}
 	}
 
-	for _, d := range *reg.Direktur {
-		d.Npwpd_Id = register.Id
-		// n.Status = npwpd.StatusNarahubungBaru
-		err := a.DB.Create(&d).Error
-		if err != nil {
-			return nil, err
+	if reg.Golongan == 2 {
+		for _, d := range *reg.Direktur {
+			d.Npwpd_Id = register.Id
+			// n.Status = npwpd.StatusNarahubungBaru
+			err := a.DB.Create(&d).Error
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
+
 	return rp.OKSimple{
 		Data: register,
 	}, nil
@@ -360,18 +348,20 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 		}
 	}
 
-	for _, v := range input.Direktur {
-		var dataD *npwpd.Direktur
-		result := a.DB.First(&dataD, v.Id)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
-		}
-		if err := sc.Copy(&dataD, &v); err != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataD)
-		}
-		dataD.Npwpd_Id = data.Id
-		if result := a.DB.Save(&dataD); result.Error != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataD)
+	if data.Golongan == 2 {
+		for _, v := range input.Direktur {
+			var dataD *npwpd.Direktur
+			result := a.DB.First(&dataD, v.Id)
+			if result.RowsAffected == 0 {
+				return nil, errors.New("data tidak dapat ditemukan")
+			}
+			if err := sc.Copy(&dataD, &v); err != nil {
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataD)
+			}
+			dataD.Npwpd_Id = data.Id
+			if result := a.DB.Save(&dataD); result.Error != nil {
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataD)
+			}
 		}
 	}
 
@@ -412,26 +402,29 @@ func Delete(id int) (any, error) {
 		}
 	}
 
-	// data direktur
-	var dataDirektur []*npwpd.Direktur
-	result = a.DB.Where(npwpd.Direktur{Npwpd_Id: uint64(id)}).Find(&dataDirektur)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
-	}
-
-	for _, v := range dataDirektur {
-		result = a.DB.Where(npwpd.Direktur{Npwpd_Id: uint64(id)}).Delete(&v)
-		if result.RowsAffected == 0 {
-			dataPemilik = nil
-		}
-	}
-
 	// data regis
 	var data *npwpd.Npwpd
 	result = a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
+
+	// data direktur
+	if data.Golongan == 2 {
+		var dataDirektur []*npwpd.Direktur
+		result = a.DB.Where(npwpd.Direktur{Npwpd_Id: uint64(id)}).Find(&dataDirektur)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+
+		for _, v := range dataDirektur {
+			result = a.DB.Where(npwpd.Direktur{Npwpd_Id: uint64(id)}).Delete(&v)
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+			}
+		}
+	}
+
 	objekPajakId := int(data.ObjekPajak_Id)
 	result = a.DB.Delete(&data, id)
 	status = "deleted"

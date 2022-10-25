@@ -14,8 +14,6 @@ type RegPemilikWp struct {
 	RtRw               *string                 `json:"rtRw" gorm:"size:10"`
 	Daerah_Id          *uint64                 `json:"daerah_id"`
 	Daerah             *areadivision.Daerah    `json:"daerah" gorm:"foreignKey:Daerah_Id"`
-	Kecamatan_Id       *uint64                 `json:"kecamatan_id"`
-	Kecamatan          *areadivision.Kecamatan `json:"kecamatan" gorm:"foreignKey:Kecamatan_Id"`
 	Kelurahan_Id       *uint64                 `json:"kelurahan_id"`
 	Kelurahan          *areadivision.Kelurahan `json:"kelurahan" gorm:"foreignKey:Kelurahan_Id"`
 	Telp               *string                 `json:"telp" gorm:"size:20"`
@@ -25,24 +23,24 @@ type RegPemilikWp struct {
 }
 
 type RegPemilikWpCreate struct {
-	Nama      *string `json:"nama" gorm:"size:50"`
-	Alamat    *string `json:"alamat" gorm:"size:50"`
-	RtRw      *string `json:"rtRw" gorm:"size:10"`
-	Daerah_Id *uint64 `json:"daerah_id"`
-	// Kecamatan_Id *uint64 `json:"kecamatan_id"`
-	Kelurahan_Id *uint64 `json:"kelurahan_id"`
-	Telp         *string `json:"telp" gorm:"size:20"`
-	Nik          *string `json:"nik" gorm:"size:20"`
+	Nama         *string    `json:"nama" validate:"required"`
+	Alamat       *string    `json:"alamat" validate:"required"`
+	RtRw         *string    `json:"rtRw" validate:"required"`
+	Daerah_Id    *uint64    `json:"daerah_id" validate:"required"`
+	Kelurahan_Id *uint64    `json:"kelurahan_id" validate:"required"`
+	Telp         *string    `json:"telp" validate:"required;nohp"`
+	Nik          *string    `json:"nik" validate:"required;nik"`
+	Status       t.StatusBL `json:"status"`
 }
 
 type RegPemilikWpUpdate struct {
-	Id        uint64  `json:"id" gorm:"primaryKey"`
-	Nama      *string `json:"nama" gorm:"size:50"`
-	Alamat    *string `json:"alamat" gorm:"size:50"`
-	RtRw      *string `json:"rtRw" gorm:"size:10"`
-	Daerah_Id *uint64 `json:"daerah_id"`
-	// Kecamatan_Id *uint64 `json:"kecamatan_id"`
-	Kelurahan_Id *uint64 `json:"kelurahan_id"`
-	Telp         *string `json:"telp" gorm:"size:20"`
-	Nik          *string `json:"nik" gorm:"size:20"`
+	Id           uint64     `json:"id" gorm:"primaryKey"`
+	Nama         *string    `json:"nama" validate:"required"`
+	Alamat       *string    `json:"alamat" validate:"required"`
+	RtRw         *string    `json:"rtRw" validate:"required"`
+	Daerah_Id    *uint64    `json:"daerah_id" validate:"required"`
+	Kelurahan_Id *uint64    `json:"kelurahan_id" validate:"required"`
+	Telp         *string    `json:"telp" validate:"required;nohp"`
+	Nik          *string    `json:"nik" validate:"required;nik"`
+	Status       t.StatusBL `json:"status"`
 }

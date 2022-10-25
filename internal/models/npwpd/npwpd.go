@@ -67,7 +67,7 @@ type Npwpd struct {
 type CreateDto struct {
 	JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
 	Golongan   t.Golongan   `json:"golongan" validate:"required"`
-	Npwp       *string      `json:"npwp" validate:"required"`
+	Npwp       *string      `json:"npwp"`
 
 	Nomor                 int  `json:"nomor"`
 	IsNomorRegistrasiAuto bool `json:"isNomorRegistrasiAuto"`
@@ -83,10 +83,10 @@ type CreateDto struct {
 	Pengunjung        *string `json:"pengunjung"`
 	OmsetOp           *string `json:"omsetOp"`
 
-	Rekening_Id uint64 `json:"rekening_id"`
+	Rekening_Id uint64 `json:"rekening_id" validate:"required"`
 
-	Genset   bool `json:"genset"`
-	AirTanah bool `json:"airTanah"`
+	Genset   bool `json:"genset" validate:"required"`
+	AirTanah bool `json:"airTanah" validate:"required"`
 
 	DetailOp *[]DetailObjekPajak `json:"detailObjekPajak"`
 

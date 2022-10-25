@@ -2,6 +2,7 @@ package npwpd
 
 import (
 	"reflect"
+	"strconv"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -66,4 +67,37 @@ func insertDetailOp(objek string, data *[]npwpd.DetailObjekPajak, registerForm *
 	}
 
 	return nil
+}
+
+func generateNomor(isNomorRegistrasiAuto bool, nomor int) int {
+	if isNomorRegistrasiAuto {
+		var tmp int
+		var tmpNpwpd npwpd.Npwpd
+		nomor := a.DB.Last(&tmpNpwpd)
+		if nomor.Error != nil {
+			return 1
+		} else {
+			tmp = tmpNpwpd.Nomor
+			tmp++
+		}
+		return tmp
+	}
+	return nomor
+}
+
+func GenerateNpwpd(nomor int, kecamatan_id uint64, kodeJenisUsaha string) string {
+	kecamatanIdString := strconv.Itoa(int(kecamatan_id))
+	if kodeJenisUsaha == "" {
+		kodeJenisUsaha = "xxx"
+	}
+	tmpNomorString := strconv.Itoa(nomor)
+	if len(tmpNomorString) == 1 {
+		tmpNomorString = "000" + tmpNomorString
+	} else if len(tmpNomorString) == 2 {
+		tmpNomorString = "00" + tmpNomorString
+	} else if len(tmpNomorString) == 3 {
+		tmpNomorString = "0" + tmpNomorString
+	}
+	npwpdString := tmpNomorString + "." + kecamatanIdString + "." + kodeJenisUsaha
+	return npwpdString
 }
