@@ -61,29 +61,29 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 
 	// data registrasi objek pajak
 	if err := sc.Copy(&dataOp, &input.RegObjekPajak); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataOp)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload regObjekPajak", dataOp)
 	}
 
 	// data pemilik wajib pajak
 	if err := sc.Copy(&dataPemilik, &input.RegPemilik); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilik)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload regPemilik", dataPemilik)
 	}
 
 	// data narahubung
 	if err := sc.Copy(&dataNarahubung, &input.RegNarahubung); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataNarahubung)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload regNarahubung", dataNarahubung)
 	}
 
 	if input.Golongan == 2 {
 		// data direktur
 		if err := sc.Copy(&dataDirektur, &input.RegDirektur); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataDirektur)
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload regDirektur", dataDirektur)
 		}
 	}
 
 	// data registrasi npwpd
 	if err := sc.Copy(&register, input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", register)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload registrasi npwpd", register)
 	}
 	register.FotoKtp = <-imgNameChan
 
