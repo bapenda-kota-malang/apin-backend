@@ -86,37 +86,22 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 		return nil, err
 	}
 	// var tmpverify = npwpd.VerifiyPendaftaranDisetujui
-	var tmpNomor = func() int {
-
-		if reg.IsNomorRegistrasiAuto {
-			var tmp int
-			var tmpNpwpd npwpd.Npwpd
-			nomor := a.DB.Last(&tmpNpwpd)
-			if nomor.Error != nil {
-				return 1
-			} else {
-				tmp = tmpNpwpd.Nomor
-				tmp++
-			}
-			return tmp
-		}
-		return reg.Nomor
-	}()
-
-	kecamatanIdString := strconv.Itoa(int(*reg.ObjekPajak.Kecamatan_Id))
-	kodeJenisUsahaString := *rekening.KodeJenisUsaha
-	if kodeJenisUsahaString == "" {
-		kodeJenisUsahaString = "xxx"
-	}
-	tmpNomorString := strconv.Itoa(tmpNomor)
-	if len(tmpNomorString) == 1 {
-		tmpNomorString = "000" + tmpNomorString
-	} else if len(tmpNomorString) == 2 {
-		tmpNomorString = "00" + tmpNomorString
-	} else if len(tmpNomorString) == 3 {
-		tmpNomorString = "0" + tmpNomorString
-	}
-	npwpdString := tmpNomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString
+	var tmpNomor = generateNomor(reg.IsNomorRegistrasiAuto, reg.Nomor)
+	var tmpNpwpd = GenerateNpwpd(tmpNomor, *reg.ObjekPajak.Kecamatan_Id, *rekening.KodeJenisUsaha)
+	// kecamatanIdString := strconv.Itoa(int(*reg.ObjekPajak.Kecamatan_Id))
+	// kodeJenisUsahaString := *rekening.KodeJenisUsaha
+	// if kodeJenisUsahaString == "" {
+	// 	kodeJenisUsahaString = "xxx"
+	// }
+	// tmpNomorString := strconv.Itoa(tmpNomor)
+	// if len(tmpNomorString) == 1 {
+	// 	tmpNomorString = "000" + tmpNomorString
+	// } else if len(tmpNomorString) == 2 {
+	// 	tmpNomorString = "00" + tmpNomorString
+	// } else if len(tmpNomorString) == 3 {
+	// 	tmpNomorString = "0" + tmpNomorString
+	// }
+	// npwpdString := tmpNomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString
 	register := npwpd.Npwpd{
 		JalurRegistrasi:   nt.JalurRegistrasiOperator,
 		Status:            nt.StatusAktif,
@@ -126,7 +111,7 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 		Npwp:              reg.Npwp,
 		VerifiedAt:        th.TimeNow(),
 		Nomor:             tmpNomor,
-		Npwpd:             &npwpdString,
+		Npwpd:             &tmpNpwpd,
 		TanggalPengukuhan: th.ParseTime(*reg.TanggalPengukuhan),
 		TanggalNpwpd:      th.ParseTime(*reg.TanggalNpwpd),
 		Rekening_Id:       &reg.Rekening_Id,

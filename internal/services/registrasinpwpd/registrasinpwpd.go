@@ -12,6 +12,11 @@ import (
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rop "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	sn "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd"
+	rsd "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd/regdirektur"
+	rsn "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd/regnarahubung"
+	rsop "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd/regobjekpajak"
+	rsp "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd/regpemilik"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -23,97 +28,143 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-const source = "registrasiNpwpd"
+const source = "registrasi npwpd"
 
-func Create(reg rn.CreateDto, user_Id uint) (interface{}, error) {
-	var err error
-	// objekpajak
-	op := *reg.RegObjekPajak
-	op.Status = nt.StatusBaru
-	errOp := a.DB.Create(&op).Error
-	if errOp != nil {
-		return nil, err
-	}
+func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 	user_IdConv := uint64(user_Id)
 	var rekening *rm.Rekening
-	err = a.DB.Model(&rm.Rekening{}).First(&rekening, reg.Rekening_Id).Error
-	if err != nil {
-		return nil, err
-	}
-
-	// foto ktp
+	var dataOp rop.RegObjekPajakCreate
+	var register rn.RegistrasiNpwpd
+	var dataPemilik []rn.RegPemilikWpCreate
+	var dataNarahubung []rn.RegNarahubungCreate
+	var dataDirektur []rn.RegDirekturCreate
 	var imgNameChan = make(chan string)
 	var errChan = make(chan error)
+	var respDataOp interface{}
+	var respDataPemilik interface{}
+	var respDataDirektur interface{}
+	var respDataNarahubung interface{}
+	var resp t.II
 
-	go sh.SaveImage(reg.FotoKtp, imgNameChan, errChan)
+	go sh.SaveImage(input.FotoKtp, imgNameChan, errChan)
 	if err := <-errChan; err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "image unsupported", reg)
+		return sh.SetError("request", "create-data", source, "failed", "image unsupported", input)
 	}
-	var tmp string = <-imgNameChan
 
-	register := rn.RegistrasiNpwpd{
-		JenisPajak:       nt.JenisPajakSA,
-		Status:           nt.StatusAktif,
-		User_Id:          user_IdConv,
-		Golongan:         reg.Golongan,
-		RegObjekPajak_Id: op.Id,
-		Npwp:             reg.Npwp,
-		VerifyStatus:     rn.VerifyStatusBaru,
-		// Nomor:             tmpNomor,
-		Rekening_Id:       reg.Rekening_Id,
-		Rekening:          rekening,
-		TanggalMulaiUsaha: th.ParseTime(*reg.TanggalMulaiUsaha),
-		LuasBangunan:      reg.LuasBangunan,
-		JamBukaUsaha:      reg.JamBukaUsaha,
-		JamTutupUsaha:     reg.JamTutupUsaha,
-		Pengunjung:        reg.Pengunjung,
-		OmsetOp:           reg.OmsetOp,
-		Genset:            &reg.Genset,
-		AirTanah:          &reg.AirTanah,
-		FotoKtp:           tmp,
-		LainLain:          sh.GetArrayPhoto(reg.LainLain),
-		SuratIzinUsaha:    sh.GetArrayPhoto(reg.SuratIzinUsaha),
-		FotoObjek:         sh.GetArrayPhoto(reg.FotoObjek),
-	}
-	err = a.DB.Create(&register).Error
-	if err != nil {
-		return nil, err
-	}
-	err = insertDetailOp(*rekening.Objek, reg.DetailRegOp, &register)
+	// get data rekening
+	err := a.DB.Model(&rm.Rekening{}).First(&rekening, input.Rekening_Id).Error
 	if err != nil {
 		return nil, err
 	}
 
-	for _, p := range *reg.RegPemilik {
-		p.RegistrasiNpwpd_Id = register.Id
-		p.Status = nt.StatusBaru
-		err := a.DB.Create(&p).Error
-		if err != nil {
-			return nil, err
-		}
+	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
+
+	// data registrasi objek pajak
+	if err := sc.Copy(&dataOp, &input.RegObjekPajak); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataOp)
 	}
-	for _, n := range *reg.RegNarahubung {
-		n.RegistrasiNpwpd_Id = register.Id
-		n.Status = nt.StatusBaru
-		err := a.DB.Create(&n).Error
-		if err != nil {
-			return nil, err
+
+	// data pemilik wajib pajak
+	if err := sc.Copy(&dataPemilik, &input.RegPemilik); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataPemilik)
+	}
+
+	// data narahubung
+	if err := sc.Copy(&dataNarahubung, &input.RegNarahubung); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataNarahubung)
+	}
+
+	if input.Golongan == 2 {
+		// data direktur
+		if err := sc.Copy(&dataDirektur, &input.RegDirektur); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataDirektur)
 		}
 	}
 
-	if reg.Golongan == 2 {
-		for _, d := range *reg.RegDirektur {
-			d.RegistrasiNpwpd_Id = register.Id
-			// n.Status = nt.StatusBaru
-			err := a.DB.Create(&d).Error
+	// data registrasi npwpd
+	if err := sc.Copy(&register, input); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", register)
+	}
+	register.FotoKtp = <-imgNameChan
+
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
+
+		// objekpajak
+		resultRegObjekPajak, err := rsop.Create(dataOp, tx)
+		if err != nil {
+			return err
+		}
+		resultCastRegObjekPajak := resultRegObjekPajak.(rp.OKSimple).Data.(rop.RegObjekPajak)
+		respDataOp = resultRegObjekPajak
+
+		// add static field
+		register.JenisPajak = nt.JenisPajakSA
+		register.Status = nt.StatusAktif
+		register.User_Id = user_IdConv
+		register.RegObjekPajak_Id = resultCastRegObjekPajak.Id
+		register.VerifyStatus = rn.VerifyStatusBaru
+		register.Rekening = rekening
+		register.TanggalMulaiUsaha = th.ParseTime(*input.TanggalMulaiUsaha)
+		register.LainLain = sh.GetArrayPhoto(input.LainLain)
+		register.SuratIzinUsaha = sh.GetArrayPhoto(input.SuratIzinUsaha)
+		register.FotoObjek = sh.GetArrayPhoto(input.FotoObjek)
+
+		err = a.DB.Create(&register).Error
+		if err != nil {
+			return err
+		}
+		err = insertDetailOp(*rekening.Objek, input.DetailRegOp, &register)
+		if err != nil {
+			return err
+		}
+
+		resultRegPemilik, err := rsp.Create(dataPemilik, register.Id, tx)
+		if err != nil {
+			return err
+		}
+		respDataPemilik = resultRegPemilik
+
+		resultRegNarahubung, err := rsn.Create(dataNarahubung, register.Id, tx)
+		if err != nil {
+			return err
+		}
+		respDataNarahubung = resultRegNarahubung
+
+		if input.Golongan == 2 {
+			resultRegDirektur, err := rsd.Create(dataDirektur, register.Id, tx)
 			if err != nil {
-				return nil, err
+				return err
 			}
+			respDataDirektur = resultRegDirektur
 		}
+		return nil
+	})
+
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), register)
 	}
 
+	if input.Golongan == 2 {
+		resp = t.II{
+			"objekPajak":      respDataOp.(rp.OKSimple).Data,
+			"registrasiNpwpd": register,
+			"pemilikWp":       respDataPemilik.(rp.OKSimple).Data,
+			"narahubung":      respDataNarahubung.(rp.OKSimple).Data,
+			"direktur":        respDataDirektur.(rp.OKSimple).Data,
+		}
+	}
+	resp = t.II{
+		"objekPajak":      respDataOp.(rp.OKSimple).Data,
+		"registrasiNpwpd": register,
+		"pemilikWp":       respDataPemilik.(rp.OKSimple).Data,
+		"narahubung":      respDataNarahubung.(rp.OKSimple).Data,
+	}
+
+	// return rp.OKSimple{
+	// 	Data: register,
+	// }, nil
 	return rp.OKSimple{
-		Data: register,
+		Data: resp,
 	}, nil
 }
 
@@ -125,10 +176,6 @@ func GetList(input rn.FilterDto) (interface{}, error) {
 	result := a.DB.
 		Model(&rn.RegistrasiNpwpd{}).
 		Preload(clause.Associations).
-		Preload("RegPemilikWps").
-		Preload("RegObjekPajak").
-		Preload("RegObjekPajak.Kecamatan").
-		Preload("RegObjekPajak.Kelurahan").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -136,14 +183,6 @@ func GetList(input rn.FilterDto) (interface{}, error) {
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
-
-	// result := a.DB.Model(&rn.RegistrasiNpwpd{}).
-	// 	Preload(clause.Associations).
-	// 	//nested preload
-	// 	//Preload("PemilikWps.Kelurahan").
-	// 	Count(&count).
-	// 	// Scopes(gormhelper.Paginate(&pagination)).
-	// 	Find(&register)
 
 	return rp.OK{
 		Meta: t.IS{
@@ -246,36 +285,11 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 	}
 
 	//creating npwpd
-	// nomorString := strconv.Itoa(int(*data.Nomor))
-	kecamatanIdString := strconv.Itoa(int(*dataRegOp.Kecamatan_Id))
-	kodeJenisUsahaString := *rekening.KodeJenisUsaha
-	if kodeJenisUsahaString == "" {
-		kodeJenisUsahaString = "xxx"
-	}
-	var tmpNomor = func() int {
+	var tmpNomor = generateNomor()
+	tmpNpwpd := sn.GenerateNpwpd(tmpNomor, *dataRegOp.Kecamatan_Id, *rekening.KodeJenisUsaha)
 
-		var tmp int
-		var tmpNpwpd nm.Npwpd
-		nomor := a.DB.Last(&tmpNpwpd)
-		if nomor.Error != nil {
-			return 1
-		} else {
-			tmp = tmpNpwpd.Nomor
-			tmp++
-		}
-		return tmp
-	}()
-	tmpNomorString := strconv.Itoa(tmpNomor)
-	if len(tmpNomorString) == 1 {
-		tmpNomorString = "000" + tmpNomorString
-	} else if len(tmpNomorString) == 2 {
-		tmpNomorString = "00" + tmpNomorString
-	} else if len(tmpNomorString) == 3 {
-		tmpNomorString = "0" + tmpNomorString
-	}
 	dataNpwpd.Nomor = tmpNomor
-	npwpdString := tmpNomorString + "." + kecamatanIdString + "." + kodeJenisUsahaString
-	dataNpwpd.Npwpd = &npwpdString
+	dataNpwpd.Npwpd = &tmpNpwpd
 
 	//tanggal
 	dataNpwpd.TanggalPengukuhan = th.TimeNow()
@@ -568,22 +582,6 @@ func Delete(id int) (any, error) {
 			}
 		}
 	}
-
-	// data objekpajak
-	// var dataObjekPajak []*rn.RegObjekPajak
-	// result = a.DB.Where(rn.RegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}).Find(&dataObjekPajak)
-	// if result.RowsAffected == 0 {
-	// 	return nil, errors.New("data tidak dapat ditemukan")
-	// }
-
-	// for _, v := range dataObjekPajak {
-	// 	result = a.DB.Where(rn.RegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}).Delete(&v)
-	// 	status = "deleted"
-	// 	if result.RowsAffected == 0 {
-	// 		dataPemilik = nil
-	// 		status = "no deletion"
-	// 	}
-	// }
 
 	// data rekening
 	var rekening *rm.Rekening

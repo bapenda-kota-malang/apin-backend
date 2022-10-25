@@ -72,7 +72,7 @@ type CreateDto struct {
 	TanggalPenutupan *string `json:"tanggalPenutupan"`
 	TanggalBuka      *string `json:"tanggalBuka"`
 	Skpd_Id          *uint64 `json:"skpd_id"`
-	Rekening_Id      *uint64 `json:"rekening_id"`
+	Rekening_Id      *uint64 `json:"rekening_id" validate:"required"`
 	User_Name        *string `json:"user_name"`
 
 	TanggalMulaiUsaha *string  `json:"tanggalMulaiUsaha"`
@@ -81,20 +81,20 @@ type CreateDto struct {
 	JamTutupUsaha     *string  `json:"jamTutupUsaha"`
 	Pengunjung        *string  `json:"pengunjung"`
 	OmsetOp           *string  `json:"omsetOp"`
-	FotoKtp           string   `json:"fotoKtp"`
-	SuratIzinUsaha    []string `json:"suratIzinUsaha"`
+	FotoKtp           string   `json:"fotoKtp" validate:"required"`
+	SuratIzinUsaha    []string `json:"suratIzinUsaha" validate:"required"`
 	LainLain          []string `json:"lainLain"`
-	FotoObjek         []string `json:"fotoObjek"`
+	FotoObjek         []string `json:"fotoObjek" validate:"required"`
 
-	Genset   bool `json:"genset"`
-	AirTanah bool `json:"airTanah"`
+	Genset   bool `json:"genset" validate:"required"`
+	AirTanah bool `json:"airTanah" validate:"required"`
 
 	DetailRegOp *[]DetailRegObjekPajak `json:"detailRegObjekPajak"`
 
-	RegObjekPajak *rop.RegObjekPajak `json:"regObjekPajak"`
-	RegPemilik    *[]RegPemilikWp    `json:"regPemilik"`
-	RegNarahubung *[]RegNarahubung   `json:"regNarahubung"`
-	RegDirektur   *[]RegDirektur     `json:"regDirektur"`
+	RegObjekPajak *rop.RegObjekPajakCreate `json:"regObjekPajak"`
+	RegPemilik    *[]RegPemilikWpCreate    `json:"regPemilik"`
+	RegNarahubung *[]RegNarahubungCreate   `json:"regNarahubung"`
+	RegDirektur   *[]RegDirekturCreate     `json:"regDirektur"`
 }
 
 type UpdateDto struct {

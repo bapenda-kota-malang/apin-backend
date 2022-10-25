@@ -3,6 +3,7 @@ package registrasinpwpd
 import (
 	"reflect"
 
+	nm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 )
@@ -70,4 +71,17 @@ func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajak, registerForm *
 	}
 
 	return nil
+}
+
+func generateNomor() int {
+	var tmp int
+	var tmpNpwpd nm.Npwpd
+	nomor := a.DB.Last(&tmpNpwpd)
+	if nomor.Error != nil {
+		return 1
+	} else {
+		tmp = tmpNpwpd.Nomor
+		tmp++
+	}
+	return tmp
 }
