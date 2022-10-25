@@ -23,6 +23,7 @@ func init() {
 	RegisterFieldChecker("maxLength", maxLengthTagValidator)
 	RegisterFieldChecker("validemail", emailValidator)
 	RegisterFieldChecker("base64", base64Validator)
+	RegisterFieldChecker("b64size", b64SizeKb)
 	RegisterFieldChecker("nik", nikValidator)
 	RegisterFieldChecker("nohp", noHpValidator)
 }
@@ -148,6 +149,51 @@ func noHpValidator(val reflect.Value, exptVal string) error {
 
 	if !re.MatchString(h.ValStringer(val)) {
 		return errors.New("harus memiliki format base64")
+	}
+
+	return nil
+}
+
+// validate base64 approx size file
+//
+// using kb for parameter value eg: 1024 means 1024KB or 1MB or 1024000 B max allowed size file
+func b64SizeKb(val reflect.Value, exptVal string) error {
+	if val.Kind() == reflect.Pointer && val.IsNil() {
+		return nil
+	}
+
+	exptValInt, err := strconv.Atoi(exptVal)
+	if err != nil {
+		return errors.New("nilai harus berupa angka/numerik")
+	}
+
+	datas := h.ValStringer(val)
+
+	l := len(datas)
+
+	// count how many trailing '=' there are (if any)
+	eq := 0
+	if l >= 2 {
+		if datas[l-1] == '=' {
+			eq++
+		}
+		if datas[l-2] == '=' {
+			eq++
+		}
+
+		l -= eq
+	}
+
+	// basically:
+	// eq == 0 :	bits-wasted = 0
+	// eq == 1 :	bits-wasted = 2
+	// eq == 2 :	bits-wasted = 4
+
+	// so orig length ==  (l*6 - eq*2) / 8
+
+	// if bytes size > max bytes allowed then
+	if (l*3-eq)/4 > exptValInt*1000 {
+		return fmt.Errorf("ukuran file lebih besar dari %d KB", exptValInt)
 	}
 
 	return nil
