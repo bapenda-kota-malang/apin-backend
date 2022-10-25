@@ -23,25 +23,26 @@ type RegNarahubung struct {
 }
 
 type RegNarahubungCreate struct {
-	Nama         string     `json:"nama" gorm:"size:50" validate:"required"`
-	Alamat       string     `json:"alamat" gorm:"size:50" validate:"required"`
-	RtRw         string     `json:"rtRw" gorm:"size:10" validate:"required"`
+	Nama         string     `json:"nama" validate:"required"`
+	Alamat       string     `json:"alamat" validate:"required"`
+	RtRw         string     `json:"rtRw" validate:"required"`
 	Daerah_Id    *uint64    `json:"daerah_id" validate:"required"`
 	Kelurahan_Id uint64     `json:"kelurahan_id" validate:"required"`
-	Telp         string     `json:"telp" gorm:"size:20" validate:"required"`
-	Nik          string     `json:"nik" gorm:"size:20"`
-	Status       t.StatusBL `json:"status" validate:"required"`
+	Telp         string     `json:"telp" validate:"required"`
+	Nik          string     `json:"nik" validate:"required;nik"`
+	Status       t.StatusBL `json:"status"`
 	Email        string     `json:"email" validate:"required;emailvalid"`
 }
 
 type RegNarahubungUpdate struct {
-	Id           uint64  `json:"id" gorm:"primaryKey"`
-	Nama         string  `json:"nama" gorm:"size:50"`
-	Alamat       string  `json:"alamat" gorm:"size:50"`
-	RtRw         string  `json:"rtRw" gorm:"size:10"`
-	Daerah_Id    *uint64 `json:"daerah_id"`
-	Kelurahan_Id uint64  `json:"kelurahan_id"`
-	Telp         string  `json:"telp" gorm:"size:20"`
-	Nik          string  `json:"nik" gorm:"size:20"`
-	Email        string  `json:"email" validate:"required;emailvalid"`
+	Id           uint64     `json:"id"`
+	Nama         string     `json:"nama" validate:"required"`
+	Alamat       string     `json:"alamat" validate:"required"`
+	RtRw         string     `json:"rtRw" validate:"required"`
+	Daerah_Id    *uint64    `json:"daerah_id" validate:"required"`
+	Kelurahan_Id uint64     `json:"kelurahan_id" validate:"required"`
+	Telp         string     `json:"telp" validate:"required"`
+	Nik          string     `json:"nik" validate:"required;nik"`
+	Status       t.StatusBL `json:"status"`
+	Email        string     `json:"email" validate:"required;emailvalid"`
 }
