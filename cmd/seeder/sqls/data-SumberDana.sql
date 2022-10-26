@@ -29,7 +29,7 @@ COPY public."SumberDana" ("Id", "Rekening_Id", "Nama", "Bank", "NoRekeningBank",
 -- Name: SumberDana_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."SumberDana_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."SumberDana_Id_seq"', 4, false);
 
 
 --

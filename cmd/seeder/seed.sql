@@ -9,11 +9,15 @@
 \i sqls/data-Skpd.sql
 \i sqls/data-TarifJambong.sql
 \i sqls/data-TarifJambongRek.sql
+\i sqls/data-JenisPPJ.sql
 
 -- below for table have relation to parent
 \i sqls/data-SumberDana.sql
 \i sqls/data-TarifReklame.sql
 \i sqls/data-TarifPajak.sql
 \i sqls/data-User.sql
+
+-- below for table have relation to child
+\i sqls/data-Npwpd.sql
 
 -- new data

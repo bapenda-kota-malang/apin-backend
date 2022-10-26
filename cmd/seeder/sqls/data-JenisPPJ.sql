@@ -17,19 +17,24 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Data for Name: Skpd; Type: TABLE DATA; Schema: public; Owner: dexwip
+-- Data for Name: JenisPPJ; Type: TABLE DATA; Schema: public; Owner: dexwip
 --
 
-COPY public."Skpd" ("Id", "Kode", "Nama", "Alamat", "Telp") FROM stdin;
-112	1.20.08	Badan Pelayanan Pajak Daerah	Malang	\N
+COPY public."JenisPPJ" ("Id", "Tahun", "Jenis", "TarifPersen", "CreatedAt", "UpdatedAt", "DeletedAt") FROM stdin;
+1	2022	SOSIAL	0	\N	\N	\N
+2	2022	RUMAH TANGGA	7	\N	\N	\N
+3	2022	BISNIS	5	\N	\N	\N
+4	2022	INDUSTRI	3	\N	\N	\N
+5	2022	PEMERINTAH	0	\N	\N	\N
+6	\N	LAIN LAIN	0	\N	\N	\N
 \.
 
 
 --
--- Name: Skpd_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
+-- Name: JenisPPJ_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."Skpd_Id_seq"', 112, false);
+SELECT pg_catalog.setval('public."JenisPPJ_Id_seq"', 6, false);
 
 
 --

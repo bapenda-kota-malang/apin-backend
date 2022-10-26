@@ -106,7 +106,7 @@ COPY public."Menu" ("Id", "Parent_Id", "Title", "Url", "Active") FROM stdin;
 -- Name: Menu_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."Menu_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Menu_Id_seq"', 93, false);
 
 
 --
