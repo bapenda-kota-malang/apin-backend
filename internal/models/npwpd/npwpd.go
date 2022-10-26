@@ -14,7 +14,7 @@ import (
 type Npwpd struct {
 	Id                uint64             `json:"id" gorm:"primarykey"`
 	ObjekPajak_Id     uint64             `json:"objekPajak_id"`
-	ObjekPajak        *op.ObjekPajak     `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
+	ObjekPajak        *op.ObjekPajak     `json:"objekPajak" gorm:"foreignKey:ObjekPajak_Id"`
 	Golongan          t.Golongan         `json:"golongan"`
 	Nomor             int                `json:"nomor"`
 	Npwp              *string            `json:"npwp" gorm:"size:50"`
@@ -28,7 +28,7 @@ type Npwpd struct {
 	Skpd_Id           *uint64            `json:"skpd_id"`
 	Skpd              *skpd.Skpd         `json:"skpd,omitempty" gorm:"foreignKey:Skpd_Id"`
 	Rekening_Id       *uint64            `json:"rekening_id"`
-	Rekening          *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
+	Rekening          *rekening.Rekening `json:"rekening" gorm:"foreignKey:Rekening_Id"`
 	Nama              *string            `json:"nama" gorm:"size:20"`
 	User_Id           *uint64            `json:"user_id"`
 	User              *user.User         `gorm:"foreignKey:User_Id"`
