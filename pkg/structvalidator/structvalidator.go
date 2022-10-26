@@ -101,10 +101,10 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 			parsedTag := parseTag(tag)
 			for _, kv := range parsedTag {
 				if _, ok := tagValidator[kv.Key]; ok {
-					fmt.Println(fieldT.Name, "is being validated")
+					// fmt.Println(fieldT.Name, "is being validated")
 					err := tagValidator[kv.Key](fieldV, kv.Val)
 					if err != nil {
-						fmt.Println(fieldT.Name, "validation is failed")
+						// fmt.Println(fieldT.Name, "validation is failed")
 						key := fieldT.Tag.Get("json")
 						if key == "" {
 							key = fieldT.Name
@@ -125,21 +125,16 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 
 // Validation from IO Reader
 func ValidateIoReader(container interface{}, input io.Reader) map[string]ValidationError {
-	// cV := reflect.ValueOf(container)
-	// if cV.Kind() != reflect.Ptr || cV.Type().Kind() != reflect.Struct {
-	// 	panic("requires pointer of a struct typed input")
-	// }
 	decoder := json.NewDecoder(input)
 	err := decoder.Decode(&container)
 	if err != nil {
-		// cI := reflect.ValueOf(container).E()
-		cI := reflect.ValueOf(container).Elem().Interface()
-		cV := reflect.ValueOf(cI)
-		// cT := reflect.TypeOf(cV)
-		// myType := cT.String()//
-		myType := fmt.Sprintf("%T", cV)
+		cV := reflect.ValueOf(container)
+		for cV.Kind() == reflect.Pointer || cV.Kind() == reflect.Interface {
+			cV = cV.Elem()
+		}
+		structName := cV.Type().Name()
 		return map[string]ValidationError{
-			"struct": {fmt.Sprintf("gagal mengambil data %v", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
+			"struct": {fmt.Sprintf("gagal melakukan parsing Body Payload ke dalam data %v", structName), "struct", fmt.Sprintf("value of %v", structName), ""},
 		}
 	}
 
