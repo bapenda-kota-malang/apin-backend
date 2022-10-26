@@ -36,49 +36,49 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "hotel":
 		var tmp m.CreateDetailHotelDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "hiburan":
 		var tmp m.CreateDetailHiburanDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "parkir":
 		var tmp m.CreateDetailParkirDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "resto":
 		var tmp m.CreateDetailRestoDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "ppjnonpln":
 		var tmp m.CreateDetailPpjNonPlnDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "ppjpln":
 		var tmp m.CreateDetailPpjPlnDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	default:
 		err = errors.New("category tidak diketahui")
 		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)

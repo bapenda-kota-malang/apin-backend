@@ -18,11 +18,16 @@ import (
 
 const source = "detailespthiburan"
 
-func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
+func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data []m.DetailEsptHiburan
+
+	if input.KarcisBebas && input.JumlahKarcisBebas == nil {
+		return nil, errors.New("jumlah karcis bebas kosong")
+	}
+
+	var data m.DetailEsptHiburan
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {

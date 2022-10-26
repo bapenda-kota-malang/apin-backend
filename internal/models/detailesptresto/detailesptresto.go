@@ -18,12 +18,12 @@ type DetailEsptResto struct {
 
 type CreateDto struct {
 	Espt_Id          uint
-	JumlahMeja       uint     `json:"jumlahMeja"  validate:"required"`
-	JumlahKursi      uint     `json:"jumlahKursi"  validate:"required"`
-	TarifMinuman     *float32 `json:"tarifMinuman"  validate:"required"`
-	TarifMakanan     *float32 `json:"tarifMakanan"  validate:"required"`
-	JumlahPengunjung uint     `json:"jumlahPengunjung"  validate:"required"`
-	IdBt             *uint    `json:"idBt"  validate:"required"`
+	JumlahMeja       uint     `json:"jumlahMeja" validate:"min=1"`
+	JumlahKursi      uint     `json:"jumlahKursi" validate:"min=1"`
+	TarifMinuman     *float32 `json:"tarifMinuman"`
+	TarifMakanan     *float32 `json:"tarifMakanan"`
+	JumlahPengunjung uint     `json:"jumlahPengunjung" validate:"min=1"`
+	IdBt             *uint    `json:"idBt" validate:"min=1"`
 }
 
 type UpdateDto struct {

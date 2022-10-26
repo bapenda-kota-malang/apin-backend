@@ -12,16 +12,18 @@ type DetailEspt struct {
 type DetailEsptAir struct {
 	DetailEspt
 	Peruntukan Peruntukan `json:"peruntukan" gorm:"size:100"`
-	JenisAbt   JenisABT   `json:"jenisAbt" gorm:"20"`
+	JenisAbt   JenisABT   `json:"jenisAbt" gorm:"size:20"`
+	Location   *string    `json:"location,omitempty" gorm:"size:50"`
 	Pengenaan  float32    `json:"pengenaan"`
 	gormhelper.DateModel
 }
 
 type CreateDto struct {
 	Espt_Id    uint
-	Peruntukan Peruntukan `json:"peruntukan"  validate:"required"`
-	JenisAbt   JenisABT   `json:"jenisAbt"  validate:"required"`
-	Pengenaan  float32    `json:"pengenaan"  validate:"min=1"`
+	Peruntukan Peruntukan `json:"peruntukan" validate:"required"`
+	JenisAbt   JenisABT   `json:"jenisAbt"`
+	Location   *string    `json:"location"`
+	Pengenaan  float32    `json:"-"`
 }
 
 type UpdateDto struct {

@@ -11,6 +11,8 @@ type DetailEsptHotel struct {
 	Tarif               *float32 `json:"tarif"`
 	JumlahKamar         *uint    `json:"jumlahKamar"`
 	JumlahKamarYangLaku *uint    `json:"jumlahKamarYangLaku"`
+	KasRegister         bool     `json:"kasRegister"`
+	Pembukuan           bool     `json:"pembukuan"`
 	gormhelper.DateModel
 }
 
@@ -20,6 +22,8 @@ type CreateDto struct {
 	Tarif               *float32 `json:"tarif"`
 	JumlahKamar         *uint    `json:"jumlahKamar"`
 	JumlahKamarYangLaku *uint    `json:"jumlahKamarYangLaku"`
+	KasRegister         bool     `json:"kasRegister" validate:"required"`
+	Pembukuan           bool     `json:"pembukuan" validate:"required"`
 }
 
 type UpdateDto struct {
@@ -28,4 +32,6 @@ type UpdateDto struct {
 	Tarif               *float32 `json:"tarif"`
 	JumlahKamar         *uint    `json:"jumlahKamar"`
 	JumlahKamarYangLaku *uint    `json:"jumlahKamarYangLaku"`
+	KasRegister         bool     `json:"kasRegister"`
+	Pembukuan           bool     `json:"pembukuan"`
 }

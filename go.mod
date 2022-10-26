@@ -11,11 +11,13 @@ require (
 	github.com/jinzhu/copier v0.3.5
 	github.com/joho/godotenv v1.4.0
 	github.com/julienschmidt/httprouter v1.3.0
+	github.com/lib/pq v1.10.7
 	github.com/spf13/viper v1.12.0
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
+	gorm.io/datatypes v1.0.7
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/driver/postgres v1.3.7
 	gorm.io/gorm v1.23.10
@@ -52,7 +54,6 @@ require (
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/datatypes v1.0.7 // indirect
 )
 
 require (

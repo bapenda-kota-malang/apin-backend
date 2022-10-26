@@ -11,8 +11,8 @@ import (
 )
 
 type CreateDetailAirDto struct {
-	Espt        CreateDto                 `json:"espt"`
-	DataDetails []detailesptair.CreateDto `json:"dataDetails" validate:"required"`
+	Espt        CreateDto               `json:"espt" validate:"required"`
+	DataDetails detailesptair.CreateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input CreateDetailAirDto) GetEspt() CreateDto {
@@ -20,18 +20,29 @@ func (input CreateDetailAirDto) GetEspt() CreateDto {
 	return input.Espt
 }
 
+func (input *CreateDetailAirDto) CalculateTax(taxPercentage *float64) {
+	input.Espt.JumlahPajak = float32(input.Espt.Omset * (*taxPercentage / 100) * float64(input.DataDetails.Pengenaan))
+}
+
 func (input CreateDetailAirDto) GetDetails() interface{} {
 	return input.DataDetails
 }
 
 func (input CreateDetailAirDto) LenDetails() int {
-	return len(input.DataDetails)
+	return 1
 }
 
-func (input CreateDetailAirDto) ReplaceEsptId(id uint) {
-	for i := range input.DataDetails {
-		input.DataDetails[i].Espt_Id = id
-	}
+func (input *CreateDetailAirDto) ChangeDetails(newData interface{}) {
+	input.DataDetails.Pengenaan = newData.(detailesptair.CreateDto).Pengenaan
+	input.DataDetails.JenisAbt = newData.(detailesptair.CreateDto).JenisAbt
+}
+
+func (input *CreateDetailAirDto) ReplaceEsptId(id uint) {
+	input.DataDetails.Espt_Id = id
+}
+
+func (input *CreateDetailAirDto) ReplaceTarifPajakId(id uint) {
+	input.Espt.TarifPajak_Id = id
 }
 
 type CreateDetailHotelDto struct {
@@ -40,9 +51,12 @@ type CreateDetailHotelDto struct {
 }
 
 func (input CreateDetailHotelDto) GetEspt() CreateDto {
-	input.Espt.Location = nil
 	input.Espt.LuasLokasi = nil
 	return input.Espt
+}
+
+func (input *CreateDetailHotelDto) CalculateTax(taxPercentage *float64) {
+	input.Espt.JumlahPajak = float32(input.Espt.Omset * *taxPercentage / 100)
 }
 
 func (input CreateDetailHotelDto) GetDetails() interface{} {
@@ -53,21 +67,32 @@ func (input CreateDetailHotelDto) LenDetails() int {
 	return len(input.DataDetails)
 }
 
+func (input CreateDetailHotelDto) ChangeDetails(newData interface{}) {
+	// TODO: ADD PROCESS
+}
+
 func (input CreateDetailHotelDto) ReplaceEsptId(id uint) {
 	for i := range input.DataDetails {
 		input.DataDetails[i].Espt_Id = id
 	}
 }
 
+func (input *CreateDetailHotelDto) ReplaceTarifPajakId(id uint) {
+	input.Espt.TarifPajak_Id = id
+}
+
 type CreateDetailHiburanDto struct {
-	Espt        CreateDto                     `json:"espt" validate:"required"`
-	DataDetails []detailespthiburan.CreateDto `json:"dataDetails" validate:"required"`
+	Espt        CreateDto                   `json:"espt" validate:"required"`
+	DataDetails detailespthiburan.CreateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input CreateDetailHiburanDto) GetEspt() CreateDto {
-	input.Espt.Location = nil
 	input.Espt.LuasLokasi = nil
 	return input.Espt
+}
+
+func (input *CreateDetailHiburanDto) CalculateTax(taxPercentage *float64) {
+	input.Espt.JumlahPajak = float32(input.Espt.Omset * *taxPercentage / 100)
 }
 
 func (input CreateDetailHiburanDto) GetDetails() interface{} {
@@ -75,13 +100,19 @@ func (input CreateDetailHiburanDto) GetDetails() interface{} {
 }
 
 func (input CreateDetailHiburanDto) LenDetails() int {
-	return len(input.DataDetails)
+	return 1
 }
 
-func (input CreateDetailHiburanDto) ReplaceEsptId(id uint) {
-	for i := range input.DataDetails {
-		input.DataDetails[i].Espt_Id = id
-	}
+func (input CreateDetailHiburanDto) ChangeDetails(newData interface{}) {
+	// TODO: ADD PROCESS
+}
+
+func (input *CreateDetailHiburanDto) ReplaceEsptId(id uint) {
+	input.DataDetails.Espt_Id = id
+}
+
+func (input *CreateDetailHiburanDto) ReplaceTarifPajakId(id uint) {
+	input.Espt.TarifPajak_Id = id
 }
 
 type CreateDetailParkirDto struct {
@@ -90,8 +121,11 @@ type CreateDetailParkirDto struct {
 }
 
 func (input CreateDetailParkirDto) GetEspt() CreateDto {
-	input.Espt.Location = nil
 	return input.Espt
+}
+
+func (input *CreateDetailParkirDto) CalculateTax(taxPercentage *float64) {
+	input.Espt.JumlahPajak = float32(input.Espt.Omset * *taxPercentage / 100)
 }
 
 func (input CreateDetailParkirDto) GetDetails() interface{} {
@@ -102,21 +136,32 @@ func (input CreateDetailParkirDto) LenDetails() int {
 	return len(input.DataDetails)
 }
 
+func (input CreateDetailParkirDto) ChangeDetails(newData interface{}) {
+	// TODO: ADD PROCESS
+}
+
 func (input CreateDetailParkirDto) ReplaceEsptId(id uint) {
 	for i := range input.DataDetails {
 		input.DataDetails[i].Espt_Id = id
 	}
 }
 
+func (input *CreateDetailParkirDto) ReplaceTarifPajakId(id uint) {
+	input.Espt.TarifPajak_Id = id
+}
+
 type CreateDetailRestoDto struct {
-	Espt        CreateDto                   `json:"espt" validate:"required"`
-	DataDetails []detailesptresto.CreateDto `json:"dataDetails" validate:"required"`
+	Espt        CreateDto                 `json:"espt" validate:"required"`
+	DataDetails detailesptresto.CreateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input CreateDetailRestoDto) GetEspt() CreateDto {
-	input.Espt.Location = nil
 	input.Espt.LuasLokasi = nil
 	return input.Espt
+}
+
+func (input *CreateDetailRestoDto) CalculateTax(taxPercentage *float64) {
+	input.Espt.JumlahPajak = float32(input.Espt.Omset * *taxPercentage / 100)
 }
 
 func (input CreateDetailRestoDto) GetDetails() interface{} {
@@ -124,24 +169,33 @@ func (input CreateDetailRestoDto) GetDetails() interface{} {
 }
 
 func (input CreateDetailRestoDto) LenDetails() int {
-	return len(input.DataDetails)
+	return 1
 }
 
-func (input CreateDetailRestoDto) ReplaceEsptId(id uint) {
-	for i := range input.DataDetails {
-		input.DataDetails[i].Espt_Id = id
-	}
+func (input CreateDetailRestoDto) ChangeDetails(newData interface{}) {
+	// TODO: ADD PROCESS
+}
+
+func (input *CreateDetailRestoDto) ReplaceEsptId(id uint) {
+	input.DataDetails.Espt_Id = id
+}
+
+func (input *CreateDetailRestoDto) ReplaceTarifPajakId(id uint) {
+	input.Espt.TarifPajak_Id = id
 }
 
 type CreateDetailPpjNonPlnDto struct {
-	Espt        CreateDto                       `json:"espt" validate:"required"`
-	DataDetails []detailesptppjnonpln.CreateDto `json:"dataDetails" validate:"required"`
+	Espt        CreateDto                     `json:"espt" validate:"required"`
+	DataDetails detailesptppjnonpln.CreateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input CreateDetailPpjNonPlnDto) GetEspt() CreateDto {
-	input.Espt.Location = nil
 	input.Espt.LuasLokasi = nil
 	return input.Espt
+}
+
+func (input *CreateDetailPpjNonPlnDto) CalculateTax(taxPercentage *float64) {
+	input.Espt.JumlahPajak = float32(input.Espt.Omset * *taxPercentage / 100)
 }
 
 func (input CreateDetailPpjNonPlnDto) GetDetails() interface{} {
@@ -149,13 +203,19 @@ func (input CreateDetailPpjNonPlnDto) GetDetails() interface{} {
 }
 
 func (input CreateDetailPpjNonPlnDto) LenDetails() int {
-	return len(input.DataDetails)
+	return 1
 }
 
-func (input CreateDetailPpjNonPlnDto) ReplaceEsptId(id uint) {
-	for i := range input.DataDetails {
-		input.DataDetails[i].Espt_Id = id
-	}
+func (input CreateDetailPpjNonPlnDto) ChangeDetails(newData interface{}) {
+	// TODO: ADD PROCESS
+}
+
+func (input *CreateDetailPpjNonPlnDto) ReplaceEsptId(id uint) {
+	input.DataDetails.Espt_Id = id
+}
+
+func (input *CreateDetailPpjNonPlnDto) ReplaceTarifPajakId(id uint) {
+	input.Espt.TarifPajak_Id = id
 }
 
 type CreateDetailPpjPlnDto struct {
@@ -164,9 +224,21 @@ type CreateDetailPpjPlnDto struct {
 }
 
 func (input CreateDetailPpjPlnDto) GetEspt() CreateDto {
-	input.Espt.Location = nil
 	input.Espt.LuasLokasi = nil
 	return input.Espt
+}
+
+func (input *CreateDetailPpjPlnDto) CalculateTax(taxPercentage *float64) {
+	tax := float32(0)
+	for v := range input.DataDetails {
+		if input.DataDetails[v].JenisPPJ.Jenis == "LAIN LAIN" {
+			continue
+		}
+		jumlah := float32(input.DataDetails[v].JumlahRekening)
+		jumlah = jumlah * (input.DataDetails[v].JenisPPJ.TarifPersen / 100)
+		tax += jumlah
+	}
+	input.Espt.JumlahPajak = tax + float32(input.Espt.Omset)
 }
 
 func (input CreateDetailPpjPlnDto) GetDetails() interface{} {
@@ -177,15 +249,23 @@ func (input CreateDetailPpjPlnDto) LenDetails() int {
 	return len(input.DataDetails)
 }
 
+func (input *CreateDetailPpjPlnDto) ChangeDetails(newData interface{}) {
+	input.DataDetails = newData.([]detailesptppjpln.CreateDto)
+}
+
 func (input CreateDetailPpjPlnDto) ReplaceEsptId(id uint) {
 	for i := range input.DataDetails {
 		input.DataDetails[i].Espt_Id = id
 	}
 }
 
+func (input *CreateDetailPpjPlnDto) ReplaceTarifPajakId(id uint) {
+	input.Espt.TarifPajak_Id = id
+}
+
 type UpdateDetailAirDto struct {
-	Espt        UpdateDto                 `json:"espt"`
-	DataDetails []detailesptair.UpdateDto `json:"dataDetails" validate:"required"`
+	Espt        UpdateDto               `json:"espt"`
+	DataDetails detailesptair.UpdateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input UpdateDetailAirDto) GetEspt() UpdateDto {
@@ -193,12 +273,17 @@ func (input UpdateDetailAirDto) GetEspt() UpdateDto {
 	return input.Espt
 }
 
+func (input UpdateDetailAirDto) CalculateTax(taxPercentage *float64) {
+	calc := float32(*input.Espt.Omset * *taxPercentage / 100)
+	input.Espt.JumlahPajak = &calc
+}
+
 func (input UpdateDetailAirDto) GetDetails() interface{} {
 	return input.DataDetails
 }
 
 func (input UpdateDetailAirDto) LenDetails() int {
-	return len(input.DataDetails)
+	return 1
 }
 
 type UpdateDetailHotelDto struct {
@@ -207,9 +292,13 @@ type UpdateDetailHotelDto struct {
 }
 
 func (input UpdateDetailHotelDto) GetEspt() UpdateDto {
-	input.Espt.Location = nil
 	input.Espt.LuasLokasi = nil
 	return input.Espt
+}
+
+func (input UpdateDetailHotelDto) CalculateTax(taxPercentage *float64) {
+	calc := float32(*input.Espt.Omset * *taxPercentage / 100)
+	input.Espt.JumlahPajak = &calc
 }
 
 func (input UpdateDetailHotelDto) GetDetails() interface{} {
@@ -226,9 +315,13 @@ type UpdateDetailHiburanDto struct {
 }
 
 func (input UpdateDetailHiburanDto) GetEspt() UpdateDto {
-	input.Espt.Location = nil
 	input.Espt.LuasLokasi = nil
 	return input.Espt
+}
+
+func (input UpdateDetailHiburanDto) CalculateTax(taxPercentage *float64) {
+	calc := float32(*input.Espt.Omset * *taxPercentage / 100)
+	input.Espt.JumlahPajak = &calc
 }
 
 func (input UpdateDetailHiburanDto) GetDetails() interface{} {
@@ -245,8 +338,12 @@ type UpdateDetailParkirDto struct {
 }
 
 func (input UpdateDetailParkirDto) GetEspt() UpdateDto {
-	input.Espt.Location = nil
 	return input.Espt
+}
+
+func (input UpdateDetailParkirDto) CalculateTax(taxPercentage *float64) {
+	calc := float32(*input.Espt.Omset * *taxPercentage / 100)
+	input.Espt.JumlahPajak = &calc
 }
 
 func (input UpdateDetailParkirDto) GetDetails() interface{} {
@@ -258,14 +355,18 @@ func (input UpdateDetailParkirDto) LenDetails() int {
 }
 
 type UpdateDetailRestoDto struct {
-	Espt        UpdateDto                   `json:"espt" validate:"required"`
-	DataDetails []detailesptresto.UpdateDto `json:"dataDetails" validate:"required"`
+	Espt        UpdateDto                 `json:"espt" validate:"required"`
+	DataDetails detailesptresto.UpdateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input UpdateDetailRestoDto) GetEspt() UpdateDto {
-	input.Espt.Location = nil
 	input.Espt.LuasLokasi = nil
 	return input.Espt
+}
+
+func (input UpdateDetailRestoDto) CalculateTax(taxPercentage *float64) {
+	calc := float32(*input.Espt.Omset * *taxPercentage / 100)
+	input.Espt.JumlahPajak = &calc
 }
 
 func (input UpdateDetailRestoDto) GetDetails() interface{} {
@@ -273,18 +374,22 @@ func (input UpdateDetailRestoDto) GetDetails() interface{} {
 }
 
 func (input UpdateDetailRestoDto) LenDetails() int {
-	return len(input.DataDetails)
+	return 1
 }
 
 type UpdateDetailPpjNonPlnDto struct {
-	Espt        UpdateDto                       `json:"espt" validate:"required"`
-	DataDetails []detailesptppjnonpln.UpdateDto `json:"dataDetails" validate:"required"`
+	Espt        UpdateDto                     `json:"espt" validate:"required"`
+	DataDetails detailesptppjnonpln.UpdateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input UpdateDetailPpjNonPlnDto) GetEspt() UpdateDto {
-	input.Espt.Location = nil
 	input.Espt.LuasLokasi = nil
 	return input.Espt
+}
+
+func (input UpdateDetailPpjNonPlnDto) CalculateTax(taxPercentage *float64) {
+	calc := float32(*input.Espt.Omset * *taxPercentage / 100)
+	input.Espt.JumlahPajak = &calc
 }
 
 func (input UpdateDetailPpjNonPlnDto) GetDetails() interface{} {
@@ -292,7 +397,7 @@ func (input UpdateDetailPpjNonPlnDto) GetDetails() interface{} {
 }
 
 func (input UpdateDetailPpjNonPlnDto) LenDetails() int {
-	return len(input.DataDetails)
+	return 1
 }
 
 type UpdateDetailPpjPlnDto struct {
@@ -301,9 +406,13 @@ type UpdateDetailPpjPlnDto struct {
 }
 
 func (input UpdateDetailPpjPlnDto) GetEspt() UpdateDto {
-	input.Espt.Location = nil
 	input.Espt.LuasLokasi = nil
 	return input.Espt
+}
+
+func (input UpdateDetailPpjPlnDto) CalculateTax(taxPercentage *float64) {
+	calc := float32(*input.Espt.Omset * *taxPercentage / 100)
+	input.Espt.JumlahPajak = &calc
 }
 
 func (input UpdateDetailPpjPlnDto) GetDetails() interface{} {
