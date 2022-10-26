@@ -134,7 +134,7 @@ func ValidateIoReader(container interface{}, input io.Reader) map[string]Validat
 		}
 		structName := cV.Type().Name()
 		return map[string]ValidationError{
-			"struct": {fmt.Sprintf("gagal melakukan parsing Body Payload ke dalam data %v", structName), "struct", fmt.Sprintf("value of %v", structName), ""},
+			"struct": {fmt.Sprintf("gagal parsing payload ke %v, pesan error: %v", structName, err), "struct", fmt.Sprintf("value of %v", structName), ""},
 		}
 	}
 
