@@ -1,25 +1,23 @@
-package tarifpajak
+package jenisppj
 
 import (
-	"errors"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
-	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "tarifpajak"
+const source = "JenisPPJ"
 
 func Create(input m.CreateDto) (any, error) {
-	var data m.TarifPajak
+	var data m.JenisPPJ
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -34,28 +32,13 @@ func Create(input m.CreateDto) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetTarif(rekeningId, tahun *uint64) (m.TarifPajak, error) {
-	data := m.TarifPajak{}
-	result := a.DB.
-		Where(m.TarifPajak{Rekening_Id: rekeningId, Tahun: tahun}).
-		// Where("OmsetAwal > ? OR OmsetAkhir <= ?", omset, omset).
-		Order(clause.OrderByColumn{Column: clause.Column{Name: "Id"}, Desc: true}).
-		First(&data)
-	if result.RowsAffected == 0 {
-		return m.TarifPajak{}, errors.New("empty data")
-	} else if result.Error != nil {
-		return m.TarifPajak{}, result.Error
-	}
-	return data, nil
-}
-
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.TarifPajak
+	var data []m.JenisPPJ
 	var count int64
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.TarifPajak{}).
+		Model(&m.JenisPPJ{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -76,7 +59,7 @@ func GetList(input m.FilterDto) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.TarifPajak
+	var data *m.JenisPPJ
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -91,7 +74,7 @@ func GetDetail(id int) (any, error) {
 }
 
 func Update(id int, input m.UpdateDto) (any, error) {
-	var data *m.TarifPajak
+	var data *m.JenisPPJ
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -114,7 +97,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 }
 
 func Delete(id int) (any, error) {
-	var data *m.TarifPajak
+	var data *m.JenisPPJ
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
