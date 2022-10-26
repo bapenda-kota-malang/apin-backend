@@ -11,7 +11,6 @@ type RegNarahubung struct {
 	RegistrasiNpwpd    *RegistrasiNpwpd       `json:"npwpd,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
 	Nama               string                 `json:"nama" gorm:"size:50"`
 	Alamat             string                 `json:"alamat" gorm:"size:50"`
-	RtRw               string                 `json:"rtRw" gorm:"size:10"`
 	Daerah_Id          *uint64                `json:"daerah_id"`
 	Daerah             *areadivision.Daerah   `gorm:"foreignKey:Daerah_Id"`
 	Kelurahan_Id       uint64                 `json:"kelurahan_id"`
@@ -25,7 +24,6 @@ type RegNarahubung struct {
 type RegNarahubungCreate struct {
 	Nama         string     `json:"nama" validate:"required"`
 	Alamat       string     `json:"alamat" validate:"required"`
-	RtRw         string     `json:"rtRw" validate:"required"`
 	Daerah_Id    *uint64    `json:"daerah_id" validate:"required"`
 	Kelurahan_Id uint64     `json:"kelurahan_id" validate:"required"`
 	Telp         string     `json:"telp" validate:"required"`
@@ -38,7 +36,6 @@ type RegNarahubungUpdate struct {
 	Id           uint64     `json:"id"`
 	Nama         string     `json:"nama" validate:"required"`
 	Alamat       string     `json:"alamat" validate:"required"`
-	RtRw         string     `json:"rtRw" validate:"required"`
 	Daerah_Id    *uint64    `json:"daerah_id" validate:"required"`
 	Kelurahan_Id uint64     `json:"kelurahan_id" validate:"required"`
 	Telp         string     `json:"telp" validate:"required"`
