@@ -59,7 +59,7 @@ COPY public."Group" ("Id", "Name", "Description", "Position", "Status") FROM std
 -- Name: Group_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."Group_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Group_Id_seq"', 213, false);
 
 
 --

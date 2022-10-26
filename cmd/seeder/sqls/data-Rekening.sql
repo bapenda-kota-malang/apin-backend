@@ -112,7 +112,7 @@ COPY public."Rekening" ("Id", "Parent_Id", "Tipe", "Kelompok", "Jenis", "Objek",
 -- Name: Rekening_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."Rekening_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Rekening_Id_seq"', 10214, false);
 
 
 --
