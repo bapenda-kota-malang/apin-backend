@@ -309,8 +309,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 
 	case "02":
 		var dataReg []*rn.DetailRegObjekPajakResto
-		// TODO: change struct literal to key - fields
-		result := a.DB.Where(rn.DetailRegObjekPajakResto{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		result := a.DB.Where(rn.DetailRegObjekPajakResto{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak resto tidak dapat ditemukan")
 		}
@@ -330,8 +329,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		}
 	case "03":
 		var dataReg []*rn.DetailRegObjekPajakHiburan
-		// TODO: change struct literal to key - fields
-		result := a.DB.Where(rn.DetailRegObjekPajakHiburan{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		result := a.DB.Where(rn.DetailRegObjekPajakHiburan{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak hiburan tidak dapat ditemukan")
 		}
@@ -351,8 +349,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		}
 	case "04":
 		var dataReg []*rn.DetailRegObjekPajakReklame
-		// TODO: change struct literal to key - fields
-		result := a.DB.Where(rn.DetailRegObjekPajakReklame{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		result := a.DB.Where(rn.DetailRegObjekPajakReklame{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak reklame tidak dapat ditemukan")
 		}
@@ -372,8 +369,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		}
 	case "05":
 		var dataReg []*rn.DetailRegObjekPajakPpj
-		// TODO: change struct literal to key - fields
-		result := a.DB.Where(rn.DetailRegObjekPajakPpj{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		result := a.DB.Where(rn.DetailRegObjekPajakPpj{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak ppj tidak dapat ditemukan")
 		}
@@ -391,10 +387,9 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 				return nil, err
 			}
 		}
-	case "06":
+	case "07":
 		var dataReg []*rn.DetailRegObjekPajakParkir
-		// TODO: change struct literal to key - fields
-		result := a.DB.Where(rn.DetailRegObjekPajakParkir{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		result := a.DB.Where(rn.DetailRegObjekPajakParkir{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak parkir tidak dapat ditemukan")
 		}
@@ -412,10 +407,9 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 				return nil, err
 			}
 		}
-	case "07":
+	case "08":
 		var dataReg []*rn.DetailRegObjekPajakAirTanah
-		// TODO: change struct literal to key - fields
-		result := a.DB.Where(rn.DetailRegObjekPajakAirTanah{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
+		result := a.DB.Where(rn.DetailRegObjekPajakAirTanah{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&dataReg)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak air tanah tidak dapat ditemukan")
 		}
@@ -535,15 +529,14 @@ func Delete(id int) (any, error) {
 	// delete detail OP
 	switch *rekening.Objek {
 	case "01":
-		// TODO: change struct literal to key - fields
 		var DataOp []*rn.DetailRegObjekPajakHotel
-		result := a.DB.Where(rn.DetailRegObjekPajakHotel{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		result := a.DB.Where(rn.DetailRegObjekPajakHotel{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak hotel tidak dapat ditemukan")
 		}
 
 		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakHotel{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(rn.DetailRegObjekPajakHotel{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -552,14 +545,13 @@ func Delete(id int) (any, error) {
 		}
 
 	case "02":
-		// TODO: change struct literal to key - fields
 		var DataOp []*rn.DetailRegObjekPajakResto
-		result := a.DB.Where(rn.DetailRegObjekPajakResto{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		result := a.DB.Where(rn.DetailRegObjekPajakResto{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak resto tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakResto{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(rn.DetailRegObjekPajakResto{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -567,14 +559,13 @@ func Delete(id int) (any, error) {
 			}
 		}
 	case "03":
-		// TODO: change struct literal to key - fields
 		var DataOp []*rn.DetailRegObjekPajakHiburan
-		result := a.DB.Where(rn.DetailRegObjekPajakHiburan{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		result := a.DB.Where(rn.DetailRegObjekPajakHiburan{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak hiburan tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakHiburan{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(rn.DetailRegObjekPajakHiburan{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -582,14 +573,13 @@ func Delete(id int) (any, error) {
 			}
 		}
 	case "04":
-		// TODO: change struct literal to key - fields
 		var DataOp []*rn.DetailRegObjekPajakReklame
-		result := a.DB.Where(rn.DetailRegObjekPajakReklame{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		result := a.DB.Where(rn.DetailRegObjekPajakReklame{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak reklame tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakReklame{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(rn.DetailRegObjekPajakReklame{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -597,29 +587,13 @@ func Delete(id int) (any, error) {
 			}
 		}
 	case "05":
-		// TODO: change struct literal to key - fields
 		var DataOp []*rn.DetailRegObjekPajakPpj
-		result := a.DB.Where(rn.DetailRegObjekPajakPpj{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		result := a.DB.Where(rn.DetailRegObjekPajakPpj{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak ppj tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakPpj{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				dataPemilik = nil
-				status = "no deletion"
-			}
-		}
-	case "06":
-		// TODO: change struct literal to key - fields
-		var DataOp []*rn.DetailRegObjekPajakParkir
-		result := a.DB.Where(rn.DetailRegObjekPajakParkir{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data detail reg objek pajak parkir tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakParkir{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(rn.DetailRegObjekPajakPpj{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil
@@ -627,14 +601,27 @@ func Delete(id int) (any, error) {
 			}
 		}
 	case "07":
-		// TODO: change struct literal to key - fields
+		var DataOp []*rn.DetailRegObjekPajakParkir
+		result := a.DB.Where(rn.DetailRegObjekPajakParkir{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		if result.RowsAffected == 0 {
+			return nil, errors.New("data detail reg objek pajak parkir tidak dapat ditemukan")
+		}
+		for _, v := range DataOp {
+			result = a.DB.Where(rn.DetailRegObjekPajakParkir{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			status = "deleted"
+			if result.RowsAffected == 0 {
+				dataPemilik = nil
+				status = "no deletion"
+			}
+		}
+	case "08":
 		var DataOp []*rn.DetailRegObjekPajakAirTanah
-		result := a.DB.Where(rn.DetailRegObjekPajakAirTanah{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
+		result := a.DB.Where(rn.DetailRegObjekPajakAirTanah{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
 			return nil, errors.New("data detail reg objek pajak air tanah tidak dapat ditemukan")
 		}
 		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakAirTanah{rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
+			result = a.DB.Where(rn.DetailRegObjekPajakAirTanah{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegistrasiNpwpd_Id: uint64(id)}}).Delete(&v)
 			status = "deleted"
 			if result.RowsAffected == 0 {
 				dataPemilik = nil

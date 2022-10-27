@@ -17,7 +17,6 @@ type RegistrasiNpwpd struct {
 	RegObjekPajak     *rop.RegObjekPajak `json:"regObjekPajak,omitempty" gorm:"foreignKey:RegObjekPajak_Id"`
 	Golongan          t.Golongan         `json:"golongan"`
 	Nomor             int                `json:"nomor"`
-	Npwp              *string            `json:"npwp" gorm:"size:50"`
 	Status            t.Status           `json:"status"`
 	TanggalPenutupan  *time.Time         `json:"tanggalPenutupan"`
 	TanggalBuka       *time.Time         `json:"tanggalBuka"`

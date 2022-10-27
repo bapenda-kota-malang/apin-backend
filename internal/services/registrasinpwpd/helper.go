@@ -46,9 +46,9 @@ func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajak, registerForm *
 		model = reflect.Zero(mActions["detailRegObjekPajakReklame"]).Interface()
 	case "05":
 		model = reflect.Zero(mActions["detailRegObjekPajakPpj"]).Interface()
-	case "06":
-		model = reflect.Zero(mActions["detailRegObjekPajakParkir"]).Interface()
 	case "07":
+		model = reflect.Zero(mActions["detailRegObjekPajakParkir"]).Interface()
+	case "08":
 		model = reflect.Zero(mActions["detailRegObjekPajakAirTanah"]).Interface()
 	}
 
