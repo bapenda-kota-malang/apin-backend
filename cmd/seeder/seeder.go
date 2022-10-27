@@ -22,6 +22,7 @@ type Config struct {
 	DbName   string
 	Username string
 	Password string
+	Port     string
 }
 
 // load from yml files to struct config
@@ -126,10 +127,8 @@ func writeSeedSql(files []string) error {
 
 // import sql file to database use exec from bash psql command
 func importToDb(c *Config) error {
-	if c.Password != "" {
-		os.Setenv("PGPASSWORD", c.Password)
-	}
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("psql -U %s -d %s -1 -f seed.sql", c.Username, c.DbName))
+	uri := fmt.Sprintf("postgresql://%s:%s@%s/%s", c.Username, c.Password, c.Port, c.DbName)
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("psql %s -1 -f seed.sql", uri))
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		return fmt.Errorf("exec stderrpipe: %v", err)
