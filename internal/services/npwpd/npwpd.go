@@ -33,12 +33,10 @@ func GetAll(pagination gh.Pagination) (interface{}, error) {
 	result := a.DB.Model(&npwpd.Npwpd{}).
 		Preload(clause.Associations).
 		//nested preload
-		Preload("ObjekPajak").
 		Preload("ObjekPajak.Kelurahan").
 		Preload("ObjekPajak.Kecamatan").
-		// Preload("PemilikWps.Kelurahan").
 		Count(&count).
-		// Scopes(gormhelper.Paginate(&pagination)).
+		// Scopes(gh.Paginate(input, &pagination)).
 		Find(&register)
 
 	return rp.OK{
