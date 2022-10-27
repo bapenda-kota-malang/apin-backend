@@ -24,20 +24,23 @@ import (
 
 const source = "npwpd"
 
-func GetAll(pagination gh.Pagination) (interface{}, error) {
-	var (
-		register []npwpd.Npwpd
-		count    int64
-	)
+func GetList(input npwpd.FilterDto) (interface{}, error) {
+	var data []npwpd.Npwpd
+	var count int64
 
-	result := a.DB.Model(&npwpd.Npwpd{}).
+	var pagination gh.Pagination
+	result := a.DB.
+		Model(&npwpd.Npwpd{}).
 		Preload(clause.Associations).
-		//nested preload
-		Preload("ObjekPajak.Kelurahan").
 		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
+		Scopes(gh.Filter(input)).
 		Count(&count).
-		// Scopes(gh.Paginate(input, &pagination)).
-		Find(&register)
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
 
 	return rp.OK{
 		Meta: t.IS{
@@ -46,7 +49,7 @@ func GetAll(pagination gh.Pagination) (interface{}, error) {
 			"page":         strconv.Itoa(pagination.Page),
 			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
-		Data: register,
+		Data: data,
 	}, nil
 }
 
@@ -93,7 +96,6 @@ func Create(r *http.Request, reg npwpd.CreateDto) (interface{}, error) {
 		JenisPajak:        reg.JenisPajak,
 		ObjekPajak_Id:     resultCastObjekPajak.Id,
 		Golongan:          reg.Golongan,
-		Npwp:              reg.Npwp,
 		VerifiedAt:        th.TimeNow(),
 		Nomor:             tmpNomor,
 		Npwpd:             &tmpNpwpd,
@@ -390,7 +392,6 @@ func Delete(id int) (any, error) {
 	// delete detail OP
 	switch *rekening.Objek {
 	case "01":
-		// model = reflect.Zero(mActions["detailOpHotel"]).Interface()
 		var DataOp []*npwpd.DetailObjekPajakHotel
 		result := a.DB.Where(npwpd.DetailObjekPajakHotel{DetailObjekPajak: npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
@@ -407,7 +408,6 @@ func Delete(id int) (any, error) {
 		}
 
 	case "02":
-		// model = reflect.Zero(mActions["detailOpResto"]).Interface()
 		var DataOp []*npwpd.DetailObjekPajakResto
 		result := a.DB.Where(npwpd.DetailObjekPajakResto{DetailObjekPajak: npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
@@ -422,7 +422,6 @@ func Delete(id int) (any, error) {
 			}
 		}
 	case "03":
-		// model = reflect.Zero(mActions["detailOpHiburan"]).Interface()
 		var DataOp []*npwpd.DetailObjekPajakHiburan
 		result := a.DB.Where(npwpd.DetailObjekPajakHiburan{DetailObjekPajak: npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
@@ -437,7 +436,6 @@ func Delete(id int) (any, error) {
 			}
 		}
 	case "04":
-		// model = reflect.Zero(mActions["detailOpReklame"]).Interface()
 		var DataOp []*npwpd.DetailObjekPajakReklame
 		result := a.DB.Where(npwpd.DetailObjekPajakReklame{DetailObjekPajak: npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
@@ -452,7 +450,6 @@ func Delete(id int) (any, error) {
 			}
 		}
 	case "05":
-		// model = reflect.Zero(mActions["detailOpPpj"]).Interface()
 		var DataOp []*npwpd.DetailObjekPajakPpj
 		result := a.DB.Where(npwpd.DetailObjekPajakPpj{DetailObjekPajak: npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
@@ -467,7 +464,6 @@ func Delete(id int) (any, error) {
 			}
 		}
 	case "07":
-		// model = reflect.Zero(mActions["detailOpParkir"]).Interface()
 		var DataOp []*npwpd.DetailObjekPajakParkir
 		result := a.DB.Where(npwpd.DetailObjekPajakParkir{DetailObjekPajak: npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
@@ -482,7 +478,6 @@ func Delete(id int) (any, error) {
 			}
 		}
 	case "08":
-		// model = reflect.Zero(mActions["detailOpAirTanah"]).Interface()
 		var DataOp []*npwpd.DetailObjekPajakAirTanah
 		result := a.DB.Where(npwpd.DetailObjekPajakAirTanah{DetailObjekPajak: npwpd.DetailObjekPajak{Npwpd_Id: uint64(id)}}).Find(&DataOp)
 		if result.RowsAffected == 0 {
@@ -544,6 +539,8 @@ func GetListForWp(input npwpd.FilterDto) (any, error) {
 		Preload("User").
 		Preload("Rekening").
 		Preload("ObjekPajak").
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
@@ -565,7 +562,10 @@ func GetDetailByUser(regID int, user_id uint) (interface{}, error) {
 	var register *npwpd.Npwpd
 	err := a.DB.Model(&npwpd.Npwpd{}).
 		Where(npwpd.Npwpd{User_Id: &user_IdConv, Id: uint64(regID)}).
-		Preload(clause.Associations).First(&register, regID).Error
+		Preload(clause.Associations).
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
+		First(&register, regID).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil

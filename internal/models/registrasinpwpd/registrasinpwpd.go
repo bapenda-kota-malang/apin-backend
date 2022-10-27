@@ -60,29 +60,22 @@ type RegistrasiNpwpd struct {
 }
 
 type CreateDto struct {
-	// JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
-	Golongan t.Golongan `json:"golongan" validate:"required"`
-	Npwp     *string    `json:"npwp"`
-
-	// Nomor                 int  `json:"nomor"`
-	// IsNomorRegistrasiAuto bool `json:"isNomorRegistrasiAuto"`
-
-	TanggalPenutupan *string `json:"tanggalPenutupan"`
-	TanggalBuka      *string `json:"tanggalBuka"`
-	Skpd_Id          *uint64 `json:"skpd_id"`
-	Rekening_Id      *uint64 `json:"rekening_id" validate:"required"`
-	User_Name        *string `json:"user_name"`
-
-	TanggalMulaiUsaha *string  `json:"tanggalMulaiUsaha"`
-	LuasBangunan      *string  `json:"luasBangunan"`
-	JamBukaUsaha      *string  `json:"jamBukaUsaha"`
-	JamTutupUsaha     *string  `json:"jamTutupUsaha"`
-	Pengunjung        *string  `json:"pengunjung"`
-	OmsetOp           *string  `json:"omsetOp"`
-	FotoKtp           string   `json:"fotoKtp" validate:"required"`
-	SuratIzinUsaha    []string `json:"suratIzinUsaha" validate:"required"`
-	LainLain          []string `json:"lainLain"`
-	FotoObjek         []string `json:"fotoObjek" validate:"required"`
+	Golongan          t.Golongan `json:"golongan" validate:"required"`
+	TanggalPenutupan  *string    `json:"tanggalPenutupan"`
+	TanggalBuka       *string    `json:"tanggalBuka"`
+	Skpd_Id           *uint64    `json:"skpd_id"`
+	Rekening_Id       *uint64    `json:"rekening_id" validate:"required"`
+	User_Name         *string    `json:"user_name"`
+	TanggalMulaiUsaha *string    `json:"tanggalMulaiUsaha"`
+	LuasBangunan      *string    `json:"luasBangunan"`
+	JamBukaUsaha      *string    `json:"jamBukaUsaha"`
+	JamTutupUsaha     *string    `json:"jamTutupUsaha"`
+	Pengunjung        *string    `json:"pengunjung"`
+	OmsetOp           *string    `json:"omsetOp"`
+	FotoKtp           string     `json:"fotoKtp" validate:"required;base64"`
+	SuratIzinUsaha    []string   `json:"suratIzinUsaha" validate:"required"`
+	LainLain          []string   `json:"lainLain"`
+	FotoObjek         []string   `json:"fotoObjek" validate:"required"`
 
 	Genset   bool `json:"genset" validate:"required"`
 	AirTanah bool `json:"airTanah" validate:"required"`
@@ -123,7 +116,26 @@ type VerifikasiDto struct {
 }
 
 type FilterDto struct {
-	User_Id  *uint64 `json:"user_id"`
-	Page     int     `json:"page"`
-	PageSize int     `json:"page_size"`
+	User_Id           *uint64     `json:"user_id"`
+	Golongan          *t.Golongan `json:"golongan"`
+	TanggalPenutupan  *string     `json:"tanggalPenutupan"`
+	TanggalBuka       *string     `json:"tanggalBuka"`
+	Skpd_Id           *uint64     `json:"skpd_id"`
+	Rekening_Id       *uint64     `json:"rekening_id"`
+	User_Name         *string     `json:"user_name"`
+	TanggalMulaiUsaha *string     `json:"tanggalMulaiUsaha"`
+	LuasBangunan      *string     `json:"luasBangunan"`
+	JamBukaUsaha      *string     `json:"jamBukaUsaha"`
+	JamTutupUsaha     *string     `json:"jamTutupUsaha"`
+	Pengunjung        *string     `json:"pengunjung"`
+	OmsetOp           *string     `json:"omsetOp"`
+	FotoKtp           string      `json:"fotoKtp"`
+	// SuratIzinUsaha    *[]string   `json:"suratIzinUsaha"`
+	// LainLain          *[]string   `json:"lainLain"`
+	// FotoObjek         *[]string   `json:"fotoObjek"`
+	Genset   *bool `json:"genset" validate:"required"`
+	AirTanah *bool `json:"airTanah" validate:"required"`
+	//fixed
+	Page     int `json:"page"`
+	PageSize int `json:"page_size"`
 }
