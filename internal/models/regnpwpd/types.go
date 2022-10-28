@@ -1,4 +1,4 @@
-package registrasinpwpd
+package regnpwpd
 
 type VerifyStatus int16
 

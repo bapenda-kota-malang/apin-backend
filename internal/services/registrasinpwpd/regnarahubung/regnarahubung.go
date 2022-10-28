@@ -10,14 +10,14 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 )
 
 const source = "regpemilik"
 
-func Create(input []m.RegNarahubungCreate, regis_id uint64, tx *gorm.DB) (any, error) {
+func Create(input []m.RegNarahubungCreateDto, regis_id uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -30,7 +30,7 @@ func Create(input []m.RegNarahubungCreate, regis_id uint64, tx *gorm.DB) (any, e
 
 	// static add value to field
 	for k := range data {
-		data[k].RegistrasiNpwpd_Id = regis_id
+		data[k].RegNpwpd_Id = regis_id
 		data[k].Status = nt.StatusBaru
 	}
 

@@ -4,11 +4,11 @@ import (
 	"reflect"
 
 	nm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
-	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
+	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 )
 
-func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajak, registerForm *rn.RegistrasiNpwpd) error {
+func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajakCreateDto, registerForm *rn.RegNpwpd) error {
 	if data == nil {
 		return nil
 	}
@@ -54,10 +54,10 @@ func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajak, registerForm *
 
 	for _, dop := range *data {
 		dop.JenisOp = registerForm.Rekening.Nama
-		dop.RegistrasiNpwpd_Id = registerForm.Id
+		dop.RegNpwpd_Id = registerForm.Id
 
 		m := make(map[string]interface{})
-		m["RegistrasiNpwpd_Id"] = dop.RegistrasiNpwpd_Id
+		m["RegNpwpd_Id"] = dop.RegNpwpd_Id
 		m["JenisOp"] = dop.JenisOp
 		m["JumlahOp"] = dop.JumlahOp
 		m["TarifOp"] = dop.TarifOp

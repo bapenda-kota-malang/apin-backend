@@ -1,4 +1,4 @@
-package registrasinpwpd
+package regnpwpd
 
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
@@ -7,8 +7,8 @@ import (
 
 type RegPemilikWp struct {
 	Id                    uint64                  `json:"id" gorm:"primaryKey"`
-	RegistrasiNpwpd_Id    uint64                  `json:"registrasiNpwpd_id"`
-	RegistrasiNpwpd       *RegistrasiNpwpd        `json:"npwpd,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	RegNpwpd_Id           uint64                  `json:"regNpwpd_id"`
+	RegNpwpd              *RegNpwpd               `json:"regNpwpd,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
 	Nama                  *string                 `json:"nama" gorm:"size:50"`
 	Alamat                *string                 `json:"alamat" gorm:"size:50"`
 	Daerah_Id             *uint64                 `json:"daerah_id"`
@@ -25,11 +25,11 @@ type RegPemilikWp struct {
 	Direktur_Daerah_Id    *uint64                 `json:"direktur_daerah_id"`
 	Direktur_Daerah       *areadivision.Daerah    `json:"direktur_daerah" gorm:"foreignKey:Direktur_Daerah_Id"`
 	Direktur_Kelurahan_Id *uint64                 `json:"direktur_kelurahan_id"`
-	Direktur_Kelurahan    *areadivision.Daerah    `json:"direktur_kelurahan" gorm:"foreignKey:Direktur_Kelurahan_Id"`
+	Direktur_Kelurahan    *areadivision.Kelurahan `json:"direktur_kelurahan" gorm:"foreignKey:Direktur_Kelurahan_Id"`
 	Direktur_Telp         *string                 `json:"direktur_telp" gorm:"type:varchar(20)"`
 }
 
-type RegPemilikWpCreate struct {
+type RegPemilikWpCreateDto struct {
 	Nama                  *string    `json:"nama" validate:"required"`
 	Alamat                *string    `json:"alamat" validate:"required"`
 	Daerah_Id             *uint64    `json:"daerah_id" validate:"required"`
@@ -45,7 +45,7 @@ type RegPemilikWpCreate struct {
 	Direktur_Telp         *string    `json:"direktur_telp"`
 }
 
-type RegPemilikWpUpdate struct {
+type RegPemilikWpUpdateDto struct {
 	Id                    uint64     `json:"id" gorm:"primaryKey"`
 	Nama                  *string    `json:"nama" validate:"required"`
 	Alamat                *string    `json:"alamat" validate:"required"`

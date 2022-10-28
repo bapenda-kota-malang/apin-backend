@@ -1,4 +1,4 @@
-package registrasinpwpd
+package regnpwpd
 
 import (
 	"time"
@@ -11,7 +11,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
-type RegistrasiNpwpd struct {
+type RegNpwpd struct {
 	Id                uint64             `json:"id" gorm:"primarykey"`
 	RegObjekPajak_Id  uint64             `json:"regObjekPajak_id"`
 	RegObjekPajak     *rop.RegObjekPajak `json:"regObjekPajak,omitempty" gorm:"foreignKey:RegObjekPajak_Id"`
@@ -88,11 +88,11 @@ type CreateDto struct {
 	Genset   bool `json:"genset" validate:"required"`
 	AirTanah bool `json:"airTanah" validate:"required"`
 
-	DetailRegOp *[]DetailRegObjekPajak `json:"detailRegObjekPajak"`
+	DetailRegOp *[]DetailRegObjekPajakCreateDto `json:"detailRegObjekPajak"`
 
-	RegObjekPajak *rop.RegObjekPajakCreate `json:"regObjekPajak"`
-	RegPemilik    *[]RegPemilikWpCreate    `json:"regPemilik"`
-	RegNarahubung *[]RegNarahubungCreate   `json:"regNarahubung"`
+	RegObjekPajak *rop.RegObjekPajakCreateDto `json:"regObjekPajak"`
+	RegPemilik    *[]RegPemilikWpCreateDto    `json:"regPemilik"`
+	RegNarahubung *[]RegNarahubungCreateDto   `json:"regNarahubung"`
 }
 
 type UpdateDto struct {
@@ -112,11 +112,11 @@ type UpdateDto struct {
 	Genset   bool `json:"genset"`
 	AirTanah bool `json:"airTanah"`
 
-	DetailRegObjekPajak []DetailRegObjekPajakUpdate `json:"detailRegObjekPajak"`
+	DetailRegObjekPajak []DetailRegObjekPajakUpdateDto `json:"detailRegObjekPajak"`
 
-	RegObjekPajak rop.RegObjekPajakUpdate `json:"regObjekPajak"`
-	RegPemilik    []RegPemilikWpUpdate    `json:"regPemilik"`
-	RegNarahubung []RegNarahubungUpdate   `json:"regNarahubung"`
+	RegObjekPajak rop.RegObjekPajakUpdateDto `json:"regObjekPajak"`
+	RegPemilik    []RegPemilikWpUpdateDto    `json:"regPemilik"`
+	RegNarahubung []RegNarahubungUpdateDto   `json:"regNarahubung"`
 }
 
 type VerifikasiDto struct {

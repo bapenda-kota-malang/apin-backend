@@ -8,7 +8,7 @@ import (
 	nm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
-	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
+	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rop "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	sn "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd"
@@ -31,10 +31,10 @@ const source = "registrasi npwpd"
 func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 	user_IdConv := uint64(user_Id)
 	var rekening *rm.Rekening
-	var dataOp rop.RegObjekPajakCreate
-	var register rn.RegistrasiNpwpd
-	var dataPemilik []rn.RegPemilikWpCreate
-	var dataNarahubung []rn.RegNarahubungCreate
+	var dataOp rop.RegObjekPajakCreateDto
+	var register rn.RegNpwpd
+	var dataPemilik []rn.RegPemilikWpCreateDto
+	var dataNarahubung []rn.RegNarahubungCreateDto
 	var imgNameChan = make(chan string)
 	var errChan = make(chan error)
 	var respDataOp interface{}

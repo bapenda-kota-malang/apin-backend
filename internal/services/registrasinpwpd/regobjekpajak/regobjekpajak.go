@@ -17,7 +17,7 @@ import (
 
 const source = "regobjekpajak"
 
-func Create(input m.RegObjekPajakCreate, tx *gorm.DB) (any, error) {
+func Create(input m.RegObjekPajakCreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}

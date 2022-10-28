@@ -22,7 +22,7 @@ type RegObjekPajak struct {
 	gormhelper.DateModel
 }
 
-type RegObjekPajakCreate struct {
+type RegObjekPajakCreateDto struct {
 	Nama         *string    `json:"nama" validate:"required"`
 	Nop          *string    `json:"nop"`
 	Alamat       *string    `json:"alamat" validate:"required"`
@@ -33,7 +33,7 @@ type RegObjekPajakCreate struct {
 	Status       t.StatusBL `json:"status"`
 }
 
-type RegObjekPajakUpdate struct {
+type RegObjekPajakUpdateDto struct {
 	Id           uint64     `json:"id" gorm:"primaryKey"`
 	Nama         *string    `json:"nama" validate:"required"`
 	Nop          *string    `json:"nop"`
