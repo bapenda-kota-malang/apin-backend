@@ -11,6 +11,7 @@ type RegPemilikWp struct {
 	RegNpwpd              *RegNpwpd               `json:"regNpwpd,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
 	Nama                  *string                 `json:"nama" gorm:"size:50"`
 	Alamat                *string                 `json:"alamat" gorm:"size:50"`
+	Npwp                  *string                 `json:"npwp" gorm:"size:50"`
 	Daerah_Id             *uint64                 `json:"daerah_id"`
 	Daerah                *areadivision.Daerah    `json:"daerah" gorm:"foreignKey:Daerah_Id"`
 	Kelurahan_Id          *uint64                 `json:"kelurahan_id"`
@@ -32,6 +33,7 @@ type RegPemilikWp struct {
 type RegPemilikWpCreateDto struct {
 	Nama                  *string    `json:"nama" validate:"required"`
 	Alamat                *string    `json:"alamat" validate:"required"`
+	Npwp                  *string    `json:"npwp" gorm:"size:50"`
 	Daerah_Id             *uint64    `json:"daerah_id" validate:"required"`
 	Kelurahan_Id          *uint64    `json:"kelurahan_id" validate:"required"`
 	Telp                  *string    `json:"telp" validate:"required;nohp"`
@@ -49,6 +51,7 @@ type RegPemilikWpUpdateDto struct {
 	Id                    uint64     `json:"id" gorm:"primaryKey"`
 	Nama                  *string    `json:"nama" validate:"required"`
 	Alamat                *string    `json:"alamat" validate:"required"`
+	Npwp                  *string    `json:"npwp" gorm:"size:50"`
 	Daerah_Id             *uint64    `json:"daerah_id" validate:"required"`
 	Kelurahan_Id          *uint64    `json:"kelurahan_id" validate:"required"`
 	Telp                  *string    `json:"telp" validate:"required;nohp"`

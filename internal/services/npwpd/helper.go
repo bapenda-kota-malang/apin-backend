@@ -42,9 +42,9 @@ func insertDetailOp(objek string, data *[]npwpd.DetailObjekPajak, registerForm *
 		model = reflect.Zero(mActions["detailObjekPajakReklame"]).Interface()
 	case "05":
 		model = reflect.Zero(mActions["detailObjekPajakPpj"]).Interface()
-	case "06":
-		model = reflect.Zero(mActions["detailObjekPajakParkir"]).Interface()
 	case "07":
+		model = reflect.Zero(mActions["detailObjekPajakParkir"]).Interface()
+	case "08":
 		model = reflect.Zero(mActions["detailObjekPajakAirTanah"]).Interface()
 	}
 

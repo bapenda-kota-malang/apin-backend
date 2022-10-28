@@ -17,7 +17,6 @@ type Npwpd struct {
 	ObjekPajak        *op.ObjekPajak     `json:"objekPajak" gorm:"foreignKey:ObjekPajak_Id"`
 	Golongan          t.Golongan         `json:"golongan"`
 	Nomor             int                `json:"nomor"`
-	Npwp              *string            `json:"npwp" gorm:"size:50"`
 	TanggalPengukuhan *time.Time         `json:"tanggalPengukuhan"`
 	TanggalNpwpd      *time.Time         `json:"tanggalNpwpd"`
 	Npwpd             *string            `json:"npwpd" gorm:"size:22"`
@@ -64,34 +63,27 @@ type Npwpd struct {
 }
 
 type CreateDto struct {
-	JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
-	Golongan   t.Golongan   `json:"golongan" validate:"required"`
-	Npwp       *string      `json:"npwp"`
+	JenisPajak            t.JenisPajak `json:"jenisPajak" validate:"required"`
+	Golongan              t.Golongan   `json:"golongan" validate:"required"`
+	Nomor                 int          `json:"nomor"`
+	IsNomorRegistrasiAuto bool         `json:"isNomorRegistrasiAuto"`
+	Npwpd                 *string      `json:"npwpd"`
+	TanggalPengukuhan     *string      `json:"tanggalPengukuhan"`
+	TanggalNpwpd          *string      `json:"tanggalNpwpd"`
+	TanggalMulaiUsaha     *string      `json:"tanggalMulaiUsaha"`
+	LuasBangunan          *string      `json:"luasBangunan"`
+	JamBukaUsaha          *string      `json:"jamBukaUsaha"`
+	JamTutupUsaha         *string      `json:"jamTutupUsaha"`
+	Pengunjung            *string      `json:"pengunjung"`
+	OmsetOp               *string      `json:"omsetOp"`
+	Rekening_Id           uint64       `json:"rekening_id" validate:"required"`
+	Genset                bool         `json:"genset" validate:"required"`
+	AirTanah              bool         `json:"airTanah" validate:"required"`
 
-	Nomor                 int  `json:"nomor"`
-	IsNomorRegistrasiAuto bool `json:"isNomorRegistrasiAuto"`
-
-	Npwpd             *string `json:"npwpd"`
-	TanggalPengukuhan *string `json:"tanggalPengukuhan"`
-	TanggalNpwpd      *string `json:"tanggalNpwpd"`
-	// User_Id           uint64  `json:"user_id"`
-	TanggalMulaiUsaha *string `json:"tanggalMulaiUsaha"`
-	LuasBangunan      *string `json:"luasBangunan"`
-	JamBukaUsaha      *string `json:"jamBukaUsaha"`
-	JamTutupUsaha     *string `json:"jamTutupUsaha"`
-	Pengunjung        *string `json:"pengunjung"`
-	OmsetOp           *string `json:"omsetOp"`
-
-	Rekening_Id uint64 `json:"rekening_id" validate:"required"`
-
-	Genset   bool `json:"genset" validate:"required"`
-	AirTanah bool `json:"airTanah" validate:"required"`
-
-	DetailOp *[]DetailObjekPajak `json:"detailObjekPajak"`
-
-	ObjekPajak *op.ObjekPajak `json:"objekPajak"`
-	Pemilik    *[]PemilikWp   `json:"pemilik"`
-	Narahubung *[]Narahubung  `json:"narahubung"`
+	DetailOp   *[]DetailObjekPajak `json:"detailObjekPajak"`
+	ObjekPajak *op.ObjekPajak      `json:"objekPajak"`
+	Pemilik    *[]PemilikWp        `json:"pemilik"`
+	Narahubung *[]Narahubung       `json:"narahubung"`
 }
 
 type UpdateDto struct {
@@ -128,10 +120,28 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	User_Id  *uint64 `json:"user_id"`
-	Npwpd    string  `json:"npwpd"`
-	Page     int     `json:"page"`
-	PageSize int     `json:"page_size"`
+	User_Id           *uint64       `json:"user_id"`
+	JenisPajak        *t.JenisPajak `json:"jenisPajak"`
+	Golongan          *t.Golongan   `json:"golongan"`
+	Nomor             *int          `json:"nomor"`
+	Npwpd             *string       `json:"npwpd"`
+	TanggalPengukuhan *string       `json:"tanggalPengukuhan"`
+	TanggalNpwpd      *string       `json:"tanggalNpwpd"`
+	TanggalMulaiUsaha *string       `json:"tanggalMulaiUsaha"`
+	LuasBangunan      *string       `json:"luasBangunan"`
+	JamBukaUsaha      *string       `json:"jamBukaUsaha"`
+	JamTutupUsaha     *string       `json:"jamTutupUsaha"`
+	Pengunjung        *string       `json:"pengunjung"`
+	OmsetOp           *string       `json:"omsetOp"`
+	Rekening_Id       *uint64       `json:"rekening_id"`
+	Genset            *bool         `json:"genset"`
+	AirTanah          *bool         `json:"airTanah"`
+	// SuratIzinUsaha    *[]string     `json:"suratIzinUsaha"`
+	// LainLain          *[]string     `json:"lainLain"`
+	// FotoObjek         *[]string     `json:"fotoObjek"`
+	//fixed
+	Page     int `json:"page"`
+	PageSize int `json:"page_size"`
 }
 
 type PhotoUpdate struct {

@@ -1,21 +1,21 @@
 package npwpd
 
 import (
-	"fmt"
 	"net/http"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd"
-	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	// parameter dan getAll service harus diganti filterDTO
-	var pagination gh.Pagination
-	fmt.Println("gg")
-	result, err := s.GetAll(pagination)
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+
+	result, err := s.GetList(input)
 	hh.DataResponse(w, result, err)
 }
 
