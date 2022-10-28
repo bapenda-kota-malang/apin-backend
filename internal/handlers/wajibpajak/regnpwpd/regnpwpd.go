@@ -1,11 +1,11 @@
-package registrasinpwpd
+package regnpwpd
 
 import (
 	"net/http"
 
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/regnpwpd"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 

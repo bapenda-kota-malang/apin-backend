@@ -1,4 +1,4 @@
-package registrasinpwpd
+package regnpwpd
 
 import (
 	"fmt"
@@ -10,18 +10,18 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 )
 
-const source = "regobjekpajak"
+const source = "regpemilik"
 
-func Create(input m.RegObjekPajakCreateDto, tx *gorm.DB) (any, error) {
+func Create(input []m.RegNarahubungCreateDto, regis_id uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.RegObjekPajak
+	var data []m.RegNarahubung
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -29,7 +29,10 @@ func Create(input m.RegObjekPajakCreateDto, tx *gorm.DB) (any, error) {
 	}
 
 	// static add value to field
-	data.Status = nt.StatusBaru
+	for k := range data {
+		data[k].RegNpwpd_Id = regis_id
+		data[k].Status = nt.StatusBaru
+	}
 
 	// Transaction save to db
 	// simpan data ke db satu if karena result dipakai sekali, +error

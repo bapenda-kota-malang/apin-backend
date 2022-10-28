@@ -133,8 +133,8 @@ type FilterDto struct {
 	// SuratIzinUsaha    *[]string   `json:"suratIzinUsaha"`
 	// LainLain          *[]string   `json:"lainLain"`
 	// FotoObjek         *[]string   `json:"fotoObjek"`
-	Genset   *bool `json:"genset" validate:"required"`
-	AirTanah *bool `json:"airTanah" validate:"required"`
+	Genset   *bool `json:"genset"`
+	AirTanah *bool `json:"airTanah"`
 	//fixed
 	Page     int `json:"page"`
 	PageSize int `json:"page_size"`

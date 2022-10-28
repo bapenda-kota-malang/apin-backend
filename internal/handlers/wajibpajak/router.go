@@ -15,7 +15,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/registrasinpwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -93,10 +93,10 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/regnpwpd", func(r chi.Router) {
-		r.Post("/", registrasinpwpd.Create)
-		r.Get("/", registrasinpwpd.GetListForWp)
-		r.Get("/{id}", registrasinpwpd.GetDetail)
-		r.Patch("/{id}", registrasinpwpd.Update)
+		r.Post("/", regnpwpd.Create)
+		r.Get("/", regnpwpd.GetListForWp)
+		r.Get("/{id}", regnpwpd.GetDetail)
+		r.Patch("/{id}", regnpwpd.Update)
 	})
 	r.Route("/espt", func(r chi.Router) {
 		r.Post("/", espt.Create)

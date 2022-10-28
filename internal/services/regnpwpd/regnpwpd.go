@@ -1,4 +1,4 @@
-package registrasinpwpd
+package regnpwpd
 
 import (
 	"errors"
@@ -12,9 +12,9 @@ import (
 	rop "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	sn "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd"
-	rsn "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd/regnarahubung"
-	rsop "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd/regobjekpajak"
-	rsp "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd/regpemilik"
+	rsn "github.com/bapenda-kota-malang/apin-backend/internal/services/regnpwpd/regnarahubung"
+	rsop "github.com/bapenda-kota-malang/apin-backend/internal/services/regnpwpd/regobjekpajak"
+	rsp "github.com/bapenda-kota-malang/apin-backend/internal/services/regnpwpd/regpemilik"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"

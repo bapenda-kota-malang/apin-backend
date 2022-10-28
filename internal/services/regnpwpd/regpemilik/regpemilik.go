@@ -1,4 +1,4 @@
-package registrasinpwpd
+package regnpwpd
 
 import (
 	"fmt"
@@ -17,12 +17,11 @@ import (
 
 const source = "regpemilik"
 
-func Create(input []m.RegNarahubungCreateDto, regis_id uint64, tx *gorm.DB) (any, error) {
+func Create(input []m.RegPemilikWpCreateDto, regis_id uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data []m.RegNarahubung
-
+	var data []m.RegPemilikWp
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)

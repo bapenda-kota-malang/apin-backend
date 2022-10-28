@@ -1,4 +1,4 @@
-package registrasinpwpd
+package regnpwpd
 
 import (
 	"reflect"
