@@ -32,6 +32,9 @@ func GetList(input npwpd.FilterDto) (interface{}, error) {
 	result := a.DB.
 		Model(&npwpd.Npwpd{}).
 		Preload(clause.Associations).
+		Preload("User").
+		Preload("Rekening").
+		Preload("ObjekPajak").
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
 		Scopes(gh.Filter(input)).
@@ -56,7 +59,13 @@ func GetList(input npwpd.FilterDto) (interface{}, error) {
 func GetDetail(r *http.Request, regID int) (interface{}, error) {
 	var register *npwpd.Npwpd
 	err := a.DB.Model(&npwpd.Npwpd{}).
-		Preload(clause.Associations).First(&register, regID).Error
+		Preload(clause.Associations).
+		Preload("User").
+		Preload("Rekening").
+		Preload("ObjekPajak").
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
+		First(&register, regID).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -563,6 +572,9 @@ func GetDetailByUser(regID int, user_id uint) (interface{}, error) {
 	err := a.DB.Model(&npwpd.Npwpd{}).
 		Where(npwpd.Npwpd{User_Id: &user_IdConv, Id: uint64(regID)}).
 		Preload(clause.Associations).
+		Preload("User").
+		Preload("Rekening").
+		Preload("ObjekPajak").
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
 		First(&register, regID).Error

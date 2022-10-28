@@ -11,9 +11,9 @@ type Narahubung struct {
 	Nama         string                 `json:"nama" gorm:"size:50"`
 	Alamat       string                 `json:"alamat" gorm:"size:50"`
 	Daerah_Id    *uint64                `json:"daerah_id"`
-	Daerah       *areadivision.Daerah   `gorm:"foreignKey:Daerah_Id"`
+	Daerah       *areadivision.Daerah   `json:"daerah" gorm:"foreignKey:Daerah_Id"`
 	Kelurahan_Id uint64                 `json:"kelurahan_id"`
-	Kelurahan    areadivision.Kelurahan `gorm:"foreignKey:Kelurahan_Id"`
+	Kelurahan    areadivision.Kelurahan `json:"kelurahan" gorm:"foreignKey:Kelurahan_Id"`
 	Telp         string                 `json:"telp" gorm:"size:20"`
 	Keterangan   *string                `json:"keterangan" gorm:"type:varchar(100)"`
 	Nik          string                 `json:"nik" gorm:"size:20"`

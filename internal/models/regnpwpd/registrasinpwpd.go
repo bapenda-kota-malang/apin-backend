@@ -47,16 +47,16 @@ type RegNpwpd struct {
 	// ModeRegistrasi    npwpd.Mode               `json:"modeRegistrasi"`
 	// VendorEtax         *configurationmodel.VendorEtax `gorm:"foreignKey:VendorEtaxID"`
 
-	RegPemilikWps  []*RegPemilikWp  `json:"regPemilik,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	RegNarahubungs []*RegNarahubung `json:"regNarahubung,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	RegPemilikWps  []*RegPemilikWp  `json:"regPemilik,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
+	RegNarahubungs []*RegNarahubung `json:"regNarahubung,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
 
-	DetailRegOpAirTanah []*DetailRegObjekPajakAirTanah `json:"detail_reg_op_air_tanah,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpHiburan  []*DetailRegObjekPajakHiburan  `json:"detail_reg_op_hiburan,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpHotel    []*DetailRegObjekPajakHotel    `json:"detail_reg_op_hotel,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpParkir   []*DetailRegObjekPajakParkir   `json:"detail_reg_op_parkir,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpPpj      []*DetailRegObjekPajakPpj      `json:"detail_reg_op_ppj,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpReklame  []*DetailRegObjekPajakReklame  `json:"detail_reg_op_reklame,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
-	DetailRegOpResto    []*DetailRegObjekPajakResto    `json:"detail_reg_op_resto,omitempty" gorm:"foreignKey:RegistrasiNpwpd_Id;references:Id"`
+	DetailRegOpAirTanah []*DetailRegObjekPajakAirTanah `json:"detailRegObjekPajakAirTanah,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
+	DetailRegOpHiburan  []*DetailRegObjekPajakHiburan  `json:"detailRegObjekPajakHiburan,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
+	DetailRegOpHotel    []*DetailRegObjekPajakHotel    `json:"detailRegObjekPajakHotel,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
+	DetailRegOpParkir   []*DetailRegObjekPajakParkir   `json:"detailRegObjekPajakParkir,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
+	DetailRegOpPpj      []*DetailRegObjekPajakPpj      `json:"detailRegObjekPajakPpj,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
+	DetailRegOpReklame  []*DetailRegObjekPajakReklame  `json:"detailRegObjekPajakReklame,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
+	DetailRegOpResto    []*DetailRegObjekPajakResto    `json:"detailRegObjekPajakResto,omitempty" gorm:"foreignKey:RegNpwpd_Id;references:Id"`
 }
 
 type CreateDto struct {

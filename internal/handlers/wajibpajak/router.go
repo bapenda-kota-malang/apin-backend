@@ -92,7 +92,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", kelurahan.GetDetail)
 	})
 
-	r.Route("/registrasinpwpd", func(r chi.Router) {
+	r.Route("/regnpwpd", func(r chi.Router) {
 		r.Post("/", registrasinpwpd.Create)
 		r.Get("/", registrasinpwpd.GetListForWp)
 		r.Get("/{id}", registrasinpwpd.GetDetail)

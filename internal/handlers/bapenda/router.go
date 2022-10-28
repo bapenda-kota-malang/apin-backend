@@ -163,7 +163,7 @@ func SetRoutes() http.Handler {
 
 	})
 
-	r.Route("/registrasinpwpd", func(r chi.Router) {
+	r.Route("/regnpwpd", func(r chi.Router) {
 		r.Patch("/{id}/setverifystatus", registrasinpwpd.VerifyRegistrasiNpwpd)
 		r.Get("/", registrasinpwpd.GetList)
 		r.Get("/{id}", registrasinpwpd.GetDetail)

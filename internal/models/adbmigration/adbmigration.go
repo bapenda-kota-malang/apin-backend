@@ -30,7 +30,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 
-	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
+	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sektor"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
@@ -81,7 +81,7 @@ func init() {
 
 	listModelRegNpwpd := []interface{}{
 		&regobjekpajak.RegObjekPajak{},
-		&rn.RegistrasiNpwpd{},
+		&rn.RegNpwpd{},
 		&rn.DetailRegObjekPajakHotel{},
 		&rn.DetailRegObjekPajakAirTanah{},
 		&rn.DetailRegObjekPajakParkir{},
