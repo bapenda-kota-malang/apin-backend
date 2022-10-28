@@ -25,7 +25,7 @@ type RegPemilikWp struct {
 	Direktur_Daerah_Id    *uint64                 `json:"direktur_daerah_id"`
 	Direktur_Daerah       *areadivision.Daerah    `json:"direktur_daerah" gorm:"foreignKey:Direktur_Daerah_Id"`
 	Direktur_Kelurahan_Id *uint64                 `json:"direktur_kelurahan_id"`
-	Direktur_Kelurahan    *areadivision.Daerah    `json:"direktur_kelurahan" gorm:"foreignKey:Direktur_Kelurahan_Id"`
+	Direktur_Kelurahan    *areadivision.Kelurahan `json:"direktur_kelurahan" gorm:"foreignKey:Direktur_Kelurahan_Id"`
 	Direktur_Telp         *string                 `json:"direktur_telp" gorm:"type:varchar(20)"`
 }
 
