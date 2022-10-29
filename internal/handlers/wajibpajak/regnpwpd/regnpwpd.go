@@ -20,50 +20,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func GetList(w http.ResponseWriter, r *http.Request) {
-	var input rn.FilterDto
-	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
-		return
-	}
-
-	result, err := s.GetList(input)
-	hh.DataResponse(w, result, err)
-}
-
-func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
-		return
-	}
-	result, err := s.GetDetail(r, id)
-	hh.DataResponse(w, result, err)
-}
-
-func VerifyRegistrasiNpwpd(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
-		return
-	}
-
-	var input rn.VerifikasiDto
-	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		return
-	}
-
-	result, err := s.VerifyNpwpd(id, input)
-	hh.DataResponse(w, result, err)
-}
-
-func Delete(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
-		return
-	}
-
-	result, err := s.Delete(id)
-	hh.DataResponse(w, result, err)
-}
-
 func Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
@@ -91,5 +47,16 @@ func GetListForWp(w http.ResponseWriter, r *http.Request) {
 	input.User_Id = &user_id
 
 	result, err := s.GetListForWp(input)
+	hh.DataResponse(w, result, err)
+}
+
+func GetDetailForWp(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err := s.GetDetailForWp(id, uint64(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }

@@ -895,3 +895,28 @@ func GetListForWp(input rn.FilterDto) (any, error) {
 		Data: data,
 	}, nil
 }
+
+func GetDetailForWp(id int, user_Id uint64) (interface{}, error) {
+	var data *rn.RegNpwpd
+	err := a.DB.Model(&rn.RegNpwpd{}).
+		Preload(clause.Associations).
+		Preload("User").
+		Preload("Rekening").
+		Preload("RegObjekPajak").
+		Preload("RegObjekPajak.Kecamatan").
+		Preload("RegObjekPajak.Kelurahan").
+		First(&data, id).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if data.User_Id != user_Id {
+		return nil, errors.New("tidak dapat melihat data yang bukan milik anda")
+	}
+	return rp.OKSimple{
+		Data: data,
+	}, err
+}

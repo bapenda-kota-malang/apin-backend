@@ -9,10 +9,9 @@ import (
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	br "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
@@ -165,10 +164,10 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/regnpwpd", func(r chi.Router) {
-		r.Patch("/{id}/setverifystatus", br.VerifyRegistrasiNpwpd)
-		r.Get("/", br.GetList)
+		r.Patch("/{id}/setverifystatus", regnpwpd.VerifyRegistrasiNpwpd)
+		r.Get("/", regnpwpd.GetList)
 		r.Get("/{id}", regnpwpd.GetDetail)
-		r.Delete("/{id}", br.Delete)
+		r.Delete("/{id}", regnpwpd.Delete)
 	})
 
 	r.Route("/potensiopwp", func(r chi.Router) {

@@ -42,3 +42,12 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 	result, err := s.GetList(input)
 	hh.DataResponse(w, result, err)
 }
+
+func GetDetail(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+	result, err := s.GetDetail(r, id)
+	hh.DataResponse(w, result, err)
+}
