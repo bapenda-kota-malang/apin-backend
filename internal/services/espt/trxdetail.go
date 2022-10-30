@@ -19,6 +19,7 @@ import (
 	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjpln"
 	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
+	mhdair "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	mjppj "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
 
@@ -44,31 +45,37 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		rekeningId := uint64(input.GetEspt().Rekening_Id)
 		yearNow := uint64(time.Now().Year())
-		tarifPajak, err := stp.GetTarif(&rekeningId, &yearNow)
-		if err != nil {
-			return err
-		}
+		omset := input.GetEspt().Omset
+		omsetOpt := "lte"
 
+		// change detail for detail espt air & ppj pln before calculate tax
 		if detail, ok := input.GetDetails().(mdair.CreateDto); ok {
 			switch detail.Peruntukan {
-			case mdair.PeruntukanIndustriAir:
-			case mdair.PeruntukanNiaga:
-			case mdair.PeruntukanNonNiaga:
-			case mdair.PeruntukanPdam:
+			case mdair.PeruntukanIndustriAir, mdair.PeruntukanNiaga, mdair.PeruntukanNonNiaga, mdair.PeruntukanPdam:
+				peruntukan := string(detail.Peruntukan)
+				resphdair, err := shda.GetList(mhdair.FilterDto{
+					Peruntukan:     &peruntukan,
+					BatasBawah:     &omset,
+					BatasBawah_Opt: &omsetOpt,
+				})
+				if err != nil {
+					return err
+				}
+				hdairs := resphdair.(rp.OKSimple).Data.([]mhdair.HargaDasarAir)
+				if len(hdairs) == 0 {
+					return fmt.Errorf("harga dasar air not found")
+				}
+				hdair := hdairs[len(hdairs)-1]
+				if detail.JenisAbt == mdair.JenisABTNonMataAir {
+					detail.Pengenaan = float32(*hdair.TarifBukanMataAir)
+				} else {
+					detail.JenisAbt = mdair.JenisABTMataAir
+					detail.Pengenaan = float32(*hdair.TarifMataAir)
+				}
+				input.ChangeDetails(detail)
 			default:
 				return fmt.Errorf("unknown peruntukan air")
 			}
-			hargaDasarAir, err := shda.GetTarif(string(detail.Peruntukan), fmt.Sprintf("%f", input.GetEspt().Omset))
-			if err != nil {
-				return err
-			}
-			if detail.JenisAbt == mdair.JenisABTNonMataAir {
-				detail.Pengenaan = float32(*hargaDasarAir.TarifBukanMataAir)
-			} else {
-				detail.JenisAbt = mdair.JenisABTMataAir
-				detail.Pengenaan = float32(*hargaDasarAir.TarifMataAir)
-			}
-			input.ChangeDetails(detail)
 		}
 
 		if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
@@ -81,6 +88,23 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 			}
 			input.ChangeDetails(detail)
 		}
+
+		// get tarif pajak data for calculate tax
+		respTp, err := stp.GetList(mtp.FilterDto{
+			Rekening_Id:   &rekeningId,
+			Tahun:         &yearNow,
+			OmsetAwal:     &omset,
+			OmsetAwal_Opt: &omsetOpt,
+		})
+		if err != nil {
+			return err
+		}
+
+		tarifPajaks := respTp.(rp.OK).Data.([]mtp.TarifPajak)
+		if len(tarifPajaks) == 0 {
+			return fmt.Errorf("tarif pajak not found")
+		}
+		tarifPajak := tarifPajaks[len(tarifPajaks)-1]
 
 		input.ReplaceTarifPajakId(uint(tarifPajak.Id))
 		input.CalculateTax(tarifPajak.TarifPersen)

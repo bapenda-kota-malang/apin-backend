@@ -39,15 +39,13 @@ func GetList(input m.FilterDto, user_Id uint) (any, error) {
 		Scopes(gh.Paginate(input, &pagination)).
 		Joins("Npwpd").
 		// Joins("ObjekPajak").
-		Joins("LaporUser").
+		Preload("LaporUser", func(db *gorm.DB) *gorm.DB {
+			return db.Omit("Password")
+		}).
 		Joins("Rekening").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
-	}
-
-	for i := range data {
-		data[i].LaporUser.Password = nil
 	}
 
 	return rp.OK{
@@ -64,7 +62,9 @@ func GetList(input m.FilterDto, user_Id uint) (any, error) {
 func GetDetail(id int, user_Id uint) (any, error) {
 	var data *m.Espt
 
-	baseQuery := a.DB.Preload(clause.Associations)
+	baseQuery := a.DB.Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+		return tx.Omit("Password")
+	})
 	if user_Id != 0 {
 		baseQuery = baseQuery.Where(&m.Espt{LaporBy_User_Id: user_Id})
 	}
@@ -74,12 +74,6 @@ func GetDetail(id int, user_Id uint) (any, error) {
 		return nil, nil
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
-	}
-	if data.LaporUser != nil {
-		data.LaporUser.Password = nil
-	}
-	if data.VerifyUser != nil {
-		data.VerifyUser.Password = nil
 	}
 	// if len(*data.DetailEsptAir) == 0 {
 	// 	data.DetailEsptAir = nil

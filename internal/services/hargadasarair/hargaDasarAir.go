@@ -1,7 +1,6 @@
 package hargadasarair
 
 import (
-	"errors"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -57,21 +56,6 @@ func GetList(input m.FilterDto) (any, error) {
 		},
 		Data: data,
 	}, nil
-}
-
-func GetTarif(peruntukan, batas string) (data m.HargaDasarAir, err error) {
-	result := a.DB.
-		Where(m.HargaDasarAir{Peruntukan: &peruntukan}).
-		// Where("BatasBawah >= ? OR BatasAtas <= ?", batas, batas).
-		First(&data)
-	if result.RowsAffected == 0 {
-		err = errors.New("data tidak ada")
-		return
-	} else if result.Error != nil {
-		err = result.Error
-		return
-	}
-	return
 }
 
 func GetDetail(id int) (any, error) {
