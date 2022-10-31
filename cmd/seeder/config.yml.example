@@ -3,3 +3,4 @@ version: 0.1
 
 dbName: apin-migrate-old
 username: ubuntu
+password: test123

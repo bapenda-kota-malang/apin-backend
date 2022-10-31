@@ -572,7 +572,7 @@ COPY public."TarifPajak" ("Id", "Rekening_Id", "Tahun", "TarifRp", "TarifPersen"
 -- Name: TarifPajak_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."TarifPajak_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."TarifPajak_Id_seq"', 3266, false);
 
 
 --
