@@ -1,7 +1,7 @@
 package detailesptresto
 
 import (
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 

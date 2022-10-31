@@ -1,4 +1,4 @@
-package detailespthotel
+package detailesptparkir
 
 import (
 	"errors"
@@ -11,18 +11,18 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptparkir"
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "detailespthotel"
+const source = "detailesptparkir"
 
 func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data []m.DetailEsptHotel
+	var data []m.DetailEsptParkir
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -50,7 +50,7 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.DetailEsptHotel
+	var data m.DetailEsptParkir
 
 	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
 	if id != 0 {
@@ -83,7 +83,7 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.DetailEsptHotel
+	var data *m.DetailEsptParkir
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
