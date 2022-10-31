@@ -1,6 +1,8 @@
 name: Seeder
 version: 0.1
 
-dbName: apin-migrate-old
+host: localhost
+port: 5432
 username: ubuntu
 password: test123
+dbName: apin-migrate-old
