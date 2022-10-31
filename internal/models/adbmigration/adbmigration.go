@@ -5,14 +5,14 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthiburan"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjnonpln"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjpln"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthiburan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthotel"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptparkir"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjnonpln"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjpln"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
@@ -91,7 +91,6 @@ func init() {
 		&rn.DetailRegObjekPajakResto{},
 		&rn.RegNarahubung{},
 		&rn.RegPemilikWp{},
-		&rn.RegDirektur{},
 	}
 	a.AutoMigrate(listModelRegNpwpd...)
 
@@ -100,7 +99,6 @@ func init() {
 		&npwpd.Npwpd{},
 		&npwpd.PemilikWp{},
 		&npwpd.Narahubung{},
-		&npwpd.Direktur{},
 		&npwpd.DetailObjekPajakHotel{},
 		&npwpd.DetailObjekPajakAirTanah{},
 		&npwpd.DetailObjekPajakParkir{},

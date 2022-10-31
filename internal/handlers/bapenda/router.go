@@ -118,6 +118,8 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/hargadasarair", hargadasarair.Crud{})
 
+	r.Get("/hargadasarair/peruntukan", hargadasarair.GetPeruntukan)
+
 	rh.RegCrud(r, "/tarifpajak", tarifpajak.Crud{})
 
 	rh.RegCrud(r, "/rekening", rekening.Crud{})

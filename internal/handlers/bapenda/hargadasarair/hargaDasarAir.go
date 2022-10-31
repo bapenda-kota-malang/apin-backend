@@ -13,7 +13,7 @@ type Crud struct{}
 
 func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 	var data m.CreateDto
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
@@ -23,7 +23,7 @@ func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 
 func (c Crud) GetList(w http.ResponseWriter, r *http.Request) {
 	var input m.FilterDto
-	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
 		return
 	}
 
@@ -41,6 +41,11 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func GetPeruntukan(w http.ResponseWriter, r *http.Request) {
+	result, err := s.GetPeruntukan()
+	hh.DataResponse(w, result, err)
+}
+
 func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
@@ -48,7 +53,7 @@ func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var data m.UpdateDto
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 

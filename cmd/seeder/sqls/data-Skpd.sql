@@ -29,7 +29,7 @@ COPY public."Skpd" ("Id", "Kode", "Nama", "Alamat", "Telp") FROM stdin;
 -- Name: Skpd_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."Skpd_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Skpd_Id_seq"', 112, false);
 
 
 --

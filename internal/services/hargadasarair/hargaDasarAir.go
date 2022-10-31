@@ -73,6 +73,24 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
+func GetPeruntukan() (any, error) {
+	var data []m.PeruntukanList
+	result := a.DB.Model(&m.HargaDasarAir{}).Distinct("Peruntukan").Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	var finalData []string
+
+	for i := range data {
+		finalData = append(finalData, string(data[i].Peruntukan))
+	}
+
+	return rp.OKSimple{
+		Data: finalData,
+	}, nil
+}
+
 func Update(id int, input m.UpdateDto) (any, error) {
 	var data *m.HargaDasarAir
 	result := a.DB.First(&data, id)

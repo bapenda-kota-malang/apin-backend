@@ -130,6 +130,7 @@ func SetRoutes() http.Handler {
 
 	r.Route("/hargadasarair", func(r chi.Router) {
 		r.Get("/", hargadasarair.GetList)
+		r.Get("/peruntukan", hargadasarair.GetPeruntukan)
 	})
 	return r
 }

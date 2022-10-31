@@ -14,7 +14,7 @@ import (
 type Npwpd struct {
 	Id                uint64             `json:"id" gorm:"primarykey"`
 	ObjekPajak_Id     uint64             `json:"objekPajak_id"`
-	ObjekPajak        *op.ObjekPajak     `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
+	ObjekPajak        *op.ObjekPajak     `json:"objekPajak" gorm:"foreignKey:ObjekPajak_Id"`
 	Golongan          t.Golongan         `json:"golongan"`
 	Nomor             int                `json:"nomor"`
 	Npwp              *string            `json:"npwp" gorm:"size:50"`
@@ -28,7 +28,7 @@ type Npwpd struct {
 	Skpd_Id           *uint64            `json:"skpd_id"`
 	Skpd              *skpd.Skpd         `json:"skpd,omitempty" gorm:"foreignKey:Skpd_Id"`
 	Rekening_Id       *uint64            `json:"rekening_id"`
-	Rekening          *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
+	Rekening          *rekening.Rekening `json:"rekening" gorm:"foreignKey:Rekening_Id"`
 	Nama              *string            `json:"nama" gorm:"size:20"`
 	User_Id           *uint64            `json:"user_id"`
 	User              *user.User         `gorm:"foreignKey:User_Id"`
@@ -52,7 +52,6 @@ type Npwpd struct {
 
 	PemilikWps  []*PemilikWp  `json:"pemilik,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
 	Narahubungs []*Narahubung `json:"narahubung,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
-	Direkturs   []*Direktur   `json:"direktur,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
 
 	DetailOpAirTanah []*DetailObjekPajakAirTanah `json:"detailObjekPajakAirTanah,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
 	DetailOpHiburan  []*DetailObjekPajakHiburan  `json:"detailObjekPajakHiburan,omitempty" gorm:"foreignKey:Npwpd_Id;references:Id"`
@@ -67,7 +66,7 @@ type Npwpd struct {
 type CreateDto struct {
 	JenisPajak t.JenisPajak `json:"jenisPajak" validate:"required"`
 	Golongan   t.Golongan   `json:"golongan" validate:"required"`
-	Npwp       *string      `json:"npwp" validate:"required"`
+	Npwp       *string      `json:"npwp"`
 
 	Nomor                 int  `json:"nomor"`
 	IsNomorRegistrasiAuto bool `json:"isNomorRegistrasiAuto"`
@@ -83,17 +82,16 @@ type CreateDto struct {
 	Pengunjung        *string `json:"pengunjung"`
 	OmsetOp           *string `json:"omsetOp"`
 
-	Rekening_Id uint64 `json:"rekening_id"`
+	Rekening_Id uint64 `json:"rekening_id" validate:"required"`
 
-	Genset   bool `json:"genset"`
-	AirTanah bool `json:"airTanah"`
+	Genset   bool `json:"genset" validate:"required"`
+	AirTanah bool `json:"airTanah" validate:"required"`
 
 	DetailOp *[]DetailObjekPajak `json:"detailObjekPajak"`
 
 	ObjekPajak *op.ObjekPajak `json:"objekPajak"`
 	Pemilik    *[]PemilikWp   `json:"pemilik"`
 	Narahubung *[]Narahubung  `json:"narahubung"`
-	Direktur   *[]Direktur    `json:"direktur"`
 }
 
 type UpdateDto struct {
@@ -126,7 +124,6 @@ type UpdateDto struct {
 	ObjekPajak op.ObjekPajak `json:"objekPajak"`
 	Pemilik    []PemilikWp   `json:"pemilik"`
 	Narahubung []Narahubung  `json:"narahubung"`
-	Direktur   []Direktur    `json:"direktur"`
 	// Narahubung NarahubungUpdateDto `json:"narahubung"`
 }
 

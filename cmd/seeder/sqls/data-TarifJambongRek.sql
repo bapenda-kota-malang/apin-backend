@@ -34,7 +34,7 @@ COPY public."TarifJambongRek" ("Id", "Tipe", "BatasBawah", "BatasAtas", "Nominal
 -- Name: TarifJambongRek_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."TarifJambongRek_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."TarifJambongRek_Id_seq"', 8, false);
 
 
 --

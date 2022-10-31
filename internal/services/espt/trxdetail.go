@@ -11,25 +11,26 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
-	mdhib "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthiburan"
-	mdhot "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
-	mdpar "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
-	mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjnonpln"
-	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjpln"
-	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
+	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
+	mdhib "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthiburan"
+	mdhot "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthotel"
+	mdpar "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptparkir"
+	mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjnonpln"
+	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjpln"
+	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
 	mhdair "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	mjppj "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
+	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
-	sair "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptair"
-	shib "github.com/bapenda-kota-malang/apin-backend/internal/services/detailespthiburan"
-	shot "github.com/bapenda-kota-malang/apin-backend/internal/services/detailespthotel"
-	spar "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptparkir"
-	snonpln "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptppjnonpln"
-	spln "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptppjpln"
-	sres "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptresto"
+	sair "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailesptair"
+	shib "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailespthiburan"
+	shot "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailespthotel"
+	spar "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailesptparkir"
+	snonpln "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailesptppjnonpln"
+	spln "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailesptppjpln"
+	sres "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailesptresto"
 	shda "github.com/bapenda-kota-malang/apin-backend/internal/services/hargadasarair"
 	sjppj "github.com/bapenda-kota-malang/apin-backend/internal/services/jenisppj"
 	stp "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
@@ -51,10 +52,9 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 		// change detail for detail espt air & ppj pln before calculate tax
 		if detail, ok := input.GetDetails().(mdair.CreateDto); ok {
 			switch detail.Peruntukan {
-			case mdair.PeruntukanIndustriAir, mdair.PeruntukanNiaga, mdair.PeruntukanNonNiaga, mdair.PeruntukanPdam:
-				peruntukan := string(detail.Peruntukan)
+			case mtypes.PeruntukanIndustriAir, mtypes.PeruntukanNiaga, mtypes.PeruntukanNonNiaga, mtypes.PeruntukanPdam:
 				resphdair, err := shda.GetList(mhdair.FilterDto{
-					Peruntukan:     &peruntukan,
+					Peruntukan:     &detail.Peruntukan,
 					BatasBawah:     &omset,
 					BatasBawah_Opt: &omsetOpt,
 				})
@@ -66,10 +66,10 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 					return fmt.Errorf("harga dasar air not found")
 				}
 				hdair := hdairs[len(hdairs)-1]
-				if detail.JenisAbt == mdair.JenisABTNonMataAir {
+				if detail.JenisAbt == mtypes.JenisABTNonMataAir {
 					detail.Pengenaan = float32(*hdair.TarifBukanMataAir)
 				} else {
-					detail.JenisAbt = mdair.JenisABTMataAir
+					detail.JenisAbt = mtypes.JenisABTMataAir
 					detail.Pengenaan = float32(*hdair.TarifMataAir)
 				}
 				input.ChangeDetails(detail)
