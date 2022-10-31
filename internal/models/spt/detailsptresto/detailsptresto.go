@@ -12,7 +12,7 @@ type DetailSptResto struct {
 }
 
 type CreateDto struct {
-	// Spt_Id           uint     `json:"spt_id" validate:"required"`
+	Spt_Id           uint
 	JumlahMeja       uint64  `json:"jumlahMeja" validate:"required"`
 	JumlahKursi      uint64  `json:"jumlahKursi" validate:"required"`
 	TarifMinuman     float64 `json:"tarifMinuman" validate:"required"`

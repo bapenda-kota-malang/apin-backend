@@ -1,8 +1,9 @@
-package detailspthotel
+package detailsptair
 
 import (
-	ms "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
-	mdsh "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthotel"
+	"strconv"
+
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthotel"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -12,32 +13,45 @@ import (
 
 const source = "detailSptHotel"
 
-func Create(input ms.CreateHotelDto) (any, error) {
-	var dataS ms.Spt
+func Create(input m.CreateDto) (any, error) {
+	var data m.DetailSptHotel
 
-	if err := sc.Copy(&dataS, input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataS)
+	if err := sc.Copy(&data, input); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
-	err := a.DB.Create(&dataS).Error
+
+	err := a.DB.Create(&data).Error
 	if err != nil {
 		return nil, err
 	}
 
-	for _, v := range input.DetailSpt {
-		var dataD mdsh.DetailSptHotel
-		if err := sc.Copy(&dataD, v); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", v)
-		}
-
-		dataD.Spt_Id = dataS.Id
-
-		err = a.DB.Create(&dataD).Error
-		if err != nil {
-			return nil, err
-		}
+	err = a.DB.Create(&data).Error
+	if err != nil {
+		return nil, err
 	}
-	return rp.OKSimple{Data: t.II{
-		"spt":            dataS,
-		"detailSptHotel": input.DetailSpt,
-	}}, nil
+
+	return rp.OKSimple{Data: data}, nil
+}
+
+func Update(id int, input m.UpdateDto) (any, error) {
+	//detailspt
+	var data m.DetailSptHotel
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+
 }

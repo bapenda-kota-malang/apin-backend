@@ -25,7 +25,7 @@ type DetailSptReklame struct {
 }
 
 type CreateDto struct {
-	// Spt_Id          uint     `json:"spt_id" validate:"required"`
+	Spt_Id          uint
 	TarifReklame_Id uint64   `json:"tarifReklame_id" validate:"required"`
 	Jumlah          uint64   `json:"jumlah" validate:"required"`
 	Sisi            uint64   `json:"sisi" validate:"required"`

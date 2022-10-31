@@ -10,7 +10,7 @@ type DetailSptHotel struct {
 }
 
 type CreateDto struct {
-	// Spt_Id              uint    `json:"spt_id" validate:"required"`
+	Spt_Id              uint
 	GolonganKamar       string  `json:"golonganKamar" validate:"required"`
 	Tarif               float64 `json:"tarif" validate:"required"`
 	JumlahKamar         uint64  `json:"jumlahKamar" validate:"required"`
