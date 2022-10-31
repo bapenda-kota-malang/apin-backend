@@ -1,13 +1,13 @@
 package espt
 
 import (
-	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
-	mdhib "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthiburan"
-	mdhot "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
-	mdpar "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
-	mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjnonpln"
-	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjpln"
-	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
+	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
+	mdhib "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthiburan"
+	mdhot "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthotel"
+	mdpar "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptparkir"
+	mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjnonpln"
+	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjpln"
+	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"

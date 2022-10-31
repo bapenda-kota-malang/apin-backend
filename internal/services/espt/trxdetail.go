@@ -11,24 +11,26 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptair"
-	mdhib "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthiburan"
-	mdhot "github.com/bapenda-kota-malang/apin-backend/internal/models/detailespthotel"
-	mdpar "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptparkir"
-	mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjnonpln"
-	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptppjpln"
-	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/detailesptresto"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
+	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
+	mdhib "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthiburan"
+	mdhot "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthotel"
+	mdpar "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptparkir"
+	mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjnonpln"
+	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjpln"
+	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
+	mhdair "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	mjppj "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
+	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
-	sair "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptair"
-	shib "github.com/bapenda-kota-malang/apin-backend/internal/services/detailespthiburan"
-	shot "github.com/bapenda-kota-malang/apin-backend/internal/services/detailespthotel"
-	spar "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptparkir"
-	snonpln "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptppjnonpln"
-	spln "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptppjpln"
-	sres "github.com/bapenda-kota-malang/apin-backend/internal/services/detailesptresto"
+	sair "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailesptair"
+	shib "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailespthiburan"
+	shot "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailespthotel"
+	spar "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailesptparkir"
+	snonpln "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailesptppjnonpln"
+	spln "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailesptppjpln"
+	sres "github.com/bapenda-kota-malang/apin-backend/internal/services/espt/detailesptresto"
 	shda "github.com/bapenda-kota-malang/apin-backend/internal/services/hargadasarair"
 	sjppj "github.com/bapenda-kota-malang/apin-backend/internal/services/jenisppj"
 	stp "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
@@ -44,31 +46,36 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		rekeningId := uint64(input.GetEspt().Rekening_Id)
 		yearNow := uint64(time.Now().Year())
-		tarifPajak, err := stp.GetTarif(&rekeningId, &yearNow)
-		if err != nil {
-			return err
-		}
+		omset := input.GetEspt().Omset
+		omsetOpt := "lte"
 
+		// change detail for detail espt air & ppj pln before calculate tax
 		if detail, ok := input.GetDetails().(mdair.CreateDto); ok {
 			switch detail.Peruntukan {
-			case mdair.PeruntukanIndustriAir:
-			case mdair.PeruntukanNiaga:
-			case mdair.PeruntukanNonNiaga:
-			case mdair.PeruntukanPdam:
+			case mtypes.PeruntukanIndustriAir, mtypes.PeruntukanNiaga, mtypes.PeruntukanNonNiaga, mtypes.PeruntukanPdam:
+				resphdair, err := shda.GetList(mhdair.FilterDto{
+					Peruntukan:     &detail.Peruntukan,
+					BatasBawah:     &omset,
+					BatasBawah_Opt: &omsetOpt,
+				})
+				if err != nil {
+					return err
+				}
+				hdairs := resphdair.(rp.OKSimple).Data.([]mhdair.HargaDasarAir)
+				if len(hdairs) == 0 {
+					return fmt.Errorf("harga dasar air not found")
+				}
+				hdair := hdairs[len(hdairs)-1]
+				if detail.JenisAbt == mtypes.JenisABTNonMataAir {
+					detail.Pengenaan = float32(*hdair.TarifBukanMataAir)
+				} else {
+					detail.JenisAbt = mtypes.JenisABTMataAir
+					detail.Pengenaan = float32(*hdair.TarifMataAir)
+				}
+				input.ChangeDetails(detail)
 			default:
 				return fmt.Errorf("unknown peruntukan air")
 			}
-			hargaDasarAir, err := shda.GetTarif(string(detail.Peruntukan), fmt.Sprintf("%f", input.GetEspt().Omset))
-			if err != nil {
-				return err
-			}
-			if detail.JenisAbt == mdair.JenisABTNonMataAir {
-				detail.Pengenaan = float32(*hargaDasarAir.TarifBukanMataAir)
-			} else {
-				detail.JenisAbt = mdair.JenisABTMataAir
-				detail.Pengenaan = float32(*hargaDasarAir.TarifMataAir)
-			}
-			input.ChangeDetails(detail)
 		}
 
 		if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
@@ -81,6 +88,23 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 			}
 			input.ChangeDetails(detail)
 		}
+
+		// get tarif pajak data for calculate tax
+		respTp, err := stp.GetList(mtp.FilterDto{
+			Rekening_Id:   &rekeningId,
+			Tahun:         &yearNow,
+			OmsetAwal:     &omset,
+			OmsetAwal_Opt: &omsetOpt,
+		})
+		if err != nil {
+			return err
+		}
+
+		tarifPajaks := respTp.(rp.OK).Data.([]mtp.TarifPajak)
+		if len(tarifPajaks) == 0 {
+			return fmt.Errorf("tarif pajak not found")
+		}
+		tarifPajak := tarifPajaks[len(tarifPajaks)-1]
 
 		input.ReplaceTarifPajakId(uint(tarifPajak.Id))
 		input.CalculateTax(tarifPajak.TarifPersen)

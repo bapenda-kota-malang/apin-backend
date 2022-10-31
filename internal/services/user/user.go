@@ -139,11 +139,8 @@ func Delete(id int) (any, error) {
 
 func CheckerPThree(input m.CheckerPThreeDto) (interface{}, error) {
 	var data m.User
-	if result := a.DB.Unscoped().Where(&m.User{Name: input.Name}).First(&data); result.RowsAffected != 0 {
-		return nil, errors.New("username telah terdaftar")
-	}
-	if result := a.DB.Unscoped().Where(&m.User{Email: input.Email}).First(&data); result.RowsAffected != 0 {
-		return nil, errors.New("email telah terdaftar")
+	if result := a.DB.Unscoped().Where(&m.User{Name: input.Name}).Or(&m.User{Email: input.Email}).First(&data); result.RowsAffected != 0 {
+		return nil, errors.New("username atau email telah terdaftar")
 	}
 	return rp.OKSimple{
 		Data: input,

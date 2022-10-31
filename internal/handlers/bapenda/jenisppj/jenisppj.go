@@ -1,12 +1,12 @@
-package hargadasarair
+package jenisppj
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/hargadasarair"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/jenisppj"
 )
 
 type Crud struct{}
@@ -38,11 +38,6 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := s.GetDetail(id)
-	hh.DataResponse(w, result, err)
-}
-
-func GetPeruntukan(w http.ResponseWriter, r *http.Request) {
-	result, err := s.GetPeruntukan()
 	hh.DataResponse(w, result, err)
 }
 

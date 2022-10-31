@@ -1,7 +1,6 @@
 package hargadasarair
 
 import (
-	"errors"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -59,21 +58,6 @@ func GetList(input m.FilterDto) (any, error) {
 	}, nil
 }
 
-func GetTarif(peruntukan, batas string) (data m.HargaDasarAir, err error) {
-	result := a.DB.
-		Where(m.HargaDasarAir{Peruntukan: &peruntukan}).
-		// Where("BatasBawah >= ? OR BatasAtas <= ?", batas, batas).
-		First(&data)
-	if result.RowsAffected == 0 {
-		err = errors.New("data tidak ada")
-		return
-	} else if result.Error != nil {
-		err = result.Error
-		return
-	}
-	return
-}
-
 func GetDetail(id int) (any, error) {
 	var data *m.HargaDasarAir
 
@@ -86,6 +70,24 @@ func GetDetail(id int) (any, error) {
 
 	return rp.OKSimple{
 		Data: data,
+	}, nil
+}
+
+func GetPeruntukan() (any, error) {
+	var data []m.PeruntukanList
+	result := a.DB.Model(&m.HargaDasarAir{}).Distinct("Peruntukan").Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	var finalData []string
+
+	for i := range data {
+		finalData = append(finalData, string(data[i].Peruntukan))
+	}
+
+	return rp.OKSimple{
+		Data: finalData,
 	}, nil
 }
 

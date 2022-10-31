@@ -22,9 +22,6 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 			panic("input must be a struct")
 		}
 
-		// allowed option, the default is without like and between
-		opts := []string{"=", "<", ">", "<=", ">=", "<>", "left", "mid", "right"}
-
 		iT := iV.Type() // input type
 		for i := 0; i < iV.NumField(); i++ {
 			iTF := iT.Field(i) // input type of the current field
@@ -54,25 +51,18 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 			// check opt
 			vOpt := "="
 			o := iV.FieldByName(iTF.Name + "_Opt") // option
-			if o.IsValid() && o.Interface() != nil {
-				if o.Kind() == reflect.Ptr {
-					o = o.Elem()
-				}
+			if o.IsValid() && o.Kind() == reflect.Ptr && o.Elem().IsValid() {
+				o = o.Elem()
 				vOpt = o.Interface().(string)
+			}
+			opts := []string{"=", "lt", "gt", "lte", "gte", "ne", "left", "mid", "right"}
+			if ok := stringInSlice(vOpt, opts); !ok {
+				db.AddError(fmt.Errorf("field %s: opt undefined", iTF.Name))
 			}
 
 			// add where query
-			if stringInSlice(vOpt, opts[0:6]) {
-				db.Where("\""+iTF.Name+"\" "+vOpt+" ?", iVF.Interface()) // F-KING BUG
-			} else if vOpt == "left" {
-				db.Where("\""+iTF.Name+"\" LIKE ?", fmt.Sprintf("%v%v", iVF.Interface(), "%"))
-			} else if vOpt == "mid" {
-				db.Where("\""+iTF.Name+"\" LIKE ?", fmt.Sprintf("%v%v%v", "%", iVF.Interface(), "%"))
-			} else if vOpt == "right" {
-				db.Where("\""+iTF.Name+"\" LIKE ?", fmt.Sprintf("%v%v", "%", iVF.Interface()))
-			} else {
-				db.Where("\""+iTF.Name+"\" = ?", iVF.Interface()) // F-KING BUG
-			}
+			whereString, value := optionString(iTF.Name, vOpt, iVF.Interface())
+			db.Where(whereString, value)
 		}
 
 		return db
