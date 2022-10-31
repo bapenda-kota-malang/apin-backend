@@ -20,7 +20,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func Update(w http.ResponseWriter, r *http.Request) {
+func UpdateForWp(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
 		return
@@ -32,7 +32,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-	result, err := s.Update(id, input, uint(authInfo.User_Id))
+	result, err := s.UpdateForWp(id, input, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 
@@ -58,5 +58,16 @@ func GetDetailForWp(w http.ResponseWriter, r *http.Request) {
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 	result, err := s.GetDetailForWp(id, uint64(authInfo.User_Id))
+	hh.DataResponse(w, result, err)
+}
+
+func DeleteForWp(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err := s.DeleteForWp(id, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }

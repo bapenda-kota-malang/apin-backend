@@ -139,10 +139,10 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 	}
 
 	resp = t.II{
-		"objekPajak":      respDataOp.(rp.OKSimple).Data,
-		"registrasiNpwpd": register,
-		"pemilikWp":       respDataPemilik.(rp.OKSimple).Data,
-		"narahubung":      respDataNarahubung.(rp.OKSimple).Data,
+		"objekPajak": respDataOp.(rp.OKSimple).Data,
+		"regNpwpd":   register,
+		"pemilikWp":  respDataPemilik.(rp.OKSimple).Data,
+		"narahubung": respDataNarahubung.(rp.OKSimple).Data,
 	}
 
 	return rp.OKSimple{
@@ -640,6 +640,7 @@ func Delete(id int) (any, error) {
 			}
 		}
 	}
+
 	tmpObjekPajakId := data.RegObjekPajak_Id
 	result = a.DB.Delete(&data, id)
 	status = "deleted"
@@ -671,16 +672,11 @@ func Delete(id int) (any, error) {
 
 }
 
-func Update(id int, input rn.UpdateDto, user_Id uint) (any, error) {
+func Update(id int, input rn.UpdateDto) (any, error) {
 	var data *rn.RegNpwpd
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data registrasi npwpd tidak dapat ditemukan")
-	}
-
-	userIdConv := uint64(user_Id)
-	if data.User_Id != userIdConv {
-		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
@@ -695,12 +691,20 @@ func Update(id int, input rn.UpdateDto, user_Id uint) (any, error) {
 		var dataP *rn.RegPemilikWp
 		result := a.DB.First(&dataP, v.Id)
 		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
+			return nil, errors.New("data reg pemilik tidak dapat ditemukan")
 		}
 		if err := sc.Copy(&dataP, &v); err != nil {
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg pemilik", dataP)
 		}
-
+		// set directur value to null if golongan orang pribadi
+		if data.Golongan == 1 {
+			dataP.Direktur_Nama = nil
+			dataP.Direktur_Alamat = nil
+			dataP.Direktur_Daerah_Id = nil
+			dataP.Direktur_Kelurahan_Id = nil
+			dataP.Direktur_Nik = nil
+			dataP.Direktur_Telp = nil
+		}
 		dataP.RegNpwpd_Id = data.Id
 		if result := a.DB.Save(&dataP); result.Error != nil {
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg pemilik", dataP)
@@ -919,4 +923,36 @@ func GetDetailForWp(id int, user_Id uint64) (interface{}, error) {
 	return rp.OKSimple{
 		Data: data,
 	}, err
+}
+
+func UpdateForWp(id int, input rn.UpdateDto, user_Id uint) (any, error) {
+	var dataCheck *rn.RegNpwpd
+	result := a.DB.First(&dataCheck, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data registrasi npwpd tidak dapat ditemukan")
+	}
+
+	userIdConv := uint64(user_Id)
+	if dataCheck.User_Id != userIdConv {
+		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
+	}
+
+	resultUpdate, err := Update(id, input)
+	return resultUpdate, err
+}
+
+func DeleteForWp(id int, user_Id uint) (any, error) {
+	var dataCheck *rn.RegNpwpd
+	result := a.DB.First(&dataCheck, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data registrasi npwpd tidak dapat ditemukan")
+	}
+
+	userIdConv := uint64(user_Id)
+	if dataCheck.User_Id != userIdConv {
+		return nil, errors.New("tidak dapat menghapus data yang bukan milik anda")
+	}
+
+	resultDelete, err := Delete(id)
+	return resultDelete, err
 }

@@ -96,8 +96,10 @@ func SetRoutes() http.Handler {
 		r.Post("/", regnpwpd.Create)
 		r.Get("/", regnpwpd.GetListForWp)
 		r.Get("/{id}", regnpwpd.GetDetailForWp)
-		r.Patch("/{id}", regnpwpd.Update)
+		r.Patch("/{id}", regnpwpd.UpdateForWp)
+		r.Delete("/{id}", regnpwpd.DeleteForWp)
 	})
+
 	r.Route("/espt", func(r chi.Router) {
 		r.Post("/", espt.Create)
 		r.Get("/", espt.GetList)

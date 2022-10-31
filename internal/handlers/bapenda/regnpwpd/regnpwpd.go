@@ -33,6 +33,21 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func Update(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	var input rn.UpdateDto
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
+		return
+	}
+
+	result, err := s.Update(id, input)
+	hh.DataResponse(w, result, err)
+}
+
 func GetList(w http.ResponseWriter, r *http.Request) {
 	var input rn.FilterDto
 	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
