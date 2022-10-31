@@ -18,3 +18,8 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 	result, err := s.GetList(input)
 	hh.DataResponse(w, result, err)
 }
+
+func GetPeruntukan(w http.ResponseWriter, r *http.Request) {
+	result, err := s.GetPeruntukan()
+	hh.DataResponse(w, result, err)
+}
