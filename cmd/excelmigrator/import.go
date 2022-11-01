@@ -6,6 +6,6 @@ func main() {
 	InitDB()
 
 	fmt.Println("start importing")
-	ImportRekening()
+	// ImportRekening()
 	ImportRegion()
 }

@@ -6,9 +6,10 @@ import (
 	nm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
+	"gorm.io/gorm"
 )
 
-func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajakCreateDto, registerForm *rn.RegNpwpd) error {
+func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajakCreateDto, registerForm *rn.RegNpwpd, tx *gorm.DB) error {
 	if data == nil {
 		return nil
 	}
@@ -64,7 +65,7 @@ func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajakCreateDto, regis
 		m["UnitOp"] = dop.UnitOp
 		m["Notes"] = dop.Notes
 
-		err = a.DB.Model(&model).Create(&m).Error
+		err = tx.Model(&model).Create(&m).Error
 		if err != nil {
 			return err
 		}

@@ -98,11 +98,11 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 		register.SuratIzinUsaha = sh.GetArrayPhoto(input.SuratIzinUsaha)
 		register.FotoObjek = sh.GetArrayPhoto(input.FotoObjek)
 
-		err = a.DB.Create(&register).Error
+		err = tx.Create(&register).Error
 		if err != nil {
 			return err
 		}
-		err = insertDetailOp(*rekening.Objek, input.DetailRegOp, &register)
+		err = insertDetailOp(*rekening.Objek, input.DetailRegOp, &register, tx)
 		if err != nil {
 			return err
 		}
