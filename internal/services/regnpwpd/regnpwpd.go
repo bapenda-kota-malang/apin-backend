@@ -235,7 +235,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		}, nil
 	}
 	var dataROP *rop.RegObjekPajak
-	result = a.DB.Where(rop.RegObjekPajak{Id: uint64(id)}).First(&dataROP)
+	result = a.DB.Where(rop.RegObjekPajak{Id: data.RegObjekPajak_Id}).First(&dataROP)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data reg objek pajak tidak dapat ditemukan")
 	}
@@ -490,177 +490,63 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 }
 
 func Delete(id int) (any, error) {
-
-	var status string
-	// data pemilikwp
-	var dataPemilik []*rn.RegPemilikWp
-	result := a.DB.Where(rn.RegPemilikWp{RegNpwpd_Id: uint64(id)}).Find(&dataPemilik)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data reg pemilik tidak dapat ditemukan")
-	}
-
-	for _, v := range dataPemilik {
-
-		result = a.DB.Where(rn.RegPemilikWp{RegNpwpd_Id: uint64(id)}).Delete(&v)
-		status = "deleted"
-		if result.RowsAffected == 0 {
-			dataPemilik = nil
-			status = "no deletion"
-		}
-	}
-
-	// data narahubung
-	var dataNarahubung []*rn.RegNarahubung
-	result = a.DB.Where(rn.RegNarahubung{RegNpwpd_Id: uint64(id)}).Find(&dataNarahubung)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data reg narahubung tidak dapat ditemukan")
-	}
-
-	for _, v := range dataNarahubung {
-		result = a.DB.Where(rn.RegNarahubung{RegNpwpd_Id: uint64(id)}).Delete(&v)
-		status = "deleted"
-		if result.RowsAffected == 0 {
-			dataPemilik = nil
-			status = "no deletion"
-		}
-	}
-
-	// data regis
+	var status string = "deleted"
 	var data *rn.RegNpwpd
-	result = a.DB.First(&data, id)
+	var rekening *rm.Rekening
+
+	// cek data regNpwpd
+	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data registrasi npwpd tidak dapat ditemukan")
 	}
 
-	// data rekening
-	var rekening *rm.Rekening
+	// untuk mengambil data regobjekpajak
+	tmpObjekPajakId := data.RegObjekPajak_Id
+
+	// cek data rekening untuk mengambil data objek untuk menghapus detail objek pajak
 	err := a.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
 	if err != nil {
 		return nil, err
 	}
-	// delete detail OP
-	switch *rekening.Objek {
-	case "01":
-		var DataOp []*rn.DetailRegObjekPajakHotel
-		result := a.DB.Where(rn.DetailRegObjekPajakHotel{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data detail reg objek pajak hotel tidak dapat ditemukan")
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
+
+		// cek dan hapus data pemilik
+		err := rsp.Delete(data.Id, tx)
+		if err != nil {
+			status = "no deletion"
+			return err
 		}
 
-		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakHotel{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				dataPemilik = nil
-				status = "no deletion"
-			}
+		// cek dan hapus data narahubung
+		err = rsn.Delete(data.Id, tx)
+		if err != nil {
+			status = "no deletion"
+			return err
 		}
 
-	case "02":
-		var DataOp []*rn.DetailRegObjekPajakResto
-		result := a.DB.Where(rn.DetailRegObjekPajakResto{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data detail reg objek pajak resto tidak dapat ditemukan")
+		// delete reg detail objek pajak
+		err = deleteDetailObjekPajak(data.Id, *rekening.Objek, tx)
+		if err != nil {
+			status = "no deletion"
+			return err
 		}
-		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakResto{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				dataPemilik = nil
-				status = "no deletion"
-			}
-		}
-	case "03":
-		var DataOp []*rn.DetailRegObjekPajakHiburan
-		result := a.DB.Where(rn.DetailRegObjekPajakHiburan{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data detail reg objek pajak hiburan tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakHiburan{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				dataPemilik = nil
-				status = "no deletion"
-			}
-		}
-	case "04":
-		var DataOp []*rn.DetailRegObjekPajakReklame
-		result := a.DB.Where(rn.DetailRegObjekPajakReklame{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data detail reg objek pajak reklame tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakReklame{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				dataPemilik = nil
-				status = "no deletion"
-			}
-		}
-	case "05":
-		var DataOp []*rn.DetailRegObjekPajakPpj
-		result := a.DB.Where(rn.DetailRegObjekPajakPpj{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data detail reg objek pajak ppj tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakPpj{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				dataPemilik = nil
-				status = "no deletion"
-			}
-		}
-	case "07":
-		var DataOp []*rn.DetailRegObjekPajakParkir
-		result := a.DB.Where(rn.DetailRegObjekPajakParkir{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data detail reg objek pajak parkir tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakParkir{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				dataPemilik = nil
-				status = "no deletion"
-			}
-		}
-	case "08":
-		var DataOp []*rn.DetailRegObjekPajakAirTanah
-		result := a.DB.Where(rn.DetailRegObjekPajakAirTanah{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data detail reg objek pajak air tanah tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(rn.DetailRegObjekPajakAirTanah{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: uint64(id)}}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				dataPemilik = nil
-				status = "no deletion"
-			}
-		}
-	}
 
-	tmpObjekPajakId := data.RegObjekPajak_Id
-	result = a.DB.Delete(&data, id)
-	status = "deleted"
-	if result.RowsAffected == 0 {
-		data = nil
-		status = "no deletion"
-	}
+		// delete data regNpwpd
+		result = tx.Delete(&data, id)
+		if result.RowsAffected == 0 {
+			return errors.New("tidak dapat menghapus data registrasi npwpd")
+		}
 
-	// data objek pajak
-	var dataObjekPajak []*rop.RegObjekPajak
-	result = a.DB.Where(rop.RegObjekPajak{Id: uint64(tmpObjekPajakId)}).First(&dataObjekPajak)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data reg objek pajak tidak dapat ditemukan")
-	}
-	result = a.DB.Delete(&dataObjekPajak)
-	status = "deleted"
-	if result.RowsAffected == 0 {
-		dataPemilik = nil
-		status = "no deletion"
+		// delete reg objek pajak
+		err = rsop.Delete(tmpObjekPajakId, tx)
+		if err != nil {
+			status = "no deletion"
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "delete-data", source, "failed", "gagal menghapus data", data)
 	}
 
 	return rp.OK{
@@ -675,198 +561,94 @@ func Delete(id int) (any, error) {
 
 func Update(id int, input rn.UpdateDto) (any, error) {
 	var data *rn.RegNpwpd
+	var dataNarahubung []rn.RegNarahubungUpdateDto
+	var dataPemilik []rn.RegPemilikWpUpdateDto
+	var dataObjekPajak rop.RegObjekPajakUpdateDto
+	var dataDetailRegObjekPajak []rn.DetailRegObjekPajak
+	var respDataObjekPajak interface{}
+	var respDataPemilik interface{}
+	var respDataNarahubung interface{}
+	var resp t.II
+	var rekening *rm.Rekening
+
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data registrasi npwpd tidak dapat ditemukan")
+	}
+
+	//cek rekening objek, dgn mengambil data rekening menggunakan rekening id
+	err := a.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
+	if err != nil {
+		return nil, err
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload registrasi npwpd", data)
 	}
 
-	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data registrasi npwpd", data)
+	if err := sc.Copy(&dataNarahubung, &input.RegNarahubung); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg narahubung", data)
 	}
 
-	for _, v := range input.RegPemilik {
-		var dataP *rn.RegPemilikWp
-		result := a.DB.First(&dataP, v.Id)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data reg pemilik tidak dapat ditemukan")
-		}
-		if err := sc.Copy(&dataP, &v); err != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg pemilik", dataP)
-		}
-		// set directur value to null if golongan orang pribadi
-		if data.Golongan == 1 {
-			dataP.Direktur_Nama = nil
-			dataP.Direktur_Alamat = nil
-			dataP.Direktur_Daerah_Id = nil
-			dataP.Direktur_Kelurahan_Id = nil
-			dataP.Direktur_Nik = nil
-			dataP.Direktur_Telp = nil
-		}
-		dataP.RegNpwpd_Id = data.Id
-		if result := a.DB.Save(&dataP); result.Error != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg pemilik", dataP)
-		}
+	if err := sc.Copy(&dataPemilik, &input.RegPemilik); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg pemilik", data)
 	}
 
-	for _, v := range input.RegNarahubung {
-		var dataN *rn.RegNarahubung
-		result := a.DB.First(&dataN, v.Id)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data reg narahubung tidak dapat ditemukan")
-		}
-		if err := sc.Copy(&dataN, &v); err != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg narahubung", dataN)
-		}
-		dataN.RegNpwpd_Id = data.Id
-		if result := a.DB.Save(&dataN); result.Error != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg narahubung", dataN)
-		}
+	if err := sc.Copy(&dataObjekPajak, &input.RegObjekPajak); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak", data)
 	}
 
-	var dataOP *rop.RegObjekPajak
-	result = a.DB.First(&dataOP, data.RegObjekPajak_Id)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data reg objek pajak tidak dapat ditemukan")
-	}
-	if err := sc.Copy(&dataOP, &input.RegObjekPajak); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak", dataOP)
-	}
-	dataOP.Id = data.RegObjekPajak_Id
-	if result := a.DB.Save(&dataOP); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg objek pajak", dataOP)
+	if err := sc.Copy(&dataDetailRegObjekPajak, &input.DetailRegObjekPajak); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload detail reg objek pajak", data)
 	}
 
-	//cek rekening objek, dgn mengambil data rekening menggunakan rekening id
-	var rekening *rm.Rekening
-	err := a.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
+
+		if result := tx.Save(&data); result.Error != nil {
+			return errors.New("gagal menyimpan data registrasi npwpd")
+		}
+
+		resultRegPemilik, err := rsp.Update(dataPemilik, data.Id, data.Golongan, tx)
+		if err != nil {
+			return err
+		}
+		respDataPemilik = resultRegPemilik
+
+		resultRegNarahubung, err := rsn.Update(dataNarahubung, data.Id, tx)
+		if err != nil {
+			return err
+		}
+		respDataNarahubung = resultRegNarahubung
+
+		resultRegObjekPajak, err := rsop.Update(dataObjekPajak, data.RegObjekPajak_Id, tx)
+		if err != nil {
+			return err
+		}
+		respDataObjekPajak = resultRegObjekPajak
+
+		err = updateDetailObjekPajak(dataDetailRegObjekPajak, data.Id, *rekening.Objek, *rekening.Nama, tx)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
-		return nil, err
-	}
-	switch *rekening.Objek {
-	case "01":
-		for _, v := range input.DetailRegObjekPajak {
-			var dataDetail *rn.DetailRegObjekPajakHotel
-			result := a.DB.First(&dataDetail, v.Id)
-			if result.RowsAffected == 0 {
-				return nil, errors.New("data detail reg objek pajak hotel tidak dapat ditemukan")
-			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak hotel", dataDetail)
-			}
-			dataDetail.RegNpwpd_Id = data.Id
-			dataDetail.JenisOp = rekening.Nama
-			if result := a.DB.Save(&dataDetail); result.Error != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg objek pajak hotel", dataDetail)
-			}
-		}
-	case "02":
-		for _, v := range input.DetailRegObjekPajak {
-			var dataDetail *rn.DetailRegObjekPajakResto
-			result := a.DB.First(&dataDetail, v.Id)
-			if result.RowsAffected == 0 {
-				return nil, errors.New("data reg objek pajak resto tidak dapat ditemukan")
-			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak resto", dataDetail)
-			}
-			dataDetail.RegNpwpd_Id = data.Id
-			dataDetail.JenisOp = rekening.Nama
-			if result := a.DB.Save(&dataDetail); result.Error != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg objek pajak resto", dataDetail)
-			}
-		}
-	case "03":
-		for _, v := range input.DetailRegObjekPajak {
-			var dataDetail *rn.DetailRegObjekPajakHiburan
-			result := a.DB.First(&dataDetail, v.Id)
-			if result.RowsAffected == 0 {
-				return nil, errors.New("data reg objek pajak hiburan tidak dapat ditemukan")
-			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak hiburan", dataDetail)
-			}
-			dataDetail.RegNpwpd_Id = data.Id
-			dataDetail.JenisOp = rekening.Nama
-			if result := a.DB.Save(&dataDetail); result.Error != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg objek pajak hiburan", dataDetail)
-			}
-		}
-	case "04":
-		for _, v := range input.DetailRegObjekPajak {
-			var dataDetail *rn.DetailRegObjekPajakReklame
-			result := a.DB.First(&dataDetail, v.Id)
-			if result.RowsAffected == 0 {
-				return nil, errors.New("data reg objek pajak reklame tidak dapat ditemukan")
-			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak reklame", dataDetail)
-			}
-			dataDetail.RegNpwpd_Id = data.Id
-			dataDetail.JenisOp = rekening.Nama
-			if result := a.DB.Save(&dataDetail); result.Error != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg objek pajak reklame", dataDetail)
-			}
-		}
-	case "05":
-		for _, v := range input.DetailRegObjekPajak {
-			var dataDetail *rn.DetailRegObjekPajakPpj
-			result := a.DB.First(&dataDetail, v.Id)
-			if result.RowsAffected == 0 {
-				return nil, errors.New("data reg objek pajak ppj tidak dapat ditemukan")
-			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak ppj", dataDetail)
-			}
-			dataDetail.RegNpwpd_Id = data.Id
-			dataDetail.JenisOp = rekening.Nama
-			if result := a.DB.Save(&dataDetail); result.Error != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg objek pajak ppj", dataDetail)
-			}
-		}
-	case "07":
-		for _, v := range input.DetailRegObjekPajak {
-			var dataDetail *rn.DetailRegObjekPajakParkir
-			result := a.DB.First(&dataDetail, v.Id)
-			if result.RowsAffected == 0 {
-				return nil, errors.New("data reg objek pajak parkir tidak dapat ditemukan")
-			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak parkir", dataDetail)
-			}
-			dataDetail.RegNpwpd_Id = data.Id
-			dataDetail.JenisOp = rekening.Nama
-			if result := a.DB.Save(&dataDetail); result.Error != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg objek pajak parkir", dataDetail)
-			}
-		}
-	case "08":
-		for _, v := range input.DetailRegObjekPajak {
-			var dataDetail *rn.DetailRegObjekPajakAirTanah
-			result := a.DB.First(&dataDetail, v.Id)
-			if result.RowsAffected == 0 {
-				return nil, errors.New("data reg objek pajak air tanah tidak dapat ditemukan")
-			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak air tanah", dataDetail)
-			}
-			dataDetail.RegNpwpd_Id = data.Id
-			dataDetail.JenisOp = rekening.Nama
-			if result := a.DB.Save(&dataDetail); result.Error != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg objek pajak air tanah", dataDetail)
-			}
-		}
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
 	}
 
-	return rp.OK{
-		Meta: t.IS{
-			"affected": strconv.Itoa(int(result.RowsAffected)),
-		},
-		Data: data,
+	resp = t.II{
+		"affected":   strconv.Itoa(int(result.RowsAffected)),
+		"objekPajak": respDataObjekPajak.(rp.OKSimple).Data,
+		"regNpwpd":   data,
+		"pemilikWp":  respDataPemilik.(rp.OKSimple).Data,
+		"narahubung": respDataNarahubung.(rp.OKSimple).Data,
+	}
+
+	return rp.OKSimple{
+		Data: resp,
 	}, nil
+
 }
 
 func GetListForWp(input rn.FilterDto) (any, error) {

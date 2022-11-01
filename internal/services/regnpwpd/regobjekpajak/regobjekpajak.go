@@ -1,6 +1,7 @@
 package regnpwpd
 
 import (
+	"errors"
 	"fmt"
 
 	sc "github.com/jinzhu/copier"
@@ -38,4 +39,45 @@ func Create(input m.RegObjekPajakCreateDto, tx *gorm.DB) (any, error) {
 	}
 
 	return rp.OKSimple{Data: data}, nil
+}
+
+func Update(input m.RegObjekPajakUpdateDto, regObjekPajak_Id uint64, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+
+	var data m.RegObjekPajak
+
+	//  copy input (payload) ke struct data jika tidak ada akan error
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil data payload %s", source), data)
+	}
+	var dataOp *m.RegObjekPajak
+	result := tx.First(&dataOp, regObjekPajak_Id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data reg objek pajak tidak dapat ditemukan")
+	}
+	if err := sc.Copy(&dataOp, &data); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak", data)
+	}
+
+	dataOp.Id = regObjekPajak_Id
+	if result := tx.Save(&dataOp); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg objek pajak", data)
+	}
+
+	return rp.OKSimple{Data: data}, nil
+}
+
+func Delete(regObjekPajak_Id uint64, tx *gorm.DB) error {
+	var dataRegObjekPajak *m.RegObjekPajak
+	result := tx.Where(m.RegObjekPajak{Id: uint64(regObjekPajak_Id)}).First(&dataRegObjekPajak)
+	if result.RowsAffected == 0 {
+		return errors.New("data reg objek pajak tidak dapat ditemukan")
+	}
+	result = tx.Delete(&dataRegObjekPajak)
+	if result.RowsAffected == 0 {
+		return errors.New("tidak dapat menghapus data reg objek pajak")
+	}
+	return nil
 }
