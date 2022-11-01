@@ -80,10 +80,10 @@ type CreateDto struct {
 	JamTutupUsaha     *string  `json:"jamTutupUsaha"`
 	Pengunjung        *string  `json:"pengunjung"`
 	OmsetOp           *string  `json:"omsetOp"`
-	FotoKtp           string   `json:"fotoKtp" validate:"required"`
-	SuratIzinUsaha    []string `json:"suratIzinUsaha" validate:"required"`
-	LainLain          []string `json:"lainLain"`
-	FotoObjek         []string `json:"fotoObjek" validate:"required"`
+	FotoKtp           string   `json:"fotoKtp" validate:"required;base64"`
+	SuratIzinUsaha    []string `json:"suratIzinUsaha" validate:"required;base64"`
+	LainLain          []string `json:"lainLain" validate:"base64"`
+	FotoObjek         []string `json:"fotoObjek" validate:"base64"`
 
 	Genset   bool `json:"genset" validate:"required"`
 	AirTanah bool `json:"airTanah" validate:"required"`
@@ -91,7 +91,7 @@ type CreateDto struct {
 	DetailRegOp *[]DetailRegObjekPajak `json:"detailRegObjekPajak"`
 
 	RegObjekPajak *rop.RegObjekPajakCreate `json:"regObjekPajak"`
-	RegPemilik    *[]RegPemilikWpCreate    `json:"regPemilik"`
+	RegPemilik    *[]RegPemilikWpCreate    `json:"regPemilik" validate:"required"`
 	RegNarahubung *[]RegNarahubungCreate   `json:"regNarahubung"`
 }
 

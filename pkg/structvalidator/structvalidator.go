@@ -71,8 +71,8 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		// identify type and value of the field
 		fieldT := inputT.Field(i)
 		fieldV := inputV.Field(i)
-		for fieldV.Kind() == reflect.Pointer {
-			if !fieldV.Elem().IsValid() {
+		for fieldV.Kind() == reflect.Ptr {
+			if fieldV.IsZero() {
 				break
 			}
 			fieldV = fieldV.Elem()
@@ -86,8 +86,6 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 			if fieldT.Anonymous {
 				embeddedMode = "(embedded)"
 			}
-			// fmt.Println(fieldT.Name, "is skiped")
-			// fmt.Println(fieldT.Name, "is", fieldT.Type.Kind())
 			tag := fieldT.Tag.Get("json")
 			if tag == "" {
 				tag = fieldT.Name
@@ -99,20 +97,52 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		tag := fieldT.Tag.Get(tagName)
 		if tag != "" {
 			parsedTag := parseTag(tag)
-			for _, kv := range parsedTag {
-				if _, ok := tagValidator[kv.Key]; ok {
-					// fmt.Println(fieldT.Name, "is being validated")
-					err := tagValidator[kv.Key](fieldV, kv.Val)
-					if err != nil {
-						// fmt.Println(fieldT.Name, "validation is failed")
-						key := fieldT.Tag.Get("json")
-						if key == "" {
-							key = fieldT.Name
-						}
-						errList[nameSpace+key] = ValidationError{err.Error(), kv.Key, kv.Val, fieldV.Interface()}
-						break // 1 err is enough, break from error check of the current field
+			key := fieldT.Tag.Get("json")
+			if key == "" {
+				key = fieldT.Name
+			}
+			// based on slice or not
+			if fieldV.Kind() == reflect.Slice {
+				// special case untuk required
+				required := false
+				for _, v := range parsedTag {
+					if v.Key == "required" {
+						required = true
+						break
 					}
 				}
+				// empty array
+				if fieldV.Len() == 0 {
+					if required {
+						errList[nameSpace+key] = ValidationError{"nilai/isi dibutuhkan", "required", "", fieldV.Interface()}
+					}
+					continue
+				}
+				// loop
+				if fieldV.Index(0).Kind() == reflect.Struct {
+					for ix := 0; ix < fieldV.Len(); ix++ {
+						maps.Copy(errList, Validate(fieldV.Index(ix).Interface(), fmt.Sprintf("%v[%v]", key, ix)))
+					}
+				} else {
+					for ix := 0; ix < fieldV.Len(); ix++ {
+						CheckParsedTag(parsedTag, fieldV.Index(ix), errList, fmt.Sprintf("%v[%v]", key, ix))
+					}
+				}
+			} else {
+				// non slice
+				CheckParsedTag(parsedTag, fieldV, errList, nameSpace+key)
+				// 	maps.Copy(errList, Validate(fieldV.Index(ix).Interface(), fmt.Sprintf("%v[%v]", key, ix)))
+				// for _, kv := range parsedTag {
+				// 	if _, ok := tagValidator[kv.Key]; ok {
+				// 		// fmt.Println(fieldT.Name, "is being validated")
+				// 		err := tagValidator[kv.Key](fieldV, kv.Val)
+				// 		if err != nil {
+				// 			// fmt.Println(fieldT.Name, "validation is failed")
+				// 			errList[nameSpace+key] = ValidationError{err.Error(), kv.Key, kv.Val, fieldV.Interface()}
+				// 			break // 1 err is enough, break from error check of the current field
+				// 		}
+				// 	}
+				// }
 			}
 		}
 	}
@@ -121,6 +151,20 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		return errList
 	}
 	return nil
+}
+
+func CheckParsedTag(parsedTag []keyVal, fv reflect.Value, el map[string]ValidationError, key string) {
+	for _, kv := range parsedTag {
+		if _, ok := tagValidator[kv.Key]; ok {
+			// fmt.Println(fieldT.Name, "is being validated")
+			err := tagValidator[kv.Key](fv, kv.Val)
+			if err != nil {
+				// fmt.Println(fieldT.Name, "validation is failed")
+				el[key] = ValidationError{err.Error(), kv.Key, kv.Val, fv.Interface()}
+				break // 1 err is enough, break from error check of the current field
+			}
+		}
+	}
 }
 
 // Validation from IO Reader
