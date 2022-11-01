@@ -3,6 +3,7 @@ package types
 type Peruntukan string
 type JenisABT string
 type JenisKendaraan int8
+type JenisPajak string
 
 const (
 	PeruntukanNonNiaga    Peruntukan = "NON NIAGA"
@@ -15,4 +16,7 @@ const (
 
 	KendaraanRodaDua   JenisKendaraan = 1 //roda dua
 	KendaraanRodaEmpat JenisKendaraan = 2 //roda empat
+
+	JenisPajakSA JenisPajak = "SA" //self_assessment
+	JenisPajakOA JenisPajak = "OA" //official_assessment
 )
