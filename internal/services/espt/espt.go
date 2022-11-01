@@ -17,6 +17,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
+	sspt "github.com/bapenda-kota-malang/apin-backend/internal/services/spt"
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
@@ -168,6 +169,9 @@ func Update(id int, input any, user_Id uint, tx *gorm.DB) (any, error) {
 	}
 	// copy to model struct
 	if inputData, ok := input.(m.VerifyDto); ok {
+		if data.VerifyStatus == m.StatusDisetujui {
+			return sh.SetError("request", "update-data", source, "failed", "data telah disetujui", data)
+		}
 		if err := sc.Copy(&data, &inputData); err != nil {
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 		}
@@ -215,12 +219,20 @@ func Update(id int, input any, user_Id uint, tx *gorm.DB) (any, error) {
 
 	// if verify, clone data to spt table with detail
 	if _, ok := input.(m.VerifyDto); ok && data.VerifyStatus == m.StatusDisetujui {
-		// respDetail, err := GetDetail(int(data.Id), 0)
-		// if err != nil {
-		// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
-		// }
+		respDetail, err := GetDetail(int(data.Id), 0)
+		if err != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+		}
 
-		// esptDetail := respDetail.(rp.OKSimple).Data.(*m.Espt)
+		esptDetail := respDetail.(rp.OKSimple).Data.(*m.Espt)
+		inputSpt, err := sspt.TransformEspt(esptDetail)
+		if err != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+		}
+		_, err = sspt.CreateDetail(inputSpt, user_Id, false, tx)
+		if err != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+		}
 	}
 
 	return rp.OK{

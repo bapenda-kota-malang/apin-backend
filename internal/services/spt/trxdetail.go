@@ -10,6 +10,7 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	mespt "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 
@@ -34,8 +35,8 @@ import (
 	stp "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
 )
 
+// Process calculate tax
 func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
-	// CALCULATE TAX PROCESS
 	yearNow := uint64(time.Now().Year())
 	omsetOpt := "lte"
 
@@ -99,6 +100,42 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 	input.ReplaceTarifPajakId(uint(tarifPajak.Id))
 	input.CalculateTax(tarifPajak.TarifPersen)
 	return nil
+}
+
+// Transform espt to spt data
+func TransformEspt(esptDetail *mespt.Espt) (input m.Input, err error) {
+	if esptDetail.DetailEsptAir != nil {
+		input = &m.CreateDetailAirDto{}
+	}
+	if esptDetail.DetailEsptHiburan != nil {
+		// TODO: ADD HIBURAN
+		// input = &m.{}
+	}
+	if esptDetail.DetailEsptHotel != nil {
+		input = &m.CreateDetailHotelDto{}
+	}
+	if esptDetail.DetailEsptParkir != nil {
+		input = &m.CreateDetailParkirDto{}
+	}
+	if esptDetail.DetailEsptPpjNonPln != nil {
+		// TODO: ADD MODEL
+		// input = &m.CreateDetailAirDto{}
+	}
+	if esptDetail.DetailEsptPpjPln != nil {
+		// TODO: ADD MODEL
+		// input = &m.CreateDetailAirDto{}
+	}
+	if esptDetail.DetailEsptResto != nil {
+		input = &m.CreateDetailRestoDto{}
+	}
+
+	if input == nil {
+		err = fmt.Errorf("uknown espt data for espt")
+	}
+
+	input.DuplicateEspt(esptDetail)
+
+	return
 }
 
 // Service create business flow for sptd via wajib pajak for lapor spt

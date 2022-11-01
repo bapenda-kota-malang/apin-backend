@@ -47,12 +47,12 @@ func (input *CreateDetailAirDto) CalculateTax(taxPercentage *float64) {
 }
 
 func (input *CreateDetailAirDto) DuplicateEspt(esptDetail *mespt.Espt) error {
-	if err := copier.Copy(&input.Spt, &esptDetail); err != nil {
+	if err := copier.Copy(&input.Spt, esptDetail); err != nil {
 		return err
 	}
 	input.Spt.Lampiran = esptDetail.Attachment
 	input.Spt.CreateBy_User_Id = *esptDetail.VerifyBy_User_Id
-	if err := copier.Copy(&input.DataDetails, &esptDetail); err != nil {
+	if err := copier.Copy(&input.DataDetails, esptDetail.DetailEsptAir); err != nil {
 		return err
 	}
 	return nil
