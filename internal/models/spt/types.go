@@ -1,6 +1,9 @@
 package spt
 
+import "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
+
 type SptStatus string
+type JenisKetetapan string
 
 const (
 	StatusBelumLunas          SptStatus = "00" //belum lunas
@@ -12,18 +15,19 @@ const (
 	StatusDouble              SptStatus = "22" //double
 	StatusRestitusiPenuh      SptStatus = "31" //restitusi penuh
 	StatusRestitusiSebagian   SptStatus = "32" //restitusi sebagian
+
+	JenisKetetapanSkpd    JenisKetetapan = "skpd"
+	JenisKetetapanSkpdkb  JenisKetetapan = "skpdkb"
+	JenisKetetapanSkpdkbt JenisKetetapan = "skpdkbt"
 )
 
-type CreateInput interface {
-	GetSpt() CreateDto
+type Input interface {
+	GetSpt() interface{}
 	GetDetails() interface{}
 	LenDetails() int
 	ReplaceSptId(id uint)
-}
-
-type UpdateInput interface {
-	GetSpt() CreateDto
-	GetDetails() interface{}
-	LenDetails() int
-	ReplaceSptId(id uint)
+	ChangeDetails(newDetail interface{})
+	ReplaceTarifPajakId(id uint)
+	CalculateTax(taxPercentage *float64)
+	DuplicateEspt(esptDetail *espt.Espt) error
 }

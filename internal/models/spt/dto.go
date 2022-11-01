@@ -3,7 +3,7 @@ package spt
 import (
 	"time"
 
-	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"gorm.io/datatypes"
 )
 
@@ -28,7 +28,7 @@ type CreateDto struct {
 	TanggalSpt          *time.Time      `json:"tanggalSpt"`
 	NomorSpt            *string         `json:"NomorSpt"`
 	KodeBilling         *string         `json:"kodeBilling"`
-	Type                *nt.JenisPajak  `json:"type"`
+	Type                *mt.JenisPajak  `json:"type"`
 	Status              *SptStatus      `json:"status"`
 	TanggalLunas        *time.Time      `json:"tanggalLunas"`
 	BatalPenetapan      *string         `json:"batalPenetapan"`
@@ -79,7 +79,7 @@ type UpdateDto struct {
 	TanggalSpt          *time.Time      `json:"tanggalSpt"`
 	NomorSpt            *string         `json:"NomorSpt"`
 	KodeBilling         *string         `json:"kodeBilling"`
-	Type                *nt.JenisPajak  `json:"type"`
+	Type                *mt.JenisPajak  `json:"type"`
 	Status              *SptStatus      `json:"status"`
 	TanggalLunas        *time.Time      `json:"tanggalLunas"`
 	BatalPenetapan      *string         `json:"batalPenetapan"`

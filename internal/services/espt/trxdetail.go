@@ -43,72 +43,74 @@ import (
 // create for esptd, replace id, create for data details based on data type, assign data details to data espt for respond
 func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 	var data m.Espt
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		rekeningId := uint64(input.GetEspt().Rekening_Id)
-		yearNow := uint64(time.Now().Year())
-		omset := input.GetEspt().Omset
-		omsetOpt := "lte"
+	// CALCULATE TAX PROCESS
+	rekeningId := uint64(input.GetEspt().Rekening_Id)
+	yearNow := uint64(time.Now().Year())
+	omset := input.GetEspt().Omset
+	omsetOpt := "lte"
 
-		// change detail for detail espt air & ppj pln before calculate tax
-		if detail, ok := input.GetDetails().(mdair.CreateDto); ok {
-			switch detail.Peruntukan {
-			case mtypes.PeruntukanIndustriAir, mtypes.PeruntukanNiaga, mtypes.PeruntukanNonNiaga, mtypes.PeruntukanPdam:
-				resphdair, err := shda.GetList(mhdair.FilterDto{
-					Peruntukan:     &detail.Peruntukan,
-					BatasBawah:     &omset,
-					BatasBawah_Opt: &omsetOpt,
-				})
-				if err != nil {
-					return err
-				}
-				hdairs := resphdair.(rp.OKSimple).Data.([]mhdair.HargaDasarAir)
-				if len(hdairs) == 0 {
-					return fmt.Errorf("harga dasar air not found")
-				}
-				hdair := hdairs[len(hdairs)-1]
-				if detail.JenisAbt == mtypes.JenisABTNonMataAir {
-					detail.Pengenaan = float32(*hdair.TarifBukanMataAir)
-				} else {
-					detail.JenisAbt = mtypes.JenisABTMataAir
-					detail.Pengenaan = float32(*hdair.TarifMataAir)
-				}
-				input.ChangeDetails(detail)
-			default:
-				return fmt.Errorf("unknown peruntukan air")
+	// change detail for detail espt air before calculate tax
+	if detail, ok := input.GetDetails().(mdair.CreateDto); ok {
+		switch detail.Peruntukan {
+		case mtypes.PeruntukanIndustriAir, mtypes.PeruntukanNiaga, mtypes.PeruntukanNonNiaga, mtypes.PeruntukanPdam:
+			resphdair, err := shda.GetList(mhdair.FilterDto{
+				Peruntukan:     &detail.Peruntukan,
+				BatasBawah:     &omset,
+				BatasBawah_Opt: &omsetOpt,
+			})
+			if err != nil {
+				return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
 			}
-		}
-
-		if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
-			for v := range detail {
-				resp, err := sjppj.GetDetail(int(detail[v].JenisPPJ_Id))
-				if err != nil {
-					return err
-				}
-				detail[v].JenisPPJ = resp.(rp.OKSimple).Data.(*mjppj.JenisPPJ)
+			hdairs := resphdair.(rp.OK).Data.([]mhdair.HargaDasarAir)
+			if len(hdairs) == 0 {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data: harga dasar air not found", data)
+			}
+			hdair := hdairs[len(hdairs)-1]
+			if detail.JenisAbt == mtypes.JenisABTNonMataAir {
+				detail.Pengenaan = float32(*hdair.TarifBukanMataAir)
+			} else {
+				detail.JenisAbt = mtypes.JenisABTMataAir
+				detail.Pengenaan = float32(*hdair.TarifMataAir)
 			}
 			input.ChangeDetails(detail)
+		default:
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data: unknown peruntukan air", data)
 		}
+	}
 
-		// get tarif pajak data for calculate tax
-		respTp, err := stp.GetList(mtp.FilterDto{
-			Rekening_Id:   &rekeningId,
-			Tahun:         &yearNow,
-			OmsetAwal:     &omset,
-			OmsetAwal_Opt: &omsetOpt,
-		})
-		if err != nil {
-			return err
+	// change detail for detail espt ppj pln before calculate tax
+	if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
+		for v := range detail {
+			resp, err := sjppj.GetDetail(int(detail[v].JenisPPJ_Id))
+			if err != nil {
+				return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+			}
+			detail[v].JenisPPJ = resp.(rp.OKSimple).Data.(*mjppj.JenisPPJ)
 		}
+		input.ChangeDetails(detail)
+	}
 
-		tarifPajaks := respTp.(rp.OK).Data.([]mtp.TarifPajak)
-		if len(tarifPajaks) == 0 {
-			return fmt.Errorf("tarif pajak not found")
-		}
-		tarifPajak := tarifPajaks[len(tarifPajaks)-1]
+	// get tarif pajak data for calculate tax
+	respTp, err := stp.GetList(mtp.FilterDto{
+		Rekening_Id:   &rekeningId,
+		Tahun:         &yearNow,
+		OmsetAwal:     &omset,
+		OmsetAwal_Opt: &omsetOpt,
+	})
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+	}
 
-		input.ReplaceTarifPajakId(uint(tarifPajak.Id))
-		input.CalculateTax(tarifPajak.TarifPersen)
+	tarifPajaks := respTp.(rp.OK).Data.([]mtp.TarifPajak)
+	if len(tarifPajaks) == 0 {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data: tarif pajak not found", data)
+	}
+	tarifPajak := tarifPajaks[len(tarifPajaks)-1]
 
+	input.ReplaceTarifPajakId(uint(tarifPajak.Id))
+	input.CalculateTax(tarifPajak.TarifPersen)
+
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
 		respEspt, err := Create(input.GetEspt(), user_Id, tx)
 		if err != nil {
 			return err

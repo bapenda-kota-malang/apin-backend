@@ -2,45 +2,106 @@ package spt
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
-	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	mrek "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
-	mdsa "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
-	mdsh "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthotel"
-	mdsp "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptparkir"
-	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
-	mdsres "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
-	mdjbr "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/jaminanbongkarreklame"
+	mnomertracker "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/sptnomertracker"
+	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+
+	srek "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
+	snomertracker "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/sptnomertracker"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sc "github.com/jinzhu/copier"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
 const source = "spt"
 
-func Create(input m.CreateDto, user_Id uint, tx *gorm.DB) (any, error) {
+func Create(input m.CreateDto, user_Id uint, newFile bool, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data m.Spt
+
+	respRek, err := srek.GetDetail(int(*input.Rekening_Id))
+	if err != nil {
+		return nil, err
+	}
+
+	dataRekening := respRek.(rp.OKSimple).Data.(*mrek.Rekening)
+
+	kodeJenisPajak := dataRekening.KodeJenisPajak
+	if kodeJenisPajak == nil {
+		parentId, err := strconv.Atoi(*dataRekening.Parent_Id)
+		if err != nil {
+			return nil, err
+		}
+		respRek, err := srek.GetDetail(parentId)
+		if err != nil {
+			return nil, err
+		}
+		dataRekening = respRek.(rp.OKSimple).Data.(*mrek.Rekening)
+		kodeJenisPajak = dataRekening.KodeJenisPajak
+	}
+
+	if newFile {
+		var errChan = make(chan error)
+		if err := sh.CheckPdf(input.Lampiran); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		id, err := sh.GetUuidv4()
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal generate id", data)
+		}
+		fileName := fmt.Sprintf("%s-sptpd.pdf", id)
+		go sh.SaveFile(data.Lampiran, fileName, sh.GetPdfPath(), errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
+		}
+		input.Lampiran = fileName
+	}
 
 	if err := sc.Copy(&data, input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
 	data.TanggalSpt = time.Now()
-	// prevMonth := sh.BeginningOfPreviosMonth()
-	// data.StartDate = datatypes.Date(prevMonth)
-	// data.EndDate = datatypes.Date(sh.EndOfMonth(prevMonth))
-	// data.DueDate = datatypes.Date(sh.EndOfMonth(time.Now()))
+	yearNow := uint(data.TanggalSpt.Year())
 
-	err := tx.Create(&data).Error
+	nomerUrut, err := snomertracker.TrxNewNumber(mnomertracker.Dto{Tahun: &yearNow, KodeJenisPajak: kodeJenisPajak}, tx)
+	if err != nil {
+		return nil, err
+	}
+	kode := *kodeJenisPajak
+	yearTwoDigit := yearNow % 1e2
+	nomerSpt := fmt.Sprintf("%d%s", yearTwoDigit, nomerUrut)
+	data.NomorSpt = fmt.Sprintf("%c-%s", kode[0], nomerSpt)
+	data.KodeBilling = fmt.Sprintf("%s%s", *dataRekening.KodeBilling, nomerSpt)
+	switch data.Type {
+	case mtypes.JenisPajakOA, mtypes.JenisPajakSA:
+	default:
+		data.Type = mtypes.JenisPajakSA
+	}
+	data.Status = m.StatusBelumLunas
+	if data.CreateBy_User_Id == 0 {
+		data.CreateBy_User_Id = user_Id
+	}
+	if data.PeriodeAwal == datatypes.Date(time.Time{}) {
+		prevMonth := sh.BeginningOfPreviosMonth()
+		data.PeriodeAwal = datatypes.Date(prevMonth)
+		data.PeriodeAkhir = datatypes.Date(sh.EndOfMonth(prevMonth))
+		data.JatuhTempo = datatypes.Date(sh.EndOfMonth(time.Now()))
+	}
+
+	err = tx.Create(&data).Error
 	if err != nil {
 		return nil, err
 	}
@@ -119,104 +180,9 @@ func Delete(id int) (any, error) {
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
-	status := "no deletion"
-	// data rekening
-	var rekening *rm.Rekening
-	err := a.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
-	if err != nil {
-		return nil, err
-	}
-
-	switch *rekening.Objek {
-	case "01":
-		var DataOp []mdsh.DetailSptHotel
-		result := a.DB.Where(mdsh.DetailSptHotel{Spt_Id: uint64(id)}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(mdsh.DetailSptHotel{Spt_Id: uint64(id)}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				DataOp = nil
-				status = "no deletion"
-			}
-		}
-
-	case "02":
-		var DataOp []mdsres.DetailSptResto
-		result := a.DB.Where(mdsres.DetailSptResto{Spt_Id: uint64(id)}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(mdsres.DetailSptResto{Spt_Id: uint64(id)}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				DataOp = nil
-				status = "no deletion"
-			}
-		}
-	case "04":
-		var DataOp []mdsrek.DetailSptReklame
-		result := a.DB.Where(mdsrek.DetailSptReklame{Spt_Id: uint64(id)}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(mdsrek.DetailSptReklame{Spt_Id: uint64(id)}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				DataOp = nil
-				status = "no deletion"
-			}
-		}
-
-		var DataJ []mdjbr.JaminanBongkarReklame
-		result = a.DB.Where(mdjbr.JaminanBongkarReklame{Spt_Id: uint64(id)}).Find(&DataJ)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
-		}
-		for _, v := range DataJ {
-			result = a.DB.Where(mdsrek.DetailSptReklame{Spt_Id: uint64(id)}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				DataJ = nil
-				status = "no deletion"
-			}
-		}
-	case "07":
-		var DataOp []mdsp.DetailSptParkir
-		result := a.DB.Where(mdsp.DetailSptParkir{Spt_Id: uint64(id)}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(mdsp.DetailSptParkir{Spt_Id: uint64(id)}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				DataOp = nil
-				status = "no deletion"
-			}
-		}
-	case "08":
-		var DataOp []mdsa.DetailSptAir
-		result := a.DB.Where(mdsa.DetailSptAir{Spt_Id: uint64(id)}).Find(&DataOp)
-		if result.RowsAffected == 0 {
-			return nil, errors.New("data tidak dapat ditemukan")
-		}
-		for _, v := range DataOp {
-			result = a.DB.Where(mdsa.DetailSptAir{Spt_Id: uint64(id)}).Delete(&v)
-			status = "deleted"
-			if result.RowsAffected == 0 {
-				DataOp = nil
-				status = "no deletion"
-			}
-		}
-	}
+	status := "deleted"
 
 	result = a.DB.Delete(&data, id)
-	status = "deleted"
 	if result.RowsAffected == 0 {
 		data = nil
 		status = "no deletion"

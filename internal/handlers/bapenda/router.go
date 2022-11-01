@@ -221,10 +221,10 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/spt", func(r chi.Router) {
-		r.Post("/{category}", spt.Create)
+		r.Post("/", spt.Create)
 		r.Get("/", spt.GetList)
 		r.Get("/{id}", spt.GetDetail)
-		r.Patch("/{id}/{category}", spt.Update)
+		r.Patch("/{id}", spt.Update)
 		r.Delete("/{id}", spt.Delete)
 	})
 	// route for espt list data, verify espt, and get detail data for espt before verify

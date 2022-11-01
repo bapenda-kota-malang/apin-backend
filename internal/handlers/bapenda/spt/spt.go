@@ -28,7 +28,7 @@ func validateDetail(w http.ResponseWriter, body io.ReadCloser, data interface{})
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var input m.CreateInput
+	var input m.Input
 	var err error
 	var result any
 	query := r.URL.Query()
@@ -77,7 +77,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-	result, err = s.CreateDetail(input, uint(authInfo.User_Id))
+	result, err = s.CreateDetail(input, uint(authInfo.User_Id), true, nil)
 	hh.DataResponse(w, result, err)
 }
 
