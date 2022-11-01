@@ -167,8 +167,7 @@ func Update(id int, input any, user_Id uint, tx *gorm.DB) (any, error) {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 	// copy to model struct
-	if _, ok := input.(m.VerifyDto); ok {
-		inputData := input.(m.VerifyDto)
+	if inputData, ok := input.(m.VerifyDto); ok {
 		if err := sc.Copy(&data, &inputData); err != nil {
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 		}
@@ -202,9 +201,26 @@ func Update(id int, input any, user_Id uint, tx *gorm.DB) (any, error) {
 	// 	return nil, nil
 	// }
 
+	switch data.VerifyStatus {
+	case m.StatusBaru, m.StatusDisetujui, m.StatusDitolak:
+		// do nothing
+	default:
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	// if verify, clone data to spt table with detail
+	if _, ok := input.(m.VerifyDto); ok && data.VerifyStatus == m.StatusDisetujui {
+		// respDetail, err := GetDetail(int(data.Id), 0)
+		// if err != nil {
+		// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+		// }
+
+		// esptDetail := respDetail.(rp.OKSimple).Data.(*m.Espt)
 	}
 
 	return rp.OK{
