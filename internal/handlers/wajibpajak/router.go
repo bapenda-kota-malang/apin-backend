@@ -12,10 +12,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/espt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/tarifpajak"
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -116,6 +119,20 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", npwpd.Update)
 		r.Patch("/{id}/{category}", npwpd.UpdatePhoto)
 		r.Delete("/{id}/{category}/{filename}", npwpd.DeletePhoto)
+	})
+
+	r.Route("/jenisppj", func(r chi.Router) {
+		r.Get("/", jenisppj.GetList)
+		r.Get("/{id}", jenisppj.GetDetail)
+	})
+
+	r.Route("/tarifpajak", func(r chi.Router) {
+		r.Get("/", tarifpajak.GetList)
+	})
+
+	r.Route("/hargadasarair", func(r chi.Router) {
+		r.Get("/", hargadasarair.GetList)
+		r.Get("/peruntukan", hargadasarair.GetPeruntukan)
 	})
 	return r
 }

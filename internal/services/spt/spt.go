@@ -3,6 +3,7 @@ package spt
 import (
 	"errors"
 	"strconv"
+	"time"
 
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
@@ -17,9 +18,35 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	sc "github.com/jinzhu/copier"
+	"gorm.io/gorm"
 )
 
 const source = "spt"
+
+func Create(input m.CreateDto, user_Id uint, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data m.Spt
+
+	if err := sc.Copy(&data, input); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	data.TanggalSpt = time.Now()
+	// prevMonth := sh.BeginningOfPreviosMonth()
+	// data.StartDate = datatypes.Date(prevMonth)
+	// data.EndDate = datatypes.Date(sh.EndOfMonth(prevMonth))
+	// data.DueDate = datatypes.Date(sh.EndOfMonth(time.Now()))
+
+	err := tx.Create(&data).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return rp.OKSimple{Data: data}, nil
+}
 
 func GetList(input m.FilterDto) (any, error) {
 	var data []m.Spt
@@ -58,6 +85,29 @@ func GetDetail(id int) (any, error) {
 	}
 
 	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
+func Update(id int, input m.UpdateDto) (any, error) {
+	var data *m.Spt
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
 		Data: data,
 	}, nil
 }

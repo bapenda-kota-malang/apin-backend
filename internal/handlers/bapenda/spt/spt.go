@@ -1,68 +1,84 @@
 package spt
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 
+	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/go-chi/chi/v5"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/spt"
-	sdsa "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptair"
-	sdsh "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailspthotel"
-	sdsp "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptparkir"
-	sdsrek "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptreklame"
-	sdsres "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptresto"
 
 	// gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
+func validateDetail(w http.ResponseWriter, body io.ReadCloser, data interface{}) (err error) {
+	// validation body payload with struct data, if check failed will create new error and return
+	if !hh.ValidateStructByIOR(w, body, &data) {
+		err = errors.New("failed")
+		return
+	}
+	return
+}
+
 func Create(w http.ResponseWriter, r *http.Request) {
-	category := chi.URLParam(r, "category")
-	fmt.Println("category: ", category)
+	var input m.CreateInput
+	var err error
+	var result any
+	query := r.URL.Query()
+	category := query.Get("category")
 	switch category {
 	case "air":
-		var register m.CreateAirDto
-		if hh.ValidateStructByIOR(w, r.Body, &register) == false {
+		var tmp m.CreateDetailAirDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
 			return
 		}
-
-		result, err := sdsa.Create(register)
-		hh.DataResponse(w, result, err)
+		input = &tmp
 	case "hotel":
-		var register m.CreateHotelDto
-		if hh.ValidateStructByIOR(w, r.Body, &register) == false {
+		var tmp m.CreateDetailHotelDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
 			return
 		}
-
-		result, err := sdsh.Create(register)
-		hh.DataResponse(w, result, err)
+		input = &tmp
 	case "parkir":
-		var register m.CreateParkirDto
-		if hh.ValidateStructByIOR(w, r.Body, &register) == false {
+		var tmp m.CreateDetailParkirDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
 			return
 		}
-
-		result, err := sdsp.Create(register)
-		hh.DataResponse(w, result, err)
+		input = &tmp
 	case "reklame":
-		var register m.CreateReklameDto
-		if hh.ValidateStructByIOR(w, r.Body, &register) == false {
+		var tmp m.CreateDetailReklameDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
 			return
 		}
-
-		result, err := sdsrek.Create(register)
-		hh.DataResponse(w, result, err)
+		input = &tmp
 	case "resto":
-		var register m.CreateRestoDto
-		if hh.ValidateStructByIOR(w, r.Body, &register) == false {
+		var tmp m.CreateDetailRestoDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
 			return
 		}
-
-		result, err := sdsres.Create(register)
-		hh.DataResponse(w, result, err)
+		input = &tmp
+	default:
+		err = errors.New("category tidak diketahui")
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
 	}
+	if err != nil {
+		return
+	}
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err = s.CreateDetail(input, uint(authInfo.User_Id))
+	hh.DataResponse(w, result, err)
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
@@ -104,13 +120,13 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("category: ", category)
 	switch category {
 	case "air":
-		var input m.UpdateAirDto
-		if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-			return
-		}
+		// var input m.UpdateAirDto
+		// if hh.ValidateStructByIOR(w, r.Body, &input) == false {
+		// 	return
+		// }
 
-		result, err := sdsa.Update(id, input)
-		hh.DataResponse(w, result, err)
+		// result, err := sdsa.Update(id, input)
+		// hh.DataResponse(w, result, err)
 		// case "hotel":
 		// 	var input m.UpdateHotelDto
 		// 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {

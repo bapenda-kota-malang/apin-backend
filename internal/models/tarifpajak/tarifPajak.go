@@ -34,10 +34,12 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	Rekening_Id *uint64  `json:"rekening_id"`
-	Tahun       *uint64  `json:"tahun"`
-	TarifRp     *float64 `json:"tarifRp"`
-	TarifPersen *float64 `json:"tarifPersen"`
-	OmsetAwal   *float64 `json:"omsetAwal"`
-	OmsetAkhir  *float64 `json:"omsetAkhir"`
+	Rekening_Id    *uint64  `json:"rekening_id"`
+	Tahun          *uint64  `json:"tahun"`
+	TarifRp        *float64 `json:"tarifRp"`
+	TarifPersen    *float64 `json:"tarifPersen"`
+	OmsetAwal      *float64 `json:"omsetAwal"`
+	OmsetAwal_Opt  *string  `json:"omsetAwal_Opt"`
+	OmsetAkhir     *float64 `json:"omsetAkhir"`
+	OmsetAkhir_Opt *string  `json:"omsetAkhir_Opt"`
 }

@@ -197,6 +197,27 @@ func ValidateURL(container any, url url.URL) map[string]ValidationError {
 				v := autoCastInt(valInt, fieldV)
 				fieldV.Set(v)
 			}
+		case float64, *float64:
+			strFloat, err := strconv.ParseFloat(vals[0], 64)
+			if err != nil {
+				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}
+			}
+			if fieldV.Kind() == reflect.Ptr {
+				fieldV.Set(reflect.ValueOf(&strFloat))
+			} else {
+				fieldV.Set(reflect.ValueOf(strFloat))
+			}
+		case float32, *float32:
+			strFloat, err := strconv.ParseFloat(vals[0], 32)
+			if err != nil {
+				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}
+			}
+			strFloat32 := float32(strFloat)
+			if fieldV.Kind() == reflect.Ptr {
+				fieldV.Set(reflect.ValueOf(&strFloat32))
+			} else {
+				fieldV.Set(reflect.ValueOf(strFloat32))
+			}
 		case []string, *[]string:
 			fieldV.Set(reflect.ValueOf(&vals))
 

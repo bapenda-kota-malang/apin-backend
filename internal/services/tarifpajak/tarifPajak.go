@@ -1,11 +1,9 @@
 package tarifpajak
 
 import (
-	"errors"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
-	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -34,21 +32,6 @@ func Create(input m.CreateDto) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetTarif(rekeningId, tahun *uint64) (m.TarifPajak, error) {
-	data := m.TarifPajak{}
-	result := a.DB.
-		Where(m.TarifPajak{Rekening_Id: rekeningId, Tahun: tahun}).
-		// Where("OmsetAwal > ? OR OmsetAkhir <= ?", omset, omset).
-		Order(clause.OrderByColumn{Column: clause.Column{Name: "Id"}, Desc: true}).
-		First(&data)
-	if result.RowsAffected == 0 {
-		return m.TarifPajak{}, errors.New("empty data")
-	} else if result.Error != nil {
-		return m.TarifPajak{}, result.Error
-	}
-	return data, nil
-}
-
 func GetList(input m.FilterDto) (any, error) {
 	var data []m.TarifPajak
 	var count int64
@@ -61,7 +44,7 @@ func GetList(input m.FilterDto) (any, error) {
 		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
 	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data "+result.Error.Error(), data)
 	}
 
 	return rp.OK{

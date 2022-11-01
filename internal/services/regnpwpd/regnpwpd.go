@@ -11,6 +11,7 @@ import (
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rop "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	sn "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd"
 	rsn "github.com/bapenda-kota-malang/apin-backend/internal/services/regnpwpd/regnarahubung"
 	rsop "github.com/bapenda-kota-malang/apin-backend/internal/services/regnpwpd/regobjekpajak"
@@ -87,7 +88,7 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 		respDataOp = resultRegObjekPajak
 
 		// add static field
-		register.JenisPajak = nt.JenisPajakSA
+		register.JenisPajak = mt.JenisPajakSA
 		register.Status = nt.StatusAktif
 		register.User_Id = user_IdConv
 		register.RegObjekPajak_Id = resultCastRegObjekPajak.Id

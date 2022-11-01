@@ -7,6 +7,7 @@ import (
 	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
+	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
@@ -23,7 +24,7 @@ type Npwpd struct {
 	Status            t.Status           `json:"status"`
 	TanggalTutup      *time.Time         `json:"tanggalTutup"`
 	TanggalBuka       *time.Time         `json:"tanggalBuka"`
-	JenisPajak        t.JenisPajak       `json:"jenisPajak" gorm:"size:2"`
+	JenisPajak        mt.JenisPajak      `json:"jenisPajak" gorm:"size:2"`
 	Skpd_Id           *uint64            `json:"skpd_id"`
 	Skpd              *skpd.Skpd         `json:"skpd,omitempty" gorm:"foreignKey:Skpd_Id"`
 	Rekening_Id       *uint64            `json:"rekening_id"`
