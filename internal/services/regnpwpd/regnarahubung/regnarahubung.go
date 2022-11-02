@@ -11,6 +11,7 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	mn "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
@@ -88,6 +89,29 @@ func Delete(regNpwpd_Id uint64, tx *gorm.DB) error {
 		result = tx.Delete(&v)
 		if result.RowsAffected == 0 {
 			return errors.New("tidak dapat menghapus data reg narahubung")
+		}
+	}
+	return nil
+}
+
+func Verify(regNpwpd_Id, npwpd_Id uint64, tx *gorm.DB) error {
+	var dataRN []*m.RegNarahubung
+	result := tx.Where(m.RegNarahubung{RegNpwpd_Id: regNpwpd_Id}).Find(&dataRN)
+	if result.RowsAffected == 0 {
+		return errors.New("data reg narahubung tidak dapat ditemukan")
+	}
+
+	for _, v := range dataRN {
+		var dataN mn.Narahubung
+		if err := sc.Copy(&dataN, v); err != nil {
+			return errors.New("gagal mengambil data payload reg narahubung")
+		}
+
+		dataN.Npwpd_Id = npwpd_Id
+		dataN.Id = 0
+		err := tx.Create(&dataN).Error
+		if err != nil {
+			return errors.New("gagal membuat data narahubung")
 		}
 	}
 	return nil

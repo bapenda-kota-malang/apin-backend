@@ -31,8 +31,8 @@ type RegObjekPajakCreateDto struct {
 	RtRw         *string    `json:"rtRw" validate:"required"`
 	Kecamatan_Id *uint64    `json:"kecamatan_id" validate:"required"`
 	Kelurahan_Id *uint64    `json:"kelurahan_id" validate:"required"`
-	Longitude    *float64   `json:"longitude" validate:"required"`
-	Latitude     *float64   `json:"latitude" validate:"required"`
+	Longitude    *float64   `json:"longitude"`
+	Latitude     *float64   `json:"latitude"`
 	Telp         *string    `json:"telp" validate:"nohp"`
 	Status       t.StatusBL `json:"status"`
 }
@@ -45,8 +45,8 @@ type RegObjekPajakUpdateDto struct {
 	RtRw         *string    `json:"rtRw" validate:"required"`
 	Kecamatan_Id *uint64    `json:"kecamatan_id" validate:"required"`
 	Kelurahan_Id *uint64    `json:"kelurahan_id" validate:"required"`
-	Longitude    *float64   `json:"longitude" validate:"required"`
-	Latitude     *float64   `json:"latitude" validate:"required"`
+	Longitude    *float64   `json:"longitude"`
+	Latitude     *float64   `json:"latitude"`
 	Telp         *string    `json:"telp" validate:"nohp"`
 	Status       t.StatusBL `json:"status"`
 }

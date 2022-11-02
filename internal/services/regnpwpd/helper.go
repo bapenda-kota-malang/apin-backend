@@ -298,3 +298,151 @@ func deleteDetailObjekPajak(regNpwpd_Id uint64, rekeningObjek string, tx *gorm.D
 	}
 	return nil
 }
+
+func verifyDetailRegObjekPajak(regNpwpd_Id, npwpd_Id uint64, rekeningObjek string, tx *gorm.DB) error {
+
+	switch rekeningObjek {
+	case "01":
+		var dataReg []*rn.DetailRegObjekPajakHotel
+		result := tx.Where(rn.DetailRegObjekPajakHotel{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak hotel tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailObjekPajakHotel
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return errors.New("tidak dapat menyalin data detail reg objek pajak hotel")
+			}
+
+			dataOp.Npwpd_Id = npwpd_Id
+			dataOp.Id = 0
+			err := tx.Create(&dataOp).Error
+			if err != nil {
+				return errors.New("tidak dapat membuat data detail objek pajak hotel")
+			}
+		}
+
+	case "02":
+		var dataReg []*rn.DetailRegObjekPajakResto
+		result := tx.Where(rn.DetailRegObjekPajakResto{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak resto tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailObjekPajakResto
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return errors.New("tidak dapat menyalin data detail reg objek pajak resto")
+			}
+
+			dataOp.Npwpd_Id = npwpd_Id
+			dataOp.Id = 0
+			err := tx.Create(&dataOp).Error
+			if err != nil {
+				return errors.New("tidak dapat membuat data detail objek pajak resto")
+			}
+		}
+	case "03":
+		var dataReg []*rn.DetailRegObjekPajakHiburan
+		result := tx.Where(rn.DetailRegObjekPajakHiburan{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak hiburan tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailObjekPajakHiburan
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return errors.New("tidak dapat menyalin data detail reg objek pajak hiburan")
+			}
+
+			dataOp.Npwpd_Id = npwpd_Id
+			dataOp.Id = 0
+			err := tx.Create(&dataOp).Error
+			if err != nil {
+				return errors.New("tidak dapat membuat data detail objek pajak hiburan")
+			}
+		}
+	case "04":
+		var dataReg []*rn.DetailRegObjekPajakReklame
+		result := tx.Where(rn.DetailRegObjekPajakReklame{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak reklame tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailObjekPajakReklame
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return errors.New("tidak dapat menyalin data detail reg objek pajak reklame")
+			}
+
+			dataOp.Npwpd_Id = npwpd_Id
+			dataOp.Id = 0
+			err := tx.Create(&dataOp).Error
+			if err != nil {
+				return errors.New("tidak dapat membuat data detail objek pajak reklame")
+			}
+		}
+	case "05":
+		var dataReg []*rn.DetailRegObjekPajakPpj
+		result := tx.Where(rn.DetailRegObjekPajakPpj{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak ppj tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailObjekPajakPpj
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return errors.New("tidak dapat menyalin data detail reg objek pajak ppj")
+			}
+
+			dataOp.Npwpd_Id = npwpd_Id
+			dataOp.Id = 0
+			err := tx.Create(&dataOp).Error
+			if err != nil {
+				return errors.New("tidak dapat membuat data detail objek pajak ppj")
+			}
+		}
+	case "07":
+		var dataReg []*rn.DetailRegObjekPajakParkir
+		result := tx.Where(rn.DetailRegObjekPajakParkir{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak parkir tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailObjekPajakParkir
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return errors.New("tidak dapat menyalin data detail reg objek pajak parkir")
+			}
+
+			dataOp.Npwpd_Id = npwpd_Id
+			dataOp.Id = 0
+			err := tx.Create(&dataOp).Error
+			if err != nil {
+				return errors.New("tidak dapat membuat data detail objek pajak parkir")
+			}
+		}
+	case "08":
+		var dataReg []*rn.DetailRegObjekPajakAirTanah
+		result := tx.Where(rn.DetailRegObjekPajakAirTanah{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak air tanah tidak dapat ditemukan")
+		}
+
+		for _, v := range dataReg {
+			var dataOp nm.DetailObjekPajakAirTanah
+			if err := sc.Copy(&dataOp, v); err != nil {
+				return errors.New("tidak dapat menyalin data detail reg objek pajak air tanah")
+			}
+
+			dataOp.Npwpd_Id = npwpd_Id
+			dataOp.Id = 0
+			err := tx.Create(&dataOp).Error
+			if err != nil {
+				return errors.New("tidak dapat membuat data detail objek pajak air tanah")
+			}
+		}
+	}
+	return nil
+}

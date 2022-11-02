@@ -7,6 +7,7 @@ import (
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 
+	mn "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -94,6 +95,29 @@ func Delete(regNpwpd_Id uint64, tx *gorm.DB) error {
 		result = tx.Delete(&v)
 		if result.RowsAffected == 0 {
 			return errors.New("tidak dapat menghapus data reg pemilik")
+		}
+	}
+	return nil
+}
+
+func Verify(regNpwpd_Id, npwpd_Id uint64, tx *gorm.DB) error {
+	var dataRP []*m.RegPemilikWp
+	result := tx.Where(m.RegPemilikWp{RegNpwpd_Id: regNpwpd_Id}).Find(&dataRP)
+	if result.RowsAffected == 0 {
+		return errors.New("data reg pemilik tidak dapat ditemukan")
+	}
+
+	for _, v := range dataRP {
+		var dataP mn.PemilikWp
+		if err := sc.Copy(&dataP, v); err != nil {
+			return errors.New("gagal mengambil data payload reg pemilik")
+		}
+
+		dataP.Npwpd_Id = npwpd_Id
+		dataP.Id = 0
+		err := tx.Create(&dataP).Error
+		if err != nil {
+			return errors.New("gagal membuat data pemilik")
 		}
 	}
 	return nil

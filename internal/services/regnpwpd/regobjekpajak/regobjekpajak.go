@@ -11,6 +11,7 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	mop "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
@@ -80,4 +81,25 @@ func Delete(regObjekPajak_Id uint64, tx *gorm.DB) error {
 		return errors.New("tidak dapat menghapus data reg objek pajak")
 	}
 	return nil
+}
+
+func Verify(regObjekPajak_Id uint64, tx *gorm.DB) (any, error) {
+	var dataRegObjekPajak *m.RegObjekPajak
+	result := tx.Where(m.RegObjekPajak{Id: regObjekPajak_Id}).First(&dataRegObjekPajak)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data reg objek pajak tidak dapat ditemukan")
+	}
+
+	var dataObjekPajak mop.ObjekPajak
+	if err := sc.Copy(&dataObjekPajak, dataRegObjekPajak); err != nil {
+		return nil, errors.New("gagal menyalin data reg objek pajak ke objek pajak")
+	}
+
+	dataObjekPajak.Id = 0
+	err := tx.Create(&dataObjekPajak).Error
+	if err != nil {
+		return nil, errors.New("gagal memindahkan data objek pajak")
+	}
+	return rp.OKSimple{Data: dataObjekPajak}, nil
+
 }
