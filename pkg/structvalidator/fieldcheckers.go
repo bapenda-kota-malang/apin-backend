@@ -132,7 +132,7 @@ func nikValidator(val reflect.Value, exptVal string) error {
 	re := regexp.MustCompile(`^(1[1-9]|21|[37][1-6]|5[1-3]|6[1-5]|[89][12])\d{2}\d{2}([04][1-9]|[1256][0-9]|[37][01])(0[1-9]|1[0-2])\d{2}\d{4}$`)
 
 	if !re.MatchString(h.ValStringer(val)) {
-		return errors.New("harus memiliki format base64")
+		return errors.New("harus memiliki format nik")
 	}
 
 	return nil
