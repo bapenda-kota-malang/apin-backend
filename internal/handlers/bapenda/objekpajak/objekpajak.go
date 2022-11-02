@@ -12,12 +12,12 @@ import (
 type Crud struct{}
 
 func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
-	var data m.ObjekPajakCreate
+	var data m.ObjekPajakCreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
 
-	result, err := s.Create(data)
+	result, err := s.Create(data, nil)
 	hh.DataResponse(w, result, err)
 }
 
@@ -47,12 +47,12 @@ func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data m.ObjekPajakUpdate
+	var data m.ObjekPajakUpdateDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
 
-	result, err := s.Update(id, data)
+	result, err := s.Update(id, data, nil)
 	hh.DataResponse(w, result, err)
 }
 
@@ -62,6 +62,6 @@ func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Delete(id)
+	result, err := s.Delete(id, nil)
 	hh.DataResponse(w, result, err)
 }
