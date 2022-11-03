@@ -27,8 +27,8 @@ type Tbp struct {
 	Note                          *string         `json:"note" gorm:"type:varchar(255)"`
 	PenyetorName                  *string         `json:"penyetorName" gorm:"type:varchar(50)"`
 	PenyetorAddress               *string         `json:"penyetorAddress" gorm:"type:varchar(255)"`
-	Npwpd                         *string         `json:"npwpd" gorm:"type:varchar(22)"`
-	NpwpdModel                    *mn.Npwpd       `json:"npwpdModel,omitempty" gorm:"foreignKey:Npwpd;references:Npwpd"`
+	Npwpd_Id                      *string         `json:"npwpd_Id" gorm:"type:varchar(22)"`
+	NpwpdModel                    *mn.Npwpd       `json:"npwpdModel,omitempty" gorm:"foreignKey:Npwpd_Id"`
 	Nominal                       *float64        `json:"nominal" gorm:"type:decimal"`
 	IsKetetapan                   *bool           `json:"isKetetapan"`
 	IdAktivitas                   *int            `json:"idAktivitas"`
