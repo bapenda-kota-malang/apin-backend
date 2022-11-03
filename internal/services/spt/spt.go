@@ -16,6 +16,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sc "github.com/jinzhu/copier"
@@ -54,15 +55,25 @@ func Create(input m.CreateDto, user_Id uint, newFile bool, tx *gorm.DB) (any, er
 
 	if newFile {
 		var errChan = make(chan error)
-		if err := sh.CheckPdf(input.Lampiran); err != nil {
+		extFile, err := base64helper.GetExtensionBase64(input.Lampiran)
+		if err != nil {
 			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		path := sh.GetResourcesPath()
+		switch extFile {
+		case "pdf":
+			path = sh.GetPdfPath()
+		case "png", "jpeg":
+			path = sh.GetImgPath()
+		case "xlsx", "xls":
+			path = sh.GetExcelPath()
 		}
 		id, err := sh.GetUuidv4()
 		if err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal generate id", data)
 		}
-		fileName := fmt.Sprintf("%s-sptpd.pdf", id)
-		go sh.SaveFile(data.Lampiran, fileName, sh.GetPdfPath(), errChan)
+		fileName := sh.GenerateFilename("LampiranSptpd", id, user_Id, extFile)
+		go sh.SaveFile(data.Lampiran, fileName, path, extFile, errChan)
 		if err := <-errChan; err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
 		}

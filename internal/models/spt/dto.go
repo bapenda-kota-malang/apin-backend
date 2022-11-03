@@ -3,12 +3,14 @@ package spt
 import (
 	"time"
 
+	mespt "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	"github.com/jinzhu/copier"
 	"gorm.io/datatypes"
 )
 
 type CreateDto struct {
-	Npwpd_Id            uint64          `json:"npwpd_Id"`
+	Npwpd_Id            *uint64         `json:"npwpd_Id" validate:"required"`
 	ObjekPajak_Id       uint64          `json:"objekPajak_Id"`
 	Rekening_Id         *uint64         `json:"rekening_Id"`
 	LuasLokasi          *string         `json:"luasLokasi"`
@@ -19,9 +21,9 @@ type CreateDto struct {
 	EtaxJumlahPajak     *string         `json:"etaxJumlahPajak,omitempty"`
 	Omset               float64         `json:"omset"`
 	JumlahPajak         float32         `json:"jumlahPajak"`
-	Lampiran            string          `json:"lampiran"`
-	JatuhTempo          *datatypes.Date `json:"jatuhTempo"`
+	Lampiran            string          `json:"lampiran" validate:"required"`
 	Sunset              *datatypes.Date `json:"sunset,omitempty"`
+	JatuhTempo          datatypes.Date
 	Type                mt.JenisPajak
 	PeriodeAkhir        *datatypes.Date
 	PeriodeAwal         *datatypes.Date
@@ -102,6 +104,55 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	Page     int `json:"page"`
-	PageSize int `json:"page_size"`
+	Npwpd_Id uint64    `json:"npwpd_Id"`
+	Status   SptStatus `json:"status"`
+	Page     int       `json:"page"`
+	PageSize int       `json:"page_size"`
+}
+
+type CreateDetailBaseDto struct {
+	Spt CreateDto `json:"spt" validate:"required"`
+}
+
+func (input *CreateDetailBaseDto) GetSpt(baseUri string) interface{} {
+	typeSpt := mt.JenisPajakSA
+	if baseUri == "skpd" {
+		typeSpt = mt.JenisPajakOA
+	}
+	input.Spt.Type = typeSpt
+	input.Spt.LuasLokasi = nil
+	return input.Spt
+}
+
+func (input *CreateDetailBaseDto) ReplaceTarifPajakId(id uint) {
+	input.Spt.TarifPajak_Id = id
+}
+
+func (input *CreateDetailBaseDto) CalculateTax(taxPercentage *float64) {
+	input.Spt.JumlahPajak = float32(input.Spt.Omset * (*taxPercentage / 100))
+}
+
+func (input *CreateDetailBaseDto) GetDetails() interface{} {
+	return nil
+}
+
+func (input *CreateDetailBaseDto) LenDetails() int {
+	return 0
+}
+
+func (input *CreateDetailBaseDto) ReplaceSptId(id uint) {
+	// do nothing
+}
+
+func (input *CreateDetailBaseDto) ChangeDetails(newData interface{}) {
+	// do nothing
+}
+
+func (input *CreateDetailBaseDto) DuplicateEspt(esptDetail *mespt.Espt) error {
+	if err := copier.Copy(&input.Spt, &esptDetail); err != nil {
+		return err
+	}
+	input.Spt.Lampiran = esptDetail.Attachment
+	input.Spt.CreateBy_User_Id = *esptDetail.VerifyBy_User_Id
+	return nil
 }

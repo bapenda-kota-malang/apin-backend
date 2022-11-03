@@ -1,26 +1,33 @@
-package detailsptreklame
+package detailspthiburan
 
 import (
 	"errors"
 	"strconv"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
-	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
-	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
-	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
+
+	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
+
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "detailSptReklame"
+const source = "detailspthiburan"
 
-func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
+func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 
-	var data []m.DetailSptReklame
+	if input.KarcisBebas && input.JumlahKarcisBebas == nil {
+		return nil, errors.New("jumlah karcis bebas kosong")
+	}
+
+	var data m.DetailSptHiburan
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -48,7 +55,7 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.DetailSptReklame
+	var data m.DetailSptHiburan
 
 	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
 	if id != 0 {
@@ -81,7 +88,7 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.DetailSptReklame
+	var data *m.DetailSptHiburan
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")

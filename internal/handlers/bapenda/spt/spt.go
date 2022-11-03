@@ -1,10 +1,12 @@
 package spt
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -31,11 +33,26 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	var input m.Input
 	var err error
 	var result any
-	query := r.URL.Query()
-	category := query.Get("category")
+	body, _ := io.ReadAll(r.Body)
+	r.Body = io.NopCloser(bytes.NewBuffer(body))
+	var baseDto m.CreateDetailBaseDto
+	err = validateDetail(w, r.Body, &baseDto)
+	if err != nil {
+		return
+	}
+	r.Body = io.NopCloser(bytes.NewBuffer(body))
+	category := r.URL.Query().Get("category")
 	switch category {
 	case "air":
 		var tmp m.CreateDetailAirDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		tmp.CreateDetailBaseDto = baseDto
+		input = &tmp
+	case "hiburan":
+		var tmp m.CreateDetailHiburanDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
@@ -50,6 +67,20 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		input = &tmp
 	case "parkir":
 		var tmp m.CreateDetailParkirDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "ppjnonpln":
+		var tmp m.CreateDetailPpjNonPlnDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "ppjpln":
+		var tmp m.CreateDetailPpjPlnDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
@@ -76,14 +107,21 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	re := regexp.MustCompile(`^\/\w*`)
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-	result, err = s.CreateDetail(input, uint(authInfo.User_Id), true, nil)
+
+	opts := make(map[string]interface{})
+	opts["userId"] = uint(authInfo.User_Id)
+	opts["newFile"] = true
+	opts["baseUri"] = re.FindString(r.RequestURI)[1:]
+
+	result, err = s.CreateDetail(input, opts, nil)
 	hh.DataResponse(w, result, err)
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
 	var input m.FilterDto
-	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
 		return
 	}
 
