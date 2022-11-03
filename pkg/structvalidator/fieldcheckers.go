@@ -7,7 +7,9 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 
+	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
 	h "github.com/bapenda-kota-malang/apin-backend/pkg/structvalidator/helper"
 )
 
@@ -106,14 +108,39 @@ func emailValidator(val reflect.Value, exptVal string) error {
 	return nil
 }
 
+// check base64 string validation, ex: base64 or base64=pdf,image,excel or base64=pdf
 func base64Validator(val reflect.Value, exptVal string) error {
 	if val.Kind() == reflect.Pointer && val.IsNil() {
 		return nil
 	}
 	re := regexp.MustCompile(`^(data:)([\w\/\+-]*)(;charset=[\w-]+|;base64){0,1},([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$`)
 
-	if !re.MatchString(h.ValStringer(val)) {
+	b64RawString := h.ValStringer(val)
+	if !re.MatchString(b64RawString) {
 		return errors.New("harus memiliki format base64")
+	}
+
+	if exptVal != "" {
+		ext, err := base64helper.GetExtensionBase64(b64RawString)
+		if err != nil {
+			return err
+		}
+		switch ext {
+		case "xlsx", "xls":
+			ext = "excel"
+		case "png", "jpeg":
+			ext = "image"
+		case "pdf":
+			// do nothing change
+		}
+		supportFilesSlice := strings.Split(exptVal, ",")
+		supportFilesMap := make(map[string]struct{})
+		for v := range supportFilesSlice {
+			supportFilesMap[supportFilesSlice[v]] = struct{}{}
+		}
+		if _, exist := supportFilesMap[ext]; !exist {
+			return errors.New("file not supported")
+		}
 	}
 
 	return nil

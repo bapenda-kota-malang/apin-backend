@@ -10,6 +10,7 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
@@ -36,20 +37,12 @@ import (
 	stp "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
 )
 
-// Service create business flow for esptd via wajib pajak for lapor e-sptd
-//
-// function flow is:
-//
-// create for esptd, replace id, create for data details based on data type, assign data details to data espt for respond
-func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
-	var data m.Espt
-	// CALCULATE TAX PROCESS
-	rekeningId := uint64(input.GetEspt().Rekening_Id)
+// Process calculate tax
+func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 	yearNow := uint64(time.Now().Year())
-	omset := input.GetEspt().Omset
 	omsetOpt := "lte"
 
-	// change detail for detail espt air before calculate tax
+	// change detail for detail spt air & ppj pln before calculate tax
 	if detail, ok := input.GetDetails().(mdair.CreateDto); ok {
 		switch detail.Peruntukan {
 		case mtypes.PeruntukanIndustriAir, mtypes.PeruntukanNiaga, mtypes.PeruntukanNonNiaga, mtypes.PeruntukanPdam:
@@ -59,11 +52,11 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 				BatasBawah_Opt: &omsetOpt,
 			})
 			if err != nil {
-				return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+				return err
 			}
 			hdairs := resphdair.(rp.OK).Data.([]mhdair.HargaDasarAir)
 			if len(hdairs) == 0 {
-				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data: harga dasar air not found", data)
+				return fmt.Errorf("harga dasar air not found")
 			}
 			hdair := hdairs[len(hdairs)-1]
 			if detail.JenisAbt == mtypes.JenisABTNonMataAir {
@@ -74,16 +67,15 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 			}
 			input.ChangeDetails(detail)
 		default:
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data: unknown peruntukan air", data)
+			return fmt.Errorf("unknown peruntukan air")
 		}
 	}
 
-	// change detail for detail espt ppj pln before calculate tax
 	if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
 		for v := range detail {
 			resp, err := sjppj.GetDetail(int(detail[v].JenisPPJ_Id))
 			if err != nil {
-				return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+				return err
 			}
 			detail[v].JenisPPJ = resp.(rp.OKSimple).Data.(*mjppj.JenisPPJ)
 		}
@@ -91,37 +83,53 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 	}
 
 	// get tarif pajak data for calculate tax
-	respTp, err := stp.GetList(mtp.FilterDto{
+	rspTp, err := stp.GetList(mtp.FilterDto{
 		Rekening_Id:   &rekeningId,
 		Tahun:         &yearNow,
 		OmsetAwal:     &omset,
 		OmsetAwal_Opt: &omsetOpt,
 	})
 	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+		return err
 	}
 
-	tarifPajaks := respTp.(rp.OK).Data.([]mtp.TarifPajak)
+	tarifPajaks := rspTp.(rp.OK).Data.([]mtp.TarifPajak)
 	if len(tarifPajaks) == 0 {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data: tarif pajak not found", data)
+		return fmt.Errorf("tarif pajak not found")
 	}
 	tarifPajak := tarifPajaks[len(tarifPajaks)-1]
 
 	input.ReplaceTarifPajakId(uint(tarifPajak.Id))
 	input.CalculateTax(tarifPajak.TarifPersen)
+	return nil
+}
 
-	err = a.DB.Transaction(func(tx *gorm.DB) error {
-		respEspt, err := Create(input.GetEspt(), user_Id, tx)
+// Service create business flow for esptd via wajib pajak for lapor e-sptd
+//
+// function flow is:
+//
+// create for esptd, replace id, create for data details based on data type, assign data details to data espt for respond
+func CreateDetail(input m.Input, user_Id uint) (interface{}, error) {
+	var data m.Espt
+
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		createDto := input.GetEspt().(m.CreateDto)
+		err := taxProcess(uint64(createDto.Rekening_Id), createDto.Omset, input)
+		if err != nil {
+			return err
+		}
+		createDto = input.GetEspt().(m.CreateDto)
+		respEspt, err := Create(createDto, user_Id, tx)
 		if err != nil {
 			return err
 		}
 		data = respEspt.(rp.OKSimple).Data.(m.Espt)
 
-		input.ReplaceEsptId(data.Id)
-
 		if input.LenDetails() == 0 {
 			return nil
 		}
+
+		input.ReplaceEsptId(data.Id)
 
 		switch dataReal := input.GetDetails().(type) {
 		case mdair.CreateDto:
@@ -133,15 +141,6 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 				details := respDetails.(rp.OKSimple).Data.(mdair.DetailEsptAir)
 				data.DetailEsptAir = &details
 			}
-		case []mdhot.CreateDto:
-			respDetails, err := shot.Create(dataReal, tx)
-			if err != nil {
-				return err
-			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.([]mdhot.DetailEsptHotel)
-				data.DetailEsptHotel = &details
-			}
 		case mdhib.CreateDto:
 			respDetails, err := shib.Create(dataReal, tx)
 			if err != nil {
@@ -151,6 +150,15 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 				details := respDetails.(rp.OKSimple).Data.(mdhib.DetailEsptHiburan)
 				data.DetailEsptHiburan = &details
 			}
+		case []mdhot.CreateDto:
+			respDetails, err := shot.Create(dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdhot.DetailEsptHotel)
+				data.DetailEsptHotel = &details
+			}
 		case []mdpar.CreateDto:
 			respDetails, err := spar.Create(dataReal, tx)
 			if err != nil {
@@ -159,15 +167,6 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 			if respDetails != nil {
 				details := respDetails.(rp.OKSimple).Data.([]mdpar.DetailEsptParkir)
 				data.DetailEsptParkir = &details
-			}
-		case mdres.CreateDto:
-			respDetails, err := sres.Create(dataReal, tx)
-			if err != nil {
-				return err
-			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.(mdres.DetailEsptResto)
-				data.DetailEsptResto = &details
 			}
 		case mdnonpln.CreateDto:
 			respDetails, err := snonpln.Create(dataReal, tx)
@@ -187,6 +186,15 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 				details := respDetails.(rp.OKSimple).Data.([]mdpln.DetailEsptPpjPln)
 				data.DetailEsptPpjPln = &details
 			}
+		case mdres.CreateDto:
+			respDetails, err := sres.Create(dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdres.DetailEsptResto)
+				data.DetailEsptResto = &details
+			}
 		default:
 			return fmt.Errorf("data details unknown")
 		}
@@ -203,20 +211,18 @@ func CreateDetail(input m.CreateInput, user_Id uint) (interface{}, error) {
 // this function flow is:
 //
 // update data esptd with id, check data details type, loop for update every items, assign data details to data espt for respond
-func UpdateDetail(id int, input m.UpdateInput, user_Id uint) (interface{}, error) {
+func UpdateDetail(id uuid.UUID, input m.Input, user_Id uint) (interface{}, error) {
 	var data m.Espt
 	affected := "0"
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		rekeningId := uint64(*input.GetEspt().Rekening_Id)
-		yearNow := uint64(time.Now().Year())
-		tarifPajak, err := stp.GetList(mtp.FilterDto{Rekening_Id: &rekeningId, Tahun: &yearNow})
+		updateDto := input.GetEspt().(m.UpdateDto)
+		err := taxProcess(uint64(*updateDto.Rekening_Id), *updateDto.Omset, input)
 		if err != nil {
 			return err
 		}
+		updateDto = input.GetEspt().(m.UpdateDto)
 
-		input.CalculateTax(tarifPajak.(rp.OK).Data.([]mtp.TarifPajak)[0].TarifPersen)
-
-		respEspt, err := Update(id, input.GetEspt(), user_Id, tx)
+		respEspt, err := Update(id, updateDto, user_Id, tx)
 		if err != nil {
 			return err
 		}
@@ -228,23 +234,32 @@ func UpdateDetail(id int, input m.UpdateInput, user_Id uint) (interface{}, error
 		}
 
 		switch dataReal := input.GetDetails().(type) {
-		case []mdair.UpdateDto:
-			var detailList []mdair.DetailEsptAir
-			for i := range dataReal {
-				id := 0
-				if dataReal[i].Id != 0 {
-					id = int(dataReal[i].Id)
-				}
-				respDetails, err := sair.Update(id, dataReal[i], tx)
-				if err != nil {
-					return err
-				}
-				if respDetails != nil {
-					details := respDetails.(rp.OKSimple).Data.(mdair.DetailEsptAir)
-					detailList = append(detailList, details)
-				}
+		case mdair.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
 			}
-			// data.DetailEsptAir = &detailList
+			respDetails, err := sair.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdair.DetailEsptAir)
+				data.DetailEsptAir = &details
+			}
+		case mdhib.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
+			}
+			respDetails, err := shib.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdhib.DetailEsptHiburan)
+				data.DetailEsptHiburan = &details
+			}
 		case []mdhot.UpdateDto:
 			var detailList []mdhot.DetailEsptHotel
 			for i := range dataReal {
@@ -262,23 +277,6 @@ func UpdateDetail(id int, input m.UpdateInput, user_Id uint) (interface{}, error
 				}
 			}
 			data.DetailEsptHotel = &detailList
-		case []mdhib.UpdateDto:
-			var detailList []mdhib.DetailEsptHiburan
-			for i := range dataReal {
-				id := 0
-				if dataReal[i].Id != 0 {
-					id = int(dataReal[i].Id)
-				}
-				respDetails, err := shib.Update(id, dataReal[i], tx)
-				if err != nil {
-					return err
-				}
-				if respDetails != nil {
-					details := respDetails.(rp.OKSimple).Data.(mdhib.DetailEsptHiburan)
-					detailList = append(detailList, details)
-				}
-			}
-			// data.DetailEsptHiburan = &detailList
 		case []mdpar.UpdateDto:
 			var detailList []mdpar.DetailEsptParkir
 			for i := range dataReal {
@@ -296,40 +294,19 @@ func UpdateDetail(id int, input m.UpdateInput, user_Id uint) (interface{}, error
 				}
 			}
 			data.DetailEsptParkir = &detailList
-		case []mdres.UpdateDto:
-			var detailList []mdres.DetailEsptResto
-			for i := range dataReal {
-				id := 0
-				if dataReal[i].Id != 0 {
-					id = int(dataReal[i].Id)
-				}
-				respDetails, err := sres.Update(id, dataReal[i], tx)
-				if err != nil {
-					return err
-				}
-				if respDetails != nil {
-					details := respDetails.(rp.OKSimple).Data.(mdres.DetailEsptResto)
-					detailList = append(detailList, details)
-				}
+		case mdnonpln.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
 			}
-			// data.DetailEsptResto = &detailList
-		case []mdnonpln.UpdateDto:
-			var detailList []mdnonpln.DetailEsptPpjNonPln
-			for i := range dataReal {
-				id := 0
-				if dataReal[i].Id != 0 {
-					id = int(dataReal[i].Id)
-				}
-				respDetails, err := snonpln.Update(id, dataReal[i], tx)
-				if err != nil {
-					return err
-				}
-				if respDetails != nil {
-					details := respDetails.(rp.OKSimple).Data.(mdnonpln.DetailEsptPpjNonPln)
-					detailList = append(detailList, details)
-				}
+			respDetails, err := snonpln.Update(id, dataReal, tx)
+			if err != nil {
+				return err
 			}
-			// data.DetailEsptPpjNonPln = &detailList
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdnonpln.DetailEsptPpjNonPln)
+				data.DetailEsptPpjNonPln = &details
+			}
 		case []mdpln.UpdateDto:
 			var detailList []mdpln.DetailEsptPpjPln
 			for i := range dataReal {
@@ -347,6 +324,19 @@ func UpdateDetail(id int, input m.UpdateInput, user_Id uint) (interface{}, error
 				}
 			}
 			data.DetailEsptPpjPln = &detailList
+		case mdres.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
+			}
+			respDetails, err := sres.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdres.DetailEsptResto)
+				data.DetailEsptResto = &details
+			}
 		}
 		return nil
 	})

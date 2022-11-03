@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -13,6 +14,7 @@ import (
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
@@ -23,6 +25,32 @@ import (
 )
 
 const source = "espt"
+
+func filePreProcess(b64String string, userId uint) (fileName, path, extFile string, id uuid.UUID, err error) {
+	extFile, err = base64helper.GetExtensionBase64(b64String)
+	if err != nil {
+		return
+	}
+	path = sh.GetResourcesPath()
+	switch extFile {
+	case "pdf":
+		path = sh.GetPdfPath()
+	case "png", "jpeg":
+		path = sh.GetImgPath()
+	case "xlsx", "xls":
+		path = sh.GetExcelPath()
+	default:
+		err = errors.New("file tidak diketahui")
+		return
+	}
+	id, err = sh.GetUuidv4()
+	if err != nil {
+		err = errors.New("gagal generate uuid")
+		return
+	}
+	fileName = sh.GenerateFilename("AttachmentEsptpd", id, userId, extFile)
+	return
+}
 
 func GetList(input m.FilterDto, user_Id uint) (any, error) {
 	var data []m.Espt
@@ -60,7 +88,7 @@ func GetList(input m.FilterDto, user_Id uint) (any, error) {
 	}, nil
 }
 
-func GetDetail(id int, user_Id uint) (any, error) {
+func GetDetail(id uuid.UUID, user_Id uint) (any, error) {
 	var data *m.Espt
 
 	baseQuery := a.DB.Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
@@ -70,7 +98,7 @@ func GetDetail(id int, user_Id uint) (any, error) {
 		baseQuery = baseQuery.Where(&m.Espt{LaporBy_User_Id: user_Id})
 	}
 
-	result := baseQuery.First(&data, id)
+	result := baseQuery.First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -113,7 +141,8 @@ func Create(input m.CreateDto, user_Id uint, tx *gorm.DB) (any, error) {
 	var data m.Espt
 	var errChan = make(chan error)
 
-	if err := sh.CheckPdf(input.Attachment); err != nil {
+	fileName, path, extFile, id, err := filePreProcess(input.Attachment, user_Id)
+	if err != nil {
 		return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 	}
 
@@ -129,12 +158,8 @@ func Create(input m.CreateDto, user_Id uint, tx *gorm.DB) (any, error) {
 	// }
 
 	// static add value to field
-	id, err := sh.GetUuidv4()
-	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal generate id", data)
-	}
-	fileName := fmt.Sprintf("%s-esptd.pdf", id)
-	go sh.SaveFile(data.Attachment, fileName, sh.GetPdfPath(), errChan)
+	data.Id = id
+	go sh.SaveFile(data.Attachment, fileName, path, extFile, errChan)
 	prevMonth := sh.BeginningOfPreviosMonth()
 	data.PeriodeAwal = datatypes.Date(prevMonth)
 	data.PeriodeAkhir = datatypes.Date(sh.EndOfMonth(prevMonth))
@@ -156,14 +181,14 @@ func Create(input m.CreateDto, user_Id uint, tx *gorm.DB) (any, error) {
 }
 
 // Service update data for table espt
-func Update(id int, input any, user_Id uint, tx *gorm.DB) (any, error) {
+func Update(id uuid.UUID, input any, userId uint, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data m.Espt
 
 	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
-	dataRow := tx.First(&data, id).RowsAffected
+	dataRow := tx.First(&data, "\"Id\" = ?", id.String()).RowsAffected
 	if dataRow == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
@@ -175,20 +200,16 @@ func Update(id int, input any, user_Id uint, tx *gorm.DB) (any, error) {
 		if err := sc.Copy(&data, &inputData); err != nil {
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 		}
-		data.VerifyBy_User_Id = &user_Id
+		data.VerifyBy_User_Id = &userId
 	} else {
 		inputData := input.(m.UpdateDto)
 		if inputData.Attachment != nil {
 			var errChan = make(chan error)
-			if err := sh.CheckPdf(*inputData.Attachment); err != nil {
-				return sh.SetError("request", "update-data", source, "failed", err.Error(), data)
-			}
-			id, err := sh.GetUuidv4()
+			fileName, path, extFile, _, err := filePreProcess(*inputData.Attachment, userId)
 			if err != nil {
-				return sh.SetError("request", "update-data", source, "failed", "gagal generate id", data)
+				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 			}
-			fileName := fmt.Sprintf("%s-esptd.pdf", id)
-			go sh.ReplaceFile(data.Attachment, *inputData.Attachment, fileName, sh.GetPdfPath(), errChan)
+			go sh.ReplaceFile(data.Attachment, *inputData.Attachment, fileName, path, extFile, errChan)
 			if err := <-errChan; err != nil {
 				return sh.SetError("request", "update-data", source, "failed", fmt.Sprintf("failed save pdf: %s", err), data)
 			}
@@ -219,7 +240,7 @@ func Update(id int, input any, user_Id uint, tx *gorm.DB) (any, error) {
 
 	// if verify, clone data to spt table with detail
 	if _, ok := input.(m.VerifyDto); ok && data.VerifyStatus == m.StatusDisetujui {
-		respDetail, err := GetDetail(int(data.Id), 0)
+		respDetail, err := GetDetail(data.Id, 0)
 		if err != nil {
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 		}
@@ -229,7 +250,13 @@ func Update(id int, input any, user_Id uint, tx *gorm.DB) (any, error) {
 		if err != nil {
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 		}
-		_, err = sspt.CreateDetail(inputSpt, user_Id, false, tx)
+
+		opts := make(map[string]interface{})
+		opts["userId"] = uint(userId)
+		opts["newFile"] = false
+		opts["baseUri"] = "sptpd"
+
+		_, err = sspt.CreateDetail(inputSpt, opts, tx)
 		if err != nil {
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 		}
@@ -244,14 +271,14 @@ func Update(id int, input any, user_Id uint, tx *gorm.DB) (any, error) {
 }
 
 // Service soft delete data for table espt
-func Delete(id int) (any, error) {
+func Delete(id uuid.UUID) (any, error) {
 	var data *m.Espt
-	result := a.DB.First(&data, id)
+	result := a.DB.First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	result = a.DB.Delete(&data, id)
+	result = a.DB.Where("\"Id\" = ?", id.String()).Delete(&data)
 	status := "deleted"
 	if result.RowsAffected == 0 {
 		data = nil
