@@ -29,6 +29,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
 
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -135,4 +136,10 @@ func init() {
 		&detailesptppjpln.DetailEsptPpjPln{},
 	}
 	a.AutoMigrate(listModelPenetapan...)
+
+	listModelPembayaran := []interface{}{
+		&tbp.Tbp{},
+		&tbp.RincianTbp{},
+	}
+	a.AutoMigrate(listModelPembayaran...)
 }
