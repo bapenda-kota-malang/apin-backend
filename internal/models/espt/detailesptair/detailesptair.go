@@ -3,11 +3,12 @@ package detailesptair
 import (
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 )
 
 type DetailEspt struct {
-	Id      uint  `json:"id" gorm:"primarykey"`
-	Espt_Id *uint `json:"espt_id"`
+	Id      uint      `json:"id" gorm:"primarykey"`
+	Espt_Id uuid.UUID `json:"espt_id"`
 }
 
 type DetailEsptAir struct {
@@ -20,7 +21,7 @@ type DetailEsptAir struct {
 }
 
 type CreateDto struct {
-	Espt_Id    uint
+	Espt_Id    uuid.UUID
 	Peruntukan mt.Peruntukan `json:"peruntukan" validate:"required"`
 	JenisAbt   mt.JenisABT   `json:"jenisAbt"`
 	Location   *string       `json:"location"`
@@ -31,5 +32,6 @@ type UpdateDto struct {
 	Id         uint          `json:"id"`
 	Peruntukan mt.Peruntukan `json:"peruntukan"`
 	JenisAbt   mt.JenisABT   `json:"jenisAbt"`
+	Lokasi     *string       `json:"lokasi"`
 	Pengenaan  float32       `json:"pengenaan"`
 }
