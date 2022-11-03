@@ -632,7 +632,11 @@ func AddPhotoLainLain(id int, input npwpd.PhotoUpdate, user_id uint64) (any, err
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	data.LainLain = sh.AddMorePhotos(input.LainLain, data.LainLain)
+	slcLainLain, err := sh.AddMorePhotos(input.LainLain, data.LainLain, "npwpdLainLain", uint(user_id))
+	if err != nil {
+		return nil, err
+	}
+	data.LainLain = slcLainLain
 	if result := a.DB.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
 	}
@@ -655,7 +659,11 @@ func AddPhotoSuratIzin(id int, input npwpd.PhotoUpdate, user_id uint64) (any, er
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	data.SuratIzinUsaha = sh.AddMorePhotos(input.SuratIzinUsaha, data.SuratIzinUsaha)
+	slcSuratIzin, err := sh.AddMorePhotos(input.SuratIzinUsaha, data.SuratIzinUsaha, "npwpdIzinUsaha", uint(user_id))
+	if err != nil {
+		return nil, err
+	}
+	data.SuratIzinUsaha = slcSuratIzin
 	if result := a.DB.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
 	}
@@ -678,7 +686,11 @@ func AddPhotoObject(id int, input npwpd.PhotoUpdate, user_id uint64) (any, error
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	data.FotoObjek = sh.AddMorePhotos(input.FotoObjek, data.FotoObjek)
+	slcFotoObjek, err := sh.AddMorePhotos(input.FotoObjek, data.FotoObjek, "npwpdFotoObjek", uint(user_id))
+	if err != nil {
+		return nil, err
+	}
+	data.FotoObjek = slcFotoObjek
 	if result := a.DB.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
 	}
@@ -693,7 +705,6 @@ func AddPhotoObject(id int, input npwpd.PhotoUpdate, user_id uint64) (any, error
 
 func AddPhotoKtp(id int, input npwpd.PhotoUpdate, user_id uint64) (any, error) {
 	var data *npwpd.Npwpd
-	var imgNameChan = make(chan string)
 	var errChan = make(chan error)
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -704,11 +715,16 @@ func AddPhotoKtp(id int, input npwpd.PhotoUpdate, user_id uint64) (any, error) {
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	go sh.ReplaceImage(data.FotoKtp, input.FotoKtp, imgNameChan, errChan)
+	fileName, path, extFile, err := filePreProcess(input.FotoKtp, uint(user_id), "npwpdFotoKtp")
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", err.Error(), nil)
+	}
+
+	go sh.ReplaceFile(data.FotoKtp, input.FotoKtp, fileName, path, extFile, errChan)
 	if err := <-errChan; err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "image unsupported", data)
 	}
-	data.FotoKtp = <-imgNameChan
+	data.FotoKtp = fileName
 	if result := a.DB.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data", data)
 	}
