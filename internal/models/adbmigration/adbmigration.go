@@ -29,6 +29,16 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthotel"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptparkir"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptppjnonpln"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptppjpln"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/sptnomertracker"
 
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -135,4 +145,18 @@ func init() {
 		&detailesptppjpln.DetailEsptPpjPln{},
 	}
 	a.AutoMigrate(listModelPenetapan...)
+
+	listModelSpt := []interface{}{
+		&sptnomertracker.SptNomerTracker{},
+		&spt.Spt{},
+		&detailsptair.DetailSptAir{},
+		&detailspthiburan.DetailSptHiburan{},
+		&detailspthotel.DetailSptHotel{},
+		&detailsptparkir.DetailSptParkir{},
+		&detailsptppjnonpln.DetailSptPpjNonPln{},
+		&detailsptppjpln.DetailSptPpjPln{},
+		&detailsptreklame.DetailSptReklame{},
+		&detailsptresto.DetailSptResto{},
+	}
+	a.AutoMigrate(listModelSpt...)
 }

@@ -3,6 +3,7 @@ package detailespthotel
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 )
 
 type DetailEsptHotel struct {
@@ -17,7 +18,7 @@ type DetailEsptHotel struct {
 }
 
 type CreateDto struct {
-	Espt_Id             uint
+	Espt_Id             uuid.UUID
 	GolonganKamar       *string  `json:"golonganKamar"`
 	Tarif               *float32 `json:"tarif"`
 	JumlahKamar         *uint    `json:"jumlahKamar"`

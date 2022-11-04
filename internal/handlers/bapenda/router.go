@@ -220,13 +220,22 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", wajibpajak.GetDetail)
 	})
 
-	r.Route("/spt", func(r chi.Router) {
-		r.Post("/{category}", spt.Create)
+	r.Route("/sptpd", func(r chi.Router) {
+		r.Post("/", spt.Create)
 		r.Get("/", spt.GetList)
 		r.Get("/{id}", spt.GetDetail)
-		r.Patch("/{id}/{category}", spt.Update)
+		r.Patch("/{id}", spt.Update)
 		r.Delete("/{id}", spt.Delete)
 	})
+
+	// r.Route("/skpd", func(r chi.Router) {
+	// 	r.Post("/", spt.Create)
+	// 	r.Get("/", spt.GetList)
+	// 	r.Get("/{id}", spt.GetDetail)
+	// 	r.Patch("/{id}", spt.Update)
+	// 	r.Delete("/{id}", spt.Delete)
+	// })
+
 	// route for espt list data, verify espt, and get detail data for espt before verify
 	r.Route("/espt", func(r chi.Router) {
 		r.Get("/", espt.GetList)

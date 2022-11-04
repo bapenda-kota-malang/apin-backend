@@ -33,6 +33,31 @@ package jaminanbongkarreklame
 // 	dataD.Date = th.ParseTime(input.Date)
 // 	dataD.DueDate = th.ParseTime(input.DueDate)
 
+// var dataJ msjbr.JaminanBongkarReklame
+
+// 	if err := sc.Copy(&dataJ, input); err != nil {
+// 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataJ)
+// 	}
+// 	dataJ.Date = th.ParseTime(input.JaminanBongkarReklame.Date)
+// 	dataJ.DueDate = th.ParseTime(input.JaminanBongkarReklame.DueDate)
+
+// 	dataJ.Spt_Id = dataS.Id
+
+// 	err = a.DB.Create(&dataJ).Error
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	var dataResult msjbr.JaminanBongkarReklame
+// 	err = a.DB.Model(&msjbr.JaminanBongkarReklame{}).
+// 		Preload(clause.Associations).First(&dataResult, dataD.Id).Error
+// 	if err != nil {
+// 		if err == gorm.ErrRecordNotFound {
+// 			return nil, nil
+// 		}
+// 		return nil, err
+// 	}
+
 // 	err := a.DB.Create(&dataS).Error
 // 	if err != nil {
 // 		return nil, err

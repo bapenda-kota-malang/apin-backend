@@ -11,6 +11,7 @@ import (
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/registrasinpwpd"
 	rop "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	sn "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd"
 	rsn "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd/regnarahubung"
 	rsop "github.com/bapenda-kota-malang/apin-backend/internal/services/registrasinpwpd/regobjekpajak"
@@ -35,20 +36,25 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 	var register rn.RegistrasiNpwpd
 	var dataPemilik []rn.RegPemilikWpCreate
 	var dataNarahubung []rn.RegNarahubungCreate
-	var imgNameChan = make(chan string)
 	var errChan = make(chan error)
 	var respDataOp interface{}
 	var respDataPemilik interface{}
 	var respDataNarahubung interface{}
 	var resp t.II
+	baseDocsName := "regNpwpd"
 
-	go sh.SaveImage(input.FotoKtp, imgNameChan, errChan)
+	fileName, path, extFile, err := filePreProcess(input.FotoKtp, user_Id, baseDocsName+"FotoKtp")
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", err.Error(), nil)
+	}
+
+	go sh.SaveFile(input.FotoKtp, fileName, path, extFile, errChan)
 	if err := <-errChan; err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "image unsupported", input)
 	}
 
 	// get data rekening
-	err := a.DB.Model(&rm.Rekening{}).First(&rekening, input.Rekening_Id).Error
+	err = a.DB.Model(&rm.Rekening{}).First(&rekening, input.Rekening_Id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +80,7 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 	if err := sc.Copy(&register, input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload registrasi npwpd", register)
 	}
-	register.FotoKtp = <-imgNameChan
+	register.FotoKtp = fileName
 
 	err = a.DB.Transaction(func(tx *gorm.DB) error {
 
@@ -87,16 +93,28 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 		respDataOp = resultRegObjekPajak
 
 		// add static field
-		register.JenisPajak = nt.JenisPajakSA
+		register.JenisPajak = mt.JenisPajakSA
 		register.Status = nt.StatusAktif
 		register.User_Id = user_IdConv
 		register.RegObjekPajak_Id = resultCastRegObjekPajak.Id
 		register.VerifyStatus = rn.VerifyStatusBaru
 		register.Rekening = rekening
 		register.TanggalMulaiUsaha = th.ParseTime(*input.TanggalMulaiUsaha)
-		register.LainLain = sh.GetArrayPhoto(input.LainLain)
-		register.SuratIzinUsaha = sh.GetArrayPhoto(input.SuratIzinUsaha)
-		register.FotoObjek = sh.GetArrayPhoto(input.FotoObjek)
+		slcLainLain, err := sh.GetArrayPhoto(input.LainLain, baseDocsName+"LainLain", user_Id)
+		if err != nil {
+			return err
+		}
+		register.LainLain = slcLainLain
+		slcIzinUsaha, err := sh.GetArrayPhoto(input.SuratIzinUsaha, baseDocsName+"SuratIzinUsaha", user_Id)
+		if err != nil {
+			return err
+		}
+		register.SuratIzinUsaha = slcIzinUsaha
+		slcFotoObjek, err := sh.GetArrayPhoto(input.FotoObjek, baseDocsName+"FotoObjek", user_Id)
+		if err != nil {
+			return err
+		}
+		register.FotoObjek = slcFotoObjek
 
 		err = a.DB.Create(&register).Error
 		if err != nil {
