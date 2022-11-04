@@ -67,12 +67,14 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	// 	dataTbp.Total = &tmpTotal
 	// }
 
+	tmpIsCancelled := false
 	// static value
 	tmpNomor := generateNomor()
 	dataTbp.TbpNumber = &tmpNomor
 	dataTbp.TanggalBayar = th.TimeNow()
 	dataTbp.CreatedBy_User_Id = &user_Id
 	dataRincianTbp.Waktu_Rincian_Tb = parseCurrentTime()
+	dataTbp.IsCancelled = &tmpIsCancelled
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 
@@ -118,6 +120,7 @@ func GetList(input m.FilterDto) (any, error) {
 		Preload("User").
 		Preload("Rekening").
 		Preload("Npwpd").
+		Preload("Jurnal").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -146,6 +149,7 @@ func GetDetail(tbp_id int) (any, error) {
 		Preload("User").
 		Preload("Rekening").
 		Preload("Npwpd").
+		Preload("Jurnal").
 		First(&data, tbp_id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {

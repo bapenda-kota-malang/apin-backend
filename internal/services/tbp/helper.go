@@ -21,8 +21,14 @@ func generateNomor() int {
 }
 
 func parseCurrentTime() *time.Time {
+	// set timezone
 	layoutTime := "15:04:05"
-	tmpWaktuRincian := time.Now().Format(layoutTime)
+
+	// init the loc
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+
+	// set timezone,
+	tmpWaktuRincian := time.Now().In(loc).Format(layoutTime)
 	t, err := time.Parse("15:04:05", tmpWaktuRincian)
 	if err != nil {
 		return nil

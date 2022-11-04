@@ -69,3 +69,12 @@ func Cancel(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Cancel(input, uint64(id))
 	hh.DataResponse(w, result, err)
 }
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+	result, err := s.Delete(uint64(id))
+	hh.DataResponse(w, result, err)
+}

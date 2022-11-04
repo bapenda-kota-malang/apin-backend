@@ -57,7 +57,7 @@ type CreateDto struct {
 	Note                          *string    `json:"note"`
 	PenyetorName                  *string    `json:"penyetorName"`
 	PenyetorAddress               *string    `json:"penyetorAddress"`
-	Npwpd                         *string    `json:"npwpd"`
+	Npwpd_Npwpd                   *string    `json:"npwpd_npwpd"`
 	Nominal                       *float64   `json:"nominal"`
 	IsKetetapan                   *bool      `json:"isKetetapan"`
 	IdAktivitas                   *int       `json:"idAktivitas"`
@@ -94,7 +94,7 @@ type FilterDto struct {
 	Note                          *string    `json:"note"`
 	PenyetorName                  *string    `json:"penyetorName"`
 	PenyetorAddress               *string    `json:"penyetorAddress"`
-	Npwpd                         *string    `json:"npwpd"`
+	Npwpd_Npwpd                   *string    `json:"npwpd_npwpd"`
 	Nominal                       *float64   `json:"nominal"`
 	IsKetetapan                   *bool      `json:"isKetetapan"`
 	IdAktivitas                   *int       `json:"idAktivitas"`
