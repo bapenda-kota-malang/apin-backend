@@ -1,32 +1,38 @@
 package detailsptresto
 
+import (
+	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
+)
+
 type DetailSptResto struct {
-	Id               uint64   `json:"id" gorm:"primaryKey;autoIncrement"`
-	Spt_Id           uint64   `json:"spt_id"`
-	JumlahMeja       *uint64  `json:"jumlahMeja"`
-	JumlahKursi      *uint64  `json:"jumlahKursi"`
-	TarifMinuman     *float64 `json:"tarifMinuman" gorm:"type:decimal"`
-	TarifMakanan     *float64 `json:"tarifMakanan" gorm:"type:decimal"`
-	JumlahPengunjung *uint64  `json:"jumlahPengunjung"`
-	IdBt             *uint64  `json:"idBt"`
+	Id               uint      `json:"id" gorm:"primaryKey;autoIncrement"`
+	Spt_Id           uuid.UUID `json:"spt_id" gorm:"type:uuid"`
+	JumlahMeja       *uint     `json:"jumlahMeja"`
+	JumlahKursi      *uint     `json:"jumlahKursi"`
+	TarifMinuman     *float32  `json:"tarifMinuman" gorm:"type:decimal"`
+	TarifMakanan     *float32  `json:"tarifMakanan" gorm:"type:decimal"`
+	JumlahPengunjung *uint     `json:"jumlahPengunjung"`
+	IdBt             *uint     `json:"idBt"`
+	gormhelper.DateModel
 }
 
 type CreateDto struct {
-	Spt_Id           uint
-	JumlahMeja       uint64  `json:"jumlahMeja" validate:"required"`
-	JumlahKursi      uint64  `json:"jumlahKursi" validate:"required"`
-	TarifMinuman     float64 `json:"tarifMinuman" validate:"required"`
-	TarifMakanan     float64 `json:"tarifMakanan" validate:"required"`
-	JumlahPengunjung uint64  `json:"jumlahPengunjung" validate:"required"`
-	IdBt             uint64  `json:"idBt" validate:"required"`
+	Spt_Id           uuid.UUID
+	JumlahMeja       uint     `json:"jumlahMeja" validate:"min=1"`
+	JumlahKursi      uint     `json:"jumlahKursi" validate:"min=1"`
+	TarifMinuman     *float32 `json:"tarifMinuman"`
+	TarifMakanan     *float32 `json:"tarifMakanan"`
+	JumlahPengunjung uint     `json:"jumlahPengunjung" validate:"min=1"`
+	IdBt             *uint    `json:"idBt" validate:"min=1"`
 }
 
 type UpdateDto struct {
-	Spt_Id           uint    `json:"spt_id"`
-	JumlahMeja       uint64  `json:"jumlahMeja"`
-	JumlahKursi      uint64  `json:"jumlahKursi"`
-	TarifMinuman     float64 `json:"tarifMinuman"`
-	TarifMakanan     float64 `json:"tarifMakanan"`
-	JumlahPengunjung uint64  `json:"jumlahPengunjung"`
-	IdBt             uint64  `json:"idBt"`
+	Id               uint     `json:"id"`
+	JumlahMeja       *uint    `json:"jumlahMeja"`
+	JumlahKursi      *uint    `json:"jumlahKursi"`
+	TarifMinuman     *float32 `json:"tarifMinuman"`
+	TarifMakanan     *float32 `json:"tarifMakanan"`
+	JumlahPengunjung *uint    `json:"jumlahPengunjung"`
+	IdBt             *uint    `json:"idBt"`
 }

@@ -6,19 +6,23 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	mdsa "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
+	mdhiburan "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
 	mdsh "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthotel"
 	mdsp "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptparkir"
+	mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptppjnonpln"
+	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptppjpln"
 	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
 	mdsres "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
 	mdsjbr "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/jaminanbongkarreklame"
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )
 
 type Spt struct {
-	Id                  uint64          `json:"id" gorm:"primaryKey"`
+	Id                  uuid.UUID       `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	Npwpd_Id            uint64          `json:"npwpd_Id"`
 	ObjekPajak_Id       uint64          `json:"objekPajak_Id"`
 	Rekening_Id         uint64          `json:"rekening_Id"`
@@ -41,8 +45,8 @@ type Spt struct {
 	KodeBilling         string          `json:"kodeBilling" gorm:"varchar(30)"`
 	Type                mt.JenisPajak   `json:"type" gorm:"type:varchar(2)"`
 	Status              SptStatus       `json:"status" gorm:"type:varchar(5)"`
-	TanggalLunas        *time.Time      `json:"tanggalLunas"`
-	BatalPenetapan      bool            `json:"batalPenetapan"`
+	TanggalLunas        *time.Time      `json:"tanggalLunas,omitempty"`
+	BatalPenetapan      bool            `json:"batalPenetapan,omitempty"`
 	IdBT                *uint64         `json:"idBT,omitempty"`
 	JumlahTahun         *float64        `json:"jumlahTahun,omitempty" gorm:"type:decimal"`
 	JumlahBulan         *float64        `json:"jumlahBulan,omitempty" gorm:"type:decimal"`
@@ -52,23 +56,23 @@ type Spt struct {
 	Keterangan          *string         `json:"keterangan,omitempty" gorm:"type:varchar(255)"`
 	KoefisienPajak      *uint64         `json:"koefisienPajak,omitempty"`
 	NamaProduk          *string         `json:"productName,omitempty" gorm:"type:varchar(200)"`
-	NomorRegister       *string         `json:"registerNumber" gorm:"type:varchar(100)"`
-	VaJatim             *string         `json:"vaJatim" gorm:"type:varchar(20)"`
-	JenisKetetapan      *JenisKetetapan `json:"jenisKetetapan"`
-	Kenaikan            *float64        `json:"kenaikan" gorm:"type:decimal"`
-	Bunga               *float64        `json:"bunga" gorm:"type:decimal"`
-	Denda               *float64        `json:"denda" gorm:"type:decimal"`
-	Pengurangan         *float64        `json:"pengurangan" gorm:"type:decimal"`
-	Total               *float64        `json:"total" gorm:"type:decimal"`
-	Ref_Spt_Id          *uint64         `json:"ref_spt_id"`
-	BillingPenetapan    *string         `json:"billingPenetapan" gorm:"type:varchar(20)"`
-	Teguran_Id          *uint64         `json:"teguran_id"`
-	IsTeguran           bool            `json:"isTeguran"`
-	KeteranganPenetapan *string         `json:"keteranganPenetapan" gorm:"type:varchar(100)"`
-	Kasubid_User_Id     *string         `json:"kasubid_user_id"`
-	Kabid_User_Id       *string         `json:"kabid_user_id"`
+	NomorRegister       *string         `json:"registerNumber,omitempty" gorm:"type:varchar(100)"`
+	VaJatim             *string         `json:"vaJatim,omitempty" gorm:"type:varchar(20)"`
+	JenisKetetapan      *JenisKetetapan `json:"jenisKetetapan,omitempty"`
+	Kenaikan            *float64        `json:"kenaikan,omitempty" gorm:"type:decimal"`
+	Bunga               *float64        `json:"bunga,omitempty" gorm:"type:decimal"`
+	Denda               *float64        `json:"denda,omitempty" gorm:"type:decimal"`
+	Pengurangan         *float64        `json:"pengurangan,omitempty" gorm:"type:decimal"`
+	Total               *float64        `json:"total,omitempty" gorm:"type:decimal"`
+	Ref_Spt_Id          *uint64         `json:"ref_spt_id,omitempty"`
+	BillingPenetapan    *string         `json:"billingPenetapan,omitempty" gorm:"type:varchar(20)"`
+	Teguran_Id          *uint64         `json:"teguran_id,omitempty"`
+	IsTeguran           bool            `json:"isTeguran,omitempty"`
+	KeteranganPenetapan *string         `json:"keteranganPenetapan,omitempty" gorm:"type:varchar(100)"`
+	Kasubid_User_Id     *string         `json:"kasubid_user_id,omitempty"`
+	Kabid_User_Id       *string         `json:"kabid_user_id,omitempty"`
 	gormhelper.DateModel
-	CancelledAt *time.Time   `json:"cancelledAt"`
+	CancelledAt *time.Time   `json:"cancelledAt,omitempty"`
 	Npwpd       *npwpd.Npwpd `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
 	// ObjekPajak            *op.ObjekPajak                  `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
 	Rekening              *rekening.Rekening              `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
@@ -76,10 +80,13 @@ type Spt struct {
 	KasubidUser           *user.User                      `json:"kasubid,omitempty" gorm:"foreignKey:Kasubid_User_Id"`
 	KabidUser             *user.User                      `json:"kabid,omitempty" gorm:"foreignKey:Kabid_User_Id"`
 	DetailSptAir          *mdsa.DetailSptAir              `json:"detailSptAir,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptHiburan      *mdhiburan.DetailSptHiburan     `json:"detailSptHiburan,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptHotel        *[]mdsh.DetailSptHotel          `json:"detailSptHotel,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptParkir       *[]mdsp.DetailSptParkir         `json:"detailSptParkir,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptNonPln       *mdnonpln.DetailSptPpjNonPln    `json:"detailSptPpjNonPln,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptPln          *[]mdpln.DetailSptPpjPln        `json:"detailSptPpjPln,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptReklame      *[]mdsrek.DetailSptReklame      `json:"detailSptReklame,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptResto        *[]mdsres.DetailSptResto        `json:"detailSptResto,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptResto        *mdsres.DetailSptResto          `json:"detailSptResto,omitempty" gorm:"foreignKey:Spt_Id"`
 	JaminanBongkarReklame *[]mdsjbr.JaminanBongkarReklame `json:"jaminanBongkarReklame,omitempty" gorm:"foreignKey:Spt_Id"`
 	// Teguran     *teguran.Teguran `json:"teguran,omitempty" gorm:"foreignKey:Teguran_Id"`
 }
