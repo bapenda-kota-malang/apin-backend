@@ -1,6 +1,8 @@
 package tbp
 
 import (
+	"time"
+
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 )
@@ -18,10 +20,12 @@ func generateNomor() int {
 	return tmp
 }
 
-// func parseCurrentTime(input string) *time.Time {
-// 	t, err := time.Parse("15:04:05", input)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	return &t
-// }
+func parseCurrentTime() *time.Time {
+	layoutTime := "15:04:05"
+	tmpWaktuRincian := time.Now().Format(layoutTime)
+	t, err := time.Parse("15:04:05", tmpWaktuRincian)
+	if err != nil {
+		return nil
+	}
+	return &t
+}

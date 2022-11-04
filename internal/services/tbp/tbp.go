@@ -3,7 +3,6 @@ package tbp
 import (
 	"errors"
 	"strconv"
-	"time"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
 	srt "github.com/bapenda-kota-malang/apin-backend/internal/services/tbp/rinciantbp"
@@ -67,15 +66,13 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	// 	tmpTotal := dataSptJumlahPajak + dataRincianTbpDenda
 	// 	dataTbp.Total = &tmpTotal
 	// }
-	tmpWaktuRincian := time.Now()
-	tmpWaktuRincian.Format("15:04:05")
 
 	// static value
 	tmpNomor := generateNomor()
 	dataTbp.TbpNumber = &tmpNomor
 	dataTbp.TanggalBayar = th.TimeNow()
 	dataTbp.CreatedBy_User_Id = &user_Id
-	dataRincianTbp.Waktu_Rincian_Tb = &tmpWaktuRincian
+	dataRincianTbp.Waktu_Rincian_Tb = parseCurrentTime()
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 
@@ -217,7 +214,7 @@ func Delete(tbp_id uint64) (any, error) {
 
 	})
 	if err != nil {
-		return sh.SetError("request", "delete-data", source, "failed", "gagal menghapus data", data)
+		return sh.SetError("request", "delete-data", source, "failed", "gagal menghapus data: "+err.Error(), data)
 	}
 
 	return rp.OK{
