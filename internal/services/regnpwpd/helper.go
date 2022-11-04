@@ -446,3 +446,58 @@ func verifyDetailRegObjekPajak(regNpwpd_Id, npwpd_Id uint64, rekeningObjek strin
 	}
 	return nil
 }
+
+func checkDataDetailObjekPajak(regNpwpd_Id uint64, rekeningObjek string, tx *gorm.DB) error {
+	switch rekeningObjek {
+	case "01":
+		var dataReg []*rn.DetailRegObjekPajakHotel
+		result := tx.Where(rn.DetailRegObjekPajakHotel{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak hotel tidak dapat ditemukan")
+		}
+
+	case "02":
+		var dataReg []*rn.DetailRegObjekPajakResto
+		result := tx.Where(rn.DetailRegObjekPajakResto{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak resto tidak dapat ditemukan")
+		}
+
+	case "03":
+		var dataReg []*rn.DetailRegObjekPajakHiburan
+		result := tx.Where(rn.DetailRegObjekPajakHiburan{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak hiburan tidak dapat ditemukan")
+		}
+
+	case "04":
+		var dataReg []*rn.DetailRegObjekPajakReklame
+		result := tx.Where(rn.DetailRegObjekPajakReklame{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak reklame tidak dapat ditemukan")
+		}
+
+	case "05":
+		var dataReg []*rn.DetailRegObjekPajakPpj
+		result := tx.Where(rn.DetailRegObjekPajakPpj{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak ppj tidak dapat ditemukan")
+		}
+
+	case "07":
+		var dataReg []*rn.DetailRegObjekPajakParkir
+		result := tx.Where(rn.DetailRegObjekPajakParkir{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak parkir tidak dapat ditemukan")
+		}
+
+	case "08":
+		var dataReg []*rn.DetailRegObjekPajakAirTanah
+		result := tx.Where(rn.DetailRegObjekPajakAirTanah{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak air tanah tidak dapat ditemukan")
+		}
+
+	}
+	return nil
+}

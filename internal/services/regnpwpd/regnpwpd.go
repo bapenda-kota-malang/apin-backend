@@ -103,9 +103,12 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 		if err != nil {
 			return err
 		}
-		err = insertDetailOp(*rekening.Objek, input.DetailRegOp, &register, tx)
-		if err != nil {
-			return err
+
+		if input.DetailRegOp != nil {
+			err = insertDetailOp(*rekening.Objek, input.DetailRegOp, &register, tx)
+			if err != nil {
+				return err
+			}
 		}
 
 		// set directur value to null if golongan orang pribadi
@@ -250,7 +253,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload npwpd", data)
 	}
 
-	//rekening
+	// rekening
 	err := a.DB.Model(&rm.Rekening{}).First(&rekening, data.Rekening_Id).Error
 	if err != nil {
 		return nil, err
@@ -275,14 +278,14 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			return errors.New("tidak dapat menemukan data reg objek pajak")
 		}
 
-		//creating npwpd
+		// creating npwpd
 		var tmpNomor = generateNomor()
 		tmpNpwpd := sn.GenerateNpwpd(tmpNomor, *dataRegOp.Kecamatan_Id, *rekening.KodeJenisUsaha)
 
 		dataNpwpd.Nomor = tmpNomor
 		dataNpwpd.Npwpd = &tmpNpwpd
 
-		//tanggal
+		// tanggal
 		dataNpwpd.TanggalPengukuhan = th.TimeNow()
 		dataNpwpd.TanggalNpwpd = th.TimeNow()
 		dataNpwpd.Id = 0
@@ -292,10 +295,14 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 			return err
 		}
 
-		//transfer detail from reg
-		err = verifyDetailRegObjekPajak(uint64(id), dataNpwpd.Id, *rekening.Objek, tx)
-		if err != nil {
-			return err
+		// cek data detail objek pajak ada/tidak
+		err = checkDataDetailObjekPajak(uint64(id), *rekening.Objek, tx)
+		if err == nil {
+			// transfer detail from reg
+			err = verifyDetailRegObjekPajak(uint64(id), dataNpwpd.Id, *rekening.Objek, tx)
+			if err != nil {
+				return err
+			}
 		}
 
 		// verifikasi data pemilik
@@ -312,7 +319,7 @@ func VerifyNpwpd(id int, input rn.VerifikasiDto) (any, error) {
 		return nil
 	})
 	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data verifikasi transaction", data)
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data verifikasi transaction: "+err.Error(), data)
 	}
 	return rp.OK{
 		Meta: t.IS{
@@ -357,11 +364,15 @@ func Delete(id int) (any, error) {
 			return err
 		}
 
-		// delete reg detail objek pajak
-		err = deleteDetailObjekPajak(data.Id, *rekening.Objek, tx)
-		if err != nil {
-			status = "no deletion"
-			return err
+		// cek data detail objek pajak ada/tidak
+		err = checkDataDetailObjekPajak(data.Id, *rekening.Objek, tx)
+		if err == nil {
+			// delete reg detail objek pajak
+			err = deleteDetailObjekPajak(data.Id, *rekening.Objek, tx)
+			if err != nil {
+				status = "no deletion"
+				return err
+			}
 		}
 
 		// delete data regNpwpd
@@ -431,10 +442,11 @@ func Update(id int, input rn.UpdateDto) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload reg objek pajak", data)
 	}
 
-	if err := sc.Copy(&dataDetailRegObjekPajak, &input.DetailRegObjekPajak); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload detail reg objek pajak", data)
+	if input.DetailRegObjekPajak != nil {
+		if err := sc.Copy(&dataDetailRegObjekPajak, &input.DetailRegObjekPajak); err != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload detail reg objek pajak", data)
+		}
 	}
-
 	err = a.DB.Transaction(func(tx *gorm.DB) error {
 
 		if result := tx.Save(&data); result.Error != nil {
@@ -459,9 +471,11 @@ func Update(id int, input rn.UpdateDto) (any, error) {
 		}
 		respDataObjekPajak = resultRegObjekPajak
 
-		err = updateDetailObjekPajak(dataDetailRegObjekPajak, data.Id, *rekening.Objek, *rekening.Nama, tx)
-		if err != nil {
-			return err
+		if input.DetailRegObjekPajak != nil {
+			err = updateDetailObjekPajak(dataDetailRegObjekPajak, data.Id, *rekening.Objek, *rekening.Nama, tx)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
