@@ -3,6 +3,7 @@ package detailesptresto
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 )
 
 type DetailEsptResto struct {
@@ -17,7 +18,7 @@ type DetailEsptResto struct {
 }
 
 type CreateDto struct {
-	Espt_Id          uint
+	Espt_Id          uuid.UUID
 	JumlahMeja       uint     `json:"jumlahMeja" validate:"min=1"`
 	JumlahKursi      uint     `json:"jumlahKursi" validate:"min=1"`
 	TarifMinuman     *float32 `json:"tarifMinuman"`

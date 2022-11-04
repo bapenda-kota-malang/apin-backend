@@ -3,6 +3,7 @@ package detailesptppjnonpln
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 )
 
 type DetailEsptPpjNonPln struct {
@@ -18,7 +19,7 @@ type DetailEsptPpjNonPln struct {
 }
 
 type CreateDto struct {
-	Espt_Id             uint
+	Espt_Id             uuid.UUID
 	JenisMesinPenggerak string  `json:"jenisMesinPenggerak"`
 	TahunMesin          string  `json:"tahunMesin"`
 	DayaMesin           string  `json:"dayaMesin"`
