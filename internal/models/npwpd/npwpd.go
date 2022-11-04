@@ -20,7 +20,7 @@ type Npwpd struct {
 	Nomor             int                `json:"nomor"`
 	TanggalPengukuhan *time.Time         `json:"tanggalPengukuhan"`
 	TanggalNpwpd      *time.Time         `json:"tanggalNpwpd"`
-	Npwpd             *string            `json:"npwpd" gorm:"size:22"`
+	Npwpd             *string            `json:"npwpd" gorm:"unique;size:22"`
 	Status            t.Status           `json:"status"`
 	TanggalTutup      *time.Time         `json:"tanggalTutup"`
 	TanggalBuka       *time.Time         `json:"tanggalBuka"`
@@ -40,7 +40,7 @@ type Npwpd struct {
 	JamBukaUsaha      *string            `json:"jamBukaUsaha" gorm:"size:50"`
 	JamTutupUsaha     *string            `json:"jamTutupUsaha" gorm:"size:50"`
 	Pengunjung        *string            `json:"pengunjung" gorm:"size:50"`
-	FotoKtp           string             `json:"fotoKtp" gorm:"size:50"`
+	FotoKtp           string             `json:"fotoKtp" gorm:"size:2048"`
 	SuratIzinUsaha    string             `json:"suratIzinUsaha" gorm:"size:2048"`
 	LainLain          string             `json:"lainLain" gorm:"size:2048"`
 	FotoObjek         string             `json:"fotoObjek" gorm:"size:2048"`
