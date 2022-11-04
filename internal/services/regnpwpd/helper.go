@@ -7,9 +7,33 @@ import (
 	nm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
+	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
+
+func filePreProcess(b64String string, userId uint, docsName string) (fileName, path, extFile string, err error) {
+	extFile, err = base64helper.GetExtensionBase64(b64String)
+	if err != nil {
+		return
+	}
+	path = sh.GetResourcesPath()
+	switch extFile {
+	case "png", "jpeg":
+		path = sh.GetImgPath()
+	default:
+		err = errors.New("file bukan gambar")
+		return
+	}
+	id, err := sh.GetUuidv4()
+	if err != nil {
+		err = errors.New("gagal generate uuid")
+		return
+	}
+	fileName = sh.GenerateFilename(docsName, id, userId, extFile)
+	return
+}
 
 func insertDetailOp(objek string, data *[]rn.DetailRegObjekPajakCreateDto, registerForm *rn.RegNpwpd, tx *gorm.DB) error {
 	if data == nil {
@@ -443,6 +467,61 @@ func verifyDetailRegObjekPajak(regNpwpd_Id, npwpd_Id uint64, rekeningObjek strin
 				return errors.New("tidak dapat membuat data detail objek pajak air tanah")
 			}
 		}
+	}
+	return nil
+}
+
+func checkDataDetailObjekPajak(regNpwpd_Id uint64, rekeningObjek string, tx *gorm.DB) error {
+	switch rekeningObjek {
+	case "01":
+		var dataReg []*rn.DetailRegObjekPajakHotel
+		result := tx.Where(rn.DetailRegObjekPajakHotel{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak hotel tidak dapat ditemukan")
+		}
+
+	case "02":
+		var dataReg []*rn.DetailRegObjekPajakResto
+		result := tx.Where(rn.DetailRegObjekPajakResto{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak resto tidak dapat ditemukan")
+		}
+
+	case "03":
+		var dataReg []*rn.DetailRegObjekPajakHiburan
+		result := tx.Where(rn.DetailRegObjekPajakHiburan{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak hiburan tidak dapat ditemukan")
+		}
+
+	case "04":
+		var dataReg []*rn.DetailRegObjekPajakReklame
+		result := tx.Where(rn.DetailRegObjekPajakReklame{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak reklame tidak dapat ditemukan")
+		}
+
+	case "05":
+		var dataReg []*rn.DetailRegObjekPajakPpj
+		result := tx.Where(rn.DetailRegObjekPajakPpj{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak ppj tidak dapat ditemukan")
+		}
+
+	case "07":
+		var dataReg []*rn.DetailRegObjekPajakParkir
+		result := tx.Where(rn.DetailRegObjekPajakParkir{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak parkir tidak dapat ditemukan")
+		}
+
+	case "08":
+		var dataReg []*rn.DetailRegObjekPajakAirTanah
+		result := tx.Where(rn.DetailRegObjekPajakAirTanah{DetailRegObjekPajak: rn.DetailRegObjekPajak{RegNpwpd_Id: regNpwpd_Id}}).Find(&dataReg)
+		if result.RowsAffected == 0 {
+			return errors.New("data detail reg objek pajak air tanah tidak dapat ditemukan")
+		}
+
 	}
 	return nil
 }

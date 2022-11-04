@@ -41,7 +41,7 @@ type RegNpwpd struct {
 	gormhelper.DateModel
 	VerifyStatus   VerifyStatus `json:"verifyStatus"`
 	VerifiedAt     *time.Time   `json:"verifiedAt"`
-	FotoKtp        string       `json:"fotoKtp" gorm:"size:50"`
+	FotoKtp        string       `json:"fotoKtp" gorm:"size:2048"`
 	SuratIzinUsaha string       `json:"suratIzinUsaha" gorm:"size:2048"`
 	LainLain       string       `json:"lainLain" gorm:"size:2048"`
 	FotoObjek      string       `json:"fotoObjek" gorm:"size:2048"`

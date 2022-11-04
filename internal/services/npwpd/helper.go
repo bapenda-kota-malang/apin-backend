@@ -7,6 +7,8 @@ import (
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
+	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
