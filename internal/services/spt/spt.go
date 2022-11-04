@@ -78,6 +78,7 @@ func Create(input m.CreateDto, user_Id uint, newFile bool, tx *gorm.DB) (any, er
 			return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
 		}
 		input.Lampiran = fileName
+		data.Id = id
 	}
 
 	if err := sc.Copy(&data, input); err != nil {
