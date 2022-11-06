@@ -30,7 +30,7 @@ type PemilikWp struct {
 	Direktur_Telp         *string                 `json:"direktur_telp" gorm:"type:varchar(20)"`
 }
 
-type PemilikWpCreate struct {
+type PemilikWpCreateDto struct {
 	Nama                  *string `json:"nama" validate:"required"`
 	Alamat                *string `json:"alamat" validate:"required"`
 	Npwp                  *string `json:"npwp" gorm:"size:50"`
@@ -46,7 +46,7 @@ type PemilikWpCreate struct {
 	Direktur_Telp         *string `json:"direktur_telp"`
 }
 
-type PemilikWpUpdate struct {
+type PemilikWpUpdateDto struct {
 	Id                    uint64  `json:"id" validate:"required"`
 	Nama                  *string `json:"nama" validate:"required"`
 	Npwp                  *string `json:"npwp" gorm:"size:50"`

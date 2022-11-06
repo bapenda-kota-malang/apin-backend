@@ -21,7 +21,7 @@ import (
 type Config struct {
 	Host     string
 	Port     string
-	Username string
+	DbUser   string
 	Password string
 	DbName   string
 }
@@ -128,7 +128,7 @@ func writeSeedSql(files []string) error {
 
 // import sql file to database use exec from bash psql command
 func importToDb(c *Config) error {
-	uri := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", c.Username, c.Password, c.Host, c.Port, c.DbName)
+	uri := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", c.DbUser, c.Password, c.Host, c.Port, c.DbName)
 	cmd := exec.Command("bash", "-c", fmt.Sprintf("psql %s -1 -f seed.sql", uri))
 	stderr, err := cmd.StderrPipe()
 	if err != nil {

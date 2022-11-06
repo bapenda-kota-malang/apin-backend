@@ -12,30 +12,36 @@ import (
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
+	mdhiburan "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
+	mdhotel "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthotel"
+	mdparkir "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptparkir"
+	mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptppjnonpln"
+	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptppjpln"
+	mdreklame "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
+	mdresto "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
 
-	// mdhib "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
-	// mdhot "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthotel"
-	// mdpar "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptparkir"
-	// mdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptppjnonpln"
-	// mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptppjpln"
-	// mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
+	mespt "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	mhdair "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
+	mjppj "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
-	sair "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptair"
-	// shib "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailspthiburan"
-	// shot "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailspthotel"
-	// spar "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptparkir"
-	// snonpln "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptppjnonpln"
-	// spln "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptppjpln"
-	// sres "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptresto"
+	sdair "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptair"
+	sdhiburan "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailspthiburan"
+	sdhotel "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailspthotel"
+	sdparkir "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptparkir"
+	sdnonpln "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptppjnonpln"
+	sdpln "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptppjpln"
+	sdreklame "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptreklame"
+	sdresto "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptresto"
+
 	shda "github.com/bapenda-kota-malang/apin-backend/internal/services/hargadasarair"
+	sjppj "github.com/bapenda-kota-malang/apin-backend/internal/services/jenisppj"
 	stp "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
 )
 
+// Process calculate tax
 func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
-	// CALCULATE TAX PROCESS
 	yearNow := uint64(time.Now().Year())
 	omsetOpt := "lte"
 
@@ -68,16 +74,16 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 		}
 	}
 
-	// if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
-	// 	for v := range detail {
-	// 		resp, err := sjppj.GetDetail(int(detail[v].JenisPPJ_Id))
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 		detail[v].JenisPPJ = resp.(rp.OKSimple).Data.(*mjppj.JenisPPJ)
-	// 	}
-	// 	input.ChangeDetails(detail)
-	// }
+	if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
+		for v := range detail {
+			resp, err := sjppj.GetDetail(int(detail[v].JenisPPJ_Id))
+			if err != nil {
+				return err
+			}
+			detail[v].JenisPPJ = resp.(rp.OKSimple).Data.(*mjppj.JenisPPJ)
+		}
+		input.ChangeDetails(detail)
+	}
 
 	// get tarif pajak data for calculate tax
 	rspTp, err := stp.GetList(mtp.FilterDto{
@@ -101,48 +107,139 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 	return nil
 }
 
+// Transform espt to spt data
+func TransformEspt(esptDetail *mespt.Espt) (input m.Input, err error) {
+	input = &m.CreateDetailHotelDto{}
+
+	if esptDetail.DetailEsptAir != nil {
+		input = &m.CreateDetailAirDto{}
+	}
+	if esptDetail.DetailEsptHiburan != nil {
+		input = &m.CreateDetailHiburanDto{}
+	}
+	if esptDetail.DetailEsptParkir != nil {
+		input = &m.CreateDetailParkirDto{}
+	}
+	if esptDetail.DetailEsptPpjNonPln != nil {
+		input = &m.CreateDetailPpjNonPlnDto{}
+	}
+	if esptDetail.DetailEsptPpjPln != nil {
+		input = &m.CreateDetailPpjPlnDto{}
+	}
+	if esptDetail.DetailEsptResto != nil {
+		input = &m.CreateDetailRestoDto{}
+	}
+
+	input.DuplicateEspt(esptDetail)
+
+	return
+}
+
 // Service create business flow for sptd via wajib pajak for lapor spt
 //
 // function flow is:
 //
 // create for sptd, replace id, create for data details based on data type, assign data details to data spt for respond
-func CreateDetail(input m.Input, user_Id uint, newFile bool, tx *gorm.DB) (interface{}, error) {
+func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (interface{}, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data m.Spt
-	createDto := input.GetSpt().(m.CreateDto)
 
 	err := tx.Transaction(func(tx *gorm.DB) error {
+		createDto := input.GetSpt(opts["baseUri"].(string)).(m.CreateDto)
 		if createDto.JumlahPajak == 0 {
 			err := taxProcess(*createDto.Rekening_Id, createDto.Omset, input)
 			if err != nil {
 				return err
 			}
-			createDto = input.GetSpt().(m.CreateDto)
+			createDto = input.GetSpt(opts["baseUri"].(string)).(m.CreateDto)
 		}
 
-		respSpt, err := Create(createDto, user_Id, newFile, tx)
+		respSpt, err := Create(createDto, opts["userId"].(uint), opts["newFile"].(bool), tx)
 		if err != nil {
 			return err
 		}
 		data = respSpt.(rp.OKSimple).Data.(m.Spt)
 
-		input.ReplaceSptId(uint(data.Id))
-
 		if input.LenDetails() == 0 {
 			return nil
 		}
 
+		input.ReplaceSptId(data.Id)
+
 		switch dataDetails := input.GetDetails().(type) {
 		case mdair.CreateDto:
-			respDetails, err := sair.Create(dataDetails, tx)
+			respDetails, err := sdair.Create(dataDetails, tx)
 			if err != nil {
 				return err
 			}
 			if respDetails != nil {
 				details := respDetails.(rp.OKSimple).Data.(mdair.DetailSptAir)
 				data.DetailSptAir = &details
+			}
+		case mdhiburan.CreateDto:
+			respDetails, err := sdhiburan.Create(dataDetails, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdhiburan.DetailSptHiburan)
+				data.DetailSptHiburan = &details
+			}
+		case []mdhotel.CreateDto:
+			respDetails, err := sdhotel.Create(dataDetails, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdhotel.DetailSptHotel)
+				data.DetailSptHotel = &details
+			}
+		case []mdparkir.CreateDto:
+			respDetails, err := sdparkir.Create(dataDetails, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdparkir.DetailSptParkir)
+				data.DetailSptParkir = &details
+			}
+		case mdnonpln.CreateDto:
+			respDetails, err := sdnonpln.Create(dataDetails, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdnonpln.DetailSptPpjNonPln)
+				data.DetailSptNonPln = &details
+			}
+		case []mdpln.CreateDto:
+			respDetails, err := sdpln.Create(dataDetails, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdpln.DetailSptPpjPln)
+				data.DetailSptPln = &details
+			}
+		case []mdreklame.CreateDto:
+			respDetails, err := sdreklame.Create(dataDetails, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.([]mdreklame.DetailSptReklame)
+				data.DetailSptReklame = &details
+			}
+		case mdresto.CreateDto:
+			respDetails, err := sdresto.Create(dataDetails, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdresto.DetailSptResto)
+				data.DetailSptResto = &details
 			}
 		default:
 			return fmt.Errorf("data details unknown")

@@ -1,6 +1,9 @@
 package spt
 
-import "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
+import (
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
+	"github.com/google/uuid"
+)
 
 type SptStatus string
 type JenisKetetapan string
@@ -22,12 +25,12 @@ const (
 )
 
 type Input interface {
-	GetSpt() interface{}
-	GetDetails() interface{}
-	LenDetails() int
-	ReplaceSptId(id uint)
-	ChangeDetails(newDetail interface{})
+	GetSpt(baseUri string) interface{}
 	ReplaceTarifPajakId(id uint)
 	CalculateTax(taxPercentage *float64)
+	ReplaceSptId(id uuid.UUID)
+	GetDetails() interface{}
+	LenDetails() int
+	ChangeDetails(newDetail interface{})
 	DuplicateEspt(esptDetail *espt.Espt) error
 }

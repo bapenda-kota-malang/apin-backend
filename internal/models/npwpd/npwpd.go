@@ -20,7 +20,7 @@ type Npwpd struct {
 	Nomor             int                `json:"nomor"`
 	TanggalPengukuhan *time.Time         `json:"tanggalPengukuhan"`
 	TanggalNpwpd      *time.Time         `json:"tanggalNpwpd"`
-	Npwpd             *string            `json:"npwpd" gorm:"size:22"`
+	Npwpd             *string            `json:"npwpd" gorm:"unique;size:22"`
 	Status            t.Status           `json:"status"`
 	TanggalTutup      *time.Time         `json:"tanggalTutup"`
 	TanggalBuka       *time.Time         `json:"tanggalBuka"`
@@ -40,7 +40,7 @@ type Npwpd struct {
 	JamBukaUsaha      *string            `json:"jamBukaUsaha" gorm:"size:50"`
 	JamTutupUsaha     *string            `json:"jamTutupUsaha" gorm:"size:50"`
 	Pengunjung        *string            `json:"pengunjung" gorm:"size:50"`
-	FotoKtp           string             `json:"fotoKtp" gorm:"size:50"`
+	FotoKtp           string             `json:"fotoKtp" gorm:"size:2048"`
 	SuratIzinUsaha    string             `json:"suratIzinUsaha" gorm:"size:2048"`
 	LainLain          string             `json:"lainLain" gorm:"size:2048"`
 	FotoObjek         string             `json:"fotoObjek" gorm:"size:2048"`
@@ -81,10 +81,10 @@ type CreateDto struct {
 	Genset                bool          `json:"genset" validate:"required"`
 	AirTanah              bool          `json:"airTanah" validate:"required"`
 
-	DetailOp   *[]DetailObjekPajak `json:"detailObjekPajak"`
-	ObjekPajak *op.ObjekPajak      `json:"objekPajak"`
-	Pemilik    *[]PemilikWp        `json:"pemilik"`
-	Narahubung *[]Narahubung       `json:"narahubung"`
+	DetailObjekPajak *[]DetailObjekPajakCreateDto `json:"detailObjekPajak"`
+	ObjekPajak       *op.ObjekPajakCreateDto      `json:"objekPajak"`
+	Pemilik          *[]PemilikWpCreateDto        `json:"pemilik"`
+	Narahubung       *[]NarahubungCreateDto       `json:"narahubung"`
 }
 
 type UpdateDto struct {
@@ -111,13 +111,11 @@ type UpdateDto struct {
 	Genset   bool `json:"genset"`
 	AirTanah bool `json:"airTanah"`
 
-	DetailObjekPajak []DetailObjekPajak `json:"detailObjekPajak"`
-	// DetailOp DetailOpUpdateDto `json:"detail_op"`
+	DetailObjekPajak []DetailObjekPajakUpdateDto `json:"detailObjekPajak"`
 
-	ObjekPajak op.ObjekPajak `json:"objekPajak"`
-	Pemilik    []PemilikWp   `json:"pemilik"`
-	Narahubung []Narahubung  `json:"narahubung"`
-	// Narahubung NarahubungUpdateDto `json:"narahubung"`
+	ObjekPajak op.ObjekPajakUpdateDto `json:"objekPajak"`
+	Pemilik    []PemilikWpUpdateDto   `json:"pemilik"`
+	Narahubung []NarahubungUpdateDto  `json:"narahubung"`
 }
 
 type FilterDto struct {

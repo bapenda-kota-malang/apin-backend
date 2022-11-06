@@ -16,7 +16,8 @@ import (
 	"go.uber.org/zap"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
-	"github.com/gofrs/uuid"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
+	"github.com/google/uuid"
 )
 
 func SetError(scope, xtype, source, status, message string, data any) (any, error) {
@@ -30,12 +31,18 @@ func SetError(scope, xtype, source, status, message string, data any) (any, erro
 	return nil, errors.New(message)
 }
 
-func GetUuidv4() (id string, err error) {
-	uid, err := uuid.NewV4()
-	if err != nil {
-		return
+func GetUuidv4() (id uuid.UUID, err error) {
+	return uuid.NewRandom()
+}
+
+// create filename with specific pattern: docsName_uuid_YYYYMMDD_userId.ext
+func GenerateFilename(docsName string, uuid uuid.UUID, userId uint, extension string) (fileName string) {
+	curTime := time.Now()
+	if userId == 0 {
+		fileName = fmt.Sprintf("%s_%s_%s.%s", docsName, uuid.String(), curTime.Format("20060102"), extension)
+	} else {
+		fileName = fmt.Sprintf("%s_%s_%s_%d.%s", docsName, uuid.String(), curTime.Format("20060102"), userId, extension)
 	}
-	id = uid.String()
 	return
 }
 
@@ -50,88 +57,55 @@ func GetResourcesPath() string {
 	return basePath
 }
 
-// get path for resource/img folder
-func getImgPath() (string, error) {
+func getSpecificPath(typeFile string) string {
 	// path
 	resourcesPath := GetResourcesPath()
-	basePath := filepath.Join(resourcesPath, "img")
-	os.MkdirAll(basePath, os.ModePerm)
-	return basePath, nil
-}
-
-// get path for resource/pdf folder
-func GetPdfPath() string {
-	// path
-	resourcesPath := GetResourcesPath()
-	basePath := filepath.Join(resourcesPath, "pdf")
+	basePath := filepath.Join(resourcesPath, typeFile)
 	os.MkdirAll(basePath, os.ModePerm)
 	return basePath
 }
 
-// check base64 is image with supported format
-func CheckImage(b64Raw string) (err error) {
-	coI := strings.Index(string(b64Raw), ",")
-	switch strings.TrimSuffix(b64Raw[5:coI], ";base64") {
-	case "image/png":
-		return
-	case "image/jpeg":
-		return
-	default:
-		err = errors.New("unsupported mime type")
-	}
-	return
+// get path for resource/img folder
+func GetImgPath() string {
+	return getSpecificPath("img")
 }
 
-// check base64 is pdf format
-func CheckPdf(b64Raw string) (err error) {
-	coI := strings.Index(string(b64Raw), ",")
-	if strings.TrimSuffix(b64Raw[5:coI], ";base64") != "application/pdf" {
-		err = errors.New("unsupported mime type")
-	}
-	return
+// get path for resource/pdf folder
+func GetPdfPath() string {
+	return getSpecificPath("pdf")
+}
+
+// get path for resource/pdf folder
+func GetExcelPath() string {
+	return getSpecificPath("excel")
 }
 
 func removeFile(path, filename string) error {
 	return os.Remove(fmt.Sprintf("%s/%s", path, filename))
 }
 
-// save new image from base64 string to img eiter jpeg/png to resource/img folder with filename uuidv4 generated
-func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
-	defer close(imgNameCh)
+// save base64 string to specific file
+func SaveFile(b64Raw, fileName, path, extFile string, errCh chan error) {
 	defer close(errCh)
 	coI := strings.Index(string(b64Raw), ",")
-	rawImage := string(b64Raw)[coI+1:]
-	unbased, err := base64.StdEncoding.DecodeString(rawImage)
+	rawFiles := string(b64Raw)[coI+1:]
+	dec, err := base64.StdEncoding.DecodeString(rawFiles)
 	if err != nil {
 		errCh <- err
 		return
 	}
-	bReader := bytes.NewReader(unbased)
+	filePath := fmt.Sprintf("%s/%s", path, fileName)
 
-	basePath, err := getImgPath()
+	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		errCh <- err
 		return
 	}
+	defer f.Close()
 
-	// create img name
-	uid, err := GetUuidv4()
-	if err != nil {
-		errCh <- err
-		return
-	}
-	imgName := uid
-
-	// write img according file type
-	switch strings.TrimSuffix(b64Raw[5:coI], ";base64") {
-	case "image/png":
-		imgName += ".png"
-		f, err := os.OpenFile(fmt.Sprintf("%s/%s", basePath, imgName), os.O_WRONLY|os.O_CREATE, 0777)
-		if err != nil {
-			errCh <- err
-			return
-		}
-		defer f.Close()
+	switch extFile {
+	case "png":
+		bReader := bytes.NewReader(dec)
 		pngI, err := png.Decode(bReader)
 		if err != nil {
 			errCh <- err
@@ -142,14 +116,8 @@ func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 			errCh <- err
 			return
 		}
-	case "image/jpeg":
-		imgName += ".jpeg"
-		f, err := os.OpenFile(fmt.Sprintf("%s/%s", basePath, imgName), os.O_WRONLY|os.O_CREATE, 0777)
-		if err != nil {
-			errCh <- err
-			return
-		}
-		defer f.Close()
+	case "jpeg":
+		bReader := bytes.NewReader(dec)
 		jpgI, err := jpeg.Decode(bReader)
 		if err != nil {
 			errCh <- err
@@ -160,71 +128,28 @@ func SaveImage(b64Raw string, imgNameCh chan string, errCh chan error) {
 			errCh <- err
 			return
 		}
+	case "pdf", "xlsx", "xls":
+		if _, err := f.Write(dec); err != nil {
+			errCh <- err
+			return
+		}
+		if err := f.Sync(); err != nil {
+			errCh <- err
+			return
+		}
 	default:
-		errCh <- errors.New("unsupported mime type")
-		return
-	}
-	errCh <- nil
-	imgNameCh <- imgName
-}
-
-// save new image and delete old image from resource/img folder
-func ReplaceImage(oImgName, b64Raw string, imgNameCh chan string, errCh chan error) {
-	defer close(errCh)
-	saveErrCh := make(chan error)
-	go SaveImage(b64Raw, imgNameCh, saveErrCh)
-
-	basePath, err := getImgPath()
-	if err != nil {
-		errCh <- err
+		errCh <- errors.New("unsupported extension type")
 		return
 	}
 
-	if err := <-saveErrCh; err != nil {
-		errCh <- err
-		return
-	}
-
-	if err := removeFile(basePath, oImgName); err != nil {
-		errCh <- err
-		return
-	}
 	errCh <- nil
 }
 
-// save base64 string to file
-func SaveFile(b64Raw, fileName, path string, errCh chan error) {
-	defer close(errCh)
-	coI := strings.Index(string(b64Raw), ",")
-	rawFiles := string(b64Raw)[coI+1:]
-	dec, err := base64.StdEncoding.DecodeString(rawFiles)
-	if err != nil {
-		errCh <- err
-		return
-	}
-
-	f, err := os.Create(fmt.Sprintf("%s/%s", path, fileName))
-	if err != nil {
-		errCh <- err
-		return
-	}
-	defer f.Close()
-	if _, err := f.Write(dec); err != nil {
-		errCh <- err
-		return
-	}
-	if err := f.Sync(); err != nil {
-		errCh <- err
-		return
-	}
-	errCh <- nil
-}
-
-func ReplaceFile(oldFileName, b64Raw, newFileName, path string, errCh chan error) {
+func ReplaceFile(oldFileName, b64Raw, newFileName, path, extFile string, errCh chan error) {
 	defer close(errCh)
 	saveErrCh := make(chan error)
 
-	go SaveFile(b64Raw, newFileName, path, saveErrCh)
+	go SaveFile(b64Raw, newFileName, path, extFile, saveErrCh)
 	if err := <-saveErrCh; err != nil {
 		errCh <- err
 		return
@@ -263,46 +188,66 @@ func EndOfMonth(date time.Time) time.Time {
 	return BeginningOfMonth(date).AddDate(0, 1, 0).Add(-time.Nanosecond)
 }
 
-// array photo
-func GetArrayPhoto(input []string) string {
-	var result []string
-	for _, v := range input {
-		var imgNameChan = make(chan string)
+// loop process to save image file from slice base64 and return slice filename
+func loopArrayPhoto(input []string, docsName string, userId uint) (arrString []string, err error) {
+	for v := range input {
 		var errChan = make(chan error)
-
-		go SaveImage(v, imgNameChan, errChan)
-		if err := <-errChan; err != nil {
-			return ""
+		path := GetImgPath()
+		id, err2 := GetUuidv4()
+		if err2 != nil {
+			err = err2
+			return
 		}
-		var tmp string = <-imgNameChan
-		result = append(result, tmp)
+		extFile, err2 := base64helper.GetExtensionBase64(input[v])
+		if err2 != nil {
+			err = err2
+			return
+		}
+		switch extFile {
+		case "png", "jpeg":
+			fileName := GenerateFilename(docsName, id, userId, extFile)
+			go SaveFile(input[v], fileName, path, extFile, errChan)
+			if err2 := <-errChan; err2 != nil {
+				err = err2
+				return
+			}
+			arrString = append(arrString, fileName)
+		default:
+			err = fmt.Errorf("unsupported type for this process")
+			return
+		}
 	}
+	return
+}
 
-	bytes, _ := json.Marshal(result)
+// process to convert string slice to json bytes and back it to raw string
+func arrToJsonString(slc []string) string {
+	bytes, _ := json.Marshal(slc)
 	return string(bytes)
 }
 
+// array photo
+func GetArrayPhoto(input []string, docsName string, userId uint) (arrString string, err error) {
+	result, err := loopArrayPhoto(input, docsName, userId)
+	if err == nil {
+		arrString = arrToJsonString(result)
+	}
+	return
+}
+
 // add multiply photo
-func AddMorePhotos(input []string, dataBefore string) string {
+func AddMorePhotos(input []string, dataBefore, docsName string, userId uint) (arrString string, err error) {
 	var result []string
-	cnvUnmarshal := json.Unmarshal([]byte(dataBefore), &result)
-	if cnvUnmarshal != nil {
-		return ""
+	err = json.Unmarshal([]byte(dataBefore), &result)
+	if err != nil {
+		return
 	}
-	for _, v := range input {
-		var imgNameChan = make(chan string)
-		var errChan = make(chan error)
-
-		go SaveImage(v, imgNameChan, errChan)
-		if err := <-errChan; err != nil {
-			return ""
-		}
-		var tmp string = <-imgNameChan
-		result = append(result, tmp)
+	newData, err := loopArrayPhoto(input, docsName, userId)
+	if err == nil {
+		result = append(result, newData...)
+		arrString = arrToJsonString(result)
 	}
-
-	bytes, _ := json.Marshal(result)
-	return string(bytes)
+	return
 }
 
 // remove photo from array
@@ -317,12 +262,9 @@ func DeletePhoto(input string, data string) (string, error) {
 			result = append(result[:k], result[k+1:]...)
 		}
 	}
-	basePath, err := getImgPath()
-	if err != nil {
-		return "", errors.New("tidak dapat mengambil data get image path")
-	}
+	basePath := GetImgPath()
 
-	if err := os.Remove(fmt.Sprintf("%s/%s", basePath, input)); err != nil {
+	if err := removeFile(basePath, input); err != nil {
 		return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
 	}
 

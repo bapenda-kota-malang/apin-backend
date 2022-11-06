@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 
@@ -89,7 +89,7 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 	}
 
 	// Access token prep
-	id, err := uuid.NewV4()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		panic(fmt.Sprintf("gagal mebuat UUID access token: %v", err))
 	}
