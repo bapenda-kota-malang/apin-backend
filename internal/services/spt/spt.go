@@ -10,6 +10,7 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mnomertracker "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/sptnomertracker"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	"github.com/google/uuid"
 
 	srek "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
 	snomertracker "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/sptnomertracker"
@@ -32,13 +33,14 @@ func Create(input m.CreateDto, user_Id uint, newFile bool, tx *gorm.DB) (any, er
 	}
 	var data m.Spt
 
+	// get data rekening
 	respRek, err := srek.GetDetail(int(*input.Rekening_Id))
 	if err != nil {
 		return nil, err
 	}
-
 	dataRekening := respRek.(rp.OKSimple).Data.(*mrek.Rekening)
 
+	// if kodeJenisPajak nil then search data rekening from parent id
 	kodeJenisPajak := dataRekening.KodeJenisPajak
 	if kodeJenisPajak == nil {
 		parentId, err := strconv.Atoi(*dataRekening.Parent_Id)
@@ -53,6 +55,7 @@ func Create(input m.CreateDto, user_Id uint, newFile bool, tx *gorm.DB) (any, er
 		kodeJenisPajak = dataRekening.KodeJenisPajak
 	}
 
+	// if mark as new file not clone from esptpd then save new file
 	if newFile {
 		var errChan = make(chan error)
 		extFile, err := base64helper.GetExtensionBase64(input.Lampiran)
@@ -147,7 +150,7 @@ func GetList(input m.FilterDto) (any, error) {
 	}, nil
 }
 
-func GetDetail(id int) (any, error) {
+func GetDetail(id uuid.UUID) (any, error) {
 	var data *m.Spt
 
 	result := a.DB.First(&data, id)
@@ -162,18 +165,21 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.UpdateDto) (any, error) {
+func Update(id uuid.UUID, input m.UpdateDto, user_Id uint, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
 	var data *m.Spt
-	result := a.DB.First(&data, id)
+	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
-		return nil, nil
+		return sh.SetError("request", "update-data", source, "failed", "tidak ada data", data)
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	if result := a.DB.Save(&data); result.Error != nil {
+	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
@@ -185,7 +191,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 	}, nil
 }
 
-func Delete(id int) (any, error) {
+func Delete(id uuid.UUID) (any, error) {
 	//data spt
 	var data *m.Spt
 	result := a.DB.First(&data, id)

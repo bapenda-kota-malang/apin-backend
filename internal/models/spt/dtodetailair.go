@@ -47,3 +47,26 @@ func (input *CreateDetailAirDto) DuplicateEspt(esptDetail *mespt.Espt) error {
 	}
 	return nil
 }
+
+// Update
+type UpdateDetailAirDto struct {
+	UpdateDetailBaseDto
+	DataDetails mdsa.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input *UpdateDetailAirDto) CalculateTax(taxPercentage *float64) {
+	input.Spt.JumlahPajak = float32(input.Spt.Omset * *taxPercentage / 100 * float64(input.DataDetails.Pengenaan))
+}
+
+func (input *UpdateDetailAirDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input *UpdateDetailAirDto) LenDetails() int {
+	newEmpty := mdsa.UpdateDto{}
+	lenData := 1
+	if input.DataDetails == newEmpty {
+		lenData = 0
+	}
+	return lenData
+}

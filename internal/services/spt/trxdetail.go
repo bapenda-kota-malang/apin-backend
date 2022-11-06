@@ -8,7 +8,9 @@ import (
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
@@ -224,6 +226,7 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 				data.DetailSptPln = &details
 			}
 		case []mdreklame.CreateDto:
+			// TODO: REKLAME PROCESS
 			respDetails, err := sdreklame.Create(dataDetails, tx)
 			if err != nil {
 				return err
@@ -251,4 +254,144 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil menyimpan data: %s", err), data)
 	}
 	return rp.OKSimple{Data: data}, nil
+}
+
+func UpdateDetail(id uuid.UUID, input m.Input, opts map[string]interface{}) (interface{}, error) {
+	var data m.Spt
+	affected := "0"
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		updateDto := input.GetSpt(opts["baseUri"].(string)).(m.UpdateDto)
+		err := taxProcess(uint64(*updateDto.Rekening_Id), updateDto.Omset, input)
+		if err != nil {
+			return err
+		}
+		updateDto = input.GetSpt(opts["baseUri"].(string)).(m.UpdateDto)
+
+		respEspt, err := Update(id, updateDto, opts["userId"].(uint), tx)
+		if err != nil {
+			return err
+		}
+		data = respEspt.(rp.OK).Data.(m.Spt)
+		affected = respEspt.(rp.OK).Meta["affected"]
+
+		if input.LenDetails() == 0 {
+			return nil
+		}
+
+		switch dataReal := input.GetDetails().(type) {
+		case mdair.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
+			}
+			respDetails, err := sdair.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdair.DetailSptAir)
+				data.DetailSptAir = &details
+			}
+		case mdhiburan.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
+			}
+			respDetails, err := sdhiburan.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdhiburan.DetailSptHiburan)
+				data.DetailSptHiburan = &details
+			}
+		case []mdhotel.UpdateDto:
+			var detailList []mdhotel.DetailSptHotel
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := sdhotel.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdhotel.DetailSptHotel)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailSptHotel = &detailList
+		case []mdparkir.UpdateDto:
+			var detailList []mdparkir.DetailSptParkir
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := sdparkir.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdparkir.DetailSptParkir)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailSptParkir = &detailList
+		case mdnonpln.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
+			}
+			respDetails, err := sdnonpln.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdnonpln.DetailSptPpjNonPln)
+				data.DetailSptNonPln = &details
+			}
+		case []mdpln.UpdateDto:
+			var detailList []mdpln.DetailSptPpjPln
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := sdpln.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdpln.DetailSptPpjPln)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailSptPln = &detailList
+		case mdresto.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
+			}
+			respDetails, err := sdresto.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdresto.DetailSptResto)
+				data.DetailSptResto = &details
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "update-data", source, "failed", err.Error(), data)
+	}
+	return rp.OK{
+		Meta: t.IS{
+			"affected": affected,
+		},
+		Data: data,
+	}, nil
 }
