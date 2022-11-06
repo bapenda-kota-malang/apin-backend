@@ -33,7 +33,7 @@ type RegObjekPajakCreateDto struct {
 	Kelurahan_Id *uint64    `json:"kelurahan_id" validate:"required"`
 	Longitude    *float64   `json:"longitude"`
 	Latitude     *float64   `json:"latitude"`
-	Telp         *string    `json:"telp" validate:"nohp"`
+	Telp         *string    `json:"telp" validate:"notelp"`
 	Status       t.StatusBL `json:"status"`
 }
 
@@ -47,6 +47,6 @@ type RegObjekPajakUpdateDto struct {
 	Kelurahan_Id *uint64    `json:"kelurahan_id" validate:"required"`
 	Longitude    *float64   `json:"longitude"`
 	Latitude     *float64   `json:"latitude"`
-	Telp         *string    `json:"telp" validate:"nohp"`
+	Telp         *string    `json:"telp" validate:"notelp"`
 	Status       t.StatusBL `json:"status"`
 }
