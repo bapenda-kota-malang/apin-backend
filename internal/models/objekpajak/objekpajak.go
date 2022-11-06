@@ -16,24 +16,28 @@ type ObjekPajak struct {
 	Kecamatan    *areadivision.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_Id"`
 	Kelurahan_Id *uint64                 `json:"kelurahan_id" validate:"required"`
 	Kelurahan    *areadivision.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Id"`
+	Longitude    *float64                `json:"longitude" gorm:"type:decimal(9,6)"`
+	Latitude     *float64                `json:"latitude" gorm:"type:decimal(8,6)"`
 	Telp         *string                 `json:"telp" gorm:"size:20"`
 	Status       t.StatusBL              `json:"status"`
 	IsNpwpd      uint64                  `json:"isNpwpd"`
 	gormhelper.DateModel
 }
 
-type ObjekPajakCreate struct {
+type ObjekPajakCreateDto struct {
 	Nama         *string    `json:"nama" validate:"required"`
 	Nop          *string    `json:"nop"`
 	Alamat       *string    `json:"alamat"  validate:"required"`
 	RtRw         *string    `json:"rtRw" validate:"required"`
 	Kecamatan_Id *uint64    `json:"kecamatan_id" validate:"required"`
 	Kelurahan_Id *uint64    `json:"kelurahan_id" validate:"required"`
+	Longitude    *float64   `json:"longitude"`
+	Latitude     *float64   `json:"latitude"`
 	Telp         *string    `json:"telp" validate:"nohp"`
 	Status       t.StatusBL `json:"status"`
 }
 
-type ObjekPajakUpdate struct {
+type ObjekPajakUpdateDto struct {
 	Id           uint64     `json:"id" validate:"required"`
 	Nama         *string    `json:"nama" validate:"required"`
 	Nop          *string    `json:"nop"`
@@ -41,6 +45,8 @@ type ObjekPajakUpdate struct {
 	RtRw         *string    `json:"rtRw" validate:"required"`
 	Kecamatan_Id *uint64    `json:"kecamatan_id" validate:"required"`
 	Kelurahan_Id *uint64    `json:"kelurahan_id" validate:"required"`
+	Longitude    *float64   `json:"longitude"`
+	Latitude     *float64   `json:"latitude"`
 	Telp         *string    `json:"telp" validate:"nohp"`
 	Status       t.StatusBL `json:"status"`
 }
