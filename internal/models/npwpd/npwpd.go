@@ -81,10 +81,10 @@ type CreateDto struct {
 	Genset                bool          `json:"genset" validate:"required"`
 	AirTanah              bool          `json:"airTanah" validate:"required"`
 
-	DetailOp   *[]DetailObjekPajak `json:"detailObjekPajak"`
-	ObjekPajak *op.ObjekPajak      `json:"objekPajak"`
-	Pemilik    *[]PemilikWp        `json:"pemilik"`
-	Narahubung *[]Narahubung       `json:"narahubung"`
+	DetailObjekPajak *[]DetailObjekPajakCreateDto `json:"detailObjekPajak"`
+	ObjekPajak       *op.ObjekPajakCreateDto      `json:"objekPajak"`
+	Pemilik          *[]PemilikWpCreateDto        `json:"pemilik"`
+	Narahubung       *[]NarahubungCreateDto       `json:"narahubung"`
 }
 
 type UpdateDto struct {
@@ -111,13 +111,11 @@ type UpdateDto struct {
 	Genset   bool `json:"genset"`
 	AirTanah bool `json:"airTanah"`
 
-	DetailObjekPajak []DetailObjekPajak `json:"detailObjekPajak"`
-	// DetailOp DetailOpUpdateDto `json:"detail_op"`
+	DetailObjekPajak []DetailObjekPajakUpdateDto `json:"detailObjekPajak"`
 
-	ObjekPajak op.ObjekPajak `json:"objekPajak"`
-	Pemilik    []PemilikWp   `json:"pemilik"`
-	Narahubung []Narahubung  `json:"narahubung"`
-	// Narahubung NarahubungUpdateDto `json:"narahubung"`
+	ObjekPajak op.ObjekPajakUpdateDto `json:"objekPajak"`
+	Pemilik    []PemilikWpUpdateDto   `json:"pemilik"`
+	Narahubung []NarahubungUpdateDto  `json:"narahubung"`
 }
 
 type FilterDto struct {

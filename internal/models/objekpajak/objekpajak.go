@@ -24,7 +24,7 @@ type ObjekPajak struct {
 	gormhelper.DateModel
 }
 
-type ObjekPajakCreate struct {
+type ObjekPajakCreateDto struct {
 	Nama         *string    `json:"nama" validate:"required"`
 	Nop          *string    `json:"nop"`
 	Alamat       *string    `json:"alamat"  validate:"required"`
@@ -37,7 +37,7 @@ type ObjekPajakCreate struct {
 	Status       t.StatusBL `json:"status"`
 }
 
-type ObjekPajakUpdate struct {
+type ObjekPajakUpdateDto struct {
 	Id           uint64     `json:"id" validate:"required"`
 	Nama         *string    `json:"nama" validate:"required"`
 	Nop          *string    `json:"nop"`

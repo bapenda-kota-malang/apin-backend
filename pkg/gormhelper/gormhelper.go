@@ -37,7 +37,6 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 
 			// proceed value
 			iVF := iV.Field(i) // input value of the current field
-			fmt.Println(iTF.Type.Kind())
 			for iVF.Kind() == reflect.Ptr {
 				iVF = iVF.Elem()
 			}

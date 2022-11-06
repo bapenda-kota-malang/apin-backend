@@ -38,7 +38,7 @@ type DetailObjekPajakReklame struct {
 type DetailObjekPajakResto struct {
 	DetailObjekPajak
 }
-type DetailOpCreate struct {
+type DetailObjekPajakCreateDto struct {
 	Npwpd_Id uint64  `json:"npwpd_id"`
 	JenisOp  *string `json:"jenisOp" gorm:"size:200"`
 	JumlahOp *string `json:"jumlahOp" gorm:"size:200"`
@@ -47,7 +47,7 @@ type DetailOpCreate struct {
 	Notes    *string `json:"notes" gorm:"size:200"`
 }
 
-type DetailOpUpdate struct {
+type DetailObjekPajakUpdateDto struct {
 	Id       uint64  `json:"id" gorm:"primaryKey"`
 	JumlahOp *string `json:"jumlahOp" gorm:"size:200"`
 	TarifOp  *string `json:"tarifOp" gorm:"size:200"`
