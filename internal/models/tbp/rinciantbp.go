@@ -1,9 +1,8 @@
 package tbp
 
 import (
-	"time"
-
 	ms "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
+	"gorm.io/datatypes"
 )
 
 type RincianTbp struct {
@@ -19,9 +18,9 @@ type RincianTbp struct {
 	NominalBayar *float64 `json:"nominalBayar" gorm:"type:decimal"`
 	// Sts_Id *uint64 `json:"sts_id"`
 	// Sts *msts.Sts `json:"sts,omitempty" gorm:"foreignKey:Sts_Id"`
-	AngsuranKe       *int       `json:"angsuranKe" gorm:"type:smallint"`
-	Bunga            *float64   `json:"bunga" gorm:"type:decimal"`
-	Waktu_Rincian_Tb *time.Time `json:"waktu_rincian_tb"`
+	AngsuranKe       *int            `json:"angsuranKe" gorm:"type:smallint"`
+	Bunga            *float64        `json:"bunga" gorm:"type:decimal"`
+	Waktu_Rincian_Tb *datatypes.Time `json:"waktu_rincian_tb"`
 }
 
 type RincianTbpCreateDto struct {
@@ -32,9 +31,9 @@ type RincianTbpCreateDto struct {
 	Denda        *float64 `json:"denda"`
 	NominalBayar *float64 `json:"nominalBayar"`
 	// Sts_Id *uint64 `json:"sts_id"`
-	AngsuranKe       *int       `json:"angsuranKe"`
-	Bunga            *float64   `json:"bunga"`
-	Waktu_Rincian_Tb *time.Time `json:"waktu_rincian_tb"`
+	AngsuranKe       *int            `json:"angsuranKe"`
+	Bunga            *float64        `json:"bunga"`
+	Waktu_Rincian_Tb *datatypes.Time `json:"waktu_rincian_tb"`
 }
 
 type RincianTbpUpdateDto struct {

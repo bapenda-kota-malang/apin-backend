@@ -29,7 +29,6 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -40,6 +39,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/sptnomertracker"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
 
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -152,6 +152,7 @@ func init() {
 		&tbp.RincianTbp{},
 	}
 	a.AutoMigrate(listModelPembayaran...)
+
 	listModelSpt := []interface{}{
 		&sptnomertracker.SptNomerTracker{},
 		&spt.Spt{},
