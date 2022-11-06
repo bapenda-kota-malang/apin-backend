@@ -3,6 +3,7 @@ package detailesptparkir
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 )
 
 type DetailEsptParkir struct {
@@ -14,8 +15,8 @@ type DetailEsptParkir struct {
 }
 
 type CreateDto struct {
-	Espt_Id        uint
-	JenisKendaraan uint8 `json:"jenisKendaraan" validate:"required;min=2;max=4"`
+	Espt_Id        uuid.UUID
+	JenisKendaraan uint8 `json:"jenisKendaraan" validate:"required;min=1;max=2"`
 	Kapasitas      uint  `json:"kapasitas" validate:"required;min=1"`
 	Tarif          uint  `json:"tarif" validate:"required;min=1"`
 }

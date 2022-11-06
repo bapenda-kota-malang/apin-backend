@@ -9,9 +9,9 @@ import (
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/registrasinpwpd"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
@@ -169,11 +169,12 @@ func SetRoutes() http.Handler {
 
 	})
 
-	r.Route("/registrasinpwpd", func(r chi.Router) {
-		r.Patch("/{id}/setverifystatus", registrasinpwpd.VerifyRegistrasiNpwpd)
-		r.Get("/", registrasinpwpd.GetList)
-		r.Get("/{id}", registrasinpwpd.GetDetail)
-		r.Delete("/{id}", registrasinpwpd.Delete)
+	r.Route("/regnpwpd", func(r chi.Router) {
+		r.Patch("/{id}/setverifystatus", regnpwpd.VerifyRegistrasiNpwpd)
+		r.Get("/", regnpwpd.GetList)
+		r.Get("/{id}", regnpwpd.GetDetail)
+		r.Delete("/{id}", regnpwpd.Delete)
+		r.Patch("/{id}", regnpwpd.Update)
 	})
 
 	r.Route("/potensiopwp", func(r chi.Router) {
@@ -221,13 +222,22 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", wajibpajak.GetDetail)
 	})
 
-	r.Route("/spt", func(r chi.Router) {
-		r.Post("/{category}", spt.Create)
+	r.Route("/sptpd", func(r chi.Router) {
+		r.Post("/", spt.Create)
 		r.Get("/", spt.GetList)
 		r.Get("/{id}", spt.GetDetail)
-		r.Patch("/{id}/{category}", spt.Update)
+		r.Patch("/{id}", spt.Update)
 		r.Delete("/{id}", spt.Delete)
 	})
+
+	// r.Route("/skpd", func(r chi.Router) {
+	// 	r.Post("/", spt.Create)
+	// 	r.Get("/", spt.GetList)
+	// 	r.Get("/{id}", spt.GetDetail)
+	// 	r.Patch("/{id}", spt.Update)
+	// 	r.Delete("/{id}", spt.Delete)
+	// })
+
 	// route for espt list data, verify espt, and get detail data for espt before verify
 	r.Route("/espt", func(r chi.Router) {
 		r.Get("/", espt.GetList)

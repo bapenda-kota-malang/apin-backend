@@ -2,11 +2,12 @@ package detailsptreklame
 
 import (
 	mtr "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
+	"github.com/google/uuid"
 )
 
 type DetailSptReklame struct {
 	Id              uint64            `json:"id" gorm:"primaryKey;autoIncrement"`
-	Spt_Id          uint64            `json:"spt_id"`
+	Spt_Id          uuid.UUID         `json:"spt_id" gorm:"type:uuid"`
 	TarifReklame_Id *uint64           `json:"tarifReklame_id"`
 	TarifReklame    *mtr.TarifReklame `json:"tarifreklame,omitempty" gorm:"foreignKey:TarifReklame_Id"`
 	Jumlah          *uint64           `json:"jumlah"`
@@ -25,7 +26,7 @@ type DetailSptReklame struct {
 }
 
 type CreateDto struct {
-	// Spt_Id          uint     `json:"spt_id" validate:"required"`
+	Spt_Id          uuid.UUID
 	TarifReklame_Id uint64   `json:"tarifReklame_id" validate:"required"`
 	Jumlah          uint64   `json:"jumlah" validate:"required"`
 	Sisi            uint64   `json:"sisi" validate:"required"`

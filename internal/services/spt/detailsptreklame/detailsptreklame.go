@@ -1,72 +1,104 @@
 package detailsptreklame
 
 import (
-	ms "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
-	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
-	msjbr "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/jaminanbongkarreklame"
+	"errors"
+	"strconv"
+
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
-	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 const source = "detailSptReklame"
 
-func Create(input ms.CreateReklameDto) (any, error) {
-	var dataS ms.Spt
-	var dataD mdsrek.DetailSptReklame
-
-	if err := sc.Copy(&dataS, input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataS)
-	}
-	if err := sc.Copy(&dataD, input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataD)
+func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
 	}
 
-	err := a.DB.Create(&dataS).Error
-	if err != nil {
-		return nil, err
+	var data []m.DetailSptReklame
+
+	//  copy input (payload) ke struct data jika tidak ada akan error
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	dataD.Spt_Id = dataS.Id
+	// check relasi id tabel ke tabel relasi
+	// espt table
+	// if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
+	// 	return nil, nil
+	// }
 
-	err = a.DB.Create(&dataD).Error
-	if err != nil {
-		return nil, err
+	// static add value to field
+
+	// Transaction save to db
+	// simpan data ke db satu if karena result dipakai sekali, +error
+	if result := tx.Create(&data); result.Error != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
-	var dataJ msjbr.JaminanBongkarReklame
+	return rp.OKSimple{Data: data}, nil
+}
 
-	if err := sc.Copy(&dataJ, input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataJ)
+func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
 	}
-	dataJ.Date = th.ParseTime(input.JaminanBongkarReklame.Date)
-	dataJ.DueDate = th.ParseTime(input.JaminanBongkarReklame.DueDate)
+	var data m.DetailSptReklame
 
-	dataJ.Spt_Id = dataS.Id
-
-	err = a.DB.Create(&dataJ).Error
-	if err != nil {
-		return nil, err
-	}
-
-	var dataResult msjbr.JaminanBongkarReklame
-	err = a.DB.Model(&msjbr.JaminanBongkarReklame{}).
-		Preload(clause.Associations).First(&dataResult, dataD.Id).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
+	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
+	if id != 0 {
+		if dataRow := tx.First(&data, id).RowsAffected; dataRow == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
 		}
-		return nil, err
+	}
+	// copy to model struct
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	return rp.OKSimple{Data: t.II{
-		"spt":                   dataS,
-		"detailSptReklame":      dataD,
-		"jaminanBongkarReklame": dataJ,
-	}}, nil
+	// check relasi id tabel ke tabel relasi
+	// potensiop table
+	// if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
+	// 	return nil, nil
+	// }
+
+	// simpan data ke db satu if karena result dipakai sekali, +error
+	if result := tx.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
+func Delete(id int, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data *m.DetailSptReklame
+	result := tx.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	result = tx.Delete(&data, id)
+	status := "deleted"
+	if result.RowsAffected == 0 {
+		data = nil
+		status = "no deletion"
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"count":  strconv.Itoa(int(result.RowsAffected)),
+			"status": status,
+		},
+		Data: data,
+	}, nil
 }

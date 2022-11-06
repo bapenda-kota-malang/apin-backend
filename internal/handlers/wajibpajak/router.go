@@ -17,7 +17,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/registrasinpwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/tarifpajak"
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
 	"github.com/go-chi/chi/v5"
@@ -95,12 +95,14 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", kelurahan.GetDetail)
 	})
 
-	r.Route("/registrasinpwpd", func(r chi.Router) {
-		r.Post("/", registrasinpwpd.Create)
-		r.Get("/", registrasinpwpd.GetListForWp)
-		r.Get("/{id}", registrasinpwpd.GetDetail)
-		r.Patch("/{id}", registrasinpwpd.Update)
+	r.Route("/regnpwpd", func(r chi.Router) {
+		r.Post("/", regnpwpd.Create)
+		r.Get("/", regnpwpd.GetListForWp)
+		r.Get("/{id}", regnpwpd.GetDetailForWp)
+		r.Patch("/{id}", regnpwpd.UpdateForWp)
+		r.Delete("/{id}", regnpwpd.DeleteForWp)
 	})
+
 	r.Route("/espt", func(r chi.Router) {
 		r.Post("/", espt.Create)
 		r.Get("/", espt.GetList)

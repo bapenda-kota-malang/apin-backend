@@ -1,5 +1,7 @@
 package espt
 
+import "github.com/google/uuid"
+
 type Status string
 
 const (
@@ -8,19 +10,12 @@ const (
 	StatusDitolak   Status = "ditolak"
 )
 
-type CreateInput interface {
-	GetEspt() CreateDto
+type Input interface {
+	GetEspt() interface{}
 	CalculateTax(taxPercentage *float64)
 	GetDetails() interface{}
 	LenDetails() int
 	ChangeDetails(newDetail interface{})
-	ReplaceEsptId(id uint)
+	ReplaceEsptId(id uuid.UUID)
 	ReplaceTarifPajakId(id uint)
-}
-
-type UpdateInput interface {
-	GetEspt() UpdateDto
-	CalculateTax(taxPercentage *float64)
-	GetDetails() interface{}
-	LenDetails() int
 }

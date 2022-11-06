@@ -12,11 +12,12 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )
 
 type Espt struct {
-	Id               uint            `json:"id" gorm:"primarykey"`
+	Id               uuid.UUID       `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	Npwpd_Id         uint            `json:"npwp_id"`
 	ObjekPajak_Id    uint            `json:"objekPajak_id"`
 	Rekening_Id      uint            `json:"rekening_id"`
@@ -42,11 +43,11 @@ type Espt struct {
 	LaporUser           *user.User                    `json:"laporUser,omitempty" gorm:"foreignKey:LaporBy_User_Id"`
 	VerifyUser          *user.User                    `json:"verifyUser,omitempty" gorm:"foreignKey:VerifyBy_User_Id"`
 	DetailEsptAir       *mdair.DetailEsptAir          `json:"detailEsptAir,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptHotel     *[]mdhot.DetailEsptHotel      `json:"detailEsptHotel,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptHiburan   *mdhib.DetailEsptHiburan      `json:"detailEsptHiburan,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptHotel     *[]mdhot.DetailEsptHotel      `json:"detailEsptHotel,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptParkir    *[]mdpar.DetailEsptParkir     `json:"detailEsptParkir,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptResto     *mdres.DetailEsptResto        `json:"detailEsptResto,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptPpjNonPln *mdnonpln.DetailEsptPpjNonPln `json:"detailEsptPpjNonPln,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptPpjPln    *[]mdpln.DetailEsptPpjPln     `json:"detailEsptPpjPln,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptResto     *mdres.DetailEsptResto        `json:"detailEsptResto,omitempty" gorm:"foreignKey:Espt_Id"`
 	gormhelper.DateModel
 }

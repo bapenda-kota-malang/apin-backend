@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
+	"gorm.io/gorm"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -17,7 +18,10 @@ import (
 
 const source = "objekpajak"
 
-func Create(input m.ObjekPajakCreate) (any, error) {
+func Create(input m.ObjekPajakCreateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
 	var data m.ObjekPajak
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
@@ -27,7 +31,7 @@ func Create(input m.ObjekPajakCreate) (any, error) {
 
 	data.Status = nt.StatusBaru
 	// simpan data ke db satu if karena result dipakai sekali, +error
-	if result := a.DB.Create(&data); result.Error != nil {
+	if result := tx.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
@@ -75,9 +79,12 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.ObjekPajakUpdate) (any, error) {
+func Update(id int, input m.ObjekPajakUpdateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
 	var data *m.ObjekPajak
-	result := a.DB.First(&data, id)
+	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
@@ -85,7 +92,7 @@ func Update(id int, input m.ObjekPajakUpdate) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	if result := a.DB.Save(&data); result.Error != nil {
+	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
@@ -97,14 +104,17 @@ func Update(id int, input m.ObjekPajakUpdate) (any, error) {
 	}, nil
 }
 
-func Delete(id int) (any, error) {
+func Delete(id int, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
 	var data *m.ObjekPajak
-	result := a.DB.First(&data, id)
+	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
 
-	result = a.DB.Delete(&data, id)
+	result = tx.Delete(&data, id)
 	status := "deleted"
 	if result.RowsAffected == 0 {
 		data = nil
