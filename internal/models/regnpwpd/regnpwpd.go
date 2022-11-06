@@ -83,9 +83,9 @@ type CreateDto struct {
 
 	DetailRegOp *[]DetailRegObjekPajakCreateDto `json:"detailRegObjekPajak"`
 
-	RegObjekPajak *rop.RegObjekPajakCreateDto `json:"regObjekPajak"`
-	RegPemilik    *[]RegPemilikWpCreateDto    `json:"regPemilik"`
-	RegNarahubung *[]RegNarahubungCreateDto   `json:"regNarahubung"`
+	RegObjekPajak *rop.RegObjekPajakCreateDto `json:"regObjekPajak" validate:"required"`
+	RegPemilik    *[]RegPemilikWpCreateDto    `json:"regPemilik" validate:"required"`
+	RegNarahubung *[]RegNarahubungCreateDto   `json:"regNarahubung" validate:"required"`
 }
 
 type UpdateDto struct {
