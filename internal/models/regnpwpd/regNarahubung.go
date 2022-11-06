@@ -26,7 +26,7 @@ type RegNarahubungCreateDto struct {
 	Alamat       string     `json:"alamat" validate:"required"`
 	Daerah_Id    *uint64    `json:"daerah_id" validate:"required"`
 	Kelurahan_Id uint64     `json:"kelurahan_id" validate:"required"`
-	Telp         string     `json:"telp" validate:"required"`
+	Telp         string     `json:"telp" validate:"required;notelp"`
 	Nik          string     `json:"nik" validate:"required;nik"`
 	Status       t.StatusBL `json:"status"`
 	Email        string     `json:"email" validate:"required;emailvalid"`
@@ -38,7 +38,7 @@ type RegNarahubungUpdateDto struct {
 	Alamat       string     `json:"alamat" validate:"required"`
 	Daerah_Id    *uint64    `json:"daerah_id" validate:"required"`
 	Kelurahan_Id uint64     `json:"kelurahan_id" validate:"required"`
-	Telp         string     `json:"telp" validate:"required"`
+	Telp         string     `json:"telp" validate:"required;notelp"`
 	Nik          string     `json:"nik" validate:"required;nik"`
 	Status       t.StatusBL `json:"status"`
 	Email        string     `json:"email" validate:"required;emailvalid"`
