@@ -123,7 +123,7 @@ func DeletePhoto(w http.ResponseWriter, r *http.Request) {
 	switch category {
 	case "lainlain":
 		authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-		result, err := s.DeletePhotoLainLain(id, input, uint64(authInfo.User_Id))
+		result, err := s.DeleteFileLainLain(id, input, uint64(authInfo.User_Id))
 		hh.DataResponse(w, result, err)
 	case "fotoobjek":
 		authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
@@ -131,7 +131,7 @@ func DeletePhoto(w http.ResponseWriter, r *http.Request) {
 		hh.DataResponse(w, result, err)
 	case "suratizinusaha":
 		authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-		result, err := s.DeletePhotoSuratIzin(id, input, uint64(authInfo.User_Id))
+		result, err := s.DeletePdfSuratIzin(id, input, uint64(authInfo.User_Id))
 		hh.DataResponse(w, result, err)
 	default:
 		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: "category tidak diketahui"}, nil)
