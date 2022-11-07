@@ -64,27 +64,27 @@ type Npwpd struct {
 }
 
 type CreateDto struct {
-	JenisPajak            mt.JenisPajak `json:"jenisPajak" validate:"required"`
-	Golongan              t.Golongan    `json:"golongan" validate:"required"`
-	Nomor                 int           `json:"nomor"`
-	IsNomorRegistrasiAuto bool          `json:"isNomorRegistrasiAuto"`
-	Npwpd                 *string       `json:"npwpd"`
-	TanggalPengukuhan     *string       `json:"tanggalPengukuhan"`
-	TanggalNpwpd          *string       `json:"tanggalNpwpd"`
-	TanggalMulaiUsaha     *string       `json:"tanggalMulaiUsaha"`
-	LuasBangunan          *string       `json:"luasBangunan"`
-	JamBukaUsaha          *string       `json:"jamBukaUsaha"`
-	JamTutupUsaha         *string       `json:"jamTutupUsaha"`
-	Pengunjung            *string       `json:"pengunjung"`
-	OmsetOp               *string       `json:"omsetOp"`
-	Rekening_Id           uint64        `json:"rekening_id" validate:"required"`
-	Genset                bool          `json:"genset" validate:"required"`
-	AirTanah              bool          `json:"airTanah" validate:"required"`
+	JenisPajak            *mt.JenisPajak `json:"jenisPajak" validate:"required"`
+	Golongan              *t.Golongan    `json:"golongan" validate:"required"`
+	Nomor                 int            `json:"nomor"`
+	IsNomorRegistrasiAuto bool           `json:"isNomorRegistrasiAuto"`
+	Npwpd                 *string        `json:"npwpd"`
+	TanggalPengukuhan     *string        `json:"tanggalPengukuhan"`
+	TanggalNpwpd          *string        `json:"tanggalNpwpd"`
+	TanggalMulaiUsaha     *string        `json:"tanggalMulaiUsaha"`
+	LuasBangunan          *string        `json:"luasBangunan"`
+	JamBukaUsaha          *string        `json:"jamBukaUsaha"`
+	JamTutupUsaha         *string        `json:"jamTutupUsaha"`
+	Pengunjung            *string        `json:"pengunjung"`
+	OmsetOp               *string        `json:"omsetOp"`
+	Rekening_Id           *uint64        `json:"rekening_id" validate:"required"`
+	Genset                bool           `json:"genset" validate:"required"`
+	AirTanah              bool           `json:"airTanah" validate:"required"`
 
+	ObjekPajak       *op.ObjekPajakCreateDto      `json:"objekPajak" validate:"required"`
 	DetailObjekPajak *[]DetailObjekPajakCreateDto `json:"detailObjekPajak"`
-	ObjekPajak       *op.ObjekPajakCreateDto      `json:"objekPajak"`
-	Pemilik          *[]PemilikWpCreateDto        `json:"pemilik"`
-	Narahubung       *[]NarahubungCreateDto       `json:"narahubung"`
+	Pemilik          *[]PemilikWpCreateDto        `json:"pemilik" validate:"required"`
+	Narahubung       *[]NarahubungCreateDto       `json:"narahubung" validate:"required"`
 }
 
 type UpdateDto struct {
@@ -111,11 +111,10 @@ type UpdateDto struct {
 	Genset   bool `json:"genset"`
 	AirTanah bool `json:"airTanah"`
 
+	ObjekPajak       op.ObjekPajakUpdateDto      `json:"objekPajak"`
 	DetailObjekPajak []DetailObjekPajakUpdateDto `json:"detailObjekPajak"`
-
-	ObjekPajak op.ObjekPajakUpdateDto `json:"objekPajak"`
-	Pemilik    []PemilikWpUpdateDto   `json:"pemilik"`
-	Narahubung []NarahubungUpdateDto  `json:"narahubung"`
+	Pemilik          []PemilikWpUpdateDto        `json:"pemilik"`
+	Narahubung       []NarahubungUpdateDto       `json:"narahubung"`
 }
 
 type FilterDto struct {
