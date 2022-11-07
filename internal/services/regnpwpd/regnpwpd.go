@@ -99,12 +99,12 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 		register.VerifyStatus = rn.VerifyStatusBaru
 		register.Rekening = rekening
 		register.TanggalMulaiUsaha = th.ParseTime(*input.TanggalMulaiUsaha)
-		slcLainLain, err := sh.GetArrayPhoto(input.LainLain, baseDocsName+"LainLain", user_Id)
+		slcLainLain, err := sh.GetArrayFile(input.LainLain, baseDocsName+"LainLain", user_Id)
 		if err != nil {
 			return err
 		}
 		register.LainLain = slcLainLain
-		slcIzinUsaha, err := sh.GetArrayPhoto(input.SuratIzinUsaha, baseDocsName+"SuratIzinUsaha", user_Id)
+		slcIzinUsaha, err := sh.GetArrayPdf(input.SuratIzinUsaha, baseDocsName+"SuratIzinUsaha", user_Id)
 		if err != nil {
 			return err
 		}
