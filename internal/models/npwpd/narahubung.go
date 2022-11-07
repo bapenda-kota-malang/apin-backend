@@ -5,8 +5,8 @@ import (
 )
 
 type Narahubung struct {
-	Id           *uint64                `json:"id" gorm:"primaryKey"`
-	Npwpd_Id     *uint64                `json:"npwpd_id"`
+	Id           uint64                 `json:"id" gorm:"primaryKey"`
+	Npwpd_Id     uint64                 `json:"npwpd_id"`
 	Npwpd        *Npwpd                 `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
 	Nama         *string                `json:"nama" gorm:"size:50"`
 	Alamat       *string                `json:"alamat" gorm:"size:50"`
@@ -31,7 +31,7 @@ type NarahubungCreateDto struct {
 }
 
 type NarahubungUpdateDto struct {
-	Id           *uint64 `json:"id" validate:"required"`
+	Id           uint64  `json:"id" validate:"required"`
 	Nama         *string `json:"nama" validate:"required"`
 	Alamat       *string `json:"alamat" validate:"required"`
 	Daerah_Id    *uint64 `json:"daerah_id" validate:"required"`
