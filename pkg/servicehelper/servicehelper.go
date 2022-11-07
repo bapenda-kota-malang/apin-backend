@@ -365,9 +365,25 @@ func AddMoreFile(input []string, dataBefore, docsName string, userId uint) (arrS
 	return
 }
 
+// add multiply pdf
+func AddMorePdf(input []string, dataBefore, docsName string, userId uint) (arrString string, err error) {
+	var result []string
+	err = json.Unmarshal([]byte(dataBefore), &result)
+	if err != nil {
+		return
+	}
+	newData, err := loopArrayPdf(input, docsName, userId)
+	if err == nil {
+		result = append(result, newData...)
+		arrString = arrToJsonString(result)
+	}
+	return
+}
+
 // remove photo from array
 func DeleteFile(input string, data string) (string, error) {
 	var result []string
+	var err error
 	cnvUnmarshal := json.Unmarshal([]byte(data), &result)
 	if cnvUnmarshal != nil {
 		return "", errors.New("data tidak bisa diunmarshal")
@@ -378,7 +394,7 @@ func DeleteFile(input string, data string) (string, error) {
 			result = append(result[:k], result[k+1:]...)
 		}
 	}
-	fmt.Println("result: ", result)
+
 	tmpSplit := strings.Split(input, ".")
 	switch tmpSplit[1] {
 	case "png", "jpeg":
@@ -400,6 +416,12 @@ func DeleteFile(input string, data string) (string, error) {
 		if err := removeFile(basePath, input); err != nil {
 			return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
 		}
+	default:
+		err = fmt.Errorf("unsupported type for this process")
+		return func() string {
+			bytes, _ := json.Marshal(result)
+			return string(bytes)
+		}(), err
 	}
 
 	bytes, _ := json.Marshal(result)

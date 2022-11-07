@@ -446,7 +446,7 @@ func AddPhotoLainLain(id int, input npwpd.PhotoUpdate, user_id uint64) (any, err
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	slcLainLain, err := sh.AddMorePhotos(input.LainLain, data.LainLain, "npwpdLainLain", uint(user_id))
+	slcLainLain, err := sh.AddMoreFile(input.LainLain, data.LainLain, "npwpdLainLain", uint(user_id))
 	if err != nil {
 		return nil, err
 	}
@@ -473,7 +473,7 @@ func AddPhotoSuratIzin(id int, input npwpd.PhotoUpdate, user_id uint64) (any, er
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	slcSuratIzin, err := sh.AddMorePhotos(input.SuratIzinUsaha, data.SuratIzinUsaha, "npwpdIzinUsaha", uint(user_id))
+	slcSuratIzin, err := sh.AddMorePdf(input.SuratIzinUsaha, data.SuratIzinUsaha, "npwpdIzinUsaha", uint(user_id))
 	if err != nil {
 		return nil, err
 	}
@@ -590,7 +590,7 @@ func DeletePhotoObject(id int, input string, user_id uint64) (any, error) {
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	resultDelete, errDelete := sh.DeleteFile(input, data.LainLain)
+	resultDelete, errDelete := sh.DeleteFile(input, data.FotoObjek)
 	if errDelete != nil {
 		return sh.SetError("request", "delete-data", source, "failed", errDelete.Error(), input)
 	}
@@ -618,7 +618,7 @@ func DeletePdfSuratIzin(id int, input string, user_id uint64) (any, error) {
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	resultDelete, errDelete := sh.DeleteFile(input, data.LainLain)
+	resultDelete, errDelete := sh.DeleteFile(input, data.SuratIzinUsaha)
 	if errDelete != nil {
 		return sh.SetError("request", "delete-data", source, "failed", errDelete.Error(), input)
 	}
