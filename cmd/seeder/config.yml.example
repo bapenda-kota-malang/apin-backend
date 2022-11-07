@@ -1,8 +1,0 @@
-name: Seeder
-version: 0.1
-
-host: localhost
-port: 5432
-dbUser: ubuntu
-password: test123
-dbName: apin-migrate-old
