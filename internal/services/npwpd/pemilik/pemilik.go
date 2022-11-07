@@ -34,7 +34,7 @@ func Create(input []m.PemilikWpCreateDto, npwpd_id uint64, tx *gorm.DB) (any, er
 	// Transaction save to db
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Create(&data); result.Error != nil {
-		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil menyimpan data %s", source), data)
+		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal menyimpan data %s", source), data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
@@ -72,7 +72,7 @@ func Update(input []m.PemilikWpUpdateDto, npwpd_id uint64, golongan nt.Golongan,
 		}
 		dataP.Npwpd_Id = npwpd_id
 		if result := tx.Save(&dataP); result.Error != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data pemilik", dataP)
+			return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data pemilik", dataP)
 		}
 	}
 	for k := range data {
