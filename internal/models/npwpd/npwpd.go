@@ -81,10 +81,10 @@ type CreateDto struct {
 	Genset                bool           `json:"genset" validate:"required"`
 	AirTanah              bool           `json:"airTanah" validate:"required"`
 
-	ObjekPajak       *op.ObjekPajakCreateDto      `json:"objekPajak" validate:"required"`
-	DetailObjekPajak *[]DetailObjekPajakCreateDto `json:"detailObjekPajak"`
-	Pemilik          *[]PemilikWpCreateDto        `json:"pemilik" validate:"required"`
-	Narahubung       *[]NarahubungCreateDto       `json:"narahubung" validate:"required"`
+	ObjekPajak       op.ObjekPajakCreateDto      `json:"objekPajak" validate:"required"`
+	DetailObjekPajak []DetailObjekPajakCreateDto `json:"detailObjekPajak"`
+	Pemilik          []PemilikWpCreateDto        `json:"pemilik" validate:"required"`
+	Narahubung       []NarahubungCreateDto       `json:"narahubung" validate:"required"`
 }
 
 type UpdateDto struct {
