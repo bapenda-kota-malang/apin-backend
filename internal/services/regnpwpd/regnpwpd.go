@@ -98,7 +98,7 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 		register.RegObjekPajak_Id = resultCastRegObjekPajak.Id
 		register.VerifyStatus = rn.VerifyStatusBaru
 		register.Rekening = rekening
-		register.TanggalMulaiUsaha = th.ParseTime(*input.TanggalMulaiUsaha)
+		register.TanggalMulaiUsaha = th.ParseTime(input.TanggalMulaiUsaha)
 		slcLainLain, err := sh.GetArrayFile(input.LainLain, baseDocsName+"LainLain", user_Id)
 		if err != nil {
 			return err
