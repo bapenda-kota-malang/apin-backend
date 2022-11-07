@@ -183,6 +183,12 @@ func GetList(input rn.FilterDto) (interface{}, error) {
 		Preload("RegObjekPajak").
 		Preload("RegObjekPajak.Kecamatan").
 		Preload("RegObjekPajak.Kelurahan").
+		Preload("RegPemilikWps.Daerah").
+		Preload("RegPemilikWps.Kelurahan").
+		Preload("RegPemilikWps.Direktur_Daerah").
+		Preload("RegPemilikWps.Direktur_Kelurahan").
+		Preload("RegNarahubungs.Daerah").
+		Preload("RegNarahubungs.Kelurahan").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -211,6 +217,12 @@ func GetDetail(r *http.Request, regID int) (interface{}, error) {
 		Preload("RegObjekPajak").
 		Preload("RegObjekPajak.Kecamatan").
 		Preload("RegObjekPajak.Kelurahan").
+		Preload("RegPemilikWps.Daerah").
+		Preload("RegPemilikWps.Kelurahan").
+		Preload("RegPemilikWps.Direktur_Daerah").
+		Preload("RegPemilikWps.Direktur_Kelurahan").
+		Preload("RegNarahubungs.Daerah").
+		Preload("RegNarahubungs.Kelurahan").
 		First(&register, regID).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -530,6 +542,12 @@ func GetListForWp(input rn.FilterDto) (any, error) {
 		Preload("RegObjekPajak").
 		Preload("RegObjekPajak.Kecamatan").
 		Preload("RegObjekPajak.Kelurahan").
+		Preload("RegPemilikWps.Daerah").
+		Preload("RegPemilikWps.Kelurahan").
+		Preload("RegPemilikWps.Direktur_Daerah").
+		Preload("RegPemilikWps.Direktur_Kelurahan").
+		Preload("RegNarahubungs.Daerah").
+		Preload("RegNarahubungs.Kelurahan").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
@@ -555,6 +573,12 @@ func GetDetailForWp(id int, user_Id uint64) (interface{}, error) {
 		Preload("RegObjekPajak").
 		Preload("RegObjekPajak.Kecamatan").
 		Preload("RegObjekPajak.Kelurahan").
+		Preload("RegPemilikWps.Daerah").
+		Preload("RegPemilikWps.Kelurahan").
+		Preload("RegPemilikWps.Direktur_Daerah").
+		Preload("RegPemilikWps.Direktur_Kelurahan").
+		Preload("RegNarahubungs.Daerah").
+		Preload("RegNarahubungs.Kelurahan").
 		First(&data, id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
