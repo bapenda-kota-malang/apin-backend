@@ -83,8 +83,8 @@ type CreateDto struct {
 
 	DetailObjekPajak *[]DetailObjekPajakCreateDto `json:"detailObjekPajak"`
 	ObjekPajak       *op.ObjekPajakCreateDto      `json:"objekPajak"`
-	Pemilik          *[]PemilikWpCreateDto        `json:"pemilik"`
-	Narahubung       *[]NarahubungCreateDto       `json:"narahubung"`
+	Pemilik          *[]PemilikWpCreateDto        `json:"pemilik" validate:"required"`
+	Narahubung       *[]NarahubungCreateDto       `json:"narahubung" validate:"required"`
 }
 
 type UpdateDto struct {
