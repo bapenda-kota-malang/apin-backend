@@ -31,13 +31,13 @@ type RegPemilikWp struct {
 }
 
 type RegPemilikWpCreateDto struct {
-	Nama                  *string    `json:"nama" validate:"required"`
-	Alamat                *string    `json:"alamat" validate:"required"`
-	Npwp                  *string    `json:"npwp" gorm:"size:50"`
+	Nama                  string     `json:"nama" validate:"required"`
+	Alamat                string     `json:"alamat" validate:"required"`
+	Npwp                  string     `json:"npwp" gorm:"size:50"`
 	Daerah_Id             *uint64    `json:"daerah_id" validate:"required"`
 	Kelurahan_Id          *uint64    `json:"kelurahan_id" validate:"required"`
-	Telp                  *string    `json:"telp" validate:"required;notelp"`
-	Nik                   *string    `json:"nik" validate:"required;nik"`
+	Telp                  string     `json:"telp" validate:"required;notelp"`
+	Nik                   string     `json:"nik" validate:"required;nik"`
 	Status                t.StatusBL `json:"status"`
 	Direktur_Nama         *string    `json:"direktur_nama"`
 	Direktur_Nik          *string    `json:"direktur_nik"`
@@ -49,13 +49,13 @@ type RegPemilikWpCreateDto struct {
 
 type RegPemilikWpUpdateDto struct {
 	Id                    uint64     `json:"id" gorm:"primaryKey"`
-	Nama                  *string    `json:"nama" validate:"required"`
-	Alamat                *string    `json:"alamat" validate:"required"`
+	Nama                  string     `json:"nama" validate:"required"`
+	Alamat                string     `json:"alamat" validate:"required"`
 	Npwp                  *string    `json:"npwp" gorm:"size:50"`
 	Daerah_Id             *uint64    `json:"daerah_id" validate:"required"`
 	Kelurahan_Id          *uint64    `json:"kelurahan_id" validate:"required"`
-	Telp                  *string    `json:"telp" validate:"required;notelp"`
-	Nik                   *string    `json:"nik" validate:"required;nik"`
+	Telp                  string     `json:"telp" validate:"required;notelp"`
+	Nik                   string     `json:"nik" validate:"required;nik"`
 	Status                t.StatusBL `json:"status"`
 	Direktur_Nama         *string    `json:"direktur_nama"`
 	Direktur_Nik          *string    `json:"direktur_nik"`
