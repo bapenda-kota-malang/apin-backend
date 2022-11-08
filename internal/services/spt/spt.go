@@ -23,6 +23,7 @@ import (
 	sc "github.com/jinzhu/copier"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const source = "spt"
@@ -124,13 +125,16 @@ func Create(input m.CreateDto, user_Id uint, newFile bool, tx *gorm.DB) (any, er
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetList(input m.FilterDto) (any, error) {
+func GetList(input m.FilterDto, userId uint) (any, error) {
 	var data []m.Spt
 	var count int64
 
 	var pagination gh.Pagination
-	result := a.DB.
-		Model(&m.Spt{}).
+	baseQuery := a.DB.Model(&m.Spt{})
+	if userId != 0 {
+		baseQuery.Joins("JOIN \"Npwpd\" ON \"Spt\".\"Npwpd_Id\" = \"Npwpd\".\"Id\" AND \"Npwpd\".\"User_Id\" = ?", userId)
+	}
+	result := baseQuery.
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -150,10 +154,18 @@ func GetList(input m.FilterDto) (any, error) {
 	}, nil
 }
 
-func GetDetail(id uuid.UUID) (any, error) {
+func GetDetail(id uuid.UUID, userId uint) (any, error) {
 	var data *m.Spt
 
-	result := a.DB.First(&data, id)
+	baseQuery := a.DB.Model(&m.Spt{})
+	if userId != 0 {
+		baseQuery.Joins("JOIN \"Npwpd\" ON \"Spt\".\"Npwpd_Id\" = \"Npwpd\".\"Id\" AND \"Npwpd\".\"User_Id\" = ?", userId)
+	}
+	result := baseQuery.
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {

@@ -49,50 +49,49 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
-	Npwpd_Id            uint64          `json:"-"`
-	ObjekPajak_Id       uint64          `json:"objekPajak_Id"`
-	Rekening_Id         *uint64         `json:"rekening_Id"`
-	LuasLokasi          *string         `json:"luasLokasi"`
-	Description         *string         `json:"description"`
-	PeriodeAwal         *datatypes.Date `json:"-"`
-	PeriodeAkhir        *datatypes.Date `json:"-"`
-	TarifPajak_Id       *uint64         `json:"-"`
-	Omset               float64         `json:"omset"`
-	JumlahPajak         float32         `json:"-"`
-	Lampiran            string          `json:"lampiran"`
-	JatuhTempo          *datatypes.Date `json:"-"`
-	Sunset              *datatypes.Date `json:"sunset,omitempty"`
-	KodeBilling         *string         `json:"kodeBilling"`
-	Status              *SptStatus      `json:"-"`
-	TanggalLunas        *time.Time      `json:"tanggalLunas"`
-	BatalPenetapan      *string         `json:"batalPenetapan"`
-	IdBT                *uint64         `json:"idBT"`
-	JumlahTahun         *float64        `json:"jumlahTahun"`
-	JumlahBulan         *float64        `json:"jumlahBulan"`
-	JumlahMinggu        *float64        `json:"jumlahMinggu"`
-	JumlahHari          *float64        `json:"jumlahHari"`
-	Gambar              *string         `json:"gambar"`
-	KeteranganPajak     *string         `json:"keteranganPajak"`
-	KoefisienPajak      *uint64         `json:"koefisienPajak"`
-	NamaProduk          *string         `json:"productName"`
-	NomorRegister       *string         `json:"registerNumber"`
-	VaJatim             *string         `json:"vaJatim"`
-	JenisKetetapan      *string         `json:"jenisKetetapan"`
-	Kenaikan            *float64        `json:"kenaikan"`
-	Bunga               *float64        `json:"bunga"`
-	Denda               *float64        `json:"denda"`
-	Pengurangan         *float64        `json:"pengurangan"`
-	Total               *float64        `json:"total"`
-	Ref_Spt_Id          *uint64         `json:"ref_spt_id"`
-	BillingPenetapan    *string         `json:"billingPenetapan"`
-	Teguran_Id          *uint64         `json:"teguran_id"`
-	IsTeguran           bool            `json:"isTeguran"`
-	KeteranganPenetapan *string         `json:"keteranganPenetapan"`
+	Npwpd_Id         uint64          `json:"-"`
+	ObjekPajak_Id    uint64          `json:"objekPajak_Id"`
+	Rekening_Id      *uint64         `json:"rekening_Id"`
+	LuasLokasi       *string         `json:"luasLokasi"`
+	Description      *string         `json:"description"`
+	PeriodeAwal      *datatypes.Date `json:"-"`
+	PeriodeAkhir     *datatypes.Date `json:"-"`
+	TarifPajak_Id    *uint64         `json:"-"`
+	Omset            float64         `json:"omset"`
+	JumlahPajak      float32         `json:"-"`
+	Lampiran         string          `json:"lampiran"`
+	JatuhTempo       *datatypes.Date `json:"-"`
+	Sunset           *datatypes.Date `json:"sunset,omitempty"`
+	KodeBilling      *string         `json:"kodeBilling"`
+	Status           *SptStatus      `json:"-"`
+	TanggalLunas     *time.Time      `json:"tanggalLunas"`
+	BatalPenetapan   *string         `json:"batalPenetapan"`
+	IdBT             *uint64         `json:"idBT"`
+	JumlahTahun      *float64        `json:"jumlahTahun"`
+	JumlahBulan      *float64        `json:"jumlahBulan"`
+	JumlahMinggu     *float64        `json:"jumlahMinggu"`
+	JumlahHari       *float64        `json:"jumlahHari"`
+	Gambar           *string         `json:"gambar"`
+	KeteranganPajak  *string         `json:"keteranganPajak"`
+	KoefisienPajak   *uint64         `json:"koefisienPajak"`
+	NamaProduk       *string         `json:"productName"`
+	NomorRegister    *string         `json:"registerNumber"`
+	VaJatim          *string         `json:"vaJatim"`
+	JenisKetetapan   *string         `json:"jenisKetetapan"`
+	Kenaikan         *float64        `json:"kenaikan"`
+	Bunga            *float64        `json:"bunga"`
+	Denda            *float64        `json:"denda"`
+	Pengurangan      *float64        `json:"pengurangan"`
+	Total            *float64        `json:"total"`
+	Ref_Spt_Id       *uint64         `json:"ref_spt_id"`
+	BillingPenetapan *string         `json:"billingPenetapan"`
+	Teguran_Id       *uint64         `json:"teguran_id"`
+	IsTeguran        bool            `json:"isTeguran"`
 }
 
 type VerifyDto struct {
-	KeteranganPajak     *string `json:"keteranganPajak"`
 	KeteranganPenetapan *string `json:"keteranganPenetapan"`
+	StatusPenetapan     uint8   `json:"statusPenetapan"`
 	Kasubid_User_Id     *string `json:"kasubid_user_id"`
 	Kabid_User_Id       *string `json:"kabid_user_id"`
 }
@@ -100,6 +99,7 @@ type VerifyDto struct {
 type FilterDto struct {
 	Npwpd_Id        uint64          `json:"npwpd_Id"`
 	Status          SptStatus       `json:"status"`
+	Type            mt.JenisPajak   `json:"-"`
 	JatuhTempo      *datatypes.Date `json:"jatuhTempo"`
 	Kasubid_User_Id *string         `json:"kasubid_user_id"`
 	Kabid_User_Id   *string         `json:"kabid_user_id"`

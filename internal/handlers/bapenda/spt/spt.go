@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
+	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/spt"
 
@@ -117,8 +118,15 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 	if !hh.ValidateStructByURL(w, *r.URL, &input) {
 		return
 	}
+	re := regexp.MustCompile(`^\/\w*`)
+	switch re.FindString(r.RequestURI)[1:] {
+	case "sptpd":
+		input.Type = mtypes.JenisPajakSA
+	case "skpd":
+		input.Type = mtypes.JenisPajakOA
+	}
 
-	result, err := s.GetList(input)
+	result, err := s.GetList(input, 0)
 	hh.DataResponse(w, result, err)
 }
 
@@ -128,7 +136,7 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.GetDetail(id)
+	result, err := s.GetDetail(id, 0)
 	hh.DataResponse(w, result, err)
 }
 
