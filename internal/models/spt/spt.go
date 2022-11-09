@@ -13,7 +13,6 @@ import (
 	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptppjpln"
 	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
 	mdsres "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
-	mdsjbr "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/jaminanbongkarreklame"
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
@@ -76,18 +75,18 @@ type Spt struct {
 	CancelledAt *time.Time   `json:"cancelledAt,omitempty"`
 	Npwpd       *npwpd.Npwpd `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
 	// ObjekPajak            *op.ObjekPajak                  `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
-	Rekening              *rekening.Rekening              `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
-	CreateUser            *user.User                      `json:"createBy,omitempty" gorm:"foreignKey:CreateBy_User_Id"`
-	KasubidUser           *user.User                      `json:"kasubid,omitempty" gorm:"foreignKey:Kasubid_User_Id"`
-	KabidUser             *user.User                      `json:"kabid,omitempty" gorm:"foreignKey:Kabid_User_Id"`
-	DetailSptAir          *mdsa.DetailSptAir              `json:"detailSptAir,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptHiburan      *mdhiburan.DetailSptHiburan     `json:"detailSptHiburan,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptHotel        *[]mdsh.DetailSptHotel          `json:"detailSptHotel,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptParkir       *[]mdsp.DetailSptParkir         `json:"detailSptParkir,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptNonPln       *mdnonpln.DetailSptPpjNonPln    `json:"detailSptPpjNonPln,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptPln          *[]mdpln.DetailSptPpjPln        `json:"detailSptPpjPln,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptReklame      *[]mdsrek.DetailSptReklame      `json:"detailSptReklame,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptResto        *mdsres.DetailSptResto          `json:"detailSptResto,omitempty" gorm:"foreignKey:Spt_Id"`
-	JaminanBongkarReklame *[]mdsjbr.JaminanBongkarReklame `json:"jaminanBongkarReklame,omitempty" gorm:"foreignKey:Spt_Id"`
+	Rekening         *rekening.Rekening           `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
+	CreateUser       *user.User                   `json:"createBy,omitempty" gorm:"foreignKey:CreateBy_User_Id"`
+	KasubidUser      *user.User                   `json:"kasubid,omitempty" gorm:"foreignKey:Kasubid_User_Id"`
+	KabidUser        *user.User                   `json:"kabid,omitempty" gorm:"foreignKey:Kabid_User_Id"`
+	DetailSptAir     *mdsa.DetailSptAir           `json:"detailSptAir,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptHiburan *mdhiburan.DetailSptHiburan  `json:"detailSptHiburan,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptHotel   *[]mdsh.DetailSptHotel       `json:"detailSptHotel,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptParkir  *[]mdsp.DetailSptParkir      `json:"detailSptParkir,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptNonPln  *mdnonpln.DetailSptPpjNonPln `json:"detailSptPpjNonPln,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptPln     *[]mdpln.DetailSptPpjPln     `json:"detailSptPpjPln,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptReklame *[]mdsrek.DetailSptReklame   `json:"detailSptReklame,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptResto   *mdsres.DetailSptResto       `json:"detailSptResto,omitempty" gorm:"foreignKey:Spt_Id"`
+	// JaminanBongkarReklame *[]mdsjbr.JaminanBongkarReklame `json:"jaminanBongkarReklame,omitempty" gorm:"foreignKey:Spt_Id"`
 	// Teguran     *teguran.Teguran `json:"teguran,omitempty" gorm:"foreignKey:Teguran_Id"`
 }

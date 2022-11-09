@@ -186,7 +186,7 @@ func GetList(input m.FilterDto, userId uint) (any, error) {
 	}, nil
 }
 
-func GetDetail(id uuid.UUID, userId uint) (any, error) {
+func GetDetail(id uuid.UUID, typeSpt mtypes.JenisPajak, userId uint) (any, error) {
 	var data *m.Spt
 
 	baseQuery := a.DB.Model(&m.Spt{})
@@ -197,7 +197,7 @@ func GetDetail(id uuid.UUID, userId uint) (any, error) {
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
-		First(&data, "\"Id\" = ?", id.String())
+		First(&data, "\"Spt\".\"Id\" = ? AND \"Spt\".\"Type\" = ?", id.String(), typeSpt)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
