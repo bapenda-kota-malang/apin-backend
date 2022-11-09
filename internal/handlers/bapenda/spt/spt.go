@@ -135,8 +135,14 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	if !pass {
 		return
 	}
+	jenisPajak := mtypes.JenisPajakSA
+	re := regexp.MustCompile(`^\/\w*`)
+	switch re.FindString(r.RequestURI)[1:] {
+	case "skpd":
+		jenisPajak = mtypes.JenisPajakOA
+	}
 
-	result, err := s.GetDetail(id, 0)
+	result, err := s.GetDetail(id, jenisPajak, 0)
 	hh.DataResponse(w, result, err)
 }
 
