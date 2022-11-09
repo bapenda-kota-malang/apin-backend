@@ -258,6 +258,7 @@ func SetRoutes() http.Handler {
 	r.Route("/sinkronisasi", func(r chi.Router) {
 		r.Get("/", sinkronisasi.GetList)
 		r.Get("/{id}", sinkronisasi.GetDetail)
+		r.Post("/", sinkronisasi.Create)
 	})
 	return r
 }

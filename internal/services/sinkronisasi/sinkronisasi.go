@@ -1,6 +1,7 @@
 package sinkronisasi
 
 import (
+	"fmt"
 	"strconv"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
@@ -82,20 +83,24 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 
 	go sh.SaveFile(input.File, fileName, path, extFile, errChan)
 	if err := <-errChan; err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "image unsupported", input)
+		return sh.SetError("request", "create-data", source, "failed", "excel unsupported", input)
 	}
 
 	// data sinkronisasi
 	if err := sc.Copy(&dataSinkronisasi, &input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload tbp", dataSinkronisasi)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload sinkronisasi", dataSinkronisasi)
 	}
 
 	// data rincian sinkronisasi
 	if err := sc.Copy(&dataRincianSinkronisasi, &input.RincianSinkronisasi); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload rincian tbp", dataRincianSinkronisasi)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload rincian sinkronisasi", dataRincianSinkronisasi)
 	}
 
 	dataSinkronisasi.File = fileName
+	dataSinkronisasi.User_Id = &user_Id
+
+	dataExcel := readExcelFile(fileName)
+	fmt.Println("data excel: ", dataExcel)
 
 	err = a.DB.Transaction(func(tx *gorm.DB) error {
 
