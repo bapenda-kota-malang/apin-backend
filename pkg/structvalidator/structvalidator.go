@@ -9,8 +9,10 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/exp/maps"
+	"gorm.io/datatypes"
 )
 
 // error format, exported for casting purpose
@@ -220,7 +222,27 @@ func ValidateURL(container any, url url.URL) map[string]ValidationError {
 			}
 		case []string, *[]string:
 			fieldV.Set(reflect.ValueOf(&vals))
-
+		case datatypes.Date, *datatypes.Date:
+			time, err := time.Parse("2006-01-02T15:04:05.000Z", vals[0])
+			if err != nil {
+				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}
+			}
+			date := datatypes.Date(time)
+			if fieldV.Kind() == reflect.Ptr {
+				fieldV.Set(reflect.ValueOf(&date))
+			} else {
+				fieldV.Set(reflect.ValueOf(date))
+			}
+		case time.Time, *time.Time:
+			time, err := time.Parse("2006-01-02T15:04:05.000Z", vals[0])
+			if err != nil {
+				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}
+			}
+			if fieldV.Kind() == reflect.Ptr {
+				fieldV.Set(reflect.ValueOf(&time))
+			} else {
+				fieldV.Set(reflect.ValueOf(time))
+			}
 		// TODO: make any *[]int as a function
 		case *[]int8:
 			failed := false
