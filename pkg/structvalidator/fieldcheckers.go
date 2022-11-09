@@ -28,6 +28,7 @@ func init() {
 	RegisterFieldChecker("b64size", b64SizeKb)
 	RegisterFieldChecker("nik", nikValidator)
 	RegisterFieldChecker("nohp", noHpValidator)
+	RegisterFieldChecker("notelp", noTelpValidator)
 }
 
 ///// Field checkers
@@ -159,7 +160,7 @@ func nikValidator(val reflect.Value, exptVal string) error {
 	re := regexp.MustCompile(`^(1[1-9]|21|[37][1-6]|5[1-3]|6[1-5]|[89][12])\d{2}\d{2}([04][1-9]|[1256][0-9]|[37][01])(0[1-9]|1[0-2])\d{2}\d{4}$`)
 
 	if !re.MatchString(h.ValStringer(val)) {
-		return errors.New("harus memiliki format base64")
+		return errors.New("harus memiliki format nik")
 	}
 
 	return nil
@@ -172,10 +173,23 @@ func noHpValidator(val reflect.Value, exptVal string) error {
 	if val.Kind() == reflect.Pointer && val.IsNil() {
 		return nil
 	}
-	re := regexp.MustCompile(`^(\+62|62|0)8[1-9][0-9]{6,9}$`)
+	re := regexp.MustCompile(`^(\+62|62|0)8[1-9][0-9]{6,10}$`)
 
 	if !re.MatchString(h.ValStringer(val)) {
-		return errors.New("harus memiliki format base64")
+		return errors.New("harus memiliki format nomor hp")
+	}
+
+	return nil
+}
+
+func noTelpValidator(val reflect.Value, exptVal string) error {
+	if val.Kind() == reflect.Pointer && val.IsNil() {
+		return nil
+	}
+	re := regexp.MustCompile(`^(\+62|62|0)[2-9][1-9][0-9]{6,10}$`)
+
+	if !re.MatchString(h.ValStringer(val)) {
+		return errors.New("harus memiliki format nomor telp / hp")
 	}
 
 	return nil

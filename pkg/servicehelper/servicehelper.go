@@ -235,6 +235,106 @@ func GetArrayPhoto(input []string, docsName string, userId uint) (arrString stri
 	return
 }
 
+// array file
+func GetArrayFile(input []string, docsName string, userId uint) (arrString string, err error) {
+	result, err := loopArrayFile(input, docsName, userId)
+	if err == nil {
+		arrString = arrToJsonString(result)
+	}
+	return
+}
+
+// array pdf
+func GetArrayPdf(input []string, docsName string, userId uint) (arrString string, err error) {
+	result, err := loopArrayPdf(input, docsName, userId)
+	if err == nil {
+		arrString = arrToJsonString(result)
+	}
+	return
+}
+
+// loop process to save image file from slice base64 and return slice filename
+func loopArrayFile(input []string, docsName string, userId uint) (arrString []string, err error) {
+	for v := range input {
+		var errChan = make(chan error)
+		imagePath := GetImgPath()
+		pdfPath := GetPdfPath()
+		excelPath := GetExcelPath()
+		id, err2 := GetUuidv4()
+		if err2 != nil {
+			err = err2
+			return
+		}
+		extFile, err2 := base64helper.GetExtensionBase64(input[v])
+		if err2 != nil {
+			err = err2
+			return
+		}
+		switch extFile {
+		case "png", "jpeg":
+			fileName := GenerateFilename(docsName, id, userId, extFile)
+			go SaveFile(input[v], fileName, imagePath, extFile, errChan)
+			if err2 := <-errChan; err2 != nil {
+				err = err2
+				return
+			}
+			arrString = append(arrString, fileName)
+		case "pdf":
+			fileName := GenerateFilename(docsName, id, userId, extFile)
+			go SaveFile(input[v], fileName, pdfPath, extFile, errChan)
+			if err2 := <-errChan; err2 != nil {
+				err = err2
+				return
+			}
+			arrString = append(arrString, fileName)
+		case "xlsx", "xls":
+			fileName := GenerateFilename(docsName, id, userId, extFile)
+			go SaveFile(input[v], fileName, excelPath, extFile, errChan)
+			if err2 := <-errChan; err2 != nil {
+				err = err2
+				return
+			}
+			arrString = append(arrString, fileName)
+		default:
+			err = fmt.Errorf("unsupported type for this process")
+			return
+		}
+	}
+	return
+}
+
+// loop process to save image file from slice base64 and return slice filename
+func loopArrayPdf(input []string, docsName string, userId uint) (arrString []string, err error) {
+	for v := range input {
+		var errChan = make(chan error)
+		pdfPath := GetPdfPath()
+		id, err2 := GetUuidv4()
+		if err2 != nil {
+			err = err2
+			return
+		}
+		extFile, err2 := base64helper.GetExtensionBase64(input[v])
+		if err2 != nil {
+			err = err2
+			return
+		}
+		switch extFile {
+		case "pdf":
+			fileName := GenerateFilename(docsName, id, userId, extFile)
+			go SaveFile(input[v], fileName, pdfPath, extFile, errChan)
+			if err2 := <-errChan; err2 != nil {
+				err = err2
+				return
+			}
+			arrString = append(arrString, fileName)
+		default:
+			err = fmt.Errorf("unsupported type for this process")
+			return
+		}
+	}
+	return
+}
+
 // add multiply photo
 func AddMorePhotos(input []string, dataBefore, docsName string, userId uint) (arrString string, err error) {
 	var result []string
@@ -250,22 +350,78 @@ func AddMorePhotos(input []string, dataBefore, docsName string, userId uint) (ar
 	return
 }
 
-// remove photo from array
-func DeletePhoto(input string, data string) (string, error) {
+// add multiply multiextension
+func AddMoreFile(input []string, dataBefore, docsName string, userId uint) (arrString string, err error) {
 	var result []string
+	err = json.Unmarshal([]byte(dataBefore), &result)
+	if err != nil {
+		return
+	}
+	newData, err := loopArrayFile(input, docsName, userId)
+	if err == nil {
+		result = append(result, newData...)
+		arrString = arrToJsonString(result)
+	}
+	return
+}
+
+// add multiply pdf
+func AddMorePdf(input []string, dataBefore, docsName string, userId uint) (arrString string, err error) {
+	var result []string
+	err = json.Unmarshal([]byte(dataBefore), &result)
+	if err != nil {
+		return
+	}
+	newData, err := loopArrayPdf(input, docsName, userId)
+	if err == nil {
+		result = append(result, newData...)
+		arrString = arrToJsonString(result)
+	}
+	return
+}
+
+// remove photo from array
+func DeleteFile(input string, data string) (string, error) {
+	var result []string
+	var err error
 	cnvUnmarshal := json.Unmarshal([]byte(data), &result)
 	if cnvUnmarshal != nil {
 		return "", errors.New("data tidak bisa diunmarshal")
 	}
+
 	for k, v := range result {
 		if v == input {
 			result = append(result[:k], result[k+1:]...)
 		}
 	}
-	basePath := GetImgPath()
 
-	if err := removeFile(basePath, input); err != nil {
-		return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
+	tmpSplit := strings.Split(input, ".")
+	switch tmpSplit[1] {
+	case "png", "jpeg":
+
+		basePath := GetImgPath()
+
+		if err := removeFile(basePath, input); err != nil {
+			return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
+		}
+	case "pdf":
+		basePath := GetPdfPath()
+
+		if err := removeFile(basePath, input); err != nil {
+			return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
+		}
+	case "xlxs", "xls":
+		basePath := GetExcelPath()
+
+		if err := removeFile(basePath, input); err != nil {
+			return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
+		}
+	default:
+		err = fmt.Errorf("unsupported type for this process")
+		return func() string {
+			bytes, _ := json.Marshal(result)
+			return string(bytes)
+		}(), err
 	}
 
 	bytes, _ := json.Marshal(result)
