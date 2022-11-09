@@ -38,3 +38,22 @@ func (input *CreateDetailHiburanDto) DuplicateEspt(esptDetail *mespt.Espt) error
 	}
 	return nil
 }
+
+// Update
+type UpdateDetailHiburanDto struct {
+	UpdateDetailBaseDto
+	DataDetails mdhiburan.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input *UpdateDetailHiburanDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input *UpdateDetailHiburanDto) LenDetails() int {
+	newEmpty := mdhiburan.UpdateDto{}
+	lenData := 1
+	if input.DataDetails == newEmpty {
+		lenData = 0
+	}
+	return lenData
+}

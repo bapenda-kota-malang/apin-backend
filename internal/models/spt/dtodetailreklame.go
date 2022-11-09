@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// TODO: REKLAME GES
 type CreateDetailReklameDto struct {
 	CreateDetailBaseDto
 	DataDetails           []mdsh.CreateDto `json:"dataDetails" validate:"required"`
@@ -37,4 +38,27 @@ func (input *CreateDetailReklameDto) CalculateTax(taxPercentage *float64) {
 func (input *CreateDetailReklameDto) DuplicateEspt(sptDetail *mespt.Espt) error {
 	// do nothing because spt don't have reklame
 	return nil
+}
+
+type UpdateDetailReklameDto struct {
+	UpdateDetailBaseDto
+	DataDetails mdsrek.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input *UpdateDetailReklameDto) CalculateTax(taxPercentage *float64) {
+	// TODO: CHANGE THIS CALCULATION PROCESS
+	input.Spt.JumlahPajak = float32(input.Spt.Omset * (*taxPercentage / 100))
+}
+
+func (input *UpdateDetailReklameDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input *UpdateDetailReklameDto) LenDetails() int {
+	newEmpty := mdsrek.UpdateDto{}
+	lenData := 1
+	if input.DataDetails == newEmpty {
+		lenData = 0
+	}
+	return lenData
 }

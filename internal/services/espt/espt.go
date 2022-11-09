@@ -26,7 +26,7 @@ import (
 
 const source = "espt"
 
-func filePreProcess(b64String string, userId uint) (fileName, path, extFile string, id uuid.UUID, err error) {
+func filePreProcess(b64String string, userId uint, oldId uuid.UUID) (fileName, path, extFile string, id uuid.UUID, err error) {
 	extFile, err = base64helper.GetExtensionBase64(b64String)
 	if err != nil {
 		return
@@ -43,10 +43,14 @@ func filePreProcess(b64String string, userId uint) (fileName, path, extFile stri
 		err = errors.New("file tidak diketahui")
 		return
 	}
-	id, err = sh.GetUuidv4()
-	if err != nil {
-		err = errors.New("gagal generate uuid")
-		return
+	if oldId == uuid.Nil {
+		id, err = sh.GetUuidv4()
+		if err != nil {
+			err = errors.New("gagal generate uuid")
+			return
+		}
+	} else {
+		id = oldId
 	}
 	fileName = sh.GenerateFilename("AttachmentEsptpd", id, userId, extFile)
 	return
@@ -141,7 +145,7 @@ func Create(input m.CreateDto, user_Id uint, tx *gorm.DB) (any, error) {
 	var data m.Espt
 	var errChan = make(chan error)
 
-	fileName, path, extFile, id, err := filePreProcess(input.Attachment, user_Id)
+	fileName, path, extFile, id, err := filePreProcess(input.Attachment, user_Id, uuid.Nil)
 	if err != nil {
 		return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 	}
@@ -174,7 +178,7 @@ func Create(input m.CreateDto, user_Id uint, tx *gorm.DB) (any, error) {
 	}
 
 	if err := <-errChan; err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
+		return sh.SetError("request", "create-data", source, "failed", "failed save file", data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
@@ -205,13 +209,13 @@ func Update(id uuid.UUID, input any, userId uint, tx *gorm.DB) (any, error) {
 		inputData := input.(m.UpdateDto)
 		if inputData.Attachment != nil {
 			var errChan = make(chan error)
-			fileName, path, extFile, _, err := filePreProcess(*inputData.Attachment, userId)
+			fileName, path, extFile, _, err := filePreProcess(*inputData.Attachment, userId, data.Id)
 			if err != nil {
 				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 			}
 			go sh.ReplaceFile(data.Attachment, *inputData.Attachment, fileName, path, extFile, errChan)
 			if err := <-errChan; err != nil {
-				return sh.SetError("request", "update-data", source, "failed", fmt.Sprintf("failed save pdf: %s", err), data)
+				return sh.SetError("request", "update-data", source, "failed", fmt.Sprintf("failed save file: %s", err), data)
 			}
 			inputData.Attachment = &fileName
 		}

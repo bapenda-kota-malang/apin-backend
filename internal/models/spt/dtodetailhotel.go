@@ -39,3 +39,16 @@ func (input *CreateDetailHotelDto) DuplicateEspt(esptDetail *mespt.Espt) error {
 	}
 	return nil
 }
+
+type UpdateDetailHotelDto struct {
+	UpdateDetailBaseDto
+	DataDetails []mdsh.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input *UpdateDetailHotelDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input *UpdateDetailHotelDto) LenDetails() int {
+	return len(input.DataDetails)
+}

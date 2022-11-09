@@ -1,9 +1,7 @@
 package spt
 
 import (
-	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"regexp"
@@ -13,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
+	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/spt"
 
@@ -33,14 +32,12 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	var input m.Input
 	var err error
 	var result any
-	body, _ := io.ReadAll(r.Body)
-	r.Body = io.NopCloser(bytes.NewBuffer(body))
-	var baseDto m.CreateDetailBaseDto
-	err = validateDetail(w, r.Body, &baseDto)
-	if err != nil {
-		return
-	}
-	r.Body = io.NopCloser(bytes.NewBuffer(body))
+	re := regexp.MustCompile(`^\/\w*`)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	opts := make(map[string]interface{})
+	opts["baseUri"] = re.FindString(r.RequestURI)[1:]
+	opts["userId"] = uint(authInfo.User_Id)
+	opts["newFile"] = true
 	category := r.URL.Query().Get("category")
 	switch category {
 	case "air":
@@ -49,7 +46,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
-		tmp.CreateDetailBaseDto = baseDto
 		input = &tmp
 	case "hiburan":
 		var tmp m.CreateDetailHiburanDto
@@ -87,6 +83,11 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		}
 		input = &tmp
 	case "reklame":
+		if opts["baseUri"].(string) == "sptpd" {
+			err = errors.New("category tidak didukung pada tautan ini")
+			hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
+			return
+		}
 		var tmp m.CreateDetailReklameDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
@@ -107,13 +108,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	re := regexp.MustCompile(`^\/\w*`)
-	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-
-	opts := make(map[string]interface{})
-	opts["userId"] = uint(authInfo.User_Id)
-	opts["newFile"] = true
-	opts["baseUri"] = re.FindString(r.RequestURI)[1:]
 
 	result, err = s.CreateDetail(input, opts, nil)
 	hh.DataResponse(w, result, err)
@@ -124,24 +118,31 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 	if !hh.ValidateStructByURL(w, *r.URL, &input) {
 		return
 	}
+	re := regexp.MustCompile(`^\/\w*`)
+	switch re.FindString(r.RequestURI)[1:] {
+	case "sptpd":
+		input.Type = mtypes.JenisPajakSA
+	case "skpd":
+		input.Type = mtypes.JenisPajakOA
+	}
 
-	result, err := s.GetList(input)
+	result, err := s.GetList(input, 0)
 	hh.DataResponse(w, result, err)
 }
 
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
-	result, err := s.GetDetail(id)
+	result, err := s.GetDetail(id, 0)
 	hh.DataResponse(w, result, err)
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
@@ -150,61 +151,85 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
-	category := chi.URLParam(r, "category")
-	fmt.Println("category: ", category)
+	var err error
+	var result any
+	var input m.Input
+	re := regexp.MustCompile(`^\/\w*`)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	opts := make(map[string]interface{})
+	opts["baseUri"] = re.FindString(r.RequestURI)[1:]
+	opts["userId"] = uint(authInfo.User_Id)
+	category := r.URL.Query().Get("category")
 	switch category {
 	case "air":
-		// var input m.UpdateAirDto
-		// if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		// 	return
-		// }
-
-		// result, err := sdsa.Update(id, input)
-		// hh.DataResponse(w, result, err)
-		// case "hotel":
-		// 	var input m.UpdateHotelDto
-		// 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		// 		return
-		// 	}
-
-		// 	result, err := sdsh.Create(input)
-		// 	hh.DataResponse(w, result, err)
-		// case "parkir":
-		// 	var input m.UpdateParkirDto
-		// 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		// 		return
-		// 	}
-
-		// 	result, err := sdsp.Update(input)
-		// 	hh.DataResponse(w, result, err)
-		// case "reklame":
-		// 	var input m.UpdateReklameDto
-		// 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		// 		return
-		// 	}
-
-		// 	result, err := sdsrek.Update(input)
-		// 	hh.DataResponse(w, result, err)
-		// case "resto":
-		// 	var input m.UpdateRestoDto
-		// 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		// 		return
-		// 	}
-
-		// 	result, err := sdsres.Update(input)
-		// 	hh.DataResponse(w, result, err)
-		// case "jaminan":
-		// 	var input m.UpdateJaminanDto
-		// 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		// 		return
-		// 	}
-
-		// 	result, err := sjbr.Update(input)
-		// 	hh.DataResponse(w, result, err)
+		var tmp m.UpdateDetailAirDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "hiburan":
+		var tmp m.UpdateDetailHiburanDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "hotel":
+		var tmp m.UpdateDetailHotelDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "parkir":
+		var tmp m.UpdateDetailParkirDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "ppjnonpln":
+		var tmp m.UpdateDetailPpjNonPlnDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "ppjpln":
+		var tmp m.UpdateDetailPpjPlnDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "reklame":
+		if opts["baseUri"].(string) == "sptpd" {
+			err = errors.New("category tidak didukung pada tautan ini")
+			hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
+			return
+		}
+		var tmp m.UpdateDetailReklameDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "resto":
+		var tmp m.UpdateDetailRestoDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	default:
+		err = errors.New("category tidak diketahui")
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
 	}
-
+	result, err = s.UpdateDetail(id, input, opts)
+	hh.DataResponse(w, result, err)
 }

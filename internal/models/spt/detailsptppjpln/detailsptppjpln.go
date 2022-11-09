@@ -28,4 +28,5 @@ type UpdateDto struct {
 	JenisPPJ_Id     *uint `json:"jenisPpj_Id"`
 	JumlahPelanggan *uint `json:"jumlahPelanggan"`
 	JumlahRekening  *uint `json:"jumlahRekening"`
+	JenisPPJ        *jenisppj.JenisPPJ
 }

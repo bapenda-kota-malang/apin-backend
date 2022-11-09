@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"time"
 
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
@@ -18,7 +19,7 @@ import (
 
 const source = "sptnomertracker"
 
-func GetSpecificLastNumber(input m.Dto, tx *gorm.DB) (data m.SptNomerTracker, err error) {
+func getSpecificLastNumber(input m.Dto, tx *gorm.DB) (data m.SptNomerTracker, err error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -103,27 +104,33 @@ func TrxNewNumber(input m.Dto, tx *gorm.DB) (number string, err error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	err = tx.Transaction(func(tx2 *gorm.DB) error {
-		tx2.Begin(&sql.TxOptions{Isolation: sql.LevelSerializable})
+	for i := 0; i < 5; i++ {
+		err = tx.Transaction(func(tx2 *gorm.DB) error {
+			tx2.Begin(&sql.TxOptions{Isolation: sql.LevelSerializable})
 
-		sptNumberTracker, err := GetSpecificLastNumber(input, tx2)
-		if err != nil {
-			tx2.Rollback()
+			sptNumberTracker, err := getSpecificLastNumber(input, tx2)
+			if err != nil {
+				tx2.Rollback()
+				return err
+			}
+
+			newNumber := sptNumberTracker.LastNumber + 1
+
+			_, err = Update(int(sptNumberTracker.Id), m.Dto{LastNumber: &newNumber}, tx2)
+			if err != nil {
+				tx2.Rollback()
+				return err
+			}
+
+			number = fmt.Sprintf("%05d", newNumber)
+
 			return err
+		})
+		if err == nil {
+			break
 		}
-
-		newNumber := sptNumberTracker.LastNumber + 1
-
-		_, err = Update(int(sptNumberTracker.Id), m.Dto{LastNumber: &newNumber}, tx2)
-		if err != nil {
-			tx2.Rollback()
-			return err
-		}
-
-		number = fmt.Sprintf("%05d", newNumber)
-
-		return err
-	})
+		time.Sleep(2 * time.Nanosecond)
+	}
 
 	return
 }

@@ -52,3 +52,29 @@ func (input *CreateDetailPpjPlnDto) DuplicateEspt(esptDetail *mespt.Espt) error 
 	}
 	return nil
 }
+
+type UpdateDetailPpjPlnDto struct {
+	UpdateDetailBaseDto
+	DataDetails []mdppjpln.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input UpdateDetailPpjPlnDto) CalculateTax(taxPercentage *float64) {
+	tax := float32(0)
+	for v := range input.DataDetails {
+		if input.DataDetails[v].JenisPPJ.Jenis == "LAIN LAIN" {
+			continue
+		}
+		jumlah := float32(*input.DataDetails[v].JumlahRekening)
+		jumlah = jumlah * (input.DataDetails[v].JenisPPJ.TarifPersen / 100)
+		tax += jumlah
+	}
+	input.Spt.JumlahPajak = tax + float32(input.Spt.Omset)
+}
+
+func (input *UpdateDetailPpjPlnDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input *UpdateDetailPpjPlnDto) LenDetails() int {
+	return len(input.DataDetails)
+}
