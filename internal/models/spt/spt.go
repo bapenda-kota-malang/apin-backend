@@ -69,7 +69,7 @@ type Spt struct {
 	Teguran_Id          *uint64         `json:"teguran_id,omitempty"`
 	IsTeguran           bool            `json:"isTeguran,omitempty"`
 	KeteranganPenetapan *string         `json:"keteranganPenetapan,omitempty" gorm:"type:varchar(100)"`
-	StatusPenetapan     uint8           `json:"statusPenetapan"`
+	StatusPenetapan     StatusPenetapan `json:"statusPenetapan"`
 	Kasubid_User_Id     *string         `json:"kasubid_user_id,omitempty"`
 	Kabid_User_Id       *string         `json:"kabid_user_id,omitempty"`
 	gormhelper.DateModel

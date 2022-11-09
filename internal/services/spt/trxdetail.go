@@ -158,7 +158,7 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 			createDto = input.GetSpt(opts["baseUri"].(string)).(m.CreateDto)
 		}
 
-		respSpt, err := Create(createDto, opts["userId"].(uint), opts["newFile"].(bool), tx)
+		respSpt, err := Create(createDto, opts, tx)
 		if err != nil {
 			return err
 		}
@@ -267,7 +267,7 @@ func UpdateDetail(id uuid.UUID, input m.Input, opts map[string]interface{}) (int
 		}
 		updateDto = input.GetSpt(opts["baseUri"].(string)).(m.UpdateDto)
 
-		respEspt, err := Update(id, updateDto, opts["userId"].(uint), tx)
+		respEspt, err := Update(id, updateDto, opts, tx)
 		if err != nil {
 			return err
 		}
