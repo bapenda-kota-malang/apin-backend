@@ -18,6 +18,6 @@
 \i sqls/data-User.sql
 
 -- below for table have relation to child
-\i sqls/data-Npwpd.sql
+-- \i sqls/data-Npwpd.sql
 
 -- new data

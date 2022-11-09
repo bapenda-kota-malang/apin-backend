@@ -9,9 +9,9 @@ import (
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/registrasinpwpd"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
@@ -168,11 +168,12 @@ func SetRoutes() http.Handler {
 
 	})
 
-	r.Route("/registrasinpwpd", func(r chi.Router) {
-		r.Patch("/{id}/setverifystatus", registrasinpwpd.VerifyRegistrasiNpwpd)
-		r.Get("/", registrasinpwpd.GetList)
-		r.Get("/{id}", registrasinpwpd.GetDetail)
-		r.Delete("/{id}", registrasinpwpd.Delete)
+	r.Route("/regnpwpd", func(r chi.Router) {
+		r.Patch("/{id}/setverifystatus", regnpwpd.VerifyRegistrasiNpwpd)
+		r.Get("/", regnpwpd.GetList)
+		r.Get("/{id}", regnpwpd.GetDetail)
+		r.Delete("/{id}", regnpwpd.Delete)
+		r.Patch("/{id}", regnpwpd.Update)
 	})
 
 	r.Route("/potensiopwp", func(r chi.Router) {

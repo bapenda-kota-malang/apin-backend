@@ -3,6 +3,6 @@ version: 0.1
 
 host: localhost
 port: 5432
-username: ubuntu
+dbUser: ubuntu
 password: test123
 dbName: apin-migrate-old
