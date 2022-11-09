@@ -1,7 +1,6 @@
 package espt
 
 import (
-	"bytes"
 	"errors"
 	"io"
 	"net/http"
@@ -29,14 +28,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	var input m.Input
 	var err error
 	var result any
-	body, _ := io.ReadAll(r.Body)
-	r.Body = io.NopCloser(bytes.NewBuffer(body))
-	var baseDto m.CreateDetailBaseDto
-	err = validateDetail(w, r.Body, &baseDto)
-	if err != nil {
-		return
-	}
-	r.Body = io.NopCloser(bytes.NewBuffer(body))
 	category := r.URL.Query().Get("category")
 	switch category {
 	case "air":
@@ -128,14 +119,6 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	var input m.Input
 	var err error
 	var result any
-	body, _ := io.ReadAll(r.Body)
-	r.Body = io.NopCloser(bytes.NewBuffer(body))
-	var baseDto m.UpdateDetailBaseDto
-	err = validateDetail(w, r.Body, &baseDto)
-	if err != nil {
-		return
-	}
-	r.Body = io.NopCloser(bytes.NewBuffer(body))
 	category := r.URL.Query().Get("category")
 	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
 	if !pass {

@@ -67,6 +67,10 @@ func GetDetail(r *http.Request, regID int) (interface{}, error) {
 		Preload("ObjekPajak").
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
+		Preload("PemilikWps.Daerah").
+		Preload("PemilikWps.Kelurahan").
+		Preload("Narahubungs.Daerah").
+		Preload("Narahubungs.Kelurahan").
 		First(&register, regID).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -136,9 +140,9 @@ func Create(r *http.Request, input npwpd.CreateDto) (interface{}, error) {
 		dataNpwpd.VerifiedAt = th.TimeNow()
 		dataNpwpd.Nomor = tmpNomor
 		dataNpwpd.Npwpd = &tmpNpwpd
-		dataNpwpd.TanggalPengukuhan = th.ParseTime(*input.TanggalPengukuhan)
-		dataNpwpd.TanggalNpwpd = th.ParseTime(*input.TanggalNpwpd)
-		dataNpwpd.TanggalMulaiUsaha = th.ParseTime(*input.TanggalMulaiUsaha)
+		dataNpwpd.TanggalPengukuhan = th.ParseTime(input.TanggalPengukuhan)
+		dataNpwpd.TanggalNpwpd = th.ParseTime(input.TanggalNpwpd)
+		dataNpwpd.TanggalMulaiUsaha = th.ParseTime(input.TanggalMulaiUsaha)
 
 		err = tx.Create(&dataNpwpd).Error
 		if err != nil {

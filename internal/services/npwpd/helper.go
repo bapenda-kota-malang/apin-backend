@@ -35,7 +35,7 @@ func filePreProcess(b64String string, userId uint, docsName string) (fileName, p
 	return
 }
 
-func insertDetailObjekPajak(objek string, rekeningNama string, data *[]m.DetailObjekPajakCreateDto, dataNpwpd *m.Npwpd, tx *gorm.DB) error {
+func insertDetailObjekPajak(objek string, rekeningNama string, data []m.DetailObjekPajakCreateDto, dataNpwpd *m.Npwpd, tx *gorm.DB) error {
 	if data == nil {
 		return nil
 	}
@@ -78,7 +78,7 @@ func insertDetailObjekPajak(objek string, rekeningNama string, data *[]m.DetailO
 		model = reflect.Zero(mActions["detailObjekPajakAirTanah"]).Interface()
 	}
 
-	for _, dop := range *data {
+	for _, dop := range data {
 		dop.JenisOp = &rekeningNama
 		dop.Npwpd_Id = dataNpwpd.Id
 

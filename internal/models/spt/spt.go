@@ -53,7 +53,7 @@ type Spt struct {
 	JumlahMinggu        *float64        `json:"jumlahMinggu,omitempty" gorm:"type:decimal"`
 	JumlahHari          *float64        `json:"jumlahHari,omitempty" gorm:"type:decimal"`
 	Gambar              *string         `json:"gambar,omitempty" gorm:"type:varchar(255)"`
-	Keterangan          *string         `json:"keterangan,omitempty" gorm:"type:varchar(255)"`
+	KeteranganPajak     *string         `json:"keteranganPajak,omitempty" gorm:"type:varchar(255)"`
 	KoefisienPajak      *uint64         `json:"koefisienPajak,omitempty"`
 	NamaProduk          *string         `json:"productName,omitempty" gorm:"type:varchar(200)"`
 	NomorRegister       *string         `json:"registerNumber,omitempty" gorm:"type:varchar(100)"`
@@ -69,6 +69,7 @@ type Spt struct {
 	Teguran_Id          *uint64         `json:"teguran_id,omitempty"`
 	IsTeguran           bool            `json:"isTeguran,omitempty"`
 	KeteranganPenetapan *string         `json:"keteranganPenetapan,omitempty" gorm:"type:varchar(100)"`
+	StatusPenetapan     StatusPenetapan `json:"statusPenetapan"`
 	Kasubid_User_Id     *string         `json:"kasubid_user_id,omitempty"`
 	Kabid_User_Id       *string         `json:"kabid_user_id,omitempty"`
 	gormhelper.DateModel
