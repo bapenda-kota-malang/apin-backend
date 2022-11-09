@@ -9,17 +9,17 @@ type PemilikWp struct {
 	Id                    uint64                  `json:"id" gorm:"primaryKey"`
 	Npwpd_Id              uint64                  `json:"npwpd_id"`
 	Npwpd                 *Npwpd                  `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
-	Nama                  *string                 `json:"nama" gorm:"size:50" validate:"required"`
-	Alamat                *string                 `json:"alamat" gorm:"size:50" validate:"required"`
+	Nama                  *string                 `json:"nama" gorm:"size:50"`
+	Alamat                *string                 `json:"alamat" gorm:"size:50"`
 	Npwp                  *string                 `json:"npwp" gorm:"size:50"`
-	Daerah_Id             *uint64                 `json:"daerah_id" validate:"required"`
+	Daerah_Id             *uint64                 `json:"daerah_id"`
 	Daerah                *areadivision.Daerah    `json:"daerah" gorm:"foreignKey:Daerah_Id"`
-	Kelurahan_Id          *uint64                 `json:"kelurahan_id" validate:"required"`
-	Kelurahan             *areadivision.Kelurahan `gorm:"foreignKey:Kelurahan_Id"`
-	Telp                  *string                 `json:"telp" gorm:"size:20" validate:"required"`
+	Kelurahan_Id          *uint64                 `json:"kelurahan_id"`
+	Kelurahan             *areadivision.Kelurahan `json:"kelurahan" gorm:"foreignKey:Kelurahan_Id"`
+	Telp                  *string                 `json:"telp" gorm:"size:20"`
 	Status                t.StatusBL              `json:"status"`
 	NoIdPemilik           *string                 `json:"noIdPemilik" gorm:"size:20"`
-	Nik                   *string                 `json:"nik" gorm:"size:20" validate:"required"`
+	Nik                   *string                 `json:"nik" gorm:"size:20"`
 	Direktur_Nama         *string                 `json:"direktur_nama" gorm:"type:varchar(50)"`
 	Direktur_Nik          *string                 `json:"direktur_nik" gorm:"type:varchar(20)"`
 	Direktur_Alamat       *string                 `json:"direktur_alamat" gorm:"type:varchar(50)"`
