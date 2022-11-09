@@ -37,6 +37,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
@@ -252,6 +253,11 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", tbp.Update)
 		r.Delete("/{id}", tbp.Delete)
 		r.Patch("/{id}/cancel", tbp.Cancel)
+	})
+
+	r.Route("/sinkronisasi", func(r chi.Router) {
+		r.Get("/", sinkronisasi.GetList)
+		r.Get("/{id}", sinkronisasi.GetDetail)
 	})
 	return r
 }
