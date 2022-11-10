@@ -177,10 +177,9 @@ func GetList(input rn.FilterDto) (interface{}, error) {
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&rn.RegNpwpd{}).
-		Preload(clause.Associations).
-		Preload("User").
-		Preload("Rekening").
-		Preload("RegObjekPajak").
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Preload("RegObjekPajak.Kecamatan").
 		Preload("RegObjekPajak.Kelurahan").
 		Preload("RegPemilikWps.Daerah").
@@ -211,10 +210,9 @@ func GetList(input rn.FilterDto) (interface{}, error) {
 func GetDetail(r *http.Request, regID int) (interface{}, error) {
 	var register *rn.RegNpwpd
 	err := a.DB.Model(&rn.RegNpwpd{}).
-		Preload(clause.Associations).
-		Preload("User").
-		Preload("Rekening").
-		Preload("RegObjekPajak").
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Preload("RegObjekPajak.Kecamatan").
 		Preload("RegObjekPajak.Kelurahan").
 		Preload("RegPemilikWps.Daerah").
@@ -536,10 +534,9 @@ func GetListForWp(input rn.FilterDto) (any, error) {
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
-		Preload(clause.Associations).
-		Preload("User").
-		Preload("Rekening").
-		Preload("RegObjekPajak").
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Preload("RegObjekPajak.Kecamatan").
 		Preload("RegObjekPajak.Kelurahan").
 		Preload("RegPemilikWps.Daerah").
@@ -567,10 +564,9 @@ func GetListForWp(input rn.FilterDto) (any, error) {
 func GetDetailForWp(id int, user_Id uint64) (interface{}, error) {
 	var data *rn.RegNpwpd
 	err := a.DB.Model(&rn.RegNpwpd{}).
-		Preload(clause.Associations).
-		Preload("User").
-		Preload("Rekening").
-		Preload("RegObjekPajak").
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Preload("RegObjekPajak.Kecamatan").
 		Preload("RegObjekPajak.Kelurahan").
 		Preload("RegPemilikWps.Daerah").
