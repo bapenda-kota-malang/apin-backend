@@ -6,7 +6,7 @@ import (
 	"gorm.io/datatypes"
 )
 
-type RincianTbp struct {
+type DetailTbp struct {
 	Id     uint64     `json:"id" gorm:"primaryKey"`
 	Tbp_Id *uint64    `json:"tbp_id"`
 	Tbp    *Tbp       `json:"tbp" gorm:"foreignKey:Tbp_Id"`
@@ -21,10 +21,10 @@ type RincianTbp struct {
 	// Sts *msts.Sts `json:"sts,omitempty" gorm:"foreignKey:Sts_Id"`
 	AngsuranKe *int `json:"angsuranKe" gorm:"type:smallint"`
 	// Bunga            *float64        `json:"bunga" gorm:"type:decimal"`
-	Waktu_Rincian_Tb *datatypes.Time `json:"waktu_rincian_tb"`
+	Waktu_Detail_Tb *datatypes.Time `json:"waktu_detail_tb"`
 }
 
-type RincianTbpCreateDto struct {
+type DetailTbpCreateDto struct {
 	Tbp_Id *uint64    `json:"tbp_id"`
 	Spt_Id *uuid.UUID `json:"spt_id" gorm:"type:uuid"`
 	// Teguran_Iduint64 `json:"teguran_id"`
@@ -34,9 +34,9 @@ type RincianTbpCreateDto struct {
 	// Sts_Id *uint64 `json:"sts_id"`
 	AngsuranKe *int `json:"angsuranKe"`
 	// Bunga            *float64        `json:"bunga"`
-	Waktu_Rincian_Tb *datatypes.Time `json:"waktu_rincian_tb"`
+	Waktu_Detail_Tb *datatypes.Time `json:"waktu_detail_tb"`
 }
 
-type RincianTbpUpdateDto struct {
+type DetailTbpUpdateDto struct {
 	NominalBayar *float64 `json:"nominalBayar"`
 }

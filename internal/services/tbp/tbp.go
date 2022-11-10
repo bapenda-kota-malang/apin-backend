@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
-	srt "github.com/bapenda-kota-malang/apin-backend/internal/services/tbp/rinciantbp"
+	sdt "github.com/bapenda-kota-malang/apin-backend/internal/services/tbp/detailtbp"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -21,8 +21,8 @@ const source = "tbp"
 
 func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	var dataTbp m.Tbp
-	var dataRincianTbp m.RincianTbpCreateDto
-	var respDataRincianTbp interface{}
+	var dataDetailTbp m.DetailTbpCreateDto
+	var respDataDetailTbp interface{}
 	var resp t.II
 	// var dataSpt ms.Spt
 	// var dataSptTotal float64
@@ -36,8 +36,8 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	}
 
 	// data rincian tbp
-	if err := sc.Copy(&dataRincianTbp, &input.RincianTbp); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload rincian tbp", dataRincianTbp)
+	if err := sc.Copy(&dataDetailTbp, &input.DetailTbp); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload rincian tbp", dataDetailTbp)
 	}
 
 	// perhitungan rincian tbp dihitung di fe, user hanya mengirim nominal bayar
@@ -73,7 +73,7 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	dataTbp.TbpNumber = &tmpNomor
 	dataTbp.TanggalBayar = th.TimeNow()
 	dataTbp.CreatedBy_User_Id = &user_Id
-	dataRincianTbp.Waktu_Rincian_Tb = parseCurrentTime()
+	dataDetailTbp.Waktu_Detail_Tb = parseCurrentTime()
 	dataTbp.IsCancelled = &tmpIsCancelled
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
@@ -85,11 +85,11 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 		}
 
 		// create data rincian tbp
-		resultRincianTbp, err := srt.Create(dataRincianTbp, dataTbp.Id, tx)
+		resultDetailTbp, err := sdt.Create(dataDetailTbp, dataTbp.Id, tx)
 		if err != nil {
 			return err
 		}
-		respDataRincianTbp = resultRincianTbp
+		respDataDetailTbp = resultDetailTbp
 
 		return nil
 	})
@@ -100,7 +100,7 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 
 	resp = t.II{
 		"tbp":        dataTbp,
-		"rincianTbp": respDataRincianTbp.(rp.OKSimple).Data,
+		"rincianTbp": respDataDetailTbp.(rp.OKSimple).Data,
 	}
 
 	return rp.OKSimple{
@@ -122,7 +122,7 @@ func GetList(input m.FilterDto) (any, error) {
 		Preload("Rekening").
 		Preload("Npwpd").
 		Preload("Jurnal").
-		Preload("RincianTbps.Spt").
+		Preload("DetailTbps.Spt").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -153,7 +153,7 @@ func GetDetail(tbp_id int) (any, error) {
 		Preload("Rekening").
 		Preload("Npwpd").
 		Preload("Jurnal").
-		Preload("RincianTbps.Spt").
+		Preload("DetailTbps.Spt").
 		First(&data, tbp_id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -207,7 +207,7 @@ func Delete(tbp_id uint64) (any, error) {
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// delete rincian tbp
-		err := srt.Delete(data.Id, tx)
+		err := sdt.Delete(data.Id, tx)
 		if err != nil {
 			status = "no deletion"
 			return err
@@ -236,8 +236,8 @@ func Delete(tbp_id uint64) (any, error) {
 
 func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 	var dataTbp *m.Tbp
-	var dataRincianTbp m.RincianTbpUpdateDto
-	var respDataRincianTbp interface{}
+	var dataDetailTbp m.DetailTbpUpdateDto
+	var respDataDetailTbp interface{}
 	var resp t.II
 
 	result := a.DB.First(&dataTbp, id)
@@ -249,8 +249,8 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload tbp", input)
 	}
 
-	if err := sc.Copy(&dataRincianTbp, &input.RincianTbp); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload rincian tbp", input.RincianTbp)
+	if err := sc.Copy(&dataDetailTbp, &input.DetailTbp); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload rincian tbp", input.DetailTbp)
 	}
 
 	dataTbp.TanggalBayar = th.TimeNow()
@@ -262,11 +262,11 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 			return errors.New("gagal menyimpan data tbp")
 		}
 
-		resultRincianTbp, err := srt.Update(dataRincianTbp, dataTbp.Id, tx)
+		resultDetailTbp, err := sdt.Update(dataDetailTbp, dataTbp.Id, tx)
 		if err != nil {
 			return err
 		}
-		respDataRincianTbp = resultRincianTbp
+		respDataDetailTbp = resultDetailTbp
 
 		return nil
 	})
@@ -276,7 +276,7 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 
 	resp = t.II{
 		"affected":   strconv.Itoa(int(result.RowsAffected)),
-		"rincianTbp": respDataRincianTbp.(rp.OKSimple).Data,
+		"rincianTbp": respDataDetailTbp.(rp.OKSimple).Data,
 		"tbp":        dataTbp,
 	}
 

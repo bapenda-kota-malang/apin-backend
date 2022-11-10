@@ -164,7 +164,7 @@ func init() {
 
 	listModelPembayaran := []interface{}{
 		&tbp.Tbp{},
-		&tbp.RincianTbp{},
+		&tbp.DetailTbp{},
 		&sinkronisasi.Sinkronisasi{},
 		&sinkronisasi.RincianSinkronisasi{},
 	}

@@ -99,8 +99,10 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	dataSinkronisasi.File = fileName
 	dataSinkronisasi.User_Id = &user_Id
 
-	dataExcel := readExcelFile(fileName)
-	fmt.Println("data excel: ", dataExcel)
+	if dataSinkronisasi.JenisPajak == "pdl" {
+		dataExcel := readExcelFile(fileName)
+		fmt.Println("data excel: ", dataExcel)
+	}
 
 	err = a.DB.Transaction(func(tx *gorm.DB) error {
 

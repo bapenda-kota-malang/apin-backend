@@ -13,16 +13,16 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 )
 
-const source = "rincian tbp"
+const source = "detail tbp"
 
-func Create(input m.RincianTbpCreateDto, tbp_id uint64, tx *gorm.DB) (any, error) {
+func Create(input m.DetailTbpCreateDto, tbp_id uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.RincianTbp
+	var data m.DetailTbp
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload rincian tbp", data)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload detail tbp", data)
 	}
 
 	// static add value to field
@@ -37,8 +37,8 @@ func Create(input m.RincianTbpCreateDto, tbp_id uint64, tx *gorm.DB) (any, error
 }
 
 func Delete(tbp_id uint64, tx *gorm.DB) error {
-	var data *m.RincianTbp
-	result := tx.Where(m.RincianTbp{Tbp_Id: &tbp_id}).First(&data)
+	var data *m.DetailTbp
+	result := tx.Where(m.DetailTbp{Tbp_Id: &tbp_id}).First(&data)
 	if result.RowsAffected == 0 {
 		return errors.New("data rincian tbp tidak dapat ditemukan")
 	}
@@ -51,20 +51,20 @@ func Delete(tbp_id uint64, tx *gorm.DB) error {
 	return nil
 }
 
-func Update(input m.RincianTbpUpdateDto, tbp_id uint64, tx *gorm.DB) (any, error) {
+func Update(input m.DetailTbpUpdateDto, tbp_id uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 
-	var data m.RincianTbp
+	var data m.DetailTbp
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", fmt.Sprintf("gagal mengambil data payload %s", source), data)
 	}
 
-	var dataFromDb *m.RincianTbp
-	result := tx.Where(m.RincianTbp{Tbp_Id: &tbp_id}).First(&dataFromDb)
+	var dataFromDb *m.DetailTbp
+	result := tx.Where(m.DetailTbp{Tbp_Id: &tbp_id}).First(&dataFromDb)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data reg pemilik tidak dapat ditemukan")
 	}

@@ -11,7 +11,7 @@ import (
 type Sinkronisasi struct {
 	Id                  uint64          `json:"id" gorm:"primaryKey"`
 	TanggalSinkronisasi *time.Time      `json:"tanggalSinkronisasi"`
-	JenisPajak          *string         `json:"jenisPajak"`
+	JenisPajak          string          `json:"jenisPajak"`
 	File                string          `json:"file"`
 	JumlahTidakSinkron  *int            `json:"jumlahTidakSinkron"`
 	Tbp_Id              *uint64         `json:"tbp_id"`
@@ -31,7 +31,7 @@ type CreateDto struct {
 	UpdatedAt           *time.Time      `json:"updatedAt"`
 	DeletedAt           *gorm.DeletedAt `json:"deletedAt"`
 
-	RincianSinkronisasi *RincianSinkronisasiCreateDto `json:"rincianSinkronisasi"`
+	DetailSinkronisasi *DetailSinkronisasiCreateDto `json:"detailSinkronisasi"`
 }
 
 type UpdateDto struct {
@@ -44,7 +44,7 @@ type UpdateDto struct {
 	UpdatedAt           *time.Time      `json:"updatedAt"`
 	DeletedAt           *gorm.DeletedAt `json:"deletedAt"`
 
-	RincianSinkronisasi *RincianSinkronisasiCreateDto `json:"rincianSinkronisasi"`
+	DetailSinkronisasi *DetailSinkronisasiCreateDto `json:"detailSinkronisasi"`
 }
 
 type FilterDto struct {
