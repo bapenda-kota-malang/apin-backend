@@ -7,6 +7,8 @@ import (
 
 type SptStatus string
 type JenisKetetapan string
+type StatusPenetapan uint8
+type TbpStatusFilter uint8
 
 const (
 	StatusBelumLunas          SptStatus = "00" //belum lunas
@@ -22,6 +24,18 @@ const (
 	JenisKetetapanSkpd    JenisKetetapan = "skpd"
 	JenisKetetapanSkpdkb  JenisKetetapan = "skpdkb"
 	JenisKetetapanSkpdkbt JenisKetetapan = "skpdkbt"
+
+	StatusPenetapanBaru             StatusPenetapan = 0 // baru
+	StatusPenetapanDisetujuiKasubid StatusPenetapan = 1 // DisetujuiKasubid
+	StatusPenetapanDisetujuiKabid   StatusPenetapan = 2 // DisetujuiKabid
+	StatusPenetapanDitolakKasubid   StatusPenetapan = 3 // DitolakKasubid
+	StatusPenetapanDitolakKabid     StatusPenetapan = 4 // DitolakKabid
+
+	TbpStatusFilterBaru       TbpStatusFilter = 1 // baru
+	TbpStatusFilterPembayaran TbpStatusFilter = 2 // Pembayaran
+	TbpStatusFilterPenyetoran TbpStatusFilter = 3 // Penyetoran
+	TbpStatusFilterLunas      TbpStatusFilter = 4 // Lunas
+	TbpStatusFilterJatuhTempo TbpStatusFilter = 5 // Jatuh Tempo
 )
 
 type Input interface {

@@ -114,7 +114,7 @@ func base64Validator(val reflect.Value, exptVal string) error {
 	if val.Kind() == reflect.Pointer && val.IsNil() {
 		return nil
 	}
-	re := regexp.MustCompile(`^(data:)([\w\/\+-]*)(;charset=[\w-]+|;base64){0,1},([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$`)
+	re := regexp.MustCompile(`^(data:)([\w\/\+-.]*)(;charset=[\w-]+|;base64){0,1},([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$`)
 
 	b64RawString := h.ValStringer(val)
 	if !re.MatchString(b64RawString) {

@@ -42,3 +42,21 @@ func (input *CreateDetailPpjNonPlnDto) DuplicateEspt(esptDetail *mespt.Espt) err
 	}
 	return nil
 }
+
+type UpdateDetailPpjNonPlnDto struct {
+	UpdateDetailBaseDto
+	DataDetails mdppjnonpln.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input *UpdateDetailPpjNonPlnDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input *UpdateDetailPpjNonPlnDto) LenDetails() int {
+	newEmpty := mdppjnonpln.UpdateDto{}
+	lenData := 1
+	if input.DataDetails == newEmpty {
+		lenData = 0
+	}
+	return lenData
+}
