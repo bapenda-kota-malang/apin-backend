@@ -72,7 +72,7 @@ func GetDetail(tbp_id int) (any, error) {
 func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	var dataSinkronisasi m.Sinkronisasi
 	var dataSpt []ms.Spt
-	var mapSpt map[string]ms.Spt
+	var mapSpt = make(map[string]ms.Spt)
 	var dataSinkronisasiMerge []m.SinkronisasiMerge
 	var resp t.II
 	var errChan = make(chan error)
@@ -117,9 +117,9 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 				Excel_NominalDenda: dataExcel[k].Nominal,
 			}
 			if k, exist := mapSpt[*dataExcel[k].NoRekening]; exist {
-				tmpDataSinkronisasiMerge.Spt_Id = k.Id
-				tmpDataSinkronisasiMerge.Spt_Nominal = &mapSpt[k].JumlahPajak
-				tmpDataSinkronisasiMerge.Spt_NominalDenda = mapSpt[k].Denda
+				tmpDataSinkronisasiMerge.Spt_Id = &k.Id
+				tmpDataSinkronisasiMerge.Spt_Nominal = &k.JumlahPajak
+				tmpDataSinkronisasiMerge.Spt_NominalDenda = k.Denda
 			}
 			delete(mapSpt, *dataExcel[k].NoRekening)
 			dataSinkronisasiMerge = append(dataSinkronisasiMerge, tmpDataSinkronisasiMerge)
@@ -128,7 +128,7 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 		if len(mapSpt) > 0 {
 			for _, v := range mapSpt {
 				tmpDataSinkronisasiMerge := m.SinkronisasiMerge{
-					Spt_Id:           v.Id,
+					Spt_Id:           &v.Id,
 					Spt_Nominal:      &v.JumlahPajak,
 					Spt_NominalDenda: v.Denda,
 				}

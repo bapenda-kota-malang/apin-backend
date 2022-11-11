@@ -5,7 +5,7 @@ import (
 
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
-	uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
