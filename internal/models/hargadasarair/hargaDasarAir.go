@@ -32,13 +32,13 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	Peruntukan        *types.Peruntukan `json:"peruntukan"`
-	BatasBawah        *float64          `json:"batasBawah"`
-	BatasBawah_Opt    *string           `json:"batasBawah_Opt"`
-	BatasAtas         *float64          `json:"batasAtas"`
-	BatasAtas_Opt     *string           `json:"batasAtas_Opt"`
-	TarifMataAir      *float64          `json:"tarifMataAir"`
-	TarifBukanMataAir *float64          `json:"tarifBukanMataAir"`
-	Page              int               `json:"page"`
-	PageSize          int               `json:"page_size"`
+	Peruntukan        *string  `json:"peruntukan"`
+	BatasBawah        *float64 `json:"batasBawah"`
+	BatasBawah_Opt    *string  `json:"batasBawah_Opt"`
+	BatasAtas         *float64 `json:"batasAtas"`
+	BatasAtas_Opt     *string  `json:"batasAtas_Opt"`
+	TarifMataAir      *float64 `json:"tarifMataAir"`
+	TarifBukanMataAir *float64 `json:"tarifBukanMataAir"`
+	Page              int      `json:"page"`
+	PageSize          int      `json:"page_size"`
 }
