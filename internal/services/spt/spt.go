@@ -89,11 +89,11 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 	// if mark as new file not clone from esptpd then save new file
 	if opts["newFile"].(bool) {
 		var errChan = make(chan error)
-		fileName, path, extFile, id, err := filePreProcess(input.Lampiran, "lampiran"+opts["baseUri"].(string), opts["userId"].(uint), uuid.Nil)
+		fileName, path, extFile, id, err := filePreProcess(input.Lampiran, "Lampiran"+opts["baseUri"].(string), opts["userId"].(uint), uuid.Nil)
 		if err != nil {
 			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 		}
-		go sh.SaveFile(data.Lampiran, fileName, path, extFile, errChan)
+		go sh.SaveFile(input.Lampiran, fileName, path, extFile, errChan)
 		if err := <-errChan; err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
 		}
@@ -152,14 +152,20 @@ func GetList(input m.FilterDto, userId uint) (any, error) {
 	}
 	if input.TbpStatus == nil {
 		// baseQuery.Joins("JOIN \"Tbp\" ON \"Spt\".\"Id\"")
-	}
-	tbpStatus := *input.TbpStatus
-	switch tbpStatus {
-	case m.TbpStatusFilterBaru:
-	case m.TbpStatusFilterLunas:
-	case m.TbpStatusFilterJatuhTempo:
+	} else {
+		tbpStatus := *input.TbpStatus
+		switch tbpStatus {
+		case m.TbpStatusFilterBaru:
+		case m.TbpStatusFilterLunas:
+		case m.TbpStatusFilterJatuhTempo:
+		}
 	}
 	input.TbpStatus = nil
+	if input.JatuhTempo != nil {
+		val, _ := input.JatuhTempo.Value()
+		endOfMonthInput := datatypes.Date(sh.EndOfMonth(val.(time.Time)))
+		input.JatuhTempo = &endOfMonthInput
+	}
 	result := baseQuery.
 		Scopes(gh.Filter(input)).
 		Count(&count).
@@ -180,7 +186,7 @@ func GetList(input m.FilterDto, userId uint) (any, error) {
 	}, nil
 }
 
-func GetDetail(id uuid.UUID, userId uint) (any, error) {
+func GetDetail(id uuid.UUID, typeSpt mtypes.JenisPajak, userId uint) (any, error) {
 	var data *m.Spt
 
 	baseQuery := a.DB.Model(&m.Spt{})
@@ -191,7 +197,7 @@ func GetDetail(id uuid.UUID, userId uint) (any, error) {
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
-		First(&data, "\"Id\" = ?", id.String())
+		First(&data, "\"Spt\".\"Id\" = ? AND \"Spt\".\"Type\" = ?", id.String(), typeSpt)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -236,7 +242,7 @@ func Update(id uuid.UUID, input any, opts map[string]interface{}, tx *gorm.DB) (
 		inputData := input.(m.UpdateDto)
 		if inputData.Lampiran != nil {
 			var errChan = make(chan error)
-			fileName, path, extFile, _, err := filePreProcess(*inputData.Lampiran, "lampiran"+opts["baseUri"].(string), opts["userId"].(uint), data.Id)
+			fileName, path, extFile, _, err := filePreProcess(*inputData.Lampiran, "Lampiran"+opts["baseUri"].(string), opts["userId"].(uint), data.Id)
 			if err != nil {
 				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 			}

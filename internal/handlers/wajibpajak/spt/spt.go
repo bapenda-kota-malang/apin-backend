@@ -36,9 +36,15 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	if !pass {
 		return
 	}
+	jenisPajak := mtypes.JenisPajakSA
+	re := regexp.MustCompile(`^\/\w*`)
+	switch re.FindString(r.RequestURI)[1:] {
+	case "skpd":
+		jenisPajak = mtypes.JenisPajakOA
+	}
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 
-	result, err := s.GetDetail(id, uint(authInfo.User_Id))
+	result, err := s.GetDetail(id, jenisPajak, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
