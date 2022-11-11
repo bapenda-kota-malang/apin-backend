@@ -166,7 +166,7 @@ func init() {
 		&tbp.Tbp{},
 		&tbp.DetailTbp{},
 		&sinkronisasi.Sinkronisasi{},
-		&sinkronisasi.RincianSinkronisasi{},
+		&sinkronisasi.DetailSinkronisasi{},
 	}
 	a.AutoMigrate(listModelPembayaran...)
 }

@@ -45,7 +45,7 @@ func Delete(tbp_id uint64, tx *gorm.DB) error {
 
 	result = tx.Delete(&data)
 	if result.RowsAffected == 0 {
-		return errors.New("tidak dapat menghapus data rincian tbp")
+		return errors.New("tidak dapat menghapus data detail tbp")
 	}
 
 	return nil
@@ -71,12 +71,12 @@ func Update(input m.DetailTbpUpdateDto, tbp_id uint64, tx *gorm.DB) (any, error)
 
 	err := sc.Copy(&dataFromDb, &data)
 	if err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload rincian tbp", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload detail tbp", data)
 	}
 
 	dataFromDb.Tbp_Id = &tbp_id
 	if result := tx.Save(&dataFromDb); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data rincian tbp", dataFromDb)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data detail tbp", dataFromDb)
 	}
 	return rp.OKSimple{Data: data}, nil
 }

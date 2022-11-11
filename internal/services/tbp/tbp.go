@@ -115,13 +115,11 @@ func GetList(input m.FilterDto) (any, error) {
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&m.Tbp{}).
-		Preload(clause.Associations).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
-		Preload("User").
-		Preload("Rekening").
-		Preload("Npwpd").
-		Preload("Jurnal").
 		Preload("DetailTbps.Spt").
 		Scopes(gh.Filter(input)).
 		Count(&count).
@@ -146,13 +144,11 @@ func GetDetail(tbp_id int) (any, error) {
 	var data *m.Tbp
 	err := a.DB.
 		Model(&m.Tbp{}).
-		Preload(clause.Associations).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
-		Preload("User").
-		Preload("Rekening").
-		Preload("Npwpd").
-		Preload("Jurnal").
 		Preload("DetailTbps.Spt").
 		First(&data, tbp_id).Error
 	if err != nil {

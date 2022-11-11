@@ -38,7 +38,6 @@ type Tbp struct {
 	NominalBunga                  *float64        `json:"nominalBunga" gorm:"type:decimal"`
 	NominalDenda                  *float64        `json:"nominalDenda" gorm:"type:decimal"`
 	Total                         *float64        `json:"total" gorm:"type:decimal"`
-	Status                        *string         `json:"status" gorm:"type:varchar(50)"`
 	TempatPembayaran              *string         `json:"tempatPembayaran" gorm:"type:varchar(50)"`
 	gh.DateModel
 	IsCancelled   *bool      `json:"isCancelled"`
@@ -68,7 +67,6 @@ type CreateDto struct {
 	NominalBunga                  *float64   `json:"nominalBunga"`
 	NominalDenda                  *float64   `json:"nominalDenda"`
 	Total                         *float64   `json:"total"`
-	Status                        *string    `json:"status"`
 	TempatPembayaran              *string    `json:"tempatPembayaran"`
 	gh.DateModel
 	IsCancelled   *bool      `json:"isCancelled"`
@@ -82,7 +80,6 @@ type UpdateDto struct {
 	Note              *string             `json:"note"`
 	CreatedBy_User_Id *uint64             `json:"createdBy_user_id"`
 	TempatPembayaran  *string             `json:"tempatPembayaran"`
-	Status            *string             `json:"status"`
 	DetailTbp         *DetailTbpCreateDto `json:"detailTbp"`
 }
 

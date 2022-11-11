@@ -14,13 +14,10 @@ type DetailTbp struct {
 	Spt    *ms.Spt    `json:"spt,omitempty" gorm:"foreignKey:Spt_Id"`
 	// Teguran_Iduint64 `json:"teguran_id"`
 	// Teguran *mt.Teguran `json:"teguran,omitempty" gorm:"foreignKey:Teguran_Id"`
-	// Nominal      *float64 `json:"nominal" gorm:"type:decimal"`
-	// Denda        *float64 `json:"denda" gorm:"type:decimal"`
 	NominalBayar *float64 `json:"nominalBayar" gorm:"type:decimal"`
 	// Sts_Id *uint64 `json:"sts_id"`
 	// Sts *msts.Sts `json:"sts,omitempty" gorm:"foreignKey:Sts_Id"`
 	AngsuranKe *int `json:"angsuranKe" gorm:"type:smallint"`
-	// Bunga            *float64        `json:"bunga" gorm:"type:decimal"`
 	Waktu_Detail_Tb *datatypes.Time `json:"waktu_detail_tb"`
 }
 
@@ -28,12 +25,9 @@ type DetailTbpCreateDto struct {
 	Tbp_Id *uint64    `json:"tbp_id"`
 	Spt_Id *uuid.UUID `json:"spt_id" gorm:"type:uuid"`
 	// Teguran_Iduint64 `json:"teguran_id"`
-	// Nominal      *float64 `json:"nominal"`
-	// Denda        *float64 `json:"denda"`
 	NominalBayar *float64 `json:"nominalBayar"`
 	// Sts_Id *uint64 `json:"sts_id"`
 	AngsuranKe *int `json:"angsuranKe"`
-	// Bunga            *float64        `json:"bunga"`
 	Waktu_Detail_Tb *datatypes.Time `json:"waktu_detail_tb"`
 }
 

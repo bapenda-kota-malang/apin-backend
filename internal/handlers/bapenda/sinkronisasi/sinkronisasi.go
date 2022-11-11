@@ -6,6 +6,7 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/sinkronisasi"
+	sds "github.com/bapenda-kota-malang/apin-backend/internal/services/sinkronisasi/detailsinkronisasi"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
@@ -36,5 +37,31 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 	result, err := s.Create(input, uint64(authInfo.User_Id))
+	hh.DataResponse(w, result, err)
+}
+
+func CreateDetail(w http.ResponseWriter, r *http.Request) {
+	var input []m.DetailSinkronisasiCreateDto
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
+		return
+	}
+
+	result, err := sds.Create(input, nil)
+	hh.DataResponse(w, result, err)
+}
+
+func Update(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	var input m.UpdateDto
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
+		return
+	}
+
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err := s.Update(id, input, uint64(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }

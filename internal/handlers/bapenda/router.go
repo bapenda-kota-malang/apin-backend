@@ -259,6 +259,8 @@ func SetRoutes() http.Handler {
 		r.Get("/", sinkronisasi.GetList)
 		r.Get("/{id}", sinkronisasi.GetDetail)
 		r.Post("/", sinkronisasi.Create)
+		r.Post("/detail", sinkronisasi.CreateDetail)
+		r.Patch("/detail", sinkronisasi.Update)
 	})
 	return r
 }
