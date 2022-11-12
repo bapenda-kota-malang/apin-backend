@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	mrek "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -14,6 +15,7 @@ import (
 
 	srek "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
 	snomertracker "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/sptnomertracker"
+	suser "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -105,7 +107,9 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	data.TanggalSpt = time.Now()
+	if data.TanggalSpt.IsZero() {
+		data.TanggalSpt = time.Now()
+	}
 	yearNow := uint(data.TanggalSpt.Year())
 
 	nomerUrut, err := snomertracker.TrxNewNumber(mnomertracker.Dto{Tahun: &yearNow, KodeJenisPajak: kodeJenisPajak}, tx)
@@ -122,16 +126,28 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 	default:
 		data.Type = mtypes.JenisPajakSA
 	}
-	data.Status = m.StatusBelumLunas
+	data.StatusPembayaran = m.StatusBelumLunas
 	if data.CreateBy_User_Id == 0 {
 		data.CreateBy_User_Id = opts["userId"].(uint)
 	}
-	if data.PeriodeAwal == datatypes.Date(time.Time{}) {
-		prevMonth := sh.BeginningOfPreviosMonth()
-		data.PeriodeAwal = datatypes.Date(prevMonth)
-		data.PeriodeAkhir = datatypes.Date(sh.EndOfMonth(prevMonth))
-		data.JatuhTempo = datatypes.Date(sh.EndOfMonth(time.Now()))
+
+	periodeVal, _ := data.PeriodeAwal.Value()
+	periodeTime := periodeVal.(time.Time)
+	if periodeTime.IsZero() {
+		periodeTime = sh.BeginningOfPreviosMonth()
+	} else {
+		periodeTime = sh.BeginningOfMonth(periodeTime)
 	}
+
+	jatuhTempoVal, _ := data.JatuhTempo.Value()
+	jatuhTempoTime := jatuhTempoVal.(time.Time)
+	if jatuhTempoTime.IsZero() {
+		jatuhTempoTime = time.Now()
+	}
+
+	data.PeriodeAwal = datatypes.Date(periodeTime)
+	data.PeriodeAkhir = datatypes.Date(sh.EndOfMonth(periodeTime))
+	data.JatuhTempo = datatypes.Date(sh.EndOfMonth(jatuhTempoTime))
 
 	err = tx.Create(&data).Error
 	if err != nil {
@@ -150,22 +166,33 @@ func GetList(input m.FilterDto, userId uint) (any, error) {
 	if userId != 0 {
 		baseQuery.Joins("JOIN \"Npwpd\" ON \"Spt\".\"Npwpd_Id\" = \"Npwpd\".\"Id\" AND \"Npwpd\".\"User_Id\" = ?", userId)
 	}
-	if input.TbpStatus == nil {
-		// baseQuery.Joins("JOIN \"Tbp\" ON \"Spt\".\"Id\"")
-	} else {
-		tbpStatus := *input.TbpStatus
-		switch tbpStatus {
-		case m.TbpStatusFilterBaru:
-		case m.TbpStatusFilterLunas:
-		case m.TbpStatusFilterJatuhTempo:
-		}
-	}
-	input.TbpStatus = nil
+	opts := "gte"
+	dataDateNow := datatypes.Date(time.Now())
 	if input.JatuhTempo != nil {
 		val, _ := input.JatuhTempo.Value()
-		endOfMonthInput := datatypes.Date(sh.EndOfMonth(val.(time.Time)))
-		input.JatuhTempo = &endOfMonthInput
+		endOfMonthDate := datatypes.Date(sh.EndOfMonth(val.(time.Time)))
+		input.JatuhTempo = &endOfMonthDate
+		opts = "="
+	} else {
+		input.JatuhTempo = &dataDateNow
 	}
+
+	if input.StatusData == nil {
+		// baseQuery.Joins("JOIN \"Tbp\" ON \"Spt\".\"Id\"")
+	} else {
+		tbpStatus := *input.StatusData
+		if tbpStatus == m.TbpStatusFilterJatuhTempo {
+			opts = "lt"
+		}
+		switch tbpStatus {
+		case m.TbpStatusFilterBaru:
+			baseQuery = baseQuery.Where("\"StatusPembayaran\" = ?", m.StatusBelumLunas)
+		case m.TbpStatusFilterLunas:
+		case m.TbpStatusFilterPembayaran:
+		}
+		input.StatusData = nil
+	}
+	input.JatuhTempo_Opt = &opts
 	result := baseQuery.
 		Scopes(gh.Filter(input)).
 		Count(&count).
@@ -209,7 +236,7 @@ func GetDetail(id uuid.UUID, typeSpt mtypes.JenisPajak, userId uint) (any, error
 	}, nil
 }
 
-func Update(id uuid.UUID, input any, opts map[string]interface{}, tx *gorm.DB) (any, error) {
+func Update(id uuid.UUID, input m.UpdateDto, opts map[string]interface{}, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -220,47 +247,93 @@ func Update(id uuid.UUID, input any, opts map[string]interface{}, tx *gorm.DB) (
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 	// copy to model struct
-	if inputData, ok := input.(m.VerifyDto); ok {
-		// if data.StatusPenetapan == m.StatusPenetapanDisetujuiKabid {
-		// 	return sh.SetError("request", "update-data", source, "failed", "data telah disetujui", data)
-		// }
-		if err := sc.Copy(&data, &inputData); err != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	if input.Lampiran != nil {
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := filePreProcess(*input.Lampiran, "Lampiran"+opts["baseUri"].(string), opts["userId"].(uint), data.Id)
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 		}
-		switch data.StatusPenetapan {
-		case m.StatusPenetapanBaru,
-			m.StatusPenetapanDisetujuiKabid,
-			m.StatusPenetapanDisetujuiKasubid,
-			m.StatusPenetapanDitolakKabid,
-			m.StatusPenetapanDitolakKasubid:
-			// do nothing
-		default:
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+		go sh.ReplaceFile(data.Lampiran, *input.Lampiran, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "update-data", source, "failed", fmt.Sprintf("failed save file: %s", err), data)
 		}
-		// data.VerifyBy_User_Id = &userId
-	} else {
-		inputData := input.(m.UpdateDto)
-		if inputData.Lampiran != nil {
-			var errChan = make(chan error)
-			fileName, path, extFile, _, err := filePreProcess(*inputData.Lampiran, "Lampiran"+opts["baseUri"].(string), opts["userId"].(uint), data.Id)
-			if err != nil {
-				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
-			}
-			go sh.ReplaceFile(data.Lampiran, *inputData.Lampiran, fileName, path, extFile, errChan)
-			if err := <-errChan; err != nil {
-				return sh.SetError("request", "update-data", source, "failed", fmt.Sprintf("failed save file: %s", err), data)
-			}
-			inputData.Lampiran = &fileName
-		}
-		if err := sc.Copy(&data, &inputData); err != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
-		}
+		input.Lampiran = &fileName
+	}
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
 	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(dataRow)),
+		},
+		Data: data,
+	}, nil
+}
+
+func Verify(id uuid.UUID, input m.VerifyDto, userId uint) (any, error) {
+	var data *m.Spt
+	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
+	dataRow := a.DB.First(&data, "\"Id\" = ? AND \"Type\" = ?", id.String(), mtypes.JenisPajakOA).RowsAffected
+	if dataRow == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+	if data.StatusPenetapan == m.StatusPenetapanDisetujuiKabid {
+		return sh.SetError("request", "update-data", source, "failed", "data telah disetujui", data)
+	}
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	resp, err := suser.GetJabatanPegawai(userId)
+	if err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal data pegawai: "+err.Error(), data)
+	}
+	jabatan := strings.ToUpper(resp.(string))
+	userRole := ""
+	if kasubid := strings.Contains(jabatan, "KEPALA SUB BIDANG"); kasubid {
+		data.Kasubid_User_Id = &userId
+		userRole = "kasubid"
+	} else if kabid := strings.Contains(jabatan, "KEPALA BIDANG"); kabid {
+		data.Kabid_User_Id = &userId
+		userRole = "kabid"
+	}
+	if userRole == "" {
+		return sh.SetError("request", "update-data", source, "failed", "pegawai bukan kabid atau kasubid", data)
+	}
+	switch input.StatusPenetapan {
+	case "disetujui":
+		if userRole == "kasubid" {
+			data.StatusPenetapan = m.StatusPenetapanDisetujuiKasubid
+		} else if userRole == "kabid" {
+			data.StatusPenetapan = m.StatusPenetapanDisetujuiKabid
+		}
+	case "ditolak":
+		if userRole == "kasubid" {
+			data.StatusPenetapan = m.StatusPenetapanDitolakKasubid
+		} else if userRole == "kabid" {
+			data.StatusPenetapan = m.StatusPenetapanDitolakKabid
+		}
+	default:
+		return sh.SetError("request", "update-data", source, "failed", "status tidak diketahui", data)
+	}
+	switch data.StatusPenetapan {
+	case m.StatusPenetapanBaru,
+		m.StatusPenetapanDisetujuiKasubid,
+		m.StatusPenetapanDisetujuiKabid,
+		m.StatusPenetapanDitolakKasubid,
+		m.StatusPenetapanDitolakKabid:
+		// do nothing
+	default:
+		return sh.SetError("request", "update-data", source, "failed", "status penetapan tidak diketahui", data)
+	}
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
 	return rp.OK{
 		Meta: t.IS{
 			"affected": strconv.Itoa(int(dataRow)),
@@ -290,5 +363,84 @@ func Delete(id uuid.UUID) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
 
+func SkpdkbExisting(input m.SkpdkbExisting, opts map[string]interface{}) (any, error) {
+	var newDataInput m.Input
+	var existingData m.Spt
+	var createdNewData m.Spt
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		// get old data from db
+		dataRow := tx.Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).First(&existingData, "\"Id\" = ?", input.Spt_Id.String()).RowsAffected
+		if dataRow == 0 {
+			return errors.New("data tidak dapat ditemukan")
+		}
+
+		// casting to dto
+		if existingData.DetailSptAir != nil {
+			newDataInput = &m.CreateDetailAirDto{}
+		} else if existingData.DetailSptHiburan != nil {
+			newDataInput = &m.CreateDetailHiburanDto{}
+		} else if existingData.DetailSptHotel != nil {
+			newDataInput = &m.CreateDetailHotelDto{}
+		} else if existingData.DetailSptParkir != nil {
+			newDataInput = &m.CreateDetailParkirDto{}
+		} else if existingData.DetailSptNonPln != nil {
+			newDataInput = &m.CreateDetailPpjNonPlnDto{}
+		} else if existingData.DetailSptPln != nil {
+			newDataInput = &m.CreateDetailPpjPlnDto{}
+		} else if existingData.DetailSptReklame != nil {
+			newDataInput = &m.CreateDetailReklameDto{}
+		} else if existingData.DetailSptResto != nil {
+			newDataInput = &m.CreateDetailRestoDto{}
+		} else {
+			newDataInput = &m.CreateDetailBaseDto{}
+		}
+		// copy data from existing
+		if err := newDataInput.SkpdkbDuplicate(&existingData, &input); err != nil {
+			return err
+		}
+
+		// calculate skpdkb process
+		newDataInput.CalculateSkpdkb()
+		// create new data
+		respNewData, err := CreateDetail(newDataInput, opts, tx)
+		if err != nil {
+			return err
+		}
+		createdNewData = respNewData.(rp.OKSimple).Data.(m.Spt)
+
+		// change existing data value
+		// existingData.Ref_Spt_Id = &createdNewData.Id
+		// TODO: FLAG SKPDKB
+		// update existing data
+		if result := tx.Save(&existingData); result.Error != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "create-skpdkb-existing", source, "failed", "transaction skpd existing: "+err.Error(), createdNewData)
+	}
+	return rp.OKSimple{Data: createdNewData}, nil
+}
+
+func SkpdkbNew(input m.Input, opts map[string]interface{}) (any, error) {
+	var createdData m.Spt
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		// save new data
+		respNewData, err := CreateDetail(input, opts, tx)
+		if err != nil {
+			return err
+		}
+		createdData = respNewData.(rp.OKSimple).Data.(m.Spt)
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "create-skpdkb-existing", source, "failed", "transaction skpd existing: "+err.Error(), createdData)
+	}
+	return rp.OKSimple{Data: createdData}, nil
 }

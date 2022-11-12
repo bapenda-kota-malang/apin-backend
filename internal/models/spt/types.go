@@ -8,7 +8,6 @@ import (
 type SptStatus string
 type JenisKetetapan string
 type StatusPenetapan uint8
-type TbpStatusFilter uint8
 
 const (
 	StatusBelumLunas          SptStatus = "00" //belum lunas
@@ -31,11 +30,11 @@ const (
 	StatusPenetapanDitolakKasubid   StatusPenetapan = 3 // DitolakKasubid
 	StatusPenetapanDitolakKabid     StatusPenetapan = 4 // DitolakKabid
 
-	TbpStatusFilterBaru       TbpStatusFilter = 1 // baru
-	TbpStatusFilterPembayaran TbpStatusFilter = 2 // Pembayaran
-	TbpStatusFilterPenyetoran TbpStatusFilter = 3 // Penyetoran
-	TbpStatusFilterLunas      TbpStatusFilter = 4 // Lunas
-	TbpStatusFilterJatuhTempo TbpStatusFilter = 5 // Jatuh Tempo
+	TbpStatusFilterBaru       uint8 = 1 // baru
+	TbpStatusFilterPembayaran uint8 = 2 // Pembayaran
+	TbpStatusFilterPenyetoran uint8 = 3 // Penyetoran
+	TbpStatusFilterLunas      uint8 = 4 // Lunas
+	TbpStatusFilterJatuhTempo uint8 = 5 // Jatuh Tempo
 )
 
 type Input interface {
@@ -47,4 +46,6 @@ type Input interface {
 	LenDetails() int
 	ChangeDetails(newDetail interface{})
 	DuplicateEspt(esptDetail *espt.Espt) error
+	SkpdkbDuplicate(sptDetail *Spt, skpdkb *SkpdkbExisting) error
+	CalculateSkpdkb()
 }
