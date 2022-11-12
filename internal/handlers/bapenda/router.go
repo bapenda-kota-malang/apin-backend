@@ -37,6 +37,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
@@ -44,6 +45,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambongrek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifreklame"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tbp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -250,5 +252,21 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/verify", espt.Verify)
 	})
 
+	r.Route("/tbp", func(r chi.Router) {
+		r.Get("/", tbp.GetList)
+		r.Get("/{id}", tbp.GetDetail)
+		r.Post("/", tbp.Create)
+		r.Patch("/{id}", tbp.Update)
+		r.Delete("/{id}", tbp.Delete)
+		r.Patch("/{id}/cancel", tbp.Cancel)
+	})
+
+	r.Route("/sinkronisasi", func(r chi.Router) {
+		r.Get("/", sinkronisasi.GetList)
+		r.Get("/{id}", sinkronisasi.GetDetail)
+		r.Post("/", sinkronisasi.Create)
+		r.Post("/detail", sinkronisasi.CreateDetail)
+		r.Patch("/detail", sinkronisasi.Update)
+	})
 	return r
 }
