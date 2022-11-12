@@ -39,6 +39,16 @@ func (input *CreateDetailHiburanDto) DuplicateEspt(esptDetail *mespt.Espt) error
 	return nil
 }
 
+func (input *CreateDetailHiburanDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *SkpdkbExisting) error {
+	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
+		return err
+	}
+	if err := copier.Copy(&input.DataDetails, &sptDetail); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Update
 type UpdateDetailHiburanDto struct {
 	UpdateDetailBaseDto

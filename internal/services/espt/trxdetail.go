@@ -46,8 +46,9 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 	if detail, ok := input.GetDetails().(mdair.CreateDto); ok {
 		switch detail.Peruntukan {
 		case mtypes.PeruntukanIndustriAir, mtypes.PeruntukanNiaga, mtypes.PeruntukanNonNiaga, mtypes.PeruntukanPdam:
+			strPeruntukan := string(detail.Peruntukan)
 			resphdair, err := shda.GetList(mhdair.FilterDto{
-				Peruntukan:     &detail.Peruntukan,
+				Peruntukan:     &strPeruntukan,
 				BatasBawah:     &omset,
 				BatasBawah_Opt: &omsetOpt,
 			})

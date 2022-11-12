@@ -2,18 +2,17 @@ package spt
 
 import (
 	mespt "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
-	mdsh "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthotel"
 	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
 	mdsjbr "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/jaminanbongkarreklame"
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 )
 
 // TODO: REKLAME GES
 type CreateDetailReklameDto struct {
 	CreateDetailBaseDto
-	DataDetails           []mdsh.CreateDto `json:"dataDetails" validate:"required"`
-	DetailSptReklame      mdsrek.CreateDto `json:"detailSptReklame"`
-	JaminanBongkarReklame mdsjbr.CreateDto `json:"jaminanBongkarReklame"`
+	DataDetails           []mdsrek.CreateDto `json:"dataDetails" validate:"required"`
+	JaminanBongkarReklame mdsjbr.CreateDto   `json:"jaminanBongkarReklame"`
 }
 
 func (input *CreateDetailReklameDto) GetDetails() interface{} {
@@ -32,11 +31,21 @@ func (input *CreateDetailReklameDto) ReplaceSptId(id uuid.UUID) {
 
 func (input *CreateDetailReklameDto) CalculateTax(taxPercentage *float64) {
 	// TODO: CHANGE THIS CALCULATION PROCESS
-	input.Spt.JumlahPajak = float32(input.Spt.Omset * (*taxPercentage / 100))
+	input.Spt.JumlahPajak = input.Spt.Omset * (*taxPercentage / 100)
 }
 
 func (input *CreateDetailReklameDto) DuplicateEspt(sptDetail *mespt.Espt) error {
 	// do nothing because spt don't have reklame
+	return nil
+}
+
+func (input *CreateDetailReklameDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *SkpdkbExisting) error {
+	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
+		return err
+	}
+	if err := copier.Copy(&input.DataDetails, &sptDetail); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -47,7 +56,8 @@ type UpdateDetailReklameDto struct {
 
 func (input *UpdateDetailReklameDto) CalculateTax(taxPercentage *float64) {
 	// TODO: CHANGE THIS CALCULATION PROCESS
-	input.Spt.JumlahPajak = float32(input.Spt.Omset * (*taxPercentage / 100))
+	calc := *input.Spt.Omset * *taxPercentage / 100
+	input.Spt.JumlahPajak = &calc
 }
 
 func (input *UpdateDetailReklameDto) GetDetails() interface{} {

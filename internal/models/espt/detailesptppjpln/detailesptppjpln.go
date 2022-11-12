@@ -13,6 +13,7 @@ type DetailEsptPpjPln struct {
 	JumlahPelanggan uint `json:"jumlahPelanggan"`
 	JumlahRekening  uint `json:"jumlahRekening"`
 	gormhelper.DateModel
+	JenisPPJ *jenisppj.JenisPPJ `json:"jenisPpj,omitempty" gorm:"foreignKey:JenisPPJ_Id"`
 }
 
 type CreateDto struct {

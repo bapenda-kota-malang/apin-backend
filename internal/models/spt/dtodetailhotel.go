@@ -40,6 +40,16 @@ func (input *CreateDetailHotelDto) DuplicateEspt(esptDetail *mespt.Espt) error {
 	return nil
 }
 
+func (input *CreateDetailHotelDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *SkpdkbExisting) error {
+	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
+		return err
+	}
+	if err := copier.Copy(&input.DataDetails, &sptDetail); err != nil {
+		return err
+	}
+	return nil
+}
+
 type UpdateDetailHotelDto struct {
 	UpdateDetailBaseDto
 	DataDetails []mdsh.UpdateDto `json:"dataDetails" validate:"required"`
