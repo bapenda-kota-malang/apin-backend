@@ -17,11 +17,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/static"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
-  "github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/spt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/tarifpajak"
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -146,5 +148,8 @@ func SetRoutes() http.Handler {
 		r.Get("/", spt.GetList)
 		r.Get("/{id}", spt.GetDetail)
 	})
+
+	fs := http.FileServer(http.Dir(servicehelper.GetResourcesPath()))
+	r.Handle("/static/{filename}", http.StripPrefix("/static/", static.AuthFile(static.JoinPrefix(fs))))
 	return r
 }
