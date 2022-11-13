@@ -427,3 +427,110 @@ func DeleteFile(input string, data string) (string, error) {
 	bytes, _ := json.Marshal(result)
 	return string(bytes), nil
 }
+
+// loop process to save image, excel, pdf file from base64 and return filename
+func allTypeFile(input string, docsName string, userId uint) (resultString string, err error) {
+	var errChan = make(chan error)
+	imagePath := GetImgPath()
+	pdfPath := GetPdfPath()
+	excelPath := GetExcelPath()
+	id, err2 := GetUuidv4()
+	if err2 != nil {
+		err = err2
+		return
+	}
+	extFile, err2 := base64helper.GetExtensionBase64(input)
+	if err2 != nil {
+		err = err2
+		return
+	}
+	switch extFile {
+	case "png", "jpeg":
+		fileName := GenerateFilename(docsName, id, userId, extFile)
+		go SaveFile(input, fileName, imagePath, extFile, errChan)
+		if err2 := <-errChan; err2 != nil {
+			err = err2
+			return
+		}
+		resultString = fileName
+	case "pdf":
+		fileName := GenerateFilename(docsName, id, userId, extFile)
+		go SaveFile(input, fileName, pdfPath, extFile, errChan)
+		if err2 := <-errChan; err2 != nil {
+			err = err2
+			return
+		}
+		resultString = fileName
+	case "xlsx", "xls":
+		fileName := GenerateFilename(docsName, id, userId, extFile)
+		go SaveFile(input, fileName, excelPath, extFile, errChan)
+		if err2 := <-errChan; err2 != nil {
+			err = err2
+			return
+		}
+		resultString = fileName
+	default:
+		err = fmt.Errorf("unsupported type for this process")
+		return
+	}
+
+	return
+}
+
+// all type file
+func GetAllTypeFile(input string, docsName string, userId uint) (resultString string, err error) {
+	result, err := allTypeFile(input, docsName, userId)
+	if err == nil {
+		resultString = result
+	}
+	return
+}
+
+// loop process to save image, pdf file from base64 and return filename
+func pdfAndImageFile(input string, docsName string, userId uint) (resultString string, err error) {
+	var errChan = make(chan error)
+	imagePath := GetImgPath()
+	pdfPath := GetPdfPath()
+	id, err2 := GetUuidv4()
+	if err2 != nil {
+		err = err2
+		return
+	}
+	extFile, err2 := base64helper.GetExtensionBase64(input)
+	if err2 != nil {
+		err = err2
+		return
+	}
+	switch extFile {
+	case "png", "jpeg":
+		fileName := GenerateFilename(docsName, id, userId, extFile)
+		go SaveFile(input, fileName, imagePath, extFile, errChan)
+		if err2 := <-errChan; err2 != nil {
+			err = err2
+			return
+		}
+		resultString = fileName
+	case "pdf":
+		fileName := GenerateFilename(docsName, id, userId, extFile)
+		go SaveFile(input, fileName, pdfPath, extFile, errChan)
+		if err2 := <-errChan; err2 != nil {
+			err = err2
+			return
+		}
+		resultString = fileName
+	default:
+		err = fmt.Errorf("unsupported type for this process")
+		return
+	}
+
+	return
+}
+
+// pdf and image type file
+func GetPdfOrImageFile(input string, docsName string, userId uint) (resultString string, err error) {
+	result, err := pdfAndImageFile(input, docsName, userId)
+	if err == nil {
+		resultString = result
+	}
+	return
+}

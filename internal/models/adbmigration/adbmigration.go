@@ -26,6 +26,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
@@ -159,4 +160,11 @@ func init() {
 		&detailsptresto.DetailSptResto{},
 	}
 	a.AutoMigrate(listModelSpt...)
+
+	listModelPengajuan := []interface{}{
+		&pengurangan.Pengurangan{},
+		&pengurangan.Keberatan{},
+		&pengurangan.BapLapangan{},
+	}
+	a.AutoMigrate(listModelPengajuan...)
 }

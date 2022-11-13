@@ -1,0 +1,30 @@
+package pengurangan
+
+import (
+	"time"
+
+	mn "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+)
+
+type BapLapangan struct {
+	Id                         uint64     `json:"id" gorm:"primaryKey"`
+	Keberatan_Id               *uint64    `json:"keberatan_id"`
+	TanggalKunjungan           *time.Time `json:"tanggalKunjungan"`
+	Npwpd_Id                   *uint64    `json:"npwpd_id"`
+	Hasil                      *string    `json:"hasil" gorm:"type:varchar(255)"`
+	PetugasLapangan_Pegawai_Id *uint64    `json:"petugasLapangan_pegawai_id"`
+	VerifKasubid_User_Id       *uint64    `json:"verifKasubid_user_id"`
+	EntryBy_User_Id            *uint64    `json:"entryBy_user_id"`
+	gh.DateModel
+	JenisTransaksi *int         `json:"jenisTransaksi"`
+	Pengurangan_Id *uint64      `json:"pengurangan_id"`
+	Keberatan      *Keberatan   `json:"keberatan,omitempty" gorm:"foreignKey:Keberatan_Id"`
+	Npwpd          *mn.Npwpd    `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
+	Pegawai        *mp.Pegawai  `json:"pegawai,omitempty" gorm:"foreignKey:PetugasLapangan_Pegawai_Id"`
+	KasubidUser    *mu.User     `json:"kasubidUser,omitempty" gorm:"foreignKey:VerifKasubid_User_Id"`
+	User           *mu.User     `json:"user,omitempty" gorm:"foreignKey:EntryBy_User_Id"`
+	Pengurangan    *Pengurangan `json:"pengurangan,omitempty" gorm:"foreignKey:Pengurangan_Id"`
+}

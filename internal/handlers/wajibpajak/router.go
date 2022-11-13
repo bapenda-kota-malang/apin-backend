@@ -16,10 +16,11 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
-  "github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/spt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/tarifpajak"
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
 	"github.com/go-chi/chi/v5"
@@ -145,6 +146,10 @@ func SetRoutes() http.Handler {
 	r.Route("/skpd", func(r chi.Router) {
 		r.Get("/", spt.GetList)
 		r.Get("/{id}", spt.GetDetail)
+	})
+
+	r.Route("/pengajuan", func(r chi.Router) {
+		r.Post("/{category}", pengurangan.Create)
 	})
 	return r
 }
