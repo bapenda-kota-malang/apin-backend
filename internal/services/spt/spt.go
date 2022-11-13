@@ -227,6 +227,8 @@ func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
 	input.JatuhTempo_Opt = &opts
 	result := baseQuery.
 		Select("\"Spt\".*, \"DetailTbp\".\"NominalBayar\"").
+		Preload("Rekening").
+		Preload("ObjekPajak").
 		Joins(stringJoin).
 		Scopes(gh.Filter(input)).
 		Count(&count).
