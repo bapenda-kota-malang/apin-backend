@@ -66,25 +66,30 @@ func (input *CreateDetailReklameDto) CalculateTax(taxPercentage *float64) {
 		case 4:
 			input.DataDetails[v].TarifHari = *input.DataDetails[v].TarifReklame.Tarif
 		}
+		// basic calculate tax
 		basicTax := (input.DataDetails[v].TarifHari +
 			input.DataDetails[v].TarifMinggu +
 			input.DataDetails[v].TarifBulan +
 			input.DataDetails[v].TarifTahun) * float64(input.DataDetails[v].Jumlah)
+		// if dasar pengenaan luas then add to calculation
 		if *input.DataDetails[v].TarifReklame.DasarPengenaan == "Luas" {
+			sisi := float64(1)
+			if input.DataDetails[v].Sisi == 2 {
+				sisi = float64(input.DataDetails[v].Sisi)
+			}
+			input.DataDetails[v].Sisi = uint64(sisi)
 			luas := float64(0)
 			switch input.DataDetails[v].JenisDimensi {
-			case mdsrek.JenisDimensiPersegi:
-				luas = math.Pow(float64(input.DataDetails[v].Sisi), 2)
 			case mdsrek.JenisDimensiPersegiPanjang:
 				luas = float64(input.DataDetails[v].Panjang) * float64(input.DataDetails[v].Lebar)
 			case mdsrek.JenisDimensiPersegiLingkaran:
 				r := float64(*input.DataDetails[v].Diameter) / 2
 				luas = math.Pi * math.Pow(r, 2)
 			}
-			basicTax *= luas
+			basicTax *= (luas * sisi)
 		}
 		input.DataDetails[v].JumlahRp = basicTax
-		tax += input.DataDetails[v].JumlahRp
+		tax += basicTax
 	}
 	input.Spt.JumlahPajak = tax
 }
