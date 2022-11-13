@@ -43,7 +43,7 @@ import (
 )
 
 // Process calculate tax
-func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
+func taxProcess(rekeningId *uint64, omset *float64, input m.Input) error {
 	yearNow := uint64(time.Now().Year())
 	omsetOpt := "lte"
 
@@ -51,9 +51,10 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 	if detail, ok := input.GetDetails().(mdair.CreateDto); ok {
 		switch detail.Peruntukan {
 		case mtypes.PeruntukanIndustriAir, mtypes.PeruntukanNiaga, mtypes.PeruntukanNonNiaga, mtypes.PeruntukanPdam:
+			strPeruntukan := string(detail.Peruntukan)
 			resphdair, err := shda.GetList(mhdair.FilterDto{
-				Peruntukan:     &detail.Peruntukan,
-				BatasBawah:     &omset,
+				Peruntukan:     &strPeruntukan,
+				BatasBawah:     omset,
 				BatasBawah_Opt: &omsetOpt,
 			})
 			if err != nil {
@@ -89,9 +90,9 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 
 	// get tarif pajak data for calculate tax
 	rspTp, err := stp.GetList(mtp.FilterDto{
-		Rekening_Id:   &rekeningId,
+		Rekening_Id:   rekeningId,
 		Tahun:         &yearNow,
-		OmsetAwal:     &omset,
+		OmsetAwal:     omset,
 		OmsetAwal_Opt: &omsetOpt,
 	})
 	if err != nil {
@@ -111,25 +112,22 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 
 // Transform espt to spt data
 func TransformEspt(esptDetail *mespt.Espt) (input m.Input, err error) {
-	input = &m.CreateDetailHotelDto{}
-
 	if esptDetail.DetailEsptAir != nil {
 		input = &m.CreateDetailAirDto{}
-	}
-	if esptDetail.DetailEsptHiburan != nil {
+	} else if esptDetail.DetailEsptHiburan != nil {
 		input = &m.CreateDetailHiburanDto{}
-	}
-	if esptDetail.DetailEsptParkir != nil {
+	} else if esptDetail.DetailEsptParkir != nil {
 		input = &m.CreateDetailParkirDto{}
-	}
-	if esptDetail.DetailEsptPpjNonPln != nil {
+	} else if esptDetail.DetailEsptHotel != nil {
+		input = &m.CreateDetailHotelDto{}
+	} else if esptDetail.DetailEsptPpjNonPln != nil {
 		input = &m.CreateDetailPpjNonPlnDto{}
-	}
-	if esptDetail.DetailEsptPpjPln != nil {
+	} else if esptDetail.DetailEsptPpjPln != nil {
 		input = &m.CreateDetailPpjPlnDto{}
-	}
-	if esptDetail.DetailEsptResto != nil {
+	} else if esptDetail.DetailEsptResto != nil {
 		input = &m.CreateDetailRestoDto{}
+	} else {
+		input = &m.CreateDetailBaseDto{}
 	}
 
 	input.DuplicateEspt(esptDetail)
@@ -151,9 +149,12 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 	err := tx.Transaction(func(tx *gorm.DB) error {
 		createDto := input.GetSpt(opts["baseUri"].(string)).(m.CreateDto)
 		if createDto.JumlahPajak == 0 {
-			err := taxProcess(*createDto.Rekening_Id, createDto.Omset, input)
+			err := taxProcess(createDto.Rekening_Id, &createDto.Omset, input)
 			if err != nil {
 				return err
+			}
+			if opts["baseUri"].(string) == "skpdkb" {
+				input.CalculateSkpdkb()
 			}
 			createDto = input.GetSpt(opts["baseUri"].(string)).(m.CreateDto)
 		}
@@ -261,7 +262,7 @@ func UpdateDetail(id uuid.UUID, input m.Input, opts map[string]interface{}) (int
 	affected := "0"
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		updateDto := input.GetSpt(opts["baseUri"].(string)).(m.UpdateDto)
-		err := taxProcess(uint64(*updateDto.Rekening_Id), updateDto.Omset, input)
+		err := taxProcess(updateDto.Rekening_Id, updateDto.Omset, input)
 		if err != nil {
 			return err
 		}

@@ -11,7 +11,7 @@ type FilterDto struct {
 	Npwpd_Id     *uint64         `json:"npwpd_Id"`
 	LuasLokasi   *uint           `json:"luasLokasi"`
 	Omset        *float64        `json:"omset"`
-	JumlahPajak  *float32        `json:"jumlahPajak"`
+	JumlahPajak  *float64        `json:"jumlahPajak"`
 	JatuhTempo   *datatypes.Date `json:"jatuhTempo"`
 	PeriodeAwal  *datatypes.Date `json:"periodeAwal"`
 	PeriodeAkhir *datatypes.Date `json:"periodeAkhir"`
@@ -30,7 +30,7 @@ type CreateDto struct {
 	LuasLokasi    *uint   `json:"luasLokasi" validate:"min=1"`
 	TarifPajak_Id uint    `json:"-"`
 	Omset         float64 `json:"omset"`
-	JumlahPajak   float32 `json:"-"`
+	JumlahPajak   float64 `json:"-"`
 	Attachment    string  `json:"attachment" validate:"base64=pdf,image,excel;b64size=1024"`
 }
 
@@ -40,7 +40,7 @@ type UpdateDto struct {
 	Rekening_Id   *uint    `json:"rekening_id" validate:"min=1"`
 	LuasLokasi    *uint    `json:"luasLokasi" validate:"min=1"`
 	Omset         *float64 `json:"omset"`
-	JumlahPajak   *float32 `json:"-"`
+	JumlahPajak   *float64 `json:"-"`
 	Attachment    *string  `json:"attachment" validate:"base64=pdf,image,excel;b64size=1024"`
 }
 
@@ -62,7 +62,7 @@ func (input *CreateDetailBaseDto) GetEspt() interface{} {
 }
 
 func (input *CreateDetailBaseDto) CalculateTax(taxPercentage *float64) {
-	input.Espt.JumlahPajak = float32(input.Espt.Omset * *taxPercentage / 100)
+	input.Espt.JumlahPajak = input.Espt.Omset * *taxPercentage / 100
 }
 
 func (input *CreateDetailBaseDto) ReplaceTarifPajakId(id uint) {
@@ -95,7 +95,7 @@ func (input *UpdateDetailBaseDto) GetEspt() interface{} {
 }
 
 func (input *UpdateDetailBaseDto) CalculateTax(taxPercentage *float64) {
-	calc := float32(*input.Espt.Omset * *taxPercentage / 100)
+	calc := *input.Espt.Omset * *taxPercentage / 100
 	input.Espt.JumlahPajak = &calc
 }
 

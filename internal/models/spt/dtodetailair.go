@@ -13,7 +13,7 @@ type CreateDetailAirDto struct {
 }
 
 func (input *CreateDetailAirDto) CalculateTax(taxPercentage *float64) {
-	input.Spt.JumlahPajak = float32(input.Spt.Omset * (*taxPercentage / 100) * float64(input.DataDetails.Pengenaan))
+	input.Spt.JumlahPajak = input.Spt.Omset * (*taxPercentage / 100) * input.DataDetails.Pengenaan
 }
 
 func (input *CreateDetailAirDto) GetDetails() interface{} {
@@ -48,6 +48,16 @@ func (input *CreateDetailAirDto) DuplicateEspt(esptDetail *mespt.Espt) error {
 	return nil
 }
 
+func (input *CreateDetailAirDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *SkpdkbExisting) error {
+	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
+		return err
+	}
+	if err := copier.Copy(&input.DataDetails, sptDetail.DetailSptAir); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Update
 type UpdateDetailAirDto struct {
 	UpdateDetailBaseDto
@@ -55,7 +65,8 @@ type UpdateDetailAirDto struct {
 }
 
 func (input *UpdateDetailAirDto) CalculateTax(taxPercentage *float64) {
-	input.Spt.JumlahPajak = float32(input.Spt.Omset * *taxPercentage / 100 * float64(input.DataDetails.Pengenaan))
+	tax := *input.Spt.Omset * (*taxPercentage / 100) * input.DataDetails.Pengenaan
+	input.Spt.JumlahPajak = &tax
 }
 
 func (input *UpdateDetailAirDto) GetDetails() interface{} {
