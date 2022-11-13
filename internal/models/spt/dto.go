@@ -124,6 +124,12 @@ type FilterDto struct {
 	PageSize        int             `json:"page_size"`
 }
 
+type ListDataDto struct {
+	Spt
+	NominalBayar *float64 `json:"-"`
+	StatusFinal  *string  `json:"statusFinal"`
+}
+
 type CreateDetailBaseDto struct {
 	Spt CreateDto `json:"spt" validate:"required"`
 }

@@ -35,6 +35,7 @@ const (
 	TbpStatusFilterPenyetoran uint8 = 3 // Penyetoran
 	TbpStatusFilterLunas      uint8 = 4 // Lunas
 	TbpStatusFilterJatuhTempo uint8 = 5 // Jatuh Tempo
+	TbpStatusFilterPenetapan  uint8 = 6 // Penetapan
 )
 
 type Input interface {

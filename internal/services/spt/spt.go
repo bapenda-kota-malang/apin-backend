@@ -103,6 +103,20 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 		data.Id = id
 	}
 
+	// if gambar reklame not nil save image
+	if input.Gambar != nil {
+		errCh := make(chan error)
+		fileName, path, extFile, _, err := filePreProcess(*input.Gambar, "GambarReklame"+opts["baseUri"].(string), opts["userId"].(uint), data.Id)
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		go sh.SaveFile(*input.Gambar, fileName, path, extFile, errCh)
+		if err := <-errCh; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
+		}
+		input.Gambar = &fileName
+	}
+
 	if err := sc.Copy(&data, input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
@@ -157,10 +171,9 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetList(input m.FilterDto, userId uint) (any, error) {
-	var data []m.Spt
+func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
+	var data []m.ListDataDto
 	var count int64
-
 	var pagination gh.Pagination
 	baseQuery := a.DB.Model(&m.Spt{})
 	if userId != 0 {
@@ -176,30 +189,81 @@ func GetList(input m.FilterDto, userId uint) (any, error) {
 	} else {
 		input.JatuhTempo = &dataDateNow
 	}
-
-	if input.StatusData == nil {
-		// baseQuery.Joins("JOIN \"Tbp\" ON \"Spt\".\"Id\"")
-	} else {
-		tbpStatus := *input.StatusData
-		if tbpStatus == m.TbpStatusFilterJatuhTempo {
-			opts = "lt"
+	stringJoin := "FULL JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\""
+	statusAll := "Baru"
+	if input.StatusData != nil {
+		stringJoin = "LEFT JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\""
+		statusData := *input.StatusData
+		if cmdBase == "wp" {
+			switch statusData {
+			case m.TbpStatusFilterBaru, m.TbpStatusFilterPembayaran, m.TbpStatusFilterLunas, m.TbpStatusFilterJatuhTempo:
+			default:
+				return sh.SetError("request", "get-data-list", source, "failed", "status data invalid", data)
+			}
 		}
-		switch tbpStatus {
+		switch statusData {
 		case m.TbpStatusFilterBaru:
 			baseQuery = baseQuery.Where("\"StatusPembayaran\" = ?", m.StatusBelumLunas)
-		case m.TbpStatusFilterLunas:
 		case m.TbpStatusFilterPembayaran:
+			stringJoin = "JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\" AND \"DetailTbp\".\"NominalBayar\" <> '0' OR \"DetailTbp\".\"NominalBayar\" IS NULL"
+			statusAll = "Pembayaran"
+		case m.TbpStatusFilterPenyetoran:
+			// TODO: Wait for STS
+			// stringJoin = "JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\" AND \"DetailTbp\".\"NominalBayar\""
+			// statusAll = "Penyetoran"
+		case m.TbpStatusFilterLunas:
+			stringJoin = "JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\" AND \"DetailTbp\".\"NominalBayar\" = '0'"
+			statusAll = "Lunas"
+		case m.TbpStatusFilterJatuhTempo:
+			opts = "lt"
+			stringJoin = "JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\" AND \"DetailTbp\".\"NominalBayar\" <> '0' OR \"DetailTbp\".\"NominalBayar\" IS NULL"
+			statusAll = "Jatuh Tempo"
+		case m.TbpStatusFilterPenetapan:
+			baseQuery = baseQuery.Where("\"StatusPenetapan\" = ?", m.StatusPenetapanDisetujuiKabid)
+			statusAll = "Penetapan"
 		}
 		input.StatusData = nil
 	}
 	input.JatuhTempo_Opt = &opts
 	result := baseQuery.
+		Select("\"Spt\".*, \"DetailTbp\".\"NominalBayar\"").
+		Joins(stringJoin).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	for v := range data {
+		status := statusAll
+		if statusAll == "" {
+			checkBaru := data[v].StatusPembayaran == m.StatusBelumLunas
+			checkLunas := data[v].NominalBayar != nil && *data[v].NominalBayar == 0
+			checkPenetapan := data[v].StatusPenetapan == m.StatusPenetapanDisetujuiKabid
+			sqlTime, _ := data[v].JatuhTempo.Value()
+			checkDueDate := sqlTime.(time.Time).Unix() < time.Now().Unix()
+
+			if checkBaru {
+				status = "Baru"
+			} else if checkPenetapan && cmdBase == "bapenda" {
+				status = "Penetapan"
+			} else if checkLunas {
+				status = "Lunas"
+			} else {
+				switch cmdBase {
+				case "bapenda":
+					status = "Pembayaran"
+				case "wp":
+					status = "Belum Lunas"
+				}
+			}
+			if checkDueDate && !checkLunas {
+				status = "Jatuh Tempo"
+			}
+		}
+		data[v].StatusFinal = &status
 	}
 
 	return rp.OK{
@@ -213,18 +277,21 @@ func GetList(input m.FilterDto, userId uint) (any, error) {
 	}, nil
 }
 
-func GetDetail(id uuid.UUID, typeSpt mtypes.JenisPajak, userId uint) (any, error) {
+func GetDetail(id uuid.UUID, typeSpt string, userId uint) (any, error) {
 	var data *m.Spt
 
 	baseQuery := a.DB.Model(&m.Spt{})
 	if userId != 0 {
 		baseQuery.Joins("JOIN \"Npwpd\" ON \"Spt\".\"Npwpd_Id\" = \"Npwpd\".\"Id\" AND \"Npwpd\".\"User_Id\" = ?", userId)
 	}
+	if typeSpt == string(mtypes.JenisPajakSA) || typeSpt == string(mtypes.JenisPajakOA) {
+		baseQuery.Where("\"Spt\".\"Type\" = ?", typeSpt)
+	}
 	result := baseQuery.
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
-		First(&data, "\"Spt\".\"Id\" = ? AND \"Spt\".\"Type\" = ?", id.String(), typeSpt)
+		First(&data, "\"Spt\".\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {

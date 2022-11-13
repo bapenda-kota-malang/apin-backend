@@ -117,8 +117,9 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 				Excel_NominalDenda: dataExcel[k].Nominal,
 			}
 			if k, exist := mapSpt[*dataExcel[k].NoRekening]; exist {
+				sptNominal := float32(k.JumlahPajak)
 				tmpDataSinkronisasiMerge.Spt_Id = &k.Id
-				tmpDataSinkronisasiMerge.Spt_Nominal = &k.JumlahPajak
+				tmpDataSinkronisasiMerge.Spt_Nominal = &sptNominal
 				tmpDataSinkronisasiMerge.Spt_NominalDenda = k.Denda
 			}
 			delete(mapSpt, *dataExcel[k].NoRekening)
@@ -127,9 +128,10 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 
 		if len(mapSpt) > 0 {
 			for _, v := range mapSpt {
+				sptNominal := float32(v.JumlahPajak)
 				tmpDataSinkronisasiMerge := m.SinkronisasiMerge{
 					Spt_Id:           &v.Id,
-					Spt_Nominal:      &v.JumlahPajak,
+					Spt_Nominal:      &sptNominal,
 					Spt_NominalDenda: v.Denda,
 				}
 				dataSinkronisasiMerge = append(dataSinkronisasiMerge, tmpDataSinkronisasiMerge)

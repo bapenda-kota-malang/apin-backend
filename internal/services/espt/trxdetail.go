@@ -70,9 +70,7 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 		default:
 			return fmt.Errorf("unknown peruntukan air")
 		}
-	}
-
-	if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
+	} else if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
 		for v := range detail {
 			resp, err := sjppj.GetDetail(int(detail[v].JenisPPJ_Id))
 			if err != nil {

@@ -41,7 +41,7 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	// JenisMasa           JenisMasa `json:"jenisMasa"`
+	JenisMasa           int16    `json:"jenisMasa"`
 	JenisReklame        *string  `json:"jenisReklame"`
 	DasarPengenaan      *string  `json:"dasarPengenaan"`
 	KlasifikasiJalan_Id *string  `json:"klasifikasiJalan_id"`
