@@ -15,14 +15,13 @@ type CreateDetailPpjPlnDto struct {
 func (input *CreateDetailPpjPlnDto) CalculateTax(taxPercentage *float64) {
 	tax := float64(0)
 	for v := range input.DataDetails {
-		if input.DataDetails[v].JenisPPJ.Jenis == "LAIN LAIN" {
-			continue
-		}
 		jumlah := float64(input.DataDetails[v].JumlahRekening)
-		jumlah = jumlah * (float64(input.DataDetails[v].JenisPPJ.TarifPersen) / 100)
+		if input.DataDetails[v].JenisPPJ.Jenis != "LAIN LAIN" {
+			jumlah = jumlah * (float64(input.DataDetails[v].JenisPPJ.TarifPersen) / 100)
+		}
 		tax += jumlah
 	}
-	input.Spt.JumlahPajak = tax + input.Spt.Omset
+	input.Spt.JumlahPajak = tax
 }
 
 func (input *CreateDetailPpjPlnDto) GetDetails() interface{} {
@@ -71,14 +70,12 @@ type UpdateDetailPpjPlnDto struct {
 func (input UpdateDetailPpjPlnDto) CalculateTax(taxPercentage *float64) {
 	tax := float64(0)
 	for v := range input.DataDetails {
-		if input.DataDetails[v].JenisPPJ.Jenis == "LAIN LAIN" {
-			continue
-		}
 		jumlah := float64(*input.DataDetails[v].JumlahRekening)
-		jumlah = jumlah * (float64(input.DataDetails[v].JenisPPJ.TarifPersen) / 100)
+		if input.DataDetails[v].JenisPPJ.Jenis != "LAIN LAIN" {
+			jumlah = jumlah * (float64(input.DataDetails[v].JenisPPJ.TarifPersen) / 100)
+		}
 		tax += jumlah
 	}
-	tax += *input.Spt.Omset
 	input.Spt.JumlahPajak = &tax
 }
 
