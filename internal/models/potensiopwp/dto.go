@@ -7,7 +7,7 @@ import (
 )
 
 type CreatePotensiOp struct {
-	Golongan      t.Golongan `json:"golongan" validate:"required,oneof=badan orang_pribadi"`
+	Golongan      t.Golongan `json:"golongan" validate:"required;min=1"`
 	Rekening_Id   uint       `json:"rekening_id" validate:"required,gt=0"`
 	ClosingDate   *time.Time `json:"closingDate"`
 	OpeningDate   *time.Time `json:"openingDate"`

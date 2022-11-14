@@ -1,4 +1,4 @@
-package jaminanbongkarreklame
+package jaminanbongkar
 
 type JenisReklame uint8
 

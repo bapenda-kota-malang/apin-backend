@@ -127,7 +127,7 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 		input.Type = mtypes.JenisPajakOA
 	}
 
-	result, err := s.GetList(input, 0)
+	result, err := s.GetList(input, 0, "bapenda")
 	hh.DataResponse(w, result, err)
 }
 
@@ -136,11 +136,11 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	if !pass {
 		return
 	}
-	jenisPajak := mtypes.JenisPajakSA
+	jenisPajak := string(mtypes.JenisPajakSA)
 	re := regexp.MustCompile(`^\/\w*`)
 	switch re.FindString(r.RequestURI)[1:] {
 	case "skpd":
-		jenisPajak = mtypes.JenisPajakOA
+		jenisPajak = string(mtypes.JenisPajakOA)
 	}
 
 	result, err := s.GetDetail(id, jenisPajak, 0)

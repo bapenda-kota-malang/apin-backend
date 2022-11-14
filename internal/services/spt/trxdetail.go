@@ -2,6 +2,7 @@ package spt
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -26,6 +27,7 @@ import (
 	mhdair "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	mjppj "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
+	mtarifreklame "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
 	sdair "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptair"
@@ -40,6 +42,7 @@ import (
 	shda "github.com/bapenda-kota-malang/apin-backend/internal/services/hargadasarair"
 	sjppj "github.com/bapenda-kota-malang/apin-backend/internal/services/jenisppj"
 	stp "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
+	starifreklame "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifreklame"
 )
 
 // Process calculate tax
@@ -75,15 +78,44 @@ func taxProcess(rekeningId *uint64, omset *float64, input m.Input) error {
 		default:
 			return fmt.Errorf("unknown peruntukan air")
 		}
-	}
-
-	if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
+	} else if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
 		for v := range detail {
 			resp, err := sjppj.GetDetail(int(detail[v].JenisPPJ_Id))
 			if err != nil {
 				return err
 			}
 			detail[v].JenisPPJ = resp.(rp.OKSimple).Data.(*mjppj.JenisPPJ)
+		}
+		input.ChangeDetails(detail)
+	} else if detail, ok := input.GetDetails().([]mdreklame.CreateDto); ok {
+		for v := range detail {
+			resp, err := starifreklame.GetDetail(int(detail[v].TarifReklame_Id))
+			if err != nil {
+				return err
+			}
+			dataReklame := resp.(rp.OKSimple).Data.(*mtarifreklame.TarifReklame)
+			if dataReklame.JenisMasa == mtarifreklame.MasaPajakHari {
+				resp, err := starifreklame.GetList(mtarifreklame.FilterDto{
+					JenisMasa:    int16(mtarifreklame.MasaPajakHari),
+					JenisReklame: dataReklame.JenisReklame,
+				})
+				for _, vInner := range resp.(rp.OK).Data.([]mtarifreklame.TarifReklame) {
+					if vInner.MasaPajak == nil {
+						continue
+					}
+					if strings.ToLower(*vInner.MasaPajak) == "bulan" {
+						detail[v].TarifBulan = *vInner.Tarif
+					} else if strings.ToLower(*vInner.MasaPajak) == "minggu" {
+						detail[v].TarifMinggu = *vInner.Tarif
+					} else if strings.ToLower(*vInner.MasaPajak) == "hari" {
+						detail[v].TarifHari = *vInner.Tarif
+					}
+				}
+				if err != nil {
+					return err
+				}
+			}
+			detail[v].TarifReklame = dataReklame
 		}
 		input.ChangeDetails(detail)
 	}
