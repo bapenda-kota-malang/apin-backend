@@ -104,7 +104,7 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 			return err
 		}
 		register.LainLain = slcLainLain
-		slcIzinUsaha, err := sh.GetArrayPdf(input.SuratIzinUsaha, baseDocsName+"SuratIzinUsaha", user_Id)
+		slcIzinUsaha, err := sh.GetArrayPdfAndImage(input.SuratIzinUsaha, baseDocsName+"SuratIzinUsaha", user_Id)
 		if err != nil {
 			return err
 		}

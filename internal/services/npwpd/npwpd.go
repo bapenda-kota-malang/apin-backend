@@ -475,7 +475,7 @@ func AddPhotoSuratIzin(id int, input npwpd.PhotoUpdate, user_id uint64) (any, er
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	slcSuratIzin, err := sh.AddMorePdf(input.SuratIzinUsaha, data.SuratIzinUsaha, "npwpdIzinUsaha", uint(user_id))
+	slcSuratIzin, err := sh.AddMorePdfAndImage(input.SuratIzinUsaha, data.SuratIzinUsaha, "npwpdIzinUsaha", uint(user_id))
 	if err != nil {
 		return nil, err
 	}
