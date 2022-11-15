@@ -15,8 +15,8 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
-	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
 	mr "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 

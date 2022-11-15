@@ -3,7 +3,7 @@ package potensiopwp
 import (
 	"time"
 
-	t "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	t "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 )
 
 type CreatePotensiOp struct {

@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
-	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	t "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
@@ -40,7 +40,7 @@ func Create(input []m.PemilikWpCreateDto, npwpd_id uint64, tx *gorm.DB) (any, er
 	return rp.OKSimple{Data: data}, nil
 }
 
-func Update(input []m.PemilikWpUpdateDto, npwpd_id uint64, golongan nt.Golongan, tx *gorm.DB) (any, error) {
+func Update(input []m.PemilikWpUpdateDto, npwpd_id uint64, golongan t.Golongan, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
