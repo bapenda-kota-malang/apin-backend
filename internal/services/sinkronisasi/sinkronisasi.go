@@ -28,8 +28,8 @@ func GetList(input m.FilterDto) (any, error) {
 		Model(&m.Sinkronisasi{}).
 		Preload(clause.Associations).
 		Preload("User").
-		Preload("Tbp").
-		Preload("DetailSinkronisasi.DetailTbp").
+		Preload("Sspd").
+		Preload("SinkronisasiDetails.SspdDetail").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -55,8 +55,8 @@ func GetDetail(tbp_id int) (any, error) {
 		Model(&m.Sinkronisasi{}).
 		Preload(clause.Associations).
 		Preload("User").
-		Preload("Tbp").
-		Preload("DetailSinkronisasi.DetailTbp").
+		Preload("Sspd").
+		Preload("SinkronisasiDetails.SspdDetail").
 		First(&data, tbp_id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
