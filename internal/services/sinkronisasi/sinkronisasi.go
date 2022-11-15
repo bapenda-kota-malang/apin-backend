@@ -49,7 +49,7 @@ func GetList(input m.FilterDto) (any, error) {
 	}, nil
 }
 
-func GetDetail(tbp_id int) (any, error) {
+func GetDetail(sinkronisasi_id int) (any, error) {
 	var data *m.Sinkronisasi
 	err := a.DB.
 		Model(&m.Sinkronisasi{}).
@@ -57,7 +57,7 @@ func GetDetail(tbp_id int) (any, error) {
 		Preload("User").
 		Preload("Sspd").
 		Preload("SinkronisasiDetails.SspdDetail").
-		First(&data, tbp_id).Error
+		First(&data, sinkronisasi_id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -176,7 +176,7 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 
 	result := a.DB.First(&dataSinkronisasi, id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tbp tidak dapat ditemukan")
+		return nil, errors.New("data sinkronisasi tidak dapat ditemukan")
 	}
 
 	if err := sc.Copy(&dataSinkronisasi, &input); err != nil {
@@ -186,7 +186,7 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 	dataSinkronisasi.User_Id = &user_id
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		// update tbp
+		// update sinkronisasi
 		if result := tx.Save(&dataSinkronisasi); result.Error != nil {
 			return errors.New("gagal menyimpan data sinkronisasi")
 		}
