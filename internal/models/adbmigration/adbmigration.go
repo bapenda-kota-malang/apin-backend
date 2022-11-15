@@ -28,6 +28,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibank"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
@@ -78,6 +79,7 @@ func init() {
 		&hargadasarair.HargaDasarAir{},
 		&tarifpajak.TarifPajak{},
 		&jenisppj.JenisPPJ{},
+		&referensibank.ReferensiBank{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
