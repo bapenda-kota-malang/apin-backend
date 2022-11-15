@@ -26,11 +26,6 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	var dataSspdDetail m.SspdDetailCreateDto
 	var respDataSspdDetail interface{}
 	var resp t.II
-	// var dataSpt ms.Spt
-	// var dataSptTotal float64
-	// var dataSptJumlahPajak float64
-	// var dataNominalBayar float64
-	// var dataRincianTbpDenda float64
 
 	// data sspd
 	if err := sc.Copy(&dataSspd, &input); err != nil {
@@ -47,33 +42,6 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	if result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data npwpd", dataNpwpd)
 	}
-
-	// perhitungan rincian tbp dihitung di fe, user hanya mengirim nominal bayar
-	// // cek data spt
-	// result := a.DB.Where(ms.Spt{Id: *input.RincianTbp.Spt_Id}).First(&dataSpt)
-	// if result.Error != nil {
-	// 	return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data spt", dataSpt)
-	// }
-
-	// dataSptTotal = *dataSpt.Total
-	// dataSptJumlahPajak = *dataSpt.JumlahPajak
-	// dataNominalBayar = *input.RincianTbp.NominalBayar
-	// dataRincianTbpDenda = *dataRincianTbp.Denda
-
-	// // perhitungan untuk data tbp total
-	// if *input.IsKetetapan {
-	// 	if dataSptTotal < dataNominalBayar {
-	// 		fmt.Println("perlu diisi")
-	// 	}
-	// 	tmpTotal := dataSptTotal + dataRincianTbpDenda
-	// 	dataTbp.Total = &tmpTotal
-	// } else {
-	// 	if dataSptJumlahPajak < dataNominalBayar {
-	// 		fmt.Println("perlu diisi")
-	// 	}
-	// 	tmpTotal := dataSptJumlahPajak + dataRincianTbpDenda
-	// 	dataTbp.Total = &tmpTotal
-	// }
 
 	tmpIsCancelled := false
 	// static value
