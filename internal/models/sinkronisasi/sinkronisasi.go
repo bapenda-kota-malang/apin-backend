@@ -3,7 +3,7 @@ package sinkronisasi
 import (
 	"time"
 
-	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
+	ms "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -15,8 +15,8 @@ type Sinkronisasi struct {
 	JenisPajak          string          `json:"jenisPajak"`
 	File                string          `json:"file"`
 	JumlahTidakSinkron  *int            `json:"jumlahTidakSinkron"`
-	Tbp_Id              *uint64         `json:"tbp_id"`
-	Tbp                 *mt.Tbp         `json:"tbp,omitempty" gorm:"foreignKey:Tbp_Id"`
+	Sspd_Id             *uint64         `json:"sspd_id"`
+	Sspd                *ms.Sspd        `json:"sspd,omitempty" gorm:"foreignKey:Sspd_Id"`
 	User_Id             *uint64         `json:"user_id"`
 	User                *mu.User        `json:"user,omitempty" gorm:"foreignKey:User_Id"`
 	UpdatedAt           *time.Time      `json:"updatedAt"`

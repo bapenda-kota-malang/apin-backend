@@ -1,23 +1,23 @@
-package tbp
+package sspd
 
 import (
 	"strconv"
 	"strings"
 	"time"
 
-	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
+	ms "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	"gorm.io/datatypes"
 )
 
 func generateNomor() int {
 	var tmp int
-	var tmpTbp mt.Tbp
-	nomor := a.DB.Last(&tmpTbp)
+	var tmpSspd ms.Sspd
+	nomor := a.DB.Last(&tmpSspd)
 	if nomor.Error != nil {
 		return 1
 	} else {
-		tmp = *tmpTbp.TbpNumber
+		tmp = *tmpSspd.SspdNumber
 		tmp++
 	}
 	return tmp

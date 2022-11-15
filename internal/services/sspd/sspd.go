@@ -1,12 +1,12 @@
-package tbp
+package sspd
 
 import (
 	"errors"
 	"strconv"
 
 	mn "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
-	sdt "github.com/bapenda-kota-malang/apin-backend/internal/services/tbp/detailtbp"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
+	ssd "github.com/bapenda-kota-malang/apin-backend/internal/services/sspd/sspddetail"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -18,13 +18,13 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-const source = "tbp"
+const source = "sspd"
 
 func Create(input m.CreateDto, user_Id uint64) (any, error) {
-	var dataTbp m.Tbp
+	var dataSspd m.Sspd
 	var dataNpwpd mn.Npwpd
-	var dataDetailTbp m.DetailTbpCreateDto
-	var respDataDetailTbp interface{}
+	var dataSspdDetail m.SspdDetailCreateDto
+	var respDataSspdDetail interface{}
 	var resp t.II
 	// var dataSpt ms.Spt
 	// var dataSptTotal float64
@@ -32,14 +32,14 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	// var dataNominalBayar float64
 	// var dataRincianTbpDenda float64
 
-	// data tbp
-	if err := sc.Copy(&dataTbp, &input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload tbp", dataTbp)
+	// data sspd
+	if err := sc.Copy(&dataSspd, &input); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload sspd", dataSspd)
 	}
 
-	// data rincian tbp
-	if err := sc.Copy(&dataDetailTbp, &input.DetailTbp); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload detail tbp", dataDetailTbp)
+	// data sspd detail
+	if err := sc.Copy(&dataSspdDetail, &input.SspdDetail); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload sspd detail", dataSspdDetail)
 	}
 
 	// data Npwpd
@@ -78,38 +78,38 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	tmpIsCancelled := false
 	// static value
 	tmpNomor := generateNomor()
-	dataTbp.TbpNumber = &tmpNomor
-	dataTbp.TanggalBayar = th.TimeNow()
-	dataTbp.CreatedBy_User_Id = &user_Id
-	dataDetailTbp.Waktu_Detail_Tb = parseCurrentTime()
-	dataTbp.IsCancelled = &tmpIsCancelled
-	dataTbp.ObjekPajak_Id = &dataNpwpd.ObjekPajak_Id
+	dataSspd.SspdNumber = &tmpNomor
+	dataSspd.TanggalBayar = th.TimeNow()
+	dataSspd.CreatedBy_User_Id = &user_Id
+	dataSspdDetail.WaktuSspdDetail = parseCurrentTime()
+	dataSspd.IsCancelled = &tmpIsCancelled
+	dataSspd.ObjekPajak_Id = &dataNpwpd.ObjekPajak_Id
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 
-		// create data tbp
-		err := tx.Create(&dataTbp).Error
+		// create data sspd
+		err := tx.Create(&dataSspd).Error
 		if err != nil {
 			return err
 		}
 
-		// create data rincian tbp
-		resultDetailTbp, err := sdt.Create(dataDetailTbp, dataTbp.Id, tx)
+		// create data sspd detail
+		resultSspdDetail, err := ssd.Create(dataSspdDetail, dataSspd.Id, tx)
 		if err != nil {
 			return err
 		}
-		respDataDetailTbp = resultDetailTbp
+		respDataSspdDetail = resultSspdDetail
 
 		return nil
 	})
 
 	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), dataTbp)
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), dataSspd)
 	}
 
 	resp = t.II{
-		"tbp":       dataTbp,
-		"detailTbp": respDataDetailTbp.(rp.OKSimple).Data,
+		"sspd":       dataSspd,
+		"sspdDetail": respDataSspdDetail.(rp.OKSimple).Data,
 	}
 
 	return rp.OKSimple{
@@ -118,18 +118,18 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 }
 
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.Tbp
+	var data []m.Sspd
 	var count int64
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.Tbp{}).
+		Model(&m.Sspd{}).
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
-		Preload("DetailTbps.Spt").
+		Preload("SspdDetails.Spt").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -149,17 +149,17 @@ func GetList(input m.FilterDto) (any, error) {
 	}, nil
 }
 
-func GetDetail(tbp_id int) (any, error) {
-	var data *m.Tbp
+func GetDetail(sspd_id int) (any, error) {
+	var data *m.Sspd
 	err := a.DB.
-		Model(&m.Tbp{}).
+		Model(&m.Sspd{}).
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
-		Preload("DetailTbps.Spt").
-		First(&data, tbp_id).Error
+		Preload("SspdDetails.Spt").
+		First(&data, sspd_id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -171,11 +171,11 @@ func GetDetail(tbp_id int) (any, error) {
 	}, err
 }
 
-func Cancel(input m.CancelDto, tbp_id uint64) (any, error) {
-	var data m.Tbp
-	result := a.DB.First(&data, tbp_id)
+func Cancel(input m.CancelDto, sspd_id uint64) (any, error) {
+	var data m.Sspd
+	result := a.DB.First(&data, sspd_id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tbp tidak dapat ditemukan")
+		return nil, errors.New("data sspd tidak dapat ditemukan")
 	}
 
 	if *data.IsCancelled {
@@ -184,13 +184,13 @@ func Cancel(input m.CancelDto, tbp_id uint64) (any, error) {
 
 	// copy flag cancel
 	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "cancel-tbp", source, "failed", "gagal mengambil data payload tbp", input)
+		return sh.SetError("request", "cancel-sspd", source, "failed", "gagal mengambil data payload sspd", input)
 	}
 
 	data.CancelledDate = th.TimeNow()
 
 	if result := a.DB.Save(&data); result.Error != nil {
-		return nil, errors.New("gagal menyimpan data tbp: " + result.Error.Error())
+		return nil, errors.New("gagal menyimpan data sspd: " + result.Error.Error())
 	}
 	return rp.OK{
 		Meta: t.IS{
@@ -200,28 +200,28 @@ func Cancel(input m.CancelDto, tbp_id uint64) (any, error) {
 	}, nil
 }
 
-func Delete(tbp_id uint64) (any, error) {
+func Delete(sspd_id uint64) (any, error) {
 	var status string = "deleted"
-	var data *m.Tbp
+	var data *m.Sspd
 
-	// cek data tbp
-	result := a.DB.First(&data, tbp_id)
+	// cek data sspd
+	result := a.DB.First(&data, sspd_id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tbp tidak dapat ditemukan")
+		return nil, errors.New("data sspd tidak dapat ditemukan")
 	}
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		// delete rincian tbp
-		err := sdt.Delete(data.Id, tx)
+		// delete sspd detail
+		err := ssd.Delete(data.Id, tx)
 		if err != nil {
 			status = "no deletion"
 			return err
 		}
 
-		// delete tbp
-		result = tx.Delete(&data, tbp_id)
+		// delete sspd
+		result = tx.Delete(&data, sspd_id)
 		if result.RowsAffected == 0 {
-			return errors.New("tidak dapat menghapus data tbp: " + result.Error.Error())
+			return errors.New("tidak dapat menghapus data sspd: " + result.Error.Error())
 		}
 		return nil
 
@@ -240,49 +240,49 @@ func Delete(tbp_id uint64) (any, error) {
 }
 
 func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
-	var dataTbp *m.Tbp
-	var dataDetailTbp m.DetailTbpUpdateDto
-	var respDataDetailTbp interface{}
+	var dataSspd *m.Sspd
+	var dataSspdDetail m.SspdDetailUpdateDto
+	var respDataSspdDetail interface{}
 	var resp t.II
 
-	result := a.DB.First(&dataTbp, id)
+	result := a.DB.First(&dataSspd, id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tbp tidak dapat ditemukan")
+		return nil, errors.New("data sspd tidak dapat ditemukan")
 	}
 
-	if err := sc.Copy(&dataTbp, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload tbp", input)
+	if err := sc.Copy(&dataSspd, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload sspd", input)
 	}
 
-	if err := sc.Copy(&dataDetailTbp, &input.DetailTbp); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload detail tbp", input.DetailTbp)
+	if err := sc.Copy(&dataSspdDetail, &input.SspdDetail); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload sspd detail", input.SspdDetail)
 	}
 
-	dataTbp.TanggalBayar = th.TimeNow()
-	dataTbp.CreatedBy_User_Id = &user_id
+	dataSspd.TanggalBayar = th.TimeNow()
+	dataSspd.CreatedBy_User_Id = &user_id
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		// update tbp
-		if result := tx.Save(&dataTbp); result.Error != nil {
-			return errors.New("gagal menyimpan data tbp")
+		// update sspd
+		if result := tx.Save(&dataSspd); result.Error != nil {
+			return errors.New("gagal menyimpan data sspd")
 		}
 
-		resultDetailTbp, err := sdt.Update(dataDetailTbp, dataTbp.Id, tx)
+		resultSspdDetail, err := ssd.Update(dataSspdDetail, dataSspd.Id, tx)
 		if err != nil {
 			return err
 		}
-		respDataDetailTbp = resultDetailTbp
+		respDataSspdDetail = resultSspdDetail
 
 		return nil
 	})
 	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), dataTbp)
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data: "+err.Error(), dataSspd)
 	}
 
 	resp = t.II{
-		"affected":  strconv.Itoa(int(result.RowsAffected)),
-		"detailTbp": respDataDetailTbp.(rp.OKSimple).Data,
-		"tbp":       dataTbp,
+		"affected":   strconv.Itoa(int(result.RowsAffected)),
+		"sspdDetail": respDataSspdDetail.(rp.OKSimple).Data,
+		"sspd":       dataSspd,
 	}
 
 	return rp.OKSimple{

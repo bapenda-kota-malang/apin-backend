@@ -1,4 +1,4 @@
-package tbp
+package sspd
 
 import (
 	"errors"
@@ -7,26 +7,26 @@ import (
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 )
 
-const source = "detail tbp"
+const source = "detail sspd"
 
-func Create(input m.DetailTbpCreateDto, tbp_id uint64, tx *gorm.DB) (any, error) {
+func Create(input m.SspdDetailCreateDto, sspd_id uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.DetailTbp
+	var data m.SspdDetail
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload detail tbp", data)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload sspd detail", data)
 	}
 
 	// static add value to field
-	data.Tbp_Id = &tbp_id
+	data.Sspd_Id = &sspd_id
 
 	// Transaction save to db
 	// simpan data ke db satu if karena result dipakai sekali, +error
@@ -36,47 +36,47 @@ func Create(input m.DetailTbpCreateDto, tbp_id uint64, tx *gorm.DB) (any, error)
 	return rp.OKSimple{Data: data}, nil
 }
 
-func Delete(tbp_id uint64, tx *gorm.DB) error {
-	var data *m.DetailTbp
-	result := tx.Where(m.DetailTbp{Tbp_Id: &tbp_id}).First(&data)
+func Delete(sspd_id uint64, tx *gorm.DB) error {
+	var data *m.SspdDetail
+	result := tx.Where(m.SspdDetail{Sspd_Id: &sspd_id}).First(&data)
 	if result.RowsAffected == 0 {
-		return errors.New("data rincian tbp tidak dapat ditemukan")
+		return errors.New("data sspd detail tidak dapat ditemukan")
 	}
 
 	result = tx.Delete(&data)
 	if result.RowsAffected == 0 {
-		return errors.New("tidak dapat menghapus data detail tbp")
+		return errors.New("tidak dapat menghapus data sspd detail")
 	}
 
 	return nil
 }
 
-func Update(input m.DetailTbpUpdateDto, tbp_id uint64, tx *gorm.DB) (any, error) {
+func Update(input m.SspdDetailUpdateDto, sspd_id uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 
-	var data m.DetailTbp
+	var data m.SspdDetail
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", fmt.Sprintf("gagal mengambil data payload %s", source), data)
 	}
 
-	var dataFromDb *m.DetailTbp
-	result := tx.Where(m.DetailTbp{Tbp_Id: &tbp_id}).First(&dataFromDb)
+	var dataFromDb *m.SspdDetail
+	result := tx.Where(m.SspdDetail{Sspd_Id: &sspd_id}).First(&dataFromDb)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data reg pemilik tidak dapat ditemukan")
+		return nil, errors.New("data sspd detail tidak dapat ditemukan")
 	}
 
 	err := sc.Copy(&dataFromDb, &data)
 	if err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload detail tbp", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload sspd detail", data)
 	}
 
-	dataFromDb.Tbp_Id = &tbp_id
+	dataFromDb.Sspd_Id = &sspd_id
 	if result := tx.Save(&dataFromDb); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data detail tbp", dataFromDb)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data sspd detail", dataFromDb)
 	}
 	return rp.OKSimple{Data: data}, nil
 }
