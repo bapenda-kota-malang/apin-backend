@@ -245,8 +245,8 @@ func GetArrayFile(input []string, docsName string, userId uint) (arrString strin
 }
 
 // array pdf
-func GetArrayPdf(input []string, docsName string, userId uint) (arrString string, err error) {
-	result, err := loopArrayPdf(input, docsName, userId)
+func GetArrayPdfAndImage(input []string, docsName string, userId uint) (arrString string, err error) {
+	result, err := loopArrayPdfAndImage(input, docsName, userId)
 	if err == nil {
 		arrString = arrToJsonString(result)
 	}
@@ -304,10 +304,11 @@ func loopArrayFile(input []string, docsName string, userId uint) (arrString []st
 }
 
 // loop process to save image file from slice base64 and return slice filename
-func loopArrayPdf(input []string, docsName string, userId uint) (arrString []string, err error) {
+func loopArrayPdfAndImage(input []string, docsName string, userId uint) (arrString []string, err error) {
 	for v := range input {
 		var errChan = make(chan error)
 		pdfPath := GetPdfPath()
+		imagePath := GetImgPath()
 		id, err2 := GetUuidv4()
 		if err2 != nil {
 			err = err2
@@ -322,6 +323,14 @@ func loopArrayPdf(input []string, docsName string, userId uint) (arrString []str
 		case "pdf":
 			fileName := GenerateFilename(docsName, id, userId, extFile)
 			go SaveFile(input[v], fileName, pdfPath, extFile, errChan)
+			if err2 := <-errChan; err2 != nil {
+				err = err2
+				return
+			}
+			arrString = append(arrString, fileName)
+		case "png", "jpeg":
+			fileName := GenerateFilename(docsName, id, userId, extFile)
+			go SaveFile(input[v], fileName, imagePath, extFile, errChan)
 			if err2 := <-errChan; err2 != nil {
 				err = err2
 				return
@@ -366,13 +375,13 @@ func AddMoreFile(input []string, dataBefore, docsName string, userId uint) (arrS
 }
 
 // add multiply pdf
-func AddMorePdf(input []string, dataBefore, docsName string, userId uint) (arrString string, err error) {
+func AddMorePdfAndImage(input []string, dataBefore, docsName string, userId uint) (arrString string, err error) {
 	var result []string
 	err = json.Unmarshal([]byte(dataBefore), &result)
 	if err != nil {
 		return
 	}
-	newData, err := loopArrayPdf(input, docsName, userId)
+	newData, err := loopArrayPdfAndImage(input, docsName, userId)
 	if err == nil {
 		result = append(result, newData...)
 		arrString = arrToJsonString(result)
