@@ -42,6 +42,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/sptnomertracker"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sektor"
@@ -78,6 +79,7 @@ func init() {
 		&hargadasarair.HargaDasarAir{},
 		&tarifpajak.TarifPajak{},
 		&jenisppj.JenisPPJ{},
+		&nik.Nik{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
