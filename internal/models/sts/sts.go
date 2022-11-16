@@ -9,7 +9,7 @@ import (
 
 type Sts struct {
 	Id                        uint64             `json:"id" gorm:"primaryKey"`
-	StsNumber                 *string            `json:"stsNumber" gorm:"type:varchar(50)"`
+	StsNumber                 *int               `json:"stsNumber" gorm:"type:varchar(50)"`
 	TanggalSetor              *time.Time         `json:"tanggalSetor"`
 	Jurnal_Id                 *uint64            `json:"jurnal_id"`
 	Jurnal                    *mj.Jurnal         `json:"jurnal" gorm:"foreignKey:Jurnal_Id"`
@@ -22,4 +22,33 @@ type Sts struct {
 	Name                      *string            `json:"name" gorm:"type:varchar(100)"`
 	TanggalSts                *time.Time         `json:"tanggalSts"`
 	IsSetor                   *bool              `json:"isSetor"`
+}
+
+type CreateDto struct {
+	StsNumber                 *int       `json:"stsNumber"`
+	TanggalSetor              *time.Time `json:"tanggalSetor"`
+	Jurnal_Id                 *uint64    `json:"jurnal_id"`
+	AkunBendahara_Rekening_Id *uint64    `json:"akunBendahara_rekening_id"`
+	IdBt                      *int       `json:"idBt"`
+	Keterangan                *string    `json:"keterangan"`
+	TotalSetor                *float64   `json:"totalSetor"`
+	Id_Aktivitas              *int       `json:"id_aktivitas"`
+	Name                      *string    `json:"name"`
+	TanggalSts                *time.Time `json:"tanggalSts"`
+	IsSetor                   *bool      `json:"isSetor"`
+}
+
+type FilterDto struct {
+	Id                        *uint64    `json:"id"`
+	StsNumber                 *int       `json:"stsNumber"`
+	TanggalSetor              *time.Time `json:"tanggalSetor"`
+	Jurnal_Id                 *uint64    `json:"jurnal_id"`
+	AkunBendahara_Rekening_Id *uint64    `json:"akunBendahara_rekening_id"`
+	IdBt                      *int       `json:"idBt"`
+	Keterangan                *string    `json:"keterangan"`
+	TotalSetor                *float64   `json:"totalSetor"`
+	Id_Aktivitas              *int       `json:"id_aktivitas"`
+	Name                      *string    `json:"name"`
+	TanggalSts                *time.Time `json:"tanggalSts"`
+	IsSetor                   *bool      `json:"isSetor"`
 }
