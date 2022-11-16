@@ -12,13 +12,13 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 )
 
-const source = "detail sinkronisasi"
+const source = "sinkronisasi detail"
 
-func Create(input []m.DetailSinkronisasiCreateDto, tx *gorm.DB) (any, error) {
+func Create(input []m.SinkronisasiDetailCreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data []m.DetailSinkronisasi
+	var data []m.SinkronisasiDetail
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {

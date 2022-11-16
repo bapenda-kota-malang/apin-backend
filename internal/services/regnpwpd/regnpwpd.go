@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	nm "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
-	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rop "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
@@ -93,7 +92,7 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 
 		// add static field
 		register.JenisPajak = mt.JenisPajakSA
-		register.Status = nt.StatusAktif
+		register.Status = mt.StatusAktif
 		register.User_Id = user_IdConv
 		register.RegObjekPajak_Id = resultCastRegObjekPajak.Id
 		register.VerifyStatus = rn.VerifyStatusBaru
@@ -104,7 +103,7 @@ func Create(input rn.CreateDto, user_Id uint) (interface{}, error) {
 			return err
 		}
 		register.LainLain = slcLainLain
-		slcIzinUsaha, err := sh.GetArrayPdf(input.SuratIzinUsaha, baseDocsName+"SuratIzinUsaha", user_Id)
+		slcIzinUsaha, err := sh.GetArrayPdfAndImage(input.SuratIzinUsaha, baseDocsName+"SuratIzinUsaha", user_Id)
 		if err != nil {
 			return err
 		}
