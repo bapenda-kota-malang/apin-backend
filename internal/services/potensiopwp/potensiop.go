@@ -1,0 +1,135 @@
+package potensiopwp
+
+import (
+	"errors"
+	"strconv"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
+	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	sc "github.com/jinzhu/copier"
+
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+)
+
+const source = "potensiop"
+
+func Create(input m.CreatePotensiOpDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data m.PotensiOp
+
+	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	// static add value to field
+	data.Status = nt.StatusAktif
+
+	// simpan data ke db satu if karena result dipakai sekali, +error
+	if result := tx.Create(&data); result.Error != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OKSimple{Data: data}, nil
+}
+
+func GetList(input m.FilterDto) (any, error) {
+	var data []m.PotensiOp
+	var count int64
+
+	var pagination gh.Pagination
+	result := a.DB.Model(&m.PotensiOp{}).
+		Scopes(gh.Filter(input)).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Preload("Rekening").
+		Preload("PotensiPemilikWp").
+		Preload("DetailPotensiOp.Kecamatan").
+		Preload("DetailPotensiOp.Kelurahan").
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
+}
+
+func GetDetail(id int) (any, error) {
+	var data *m.PotensiOp
+
+	result := a.DB.Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+		return tx.Omit("Password")
+	}).First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
+func Update(id int, input m.UpdatePotensiOpDto, tx *gorm.DB) (any, error) {
+	var data *m.PotensiOp
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func Delete(id int) (any, error) {
+	var data *m.PotensiOp
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	result = a.DB.Delete(&data, id)
+	status := "deleted"
+	if result.RowsAffected == 0 {
+		data = nil
+		status = "no deletion"
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"count":  strconv.Itoa(int(result.RowsAffected)),
+			"status": status,
+		},
+		Data: data,
+	}, nil
+}

@@ -9,6 +9,7 @@ import (
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	sn "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd/narahubung"
 	sp "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd/pemilik"
@@ -134,7 +135,7 @@ func Create(r *http.Request, input npwpd.CreateDto) (interface{}, error) {
 		var tmpNomor = generateNomor(input.IsNomorRegistrasiAuto, input.Nomor)
 		var tmpNpwpd = GenerateNpwpd(tmpNomor, *input.ObjekPajak.Kecamatan_Id, *rekening.KodeJenisUsaha)
 		dataNpwpd.JalurRegistrasi = nt.JalurRegistrasiOperator
-		dataNpwpd.Status = nt.StatusAktif
+		dataNpwpd.Status = mt.StatusAktif
 		dataNpwpd.ObjekPajak_Id = resultCastObjekPajak.Id
 		dataNpwpd.VerifiedAt = th.TimeNow()
 		dataNpwpd.Nomor = tmpNomor

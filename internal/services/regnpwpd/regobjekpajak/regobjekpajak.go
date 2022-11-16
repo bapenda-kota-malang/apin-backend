@@ -14,7 +14,7 @@ import (
 	mop "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 
-	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 )
 
 const source = "regobjekpajak"

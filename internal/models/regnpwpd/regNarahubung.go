@@ -2,7 +2,7 @@ package regnpwpd
 
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
-	t "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	t "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 )
 
 type RegNarahubung struct {
