@@ -47,8 +47,12 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	// static value
 	tmpNomor := generateNomor()
 	dataSspd.SspdNumber = &tmpNomor
-	dataSspd.TanggalBayar = th.TimeNow()
-	dataSspd.CreatedBy_User_Id = &user_Id
+	if input.TanggalBayar == nil {
+		dataSspd.TanggalBayar = th.TimeNow()
+	} else {
+		dataSspd.TanggalBayar = th.ParseTime(input.TanggalBayar)
+	}
+	// dataSspd.CreatedBy_User_Id = &user_Id
 	dataSspdDetail.WaktuSspdDetail = parseCurrentTime()
 	dataSspd.IsCancelled = &tmpIsCancelled
 	dataSspd.ObjekPajak_Id = &dataNpwpd.ObjekPajak_Id
@@ -226,8 +230,12 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload sspd detail", input.SspdDetail)
 	}
 
-	dataSspd.TanggalBayar = th.TimeNow()
-	dataSspd.CreatedBy_User_Id = &user_id
+	if input.TanggalBayar == nil {
+		dataSspd.TanggalBayar = th.TimeNow()
+	} else {
+		dataSspd.TanggalBayar = th.ParseTime(input.TanggalBayar)
+	}
+	// dataSspd.CreatedBy_User_Id = &user_id
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// update sspd

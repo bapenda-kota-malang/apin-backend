@@ -48,7 +48,7 @@ type Sspd struct {
 
 type CreateDto struct {
 	SspdNumber                    *int       `json:"sspdNumber"`
-	TanggalBayar                  *time.Time `json:"tanggalBayar"`
+	TanggalBayar                  *string    `json:"tanggalBayar"`
 	ObjekPajak_Id                 *uint64    `json:"objekPajak_id"`
 	CreatedBy_User_Id             *uint64    `json:"createdBy_user_id"`
 	RekeningBendahara_Rekening_Id *uint64    `json:"rekeningBendahara_rekening_id"`
@@ -77,6 +77,7 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Id                *uint64              `json:"id"`
+	TanggalBayar      *string              `json:"tanggalBayar"`
 	Note              *string              `json:"note"`
 	CreatedBy_User_Id *uint64              `json:"createdBy_user_id"`
 	TempatPembayaran  *string              `json:"tempatPembayaran"`
