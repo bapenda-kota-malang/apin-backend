@@ -188,6 +188,15 @@ func EndOfMonth(date time.Time) time.Time {
 	return BeginningOfMonth(date).AddDate(0, 1, 0).Add(-time.Nanosecond)
 }
 
+// get next midnight
+//
+// e.g now = 2022-10-11 22:33:44 +0700 WIB
+//
+// Midnight(now) = 2022-10-11 00:00:00.000000000 +0700 WIB
+func Midnight(date time.Time) time.Time {
+	return time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+}
+
 // loop process to save image file from slice base64 and return slice filename
 func loopArrayPhoto(input []string, docsName string, userId uint) (arrString []string, err error) {
 	for v := range input {
