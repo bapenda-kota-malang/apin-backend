@@ -19,6 +19,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargadasarair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jabatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jalan"
@@ -128,6 +129,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/rekening", rekening.Crud{})
 
 	rh.RegCrud(r, "/objekpajak", objekpajak.Crud{})
+
+	rh.RegCrud(r, "/hargareferensi", hargareferensi.Crud{})
 
 	rh.RegCrud(r, "/nik", nik.Crud{})
 
