@@ -27,6 +27,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailobjek"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiop"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensinarahubung"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
@@ -123,20 +127,21 @@ func init() {
 
 	listModelPendataan := []interface{}{
 		&potensiopwp.PotensiOp{},
-		&potensiopwp.PotensiPemilikWp{},
-		&potensiopwp.PotensiNarahubung{},
-		&potensiopwp.DetailPotensiOp{},
-		&potensiopwp.DetailPotensiAirTanah{},
-		&potensiopwp.DetailPotensiHiburan{},
-		&potensiopwp.DetailPotensiHotel{},
-		&potensiopwp.DetailPotensiPPJ{},
-		&potensiopwp.DetailPotensiParkir{},
-		&potensiopwp.DetailPotensiReklame{},
-		&potensiopwp.DetailPotensiResto{},
+		&detailpotensiop.DetailPotensiOp{},
+		&potensipemilikwp.PotensiPemilikWp{},
+		&potensinarahubung.PotensiNarahubung{},
+		&detailobjek.DetailPotensiAirTanah{},
+		&detailobjek.DetailPotensiHiburan{},
+		&detailobjek.DetailPotensiHotel{},
+		&detailobjek.DetailPotensiPPJ{},
+		&detailobjek.DetailPotensiParkir{},
+		&detailobjek.DetailPotensiReklame{},
+		&detailobjek.DetailPotensiResto{},
 	}
 	a.AutoMigrate(listModelPendataan...)
 
 	listModelPenetapan := []interface{}{
+		// esptpd
 		&espt.Espt{},
 		&detailesptair.DetailEsptAir{},
 		&detailespthotel.DetailEsptHotel{},
@@ -145,10 +150,8 @@ func init() {
 		&detailesptresto.DetailEsptResto{},
 		&detailesptppjnonpln.DetailEsptPpjNonPln{},
 		&detailesptppjpln.DetailEsptPpjPln{},
-	}
-	a.AutoMigrate(listModelPenetapan...)
 
-	listModelSpt := []interface{}{
+		// sptpd
 		&sptnomertracker.SptNomerTracker{},
 		&spt.Spt{},
 		&detailsptair.DetailSptAir{},
@@ -160,7 +163,7 @@ func init() {
 		&detailsptreklame.DetailSptReklame{},
 		&detailsptresto.DetailSptResto{},
 	}
-	a.AutoMigrate(listModelSpt...)
+	a.AutoMigrate(listModelPenetapan...)
 
 	listModelPembayaran := []interface{}{
 		&tbp.Tbp{},

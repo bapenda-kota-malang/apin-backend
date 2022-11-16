@@ -5,6 +5,7 @@ import (
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -38,7 +39,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch data.Golongan {
+	switch data.PotensiOp.Golongan {
 	case nt.GolonganBadan:
 		break
 	case nt.GolonganOrangPribadi:
@@ -48,7 +49,9 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Create(data)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	result, err := s.CreateTrx(data, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 
@@ -63,8 +66,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Update(id, data)
-	hh.DataResponse(w, result, err)
+	// result, err := s.Update(id, data)
+	// hh.DataResponse(w, result, err)
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
