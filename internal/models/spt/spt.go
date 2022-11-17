@@ -42,7 +42,7 @@ type Spt struct {
 	Sunset              *datatypes.Date `json:"sunset,omitempty"`
 	CreateBy_User_Id    uint            `json:"createBy_user_id"`
 	TanggalSpt          time.Time       `json:"tanggalSpt"`
-	NomorSpt            string          `json:"NomorSpt" gorm:"type:varchar(20)"`
+	NomorSpt            string          `json:"nomorSpt" gorm:"type:varchar(20)"`
 	KodeBilling         string          `json:"kodeBilling" gorm:"varchar(30)"`
 	Type                mt.JenisPajak   `json:"type" gorm:"type:varchar(2)"`
 	StatusPembayaran    SptStatus       `json:"statusPembayaran" gorm:"type:varchar(5)"`
