@@ -169,8 +169,6 @@ func init() {
 		&detailsptresto.DetailSptResto{},
 	}
 
-	a.AutoMigrate(listModelSpt...)
-
 	a.AutoMigrate(listModelPenetapan...)
 
 	listModelPengajuan := []interface{}{
