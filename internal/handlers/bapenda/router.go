@@ -19,6 +19,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargadasarair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jabatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jalan"
@@ -28,6 +29,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nik"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
@@ -37,8 +39,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambongrek"
@@ -88,7 +92,7 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/menu", menu.Crud{})
 
-	rh.RegCrud(r, "/skpd", skpd.Crud{})
+	rh.RegCrud(r, "/satuankerja", skpd.Crud{})
 
 	rh.RegCrud(r, "/jabatan", jabatan.Crud{})
 
@@ -125,6 +129,10 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/rekening", rekening.Crud{})
 
 	rh.RegCrud(r, "/objekpajak", objekpajak.Crud{})
+
+	rh.RegCrud(r, "/hargareferensi", hargareferensi.Crud{})
+
+	rh.RegCrud(r, "/nik", nik.Crud{})
 
 	r.Route("/pegawai", func(r chi.Router) {
 		r.Post("/", pegawai.Create)
@@ -229,13 +237,19 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", spt.Delete)
 	})
 
-	// r.Route("/skpd", func(r chi.Router) {
-	// 	r.Post("/", spt.Create)
-	// 	r.Get("/", spt.GetList)
-	// 	r.Get("/{id}", spt.GetDetail)
-	// 	r.Patch("/{id}", spt.Update)
-	// 	r.Delete("/{id}", spt.Delete)
-	// })
+	r.Route("/skpd", func(r chi.Router) {
+		r.Post("/", spt.Create)
+		r.Get("/", spt.GetList)
+		r.Get("/{id}", spt.GetDetail)
+		r.Patch("/{id}", spt.Update)
+		r.Patch("/{id}/verify", spt.Verify)
+		r.Delete("/{id}", spt.Delete)
+	})
+
+	r.Route("/skpdkb", func(r chi.Router) {
+		r.Post("/existing/{type}", spt.SkpdkbExisting)
+		r.Post("/new/{type}", spt.SkpdNew)
+	})
 
 	// route for espt list data, verify espt, and get detail data for espt before verify
 	r.Route("/espt", func(r chi.Router) {
@@ -244,5 +258,21 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/verify", espt.Verify)
 	})
 
+	r.Route("/sspd", func(r chi.Router) {
+		r.Get("/", sspd.GetList)
+		r.Get("/{id}", sspd.GetDetail)
+		r.Post("/", sspd.Create)
+		r.Patch("/{id}", sspd.Update)
+		r.Delete("/{id}", sspd.Delete)
+		r.Patch("/{id}/cancel", sspd.Cancel)
+	})
+
+	r.Route("/sinkronisasi", func(r chi.Router) {
+		r.Get("/", sinkronisasi.GetList)
+		r.Get("/{id}", sinkronisasi.GetDetail)
+		r.Post("/", sinkronisasi.Create)
+		r.Post("/detail", sinkronisasi.CreateDetail)
+		r.Patch("/detail", sinkronisasi.Update)
+	})
 	return r
 }

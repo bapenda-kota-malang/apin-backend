@@ -13,16 +13,15 @@ type CreateDetailPpjPlnDto struct {
 }
 
 func (input *CreateDetailPpjPlnDto) CalculateTax(taxPercentage *float64) {
-	tax := float32(0)
+	tax := float64(0)
 	for v := range input.DataDetails {
-		if input.DataDetails[v].JenisPPJ.Jenis == "LAIN LAIN" {
-			continue
+		jumlah := float64(input.DataDetails[v].JumlahRekening)
+		if input.DataDetails[v].JenisPPJ.Jenis != "LAIN LAIN" {
+			jumlah = jumlah * (float64(input.DataDetails[v].JenisPPJ.TarifPersen) / 100)
 		}
-		jumlah := float32(input.DataDetails[v].JumlahRekening)
-		jumlah = jumlah * (input.DataDetails[v].JenisPPJ.TarifPersen / 100)
 		tax += jumlah
 	}
-	input.Spt.JumlahPajak = tax + float32(input.Spt.Omset)
+	input.Spt.JumlahPajak = tax
 }
 
 func (input *CreateDetailPpjPlnDto) GetDetails() interface{} {
@@ -53,22 +52,31 @@ func (input *CreateDetailPpjPlnDto) DuplicateEspt(esptDetail *mespt.Espt) error 
 	return nil
 }
 
+func (input *CreateDetailPpjPlnDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *SkpdkbExisting) error {
+	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
+		return err
+	}
+	if err := copier.Copy(&input.DataDetails, &sptDetail); err != nil {
+		return err
+	}
+	return nil
+}
+
 type UpdateDetailPpjPlnDto struct {
 	UpdateDetailBaseDto
 	DataDetails []mdppjpln.UpdateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input UpdateDetailPpjPlnDto) CalculateTax(taxPercentage *float64) {
-	tax := float32(0)
+	tax := float64(0)
 	for v := range input.DataDetails {
-		if input.DataDetails[v].JenisPPJ.Jenis == "LAIN LAIN" {
-			continue
+		jumlah := float64(*input.DataDetails[v].JumlahRekening)
+		if input.DataDetails[v].JenisPPJ.Jenis != "LAIN LAIN" {
+			jumlah = jumlah * (float64(input.DataDetails[v].JenisPPJ.TarifPersen) / 100)
 		}
-		jumlah := float32(*input.DataDetails[v].JumlahRekening)
-		jumlah = jumlah * (input.DataDetails[v].JenisPPJ.TarifPersen / 100)
 		tax += jumlah
 	}
-	input.Spt.JumlahPajak = tax + float32(input.Spt.Omset)
+	input.Spt.JumlahPajak = &tax
 }
 
 func (input *UpdateDetailPpjPlnDto) GetDetails() interface{} {

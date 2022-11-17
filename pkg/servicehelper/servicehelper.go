@@ -188,6 +188,15 @@ func EndOfMonth(date time.Time) time.Time {
 	return BeginningOfMonth(date).AddDate(0, 1, 0).Add(-time.Nanosecond)
 }
 
+// get next midnight
+//
+// e.g now = 2022-10-11 22:33:44 +0700 WIB
+//
+// Midnight(now) = 2022-10-11 00:00:00.000000000 +0700 WIB
+func Midnight(date time.Time) time.Time {
+	return time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+}
+
 // loop process to save image file from slice base64 and return slice filename
 func loopArrayPhoto(input []string, docsName string, userId uint) (arrString []string, err error) {
 	for v := range input {
@@ -245,8 +254,8 @@ func GetArrayFile(input []string, docsName string, userId uint) (arrString strin
 }
 
 // array pdf
-func GetArrayPdf(input []string, docsName string, userId uint) (arrString string, err error) {
-	result, err := loopArrayPdf(input, docsName, userId)
+func GetArrayPdfAndImage(input []string, docsName string, userId uint) (arrString string, err error) {
+	result, err := loopArrayPdfAndImage(input, docsName, userId)
 	if err == nil {
 		arrString = arrToJsonString(result)
 	}
@@ -304,10 +313,11 @@ func loopArrayFile(input []string, docsName string, userId uint) (arrString []st
 }
 
 // loop process to save image file from slice base64 and return slice filename
-func loopArrayPdf(input []string, docsName string, userId uint) (arrString []string, err error) {
+func loopArrayPdfAndImage(input []string, docsName string, userId uint) (arrString []string, err error) {
 	for v := range input {
 		var errChan = make(chan error)
 		pdfPath := GetPdfPath()
+		imagePath := GetImgPath()
 		id, err2 := GetUuidv4()
 		if err2 != nil {
 			err = err2
@@ -322,6 +332,14 @@ func loopArrayPdf(input []string, docsName string, userId uint) (arrString []str
 		case "pdf":
 			fileName := GenerateFilename(docsName, id, userId, extFile)
 			go SaveFile(input[v], fileName, pdfPath, extFile, errChan)
+			if err2 := <-errChan; err2 != nil {
+				err = err2
+				return
+			}
+			arrString = append(arrString, fileName)
+		case "png", "jpeg":
+			fileName := GenerateFilename(docsName, id, userId, extFile)
+			go SaveFile(input[v], fileName, imagePath, extFile, errChan)
 			if err2 := <-errChan; err2 != nil {
 				err = err2
 				return
@@ -366,13 +384,13 @@ func AddMoreFile(input []string, dataBefore, docsName string, userId uint) (arrS
 }
 
 // add multiply pdf
-func AddMorePdf(input []string, dataBefore, docsName string, userId uint) (arrString string, err error) {
+func AddMorePdfAndImage(input []string, dataBefore, docsName string, userId uint) (arrString string, err error) {
 	var result []string
 	err = json.Unmarshal([]byte(dataBefore), &result)
 	if err != nil {
 		return
 	}
-	newData, err := loopArrayPdf(input, docsName, userId)
+	newData, err := loopArrayPdfAndImage(input, docsName, userId)
 	if err == nil {
 		result = append(result, newData...)
 		arrString = arrToJsonString(result)

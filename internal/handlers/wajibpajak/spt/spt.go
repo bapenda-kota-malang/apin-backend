@@ -27,7 +27,7 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 
-	result, err := s.GetList(input, uint(authInfo.User_Id))
+	result, err := s.GetList(input, uint(authInfo.User_Id), "wp")
 	hh.DataResponse(w, result, err)
 }
 
@@ -36,11 +36,11 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	if !pass {
 		return
 	}
-	jenisPajak := mtypes.JenisPajakSA
+	jenisPajak := string(mtypes.JenisPajakSA)
 	re := regexp.MustCompile(`^\/\w*`)
 	switch re.FindString(r.RequestURI)[1:] {
 	case "skpd":
-		jenisPajak = mtypes.JenisPajakOA
+		jenisPajak = string(mtypes.JenisPajakOA)
 	}
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)

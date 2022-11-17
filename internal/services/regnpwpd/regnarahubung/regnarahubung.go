@@ -14,7 +14,7 @@ import (
 	mn "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 
-	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 )
 
 const source = "regpemilik"

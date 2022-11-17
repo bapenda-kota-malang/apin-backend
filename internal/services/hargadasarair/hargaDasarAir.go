@@ -11,6 +11,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
@@ -35,6 +36,17 @@ func Create(input m.CreateDto) (any, error) {
 func GetList(input m.FilterDto) (any, error) {
 	var data []m.HargaDasarAir
 	var count int64
+
+	if input.Peruntukan != nil {
+		switch *input.Peruntukan {
+		case string(types.PeruntukanPdam),
+			string(types.PeruntukanIndustriAir),
+			string(types.PeruntukanNonNiaga),
+			string(types.PeruntukanNiaga):
+		default:
+			return sh.SetError("request", "get-data-list", source, "failed", "data peruntukan tidak diketahui", data)
+		}
+	}
 
 	var pagination gh.Pagination
 	result := a.DB.

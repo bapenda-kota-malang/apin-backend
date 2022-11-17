@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	mdsa "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	mdhiburan "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -13,6 +14,7 @@ import (
 	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptppjpln"
 	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
 	mdsres "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
@@ -34,7 +36,7 @@ type Spt struct {
 	EtaxTotal           *string         `json:"etaxTotal,omitempty" gorm:"size:100"`
 	EtaxJumlahPajak     *string         `json:"etaxJumlahPajak,omitempty" gorm:"size:100"`
 	Omset               float64         `json:"omset"`
-	JumlahPajak         float32         `json:"jumlahPajak"`
+	JumlahPajak         float64         `json:"jumlahPajak"`
 	Lampiran            string          `json:"lampiran"`
 	JatuhTempo          datatypes.Date  `json:"jatuhTempo"`
 	Sunset              *datatypes.Date `json:"sunset,omitempty"`
@@ -43,7 +45,7 @@ type Spt struct {
 	NomorSpt            string          `json:"NomorSpt" gorm:"type:varchar(20)"`
 	KodeBilling         string          `json:"kodeBilling" gorm:"varchar(30)"`
 	Type                mt.JenisPajak   `json:"type" gorm:"type:varchar(2)"`
-	Status              SptStatus       `json:"status" gorm:"type:varchar(5)"`
+	StatusPembayaran    SptStatus       `json:"statusPembayaran" gorm:"type:varchar(5)"`
 	TanggalLunas        *time.Time      `json:"tanggalLunas,omitempty"`
 	BatalPenetapan      bool            `json:"batalPenetapan,omitempty"`
 	IdBT                *uint64         `json:"idBT,omitempty"`
@@ -57,25 +59,27 @@ type Spt struct {
 	NamaProduk          *string         `json:"productName,omitempty" gorm:"type:varchar(200)"`
 	NomorRegister       *string         `json:"registerNumber,omitempty" gorm:"type:varchar(100)"`
 	VaJatim             *string         `json:"vaJatim,omitempty" gorm:"type:varchar(20)"`
-	JenisKetetapan      *JenisKetetapan `json:"jenisKetetapan,omitempty"`
+	JenisKetetapan      *JenisKetetapan `json:"jenisKetetapan,omitempty" gorm:"varchar(20)"`
+	DasarPengenaan      *string         `json:"dasarPengenaan,omitempty" gorm:"varchar(30)"`
 	Kenaikan            *float64        `json:"kenaikan,omitempty" gorm:"type:decimal"`
 	Bunga               *float64        `json:"bunga,omitempty" gorm:"type:decimal"`
 	Denda               *float64        `json:"denda,omitempty" gorm:"type:decimal"`
 	Pengurangan         *float64        `json:"pengurangan,omitempty" gorm:"type:decimal"`
 	Total               *float64        `json:"total,omitempty" gorm:"type:decimal"`
-	Ref_Spt_Id          *uint64         `json:"ref_spt_id,omitempty"`
+	Ref_Spt_Id          *uuid.UUID      `json:"ref_spt_id,omitempty" gorm:"type:uuid"`
 	BillingPenetapan    *string         `json:"billingPenetapan,omitempty" gorm:"type:varchar(20)"`
 	Teguran_Id          *uint64         `json:"teguran_id,omitempty"`
 	IsTeguran           bool            `json:"isTeguran,omitempty"`
 	KeteranganPenetapan *string         `json:"keteranganPenetapan,omitempty" gorm:"type:varchar(100)"`
 	StatusPenetapan     StatusPenetapan `json:"statusPenetapan"`
-	Kasubid_User_Id     *string         `json:"kasubid_user_id,omitempty"`
-	Kabid_User_Id       *string         `json:"kabid_user_id,omitempty"`
+	Kasubid_User_Id     *uint           `json:"kasubid_user_id,omitempty"`
+	Kabid_User_Id       *uint           `json:"kabid_user_id,omitempty"`
 	gormhelper.DateModel
-	CancelledAt *time.Time   `json:"cancelledAt,omitempty"`
-	Npwpd       *npwpd.Npwpd `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
-	// ObjekPajak            *op.ObjekPajak                  `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
+	CancelledAt      *time.Time                   `json:"cancelledAt,omitempty"`
+	Npwpd            *npwpd.Npwpd                 `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
+	ObjekPajak       *objekpajak.ObjekPajak       `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
 	Rekening         *rekening.Rekening           `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
+	TarifPajak       *tarifpajak.TarifPajak       `json:"tarifPajak,omitempty" gorm:"foreignKey:TarifPajak_Id"`
 	CreateUser       *user.User                   `json:"createBy,omitempty" gorm:"foreignKey:CreateBy_User_Id"`
 	KasubidUser      *user.User                   `json:"kasubid,omitempty" gorm:"foreignKey:Kasubid_User_Id"`
 	KabidUser        *user.User                   `json:"kabid,omitempty" gorm:"foreignKey:Kabid_User_Id"`

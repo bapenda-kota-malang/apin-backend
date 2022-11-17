@@ -39,6 +39,16 @@ func (input *CreateDetailRestoDto) DuplicateEspt(esptDetail *mespt.Espt) error {
 	return nil
 }
 
+func (input *CreateDetailRestoDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *SkpdkbExisting) error {
+	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
+		return err
+	}
+	if err := copier.Copy(&input.DataDetails, &sptDetail); err != nil {
+		return err
+	}
+	return nil
+}
+
 type UpdateDetailRestoDto struct {
 	UpdateDetailBaseDto
 	DataDetails mdsres.UpdateDto `json:"dataDetails" validate:"required"`
