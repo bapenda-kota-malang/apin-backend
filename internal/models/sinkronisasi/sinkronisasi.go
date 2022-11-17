@@ -3,24 +3,25 @@ package sinkronisasi
 import (
 	"time"
 
-	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
+	ms "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Sinkronisasi struct {
-	Id                  uint64          `json:"id" gorm:"primaryKey"`
-	TanggalSinkronisasi *time.Time      `json:"tanggalSinkronisasi"`
-	JenisPajak          string          `json:"jenisPajak"`
-	File                string          `json:"file"`
-	JumlahTidakSinkron  *int            `json:"jumlahTidakSinkron"`
-	Tbp_Id              *uint64         `json:"tbp_id"`
-	Tbp                 *mt.Tbp         `json:"tbp,omitempty" gorm:"foreignKey:Tbp_Id"`
-	User_Id             *uint64         `json:"user_id"`
-	User                *mu.User        `json:"user,omitempty" gorm:"foreignKey:User_Id"`
-	UpdatedAt           *time.Time      `json:"updatedAt"`
-	DeletedAt           *gorm.DeletedAt `json:"deletedAt" gorm:"index"`
+	Id                  uint64                `json:"id" gorm:"primaryKey"`
+	TanggalSinkronisasi *time.Time            `json:"tanggalSinkronisasi"`
+	JenisPajak          string                `json:"jenisPajak"`
+	File                string                `json:"file"`
+	JumlahTidakSinkron  *int                  `json:"jumlahTidakSinkron"`
+	Sspd_Id             *uint64               `json:"sspd_id"`
+	Sspd                *ms.Sspd              `json:"sspd,omitempty" gorm:"foreignKey:Sspd_Id"`
+	User_Id             *uint64               `json:"user_id"`
+	User                *mu.User              `json:"user,omitempty" gorm:"foreignKey:User_Id"`
+	UpdatedAt           *time.Time            `json:"updatedAt"`
+	DeletedAt           *gorm.DeletedAt       `json:"deletedAt" gorm:"index"`
+	SinkronisasiDetails []*SinkronisasiDetail `json:"sinkronisasiDetail,omitempty" gorm:"foreignKey:Sinkronisasi_Id;references:Id"`
 }
 
 type CreateDto struct {
@@ -28,7 +29,7 @@ type CreateDto struct {
 	JenisPajak          string          `json:"jenisPajak"`
 	File                string          `json:"file"`
 	JumlahTidakSinkron  *int            `json:"jumlahTidakSinkron"`
-	Tbp_Id              *uint64         `json:"tbp_id"`
+	Sspd_Id             *uint64         `json:"sspd_id"`
 	User_Id             *uint64         `json:"user_id"`
 	UpdatedAt           *time.Time      `json:"updatedAt"`
 	DeletedAt           *gorm.DeletedAt `json:"deletedAt"`
@@ -40,7 +41,7 @@ type UpdateDto struct {
 	JenisPajak          string          `json:"jenisPajak"`
 	File                *string         `json:"file"`
 	JumlahTidakSinkron  *int            `json:"jumlahTidakSinkron"`
-	Tbp_Id              *uint64         `json:"tbp_id"`
+	Sspd_Id             *uint64         `json:"sspd_id"`
 	User_Id             *uint64         `json:"user_id"`
 	UpdatedAt           *time.Time      `json:"updatedAt"`
 	DeletedAt           *gorm.DeletedAt `json:"deletedAt"`
@@ -51,7 +52,7 @@ type FilterDto struct {
 	JenisPajak          *string         `json:"jenisPajak"`
 	File                *string         `json:"file"`
 	JumlahTidakSinkron  *int            `json:"jumlahTidakSinkron"`
-	Tbp_Id              *uint64         `json:"tbp_id"`
+	Sspd_Id             *uint64         `json:"sspd_id"`
 	User_Id             *uint64         `json:"user_id"`
 	UpdatedAt           *time.Time      `json:"updatedAt"`
 	DeletedAt           *gorm.DeletedAt `json:"deletedAt"`

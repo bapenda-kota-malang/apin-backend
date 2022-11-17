@@ -13,7 +13,7 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 )
 
 const source = "regpemilik"

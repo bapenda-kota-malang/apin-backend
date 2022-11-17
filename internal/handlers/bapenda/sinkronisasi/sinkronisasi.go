@@ -6,7 +6,7 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/sinkronisasi"
-	sds "github.com/bapenda-kota-malang/apin-backend/internal/services/sinkronisasi/detailsinkronisasi"
+	ssd "github.com/bapenda-kota-malang/apin-backend/internal/services/sinkronisasi/sinkronisasidetail"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
@@ -41,12 +41,12 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateDetail(w http.ResponseWriter, r *http.Request) {
-	var input []m.DetailSinkronisasiCreateDto
+	var input []m.SinkronisasiDetailCreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
 
-	result, err := sds.Create(input, nil)
+	result, err := ssd.Create(input, nil)
 	hh.DataResponse(w, result, err)
 }
 

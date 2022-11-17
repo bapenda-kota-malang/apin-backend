@@ -19,6 +19,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargadasarair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jabatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jalan"
@@ -28,6 +29,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nik"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
@@ -41,12 +43,12 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambongrek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifreklame"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tbp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -131,6 +133,9 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/referensibank", referensibank.Crud{})
 
+	rh.RegCrud(r, "/hargareferensi", hargareferensi.Crud{})
+
+	rh.RegCrud(r, "/nik", nik.Crud{})
 	r.Route("/pegawai", func(r chi.Router) {
 		r.Post("/", pegawai.Create)
 		r.Get("/", pegawai.GetList)
@@ -255,13 +260,13 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/verify", espt.Verify)
 	})
 
-	r.Route("/tbp", func(r chi.Router) {
-		r.Get("/", tbp.GetList)
-		r.Get("/{id}", tbp.GetDetail)
-		r.Post("/", tbp.Create)
-		r.Patch("/{id}", tbp.Update)
-		r.Delete("/{id}", tbp.Delete)
-		r.Patch("/{id}/cancel", tbp.Cancel)
+	r.Route("/sspd", func(r chi.Router) {
+		r.Get("/", sspd.GetList)
+		r.Get("/{id}", sspd.GetDetail)
+		r.Post("/", sspd.Create)
+		r.Patch("/{id}", sspd.Update)
+		r.Delete("/{id}", sspd.Delete)
+		r.Patch("/{id}/cancel", sspd.Cancel)
 	})
 
 	r.Route("/sinkronisasi", func(r chi.Router) {

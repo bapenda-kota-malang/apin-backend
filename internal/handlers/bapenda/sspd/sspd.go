@@ -1,11 +1,11 @@
-package tbp
+package sspd
 
 import (
 	"net/http"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/tbp"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/tbp"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/sspd"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 

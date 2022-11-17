@@ -1,4 +1,4 @@
-package tbp
+package sspd
 
 import (
 	"time"
@@ -11,9 +11,9 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
-type Tbp struct {
+type Sspd struct {
 	Id                            uint64          `json:"id" gorm:"primaryKey"`
-	TbpNumber                     *int            `json:"tbpNumber"`
+	SspdNumber                    *int            `json:"sspdNumber"`
 	TanggalBayar                  *time.Time      `json:"tanggalBayar"`
 	ObjekPajak_Id                 *uint64         `json:"objekPajak_id"`
 	ObjekPajak                    *mop.ObjekPajak `json:"objekPajak" gorm:"foreignKey:ObjekPajak_Id"`
@@ -43,12 +43,12 @@ type Tbp struct {
 	IsCancelled   *bool      `json:"isCancelled"`
 	CancelledDate *time.Time `json:"cancelledDate"`
 
-	DetailTbps []*DetailTbp `json:"detailTbp,omitempty" gorm:"foreignKey:Tbp_Id;references:Id"`
+	SspdDetails []*SspdDetail `json:"sspdDetail,omitempty" gorm:"foreignKey:Sspd_Id;references:Id"`
 }
 
 type CreateDto struct {
-	TbpNumber                     *int       `json:"tbpNumber"`
-	TanggalBayar                  *time.Time `json:"tanggalBayar"`
+	SspdNumber                    *int       `json:"sspdNumber"`
+	TanggalBayar                  *string    `json:"tanggalBayar"`
 	ObjekPajak_Id                 *uint64    `json:"objekPajak_id"`
 	CreatedBy_User_Id             *uint64    `json:"createdBy_user_id"`
 	RekeningBendahara_Rekening_Id *uint64    `json:"rekeningBendahara_rekening_id"`
@@ -72,19 +72,20 @@ type CreateDto struct {
 	IsCancelled   *bool      `json:"isCancelled"`
 	CancelledDate *time.Time `json:"cancelledDate"`
 
-	DetailTbp *DetailTbpCreateDto `json:"detailTbp"`
+	SspdDetail *SspdDetailCreateDto `json:"sspdDetail"`
 }
 
 type UpdateDto struct {
-	Id                *uint64             `json:"id"`
-	Note              *string             `json:"note"`
-	CreatedBy_User_Id *uint64             `json:"createdBy_user_id"`
-	TempatPembayaran  *string             `json:"tempatPembayaran"`
-	DetailTbp         *DetailTbpCreateDto `json:"detailTbp"`
+	Id                *uint64              `json:"id"`
+	TanggalBayar      *string              `json:"tanggalBayar"`
+	Note              *string              `json:"note"`
+	CreatedBy_User_Id *uint64              `json:"createdBy_user_id"`
+	TempatPembayaran  *string              `json:"tempatPembayaran"`
+	SspdDetail        *SspdDetailCreateDto `json:"sspdDetail"`
 }
 
 type FilterDto struct {
-	TbpNumber                     *int       `json:"tbpNumber"`
+	SspdNumber                    *int       `json:"sspdNumber"`
 	TanggalBayar                  *time.Time `json:"tanggalBayar"`
 	ObjekPajak_Id                 *uint64    `json:"objekPajak_id"`
 	CreatedBy_User_Id             *uint64    `json:"createdBy_user_id"`
