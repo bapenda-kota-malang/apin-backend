@@ -40,4 +40,5 @@ type NarahubungUpdateDto struct {
 	Keterangan   *string `json:"keterangan"`
 	Nik          *string `json:"nik" validate:"required;nik"`
 	Email        *string `json:"email" validate:"required;emailvalid"`
+	IsDeleted    bool    `json:"isDeleted"`
 }
