@@ -9,7 +9,7 @@ import (
 
 type DetailEsptPpjPln struct {
 	detailesptair.DetailEspt
-	JenisPPJ_Id     uint `json:"jenisPpj_Id"`
+	JenisPPJ_Id     uint `json:"jenisPpj_id"`
 	JumlahPelanggan uint `json:"jumlahPelanggan"`
 	JumlahRekening  uint `json:"jumlahRekening"`
 	gormhelper.DateModel
@@ -18,7 +18,7 @@ type DetailEsptPpjPln struct {
 
 type CreateDto struct {
 	Espt_Id         uuid.UUID
-	JenisPPJ_Id     uint `json:"jenisPpj_Id"`
+	JenisPPJ_Id     uint `json:"jenisPpj_id"`
 	JumlahPelanggan uint `json:"jumlahPelanggan"`
 	JumlahRekening  uint `json:"jumlahRekening"`
 	JenisPPJ        *jenisppj.JenisPPJ
@@ -26,7 +26,7 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Id              uint  `json:"id"`
-	JenisPPJ_Id     *uint `json:"jenisPpj_Id"`
+	JenisPPJ_Id     *uint `json:"jenisPpj_id"`
 	JumlahPelanggan *uint `json:"jumlahPelanggan"`
 	JumlahRekening  *uint `json:"jumlahRekening"`
 	JenisPPJ        *jenisppj.JenisPPJ

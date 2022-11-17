@@ -24,9 +24,9 @@ import (
 
 type Spt struct {
 	Id                  uuid.UUID       `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	Npwpd_Id            uint64          `json:"npwpd_Id"`
-	ObjekPajak_Id       uint64          `json:"objekPajak_Id"`
-	Rekening_Id         uint64          `json:"rekening_Id"`
+	Npwpd_Id            uint64          `json:"npwpd_id"`
+	ObjekPajak_Id       uint64          `json:"objekPajak_id"`
+	Rekening_Id         uint64          `json:"rekening_id"`
 	LuasLokasi          *string         `json:"luasLokasi,omitempty" gorm:"type:varchar(50)"`
 	Description         *string         `json:"description,omitempty" gorm:"type:varchar(255)"`
 	PeriodeAwal         datatypes.Date  `json:"periodeAwal"`
