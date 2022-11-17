@@ -25,18 +25,20 @@ func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 
 	for i := range input {
 		// check linked area
-		respDaerah, err := sdaerah.GetDetail(int(input[i].Daerah_Id))
-		if err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data kecamatan", data)
-		}
-		respKecamatan, err := skecamatan.GetDetail(int(input[i].Kecamatan_Id))
-		if err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data kecamatan", data)
-		}
-		daerah := respDaerah.(rp.OKSimple).Data.(*mareadivision.Daerah)
-		kecamatan := respKecamatan.(rp.OKSimple).Data.(*mareadivision.Kecamatan)
-		if kecamatan.Daerah_Kode != daerah.Kode {
-			return sh.SetError("request", "create-data", source, "failed", "kecamatan tidak berada pada kota terkait", data)
+		if input[i].Kecamatan_Id != nil {
+			respDaerah, err := sdaerah.GetDetail(int(input[i].Daerah_Id))
+			if err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data kecamatan", data)
+			}
+			respKecamatan, err := skecamatan.GetDetail(int(*input[i].Kecamatan_Id))
+			if err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data kecamatan", data)
+			}
+			daerah := respDaerah.(rp.OKSimple).Data.(*mareadivision.Daerah)
+			kecamatan := respKecamatan.(rp.OKSimple).Data.(*mareadivision.Kecamatan)
+			if kecamatan.Daerah_Kode != daerah.Kode {
+				return sh.SetError("request", "create-data", source, "failed", "kecamatan tidak berada pada kota terkait", data)
+			}
 		}
 	}
 
