@@ -48,6 +48,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -88,6 +89,7 @@ func init() {
 		&referensibank.ReferensiBank{},
 		&hargareferensi.HargaReferensi{},
 		&nik.Nik{},
+		&jenisperolehan.JenisPerolehan{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
