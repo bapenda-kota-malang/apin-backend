@@ -20,7 +20,7 @@ import (
 
 type Espt struct {
 	Id                  uuid.UUID                     `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	Npwpd_Id            uint                          `json:"npwp_id"`
+	Npwpd_Id            uint                          `json:"npwpd_id"`
 	ObjekPajak_Id       uint                          `json:"objekPajak_id"`
 	Rekening_Id         uint                          `json:"rekening_id"`
 	LuasLokasi          *uint                         `json:"luasLokasi,omitempty" gorm:"comment:untuk pajak parkir"`

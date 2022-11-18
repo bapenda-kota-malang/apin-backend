@@ -95,9 +95,12 @@ func GetList(input m.FilterDto, user_Id uint) (any, error) {
 func GetDetail(id uuid.UUID, user_Id uint) (any, error) {
 	var data *m.Espt
 
-	baseQuery := a.DB.Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
-		return tx.Omit("Password")
-	})
+	baseQuery := a.DB.
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		})
 	if user_Id != 0 {
 		baseQuery = baseQuery.Where(&m.Espt{LaporBy_User_Id: user_Id})
 	}

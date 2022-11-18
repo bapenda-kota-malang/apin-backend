@@ -24,9 +24,9 @@ import (
 
 type Spt struct {
 	Id                  uuid.UUID       `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	Npwpd_Id            uint64          `json:"npwpd_Id"`
-	ObjekPajak_Id       uint64          `json:"objekPajak_Id"`
-	Rekening_Id         uint64          `json:"rekening_Id"`
+	Npwpd_Id            uint64          `json:"npwpd_id"`
+	ObjekPajak_Id       uint64          `json:"objekPajak_id"`
+	Rekening_Id         uint64          `json:"rekening_id"`
 	LuasLokasi          *string         `json:"luasLokasi,omitempty" gorm:"type:varchar(50)"`
 	Description         *string         `json:"description,omitempty" gorm:"type:varchar(255)"`
 	PeriodeAwal         datatypes.Date  `json:"periodeAwal"`
@@ -42,7 +42,7 @@ type Spt struct {
 	Sunset              *datatypes.Date `json:"sunset,omitempty"`
 	CreateBy_User_Id    uint            `json:"createBy_user_id"`
 	TanggalSpt          time.Time       `json:"tanggalSpt"`
-	NomorSpt            string          `json:"NomorSpt" gorm:"type:varchar(20)"`
+	NomorSpt            string          `json:"nomorSpt" gorm:"type:varchar(20)"`
 	KodeBilling         string          `json:"kodeBilling" gorm:"varchar(30)"`
 	Type                mt.JenisPajak   `json:"type" gorm:"type:varchar(2)"`
 	StatusPembayaran    SptStatus       `json:"statusPembayaran" gorm:"type:varchar(5)"`
