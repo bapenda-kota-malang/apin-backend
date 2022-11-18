@@ -20,8 +20,8 @@ type CreateDto struct {
 	Nama        *string `json:"nama"`
 	Alamat      *string `json:"alamat"`
 	Nama_Kepada *string `json:"nama_kepada"`
-	Telepon     *string `json:"telepon"`
-	IsDeleted   *bool   `json:"isDeleted"`
+	Telepon     *string `json:"telepon" validate:"notelp"`
+	IsDeleted   bool    `json:"isDeleted"`
 }
 
 type UpdateDto struct {
@@ -30,8 +30,8 @@ type UpdateDto struct {
 	Nama        *string `json:"nama"`
 	Alamat      *string `json:"alamat"`
 	Nama_Kepada *string `json:"nama_kepada"`
-	Telepon     *string `json:"telepon"`
-	IsDeleted   *bool   `json:"isDeleted"`
+	Telepon     *string `json:"telepon" validate:"notelp"`
+	IsDeleted   bool    `json:"isDeleted"`
 }
 
 type FilterDto struct {
