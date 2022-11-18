@@ -20,6 +20,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/konfigurasipajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
@@ -86,6 +87,7 @@ func init() {
 		&jenisppj.JenisPPJ{},
 		&hargareferensi.HargaReferensi{},
 		&nik.Nik{},
+		&konfigurasipajak.KonfigurasiPajak{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
