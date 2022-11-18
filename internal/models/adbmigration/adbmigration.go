@@ -25,6 +25,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailobjek"
@@ -90,6 +91,7 @@ func init() {
 		&hargareferensi.HargaReferensi{},
 		&nik.Nik{},
 		&jenisperolehan.JenisPerolehan{},
+		&paymentpoint.PaymentPoint{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
