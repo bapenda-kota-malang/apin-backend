@@ -25,6 +25,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
@@ -33,6 +34,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensinarahubung"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibank"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
@@ -48,6 +50,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -85,8 +88,11 @@ func init() {
 		&hargadasarair.HargaDasarAir{},
 		&tarifpajak.TarifPajak{},
 		&jenisppj.JenisPPJ{},
+		&referensibank.ReferensiBank{},
 		&hargareferensi.HargaReferensi{},
 		&nik.Nik{},
+		&jenisperolehan.JenisPerolehan{},
+		&paymentpoint.PaymentPoint{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
