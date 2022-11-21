@@ -26,6 +26,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailobjek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiop"
@@ -176,4 +177,9 @@ func init() {
 		&sinkronisasi.SinkronisasiDetail{},
 	}
 	a.AutoMigrate(listModelPembayaran...)
+
+	listModelPelayanan := []interface{}{
+		&permohonan.Permohonan{},
+	}
+	a.AutoMigrate(listModelPelayanan...)
 }
