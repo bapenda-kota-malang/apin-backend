@@ -16,9 +16,9 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
-	PotensiOp          UpdatePotensiOpDto            `json:"potensiOp" validate:"required"`
-	DetailPotensiOp    detailpotensiop.UpdateDto     `json:"detailPotensiOp" validate:"required"`
-	DetailPajakDtos    []detailobjek.DetailPajakDto  `json:"detailPajaks"`
-	PotensiPemilikWps  []potensipemilikwp.UpdateDto  `json:"potensiPemilikWps" validate:"required"`
+	PotensiOp          UpdatePotensiOpDto            `json:"potensiOp"`
+	DetailPotensiOp    detailpotensiop.UpdateDto     `json:"detailPotensiOp"`
+	DetailPajakDtos    []detailobjek.UpdateDto       `json:"detailPajaks"`
+	PotensiPemilikWps  []potensipemilikwp.UpdateDto  `json:"potensiPemilikWps"`
 	PotensiNarahubungs []potensinarahubung.UpdateDto `json:"potensiNarahubungs"`
 }

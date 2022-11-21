@@ -37,6 +37,7 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
+	Id           *uint       `json:"id"`
 	Nama         *string     `json:"nama"`
 	Alamat       *string     `json:"alamat"`
 	RtRw         *string     `json:"rtRw"`

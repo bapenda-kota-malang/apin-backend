@@ -35,7 +35,7 @@ type CreateDto struct {
 	Kelurahan_Id uint       `json:"kelurahan_id" validate:"required;min=1"`
 	Longitude    *float64   `json:"longitude"`
 	Latitude     *float64   `json:"latitude"`
-	Telp         string     `json:"telp" validate:"nohp"`
+	Telp         *string    `json:"telp" validate:"nohp"`
 	Status       t.StatusBL `json:"status" validate:"required"`
 	IsNpwpd      bool       `json:"-"`
 }
@@ -49,6 +49,6 @@ type UpdateDto struct {
 	Kelurahan_Id *uint       `json:"kelurahan_id" validate:"min=1"`
 	Longitude    *float64    `json:"longitude"`
 	Latitude     *float64    `json:"latitude"`
-	Telp         string      `json:"telp" validate:"nohp"`
+	Telp         *string     `json:"telp" validate:"nohp"`
 	Status       *t.StatusBL `json:"status"`
 }
