@@ -17,6 +17,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jalan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenispajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
@@ -97,6 +98,7 @@ func init() {
 		&konfigurasipajak.KonfigurasiPajak{},
 		&jenisperolehan.JenisPerolehan{},
 		&paymentpoint.PaymentPoint{},
+		&jenispajak.JenisPajak{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
