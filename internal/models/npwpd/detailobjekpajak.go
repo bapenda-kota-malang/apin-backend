@@ -48,9 +48,10 @@ type DetailObjekPajakCreateDto struct {
 }
 
 type DetailObjekPajakUpdateDto struct {
-	Id       uint64  `json:"id" gorm:"primaryKey"`
-	JumlahOp *string `json:"jumlahOp" gorm:"size:200"`
-	TarifOp  *string `json:"tarifOp" gorm:"size:200"`
-	UnitOp   *string `json:"unitOp" gorm:"size:50"`
-	Notes    *string `json:"notes" gorm:"size:200"`
+	Id        uint64  `json:"id" gorm:"primaryKey"`
+	JumlahOp  *string `json:"jumlahOp" gorm:"size:200"`
+	TarifOp   *string `json:"tarifOp" gorm:"size:200"`
+	UnitOp    *string `json:"unitOp" gorm:"size:50"`
+	Notes     *string `json:"notes" gorm:"size:200"`
+	IsDeleted bool    `json:"isDeleted"`
 }
