@@ -4,7 +4,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambongrek"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )
 
