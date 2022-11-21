@@ -61,4 +61,5 @@ type PemilikWpUpdateDto struct {
 	Direktur_Daerah_Id    *uint64 `json:"direktur_daerah_id"`
 	Direktur_Kelurahan_Id *uint64 `json:"direktur_kelurahan_id"`
 	Direktur_Telp         *string `json:"direktur_telp"`
+	IsDeleted             bool    `json:"isDeleted"`
 }

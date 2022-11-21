@@ -132,118 +132,384 @@ func GenerateNpwpd(nomor int, kecamatan_id uint64, kodeJenisUsaha string) string
 	return npwpdString
 }
 
-func updateDetailObjekPajak(input []m.DetailObjekPajak, npwpd_id uint64, rekeningObjek, rekeningNama string, tx *gorm.DB) error {
+func updateDetailObjekPajak(input []m.DetailObjekPajakUpdateDto, npwpd_id uint64, rekeningObjek, rekeningNama string, tx *gorm.DB) error {
 	switch rekeningObjek {
 	case "01":
+		var dataUpdate []m.DetailObjekPajakHotel
+		var dataDelete []m.DetailObjekPajakHotel
+		var tmpDataUpdate m.DetailObjekPajakHotel
+		var tmpDataDelete m.DetailObjekPajakHotel
 		for _, v := range input {
-			var dataDetail *m.DetailObjekPajakHotel
-			result := tx.First(&dataDetail, v.Id)
+			if v.Id != 0 && v.IsDeleted {
+				if err := sc.Copy(&tmpDataDelete, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak hotel: " + err.Error())
+				}
+				dataDelete = append(dataDelete, tmpDataDelete)
+			} else {
+				if err := sc.Copy(&tmpDataUpdate, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak hotel: " + err.Error())
+				}
+				dataUpdate = append(dataUpdate, tmpDataUpdate)
+			}
+
+		}
+
+		// update data
+		for _, v := range dataUpdate {
+			var dataDetailUpdate *m.DetailObjekPajakHotel
+			result := tx.First(&dataDetailUpdate, v.Id)
 			if result.RowsAffected == 0 {
-				return errors.New("data tidak dapat ditemukan")
+				return errors.New("data detail objek pajak hotel tidak dapat ditemukan")
 			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return errors.New("tidak adapat menyalin data detail objek pajak hotel")
+			if err := sc.Copy(&dataDetailUpdate, &v); err != nil {
+				return errors.New("gagal mengambil data payload detail objek pajak hotel: " + err.Error())
 			}
-			dataDetail.Npwpd_Id = npwpd_id
-			dataDetail.JenisOp = &rekeningNama
-			if result := tx.Save(&dataDetail); result.Error != nil {
-				return errors.New("tidak dapat menyimpan data detail objek pajak hotel")
+			// set directur value to null if golongan orang pribadi
+			dataDetailUpdate.Npwpd_Id = npwpd_id
+			dataDetailUpdate.JenisOp = &rekeningNama
+			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
+				return errors.New("gagal menyimpan data detail objek pajak hotel: " + result.Error.Error())
+			}
+		}
+		for k := range dataUpdate {
+			dataUpdate[k].Npwpd_Id = npwpd_id
+		}
+
+		// delete data
+		for _, v := range dataDelete {
+			var dataDetailDelete *m.DetailObjekPajakHotel
+			result := tx.First(&dataDetailDelete, v.Id)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal mengambil data payload detail objek pajak hotel: " + result.Error.Error())
+			}
+
+			result = tx.Delete(&dataDetailDelete)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal menghapus data detail objek pajak hotel: " + result.Error.Error())
 			}
 		}
 	case "02":
+		var dataUpdate []m.DetailObjekPajakResto
+		var dataDelete []m.DetailObjekPajakResto
+		var tmpDataUpdate m.DetailObjekPajakResto
+		var tmpDataDelete m.DetailObjekPajakResto
 		for _, v := range input {
-			var dataDetail *m.DetailObjekPajakResto
-			result := tx.First(&dataDetail, v.Id)
+			if v.Id != 0 && v.IsDeleted {
+				if err := sc.Copy(&tmpDataDelete, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak resto: " + err.Error())
+				}
+				dataDelete = append(dataDelete, tmpDataDelete)
+			} else {
+				if err := sc.Copy(&tmpDataUpdate, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak resto: " + err.Error())
+				}
+				dataUpdate = append(dataUpdate, tmpDataUpdate)
+			}
+
+		}
+
+		// update data
+		for _, v := range dataUpdate {
+			var dataDetailUpdate *m.DetailObjekPajakResto
+			result := tx.First(&dataDetailUpdate, v.Id)
 			if result.RowsAffected == 0 {
-				return errors.New("data tidak dapat ditemukan")
+				return errors.New("data detail objek pajak resto tidak dapat ditemukan")
 			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return errors.New("tidak adapat menyalin data detail objek pajak resto")
+			if err := sc.Copy(&dataDetailUpdate, &v); err != nil {
+				return errors.New("gagal mengambil data payload detail objek pajak resto: " + err.Error())
 			}
-			dataDetail.Npwpd_Id = npwpd_id
-			dataDetail.JenisOp = &rekeningNama
-			if result := tx.Save(&dataDetail); result.Error != nil {
-				return errors.New("tidak dapat menyimpan data detail objek pajak resto")
+			// set directur value to null if golongan orang pribadi
+			dataDetailUpdate.Npwpd_Id = npwpd_id
+			dataDetailUpdate.JenisOp = &rekeningNama
+			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
+				return errors.New("gagal menyimpan data detail objek pajak resto: " + result.Error.Error())
+			}
+		}
+		for k := range dataUpdate {
+			dataUpdate[k].Npwpd_Id = npwpd_id
+		}
+
+		// delete data
+		for _, v := range dataDelete {
+			var dataDetailDelete *m.DetailObjekPajakResto
+			result := tx.First(&dataDetailDelete, v.Id)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal mengambil data payload detail objek pajak resto: " + result.Error.Error())
+			}
+
+			result = tx.Delete(&dataDetailDelete)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal menghapus data detail objek pajak resto: " + result.Error.Error())
 			}
 		}
 	case "03":
+		var dataUpdate []m.DetailObjekPajakHiburan
+		var dataDelete []m.DetailObjekPajakHiburan
+		var tmpDataUpdate m.DetailObjekPajakHiburan
+		var tmpDataDelete m.DetailObjekPajakHiburan
 		for _, v := range input {
-			var dataDetail *m.DetailObjekPajakHiburan
-			result := tx.First(&dataDetail, v.Id)
+			if v.Id != 0 && v.IsDeleted {
+				if err := sc.Copy(&tmpDataDelete, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak hiburan: " + err.Error())
+				}
+				dataDelete = append(dataDelete, tmpDataDelete)
+			} else {
+				if err := sc.Copy(&tmpDataUpdate, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak hiburan: " + err.Error())
+				}
+				dataUpdate = append(dataUpdate, tmpDataUpdate)
+			}
+
+		}
+
+		// update data
+		for _, v := range dataUpdate {
+			var dataDetailUpdate *m.DetailObjekPajakHiburan
+			result := tx.First(&dataDetailUpdate, v.Id)
 			if result.RowsAffected == 0 {
-				return errors.New("data tidak dapat ditemukan")
+				return errors.New("data detail objek pajak hiburan tidak dapat ditemukan")
 			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return errors.New("tidak adapat menyalin data detail objek pajak hiburan")
+			if err := sc.Copy(&dataDetailUpdate, &v); err != nil {
+				return errors.New("gagal mengambil data payload detail objek pajak hiburan: " + err.Error())
 			}
-			dataDetail.Npwpd_Id = npwpd_id
-			dataDetail.JenisOp = &rekeningNama
-			if result := tx.Save(&dataDetail); result.Error != nil {
-				return errors.New("tidak dapat menyimpan data detail objek pajak hiburan")
+			// set directur value to null if golongan orang pribadi
+			dataDetailUpdate.Npwpd_Id = npwpd_id
+			dataDetailUpdate.JenisOp = &rekeningNama
+			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
+				return errors.New("gagal menyimpan data detail objek pajak hiburan: " + result.Error.Error())
+			}
+		}
+		for k := range dataUpdate {
+			dataUpdate[k].Npwpd_Id = npwpd_id
+		}
+
+		// delete data
+		for _, v := range dataDelete {
+			var dataDetailDelete *m.DetailObjekPajakHiburan
+			result := tx.First(&dataDetailDelete, v.Id)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal mengambil data payload detail objek pajak hiburan: " + result.Error.Error())
+			}
+
+			result = tx.Delete(&dataDetailDelete)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal menghapus data detail objek pajak hiburan: " + result.Error.Error())
 			}
 		}
 	case "04":
+		var dataUpdate []m.DetailObjekPajakReklame
+		var dataDelete []m.DetailObjekPajakReklame
+		var tmpDataUpdate m.DetailObjekPajakReklame
+		var tmpDataDelete m.DetailObjekPajakReklame
 		for _, v := range input {
-			var dataDetail *m.DetailObjekPajakReklame
-			result := tx.First(&dataDetail, v.Id)
+			if v.Id != 0 && v.IsDeleted {
+				if err := sc.Copy(&tmpDataDelete, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak reklame: " + err.Error())
+				}
+				dataDelete = append(dataDelete, tmpDataDelete)
+			} else {
+				if err := sc.Copy(&tmpDataUpdate, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak reklame: " + err.Error())
+				}
+				dataUpdate = append(dataUpdate, tmpDataUpdate)
+			}
+
+		}
+
+		// update data
+		for _, v := range dataUpdate {
+			var dataDetailUpdate *m.DetailObjekPajakReklame
+			result := tx.First(&dataDetailUpdate, v.Id)
 			if result.RowsAffected == 0 {
-				return errors.New("data tidak dapat ditemukan")
+				return errors.New("data detail objek pajak reklame tidak dapat ditemukan")
 			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return errors.New("tidak adapat menyalin data detail objek pajak reklame")
+			if err := sc.Copy(&dataDetailUpdate, &v); err != nil {
+				return errors.New("gagal mengambil data payload detail objek pajak reklame: " + err.Error())
 			}
-			dataDetail.Npwpd_Id = npwpd_id
-			dataDetail.JenisOp = &rekeningNama
-			if result := tx.Save(&dataDetail); result.Error != nil {
-				return errors.New("tidak dapat menyimpan data detail objek pajak reklame")
+			// set directur value to null if golongan orang pribadi
+			dataDetailUpdate.Npwpd_Id = npwpd_id
+			dataDetailUpdate.JenisOp = &rekeningNama
+			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
+				return errors.New("gagal menyimpan data detail objek pajak reklame: " + result.Error.Error())
+			}
+		}
+		for k := range dataUpdate {
+			dataUpdate[k].Npwpd_Id = npwpd_id
+		}
+
+		// delete data
+		for _, v := range dataDelete {
+			var dataDetailDelete *m.DetailObjekPajakReklame
+			result := tx.First(&dataDetailDelete, v.Id)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal mengambil data payload detail objek pajak reklame: " + result.Error.Error())
+			}
+
+			result = tx.Delete(&dataDetailDelete)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal menghapus data detail objek pajak reklame: " + result.Error.Error())
 			}
 		}
 	case "05":
+		var dataUpdate []m.DetailObjekPajakPpj
+		var dataDelete []m.DetailObjekPajakPpj
+		var tmpDataUpdate m.DetailObjekPajakPpj
+		var tmpDataDelete m.DetailObjekPajakPpj
 		for _, v := range input {
-			var dataDetail *m.DetailObjekPajakPpj
-			result := tx.First(&dataDetail, v.Id)
+			if v.Id != 0 && v.IsDeleted {
+				if err := sc.Copy(&tmpDataDelete, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak ppj: " + err.Error())
+				}
+				dataDelete = append(dataDelete, tmpDataDelete)
+			} else {
+				if err := sc.Copy(&tmpDataUpdate, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak ppj: " + err.Error())
+				}
+				dataUpdate = append(dataUpdate, tmpDataUpdate)
+			}
+
+		}
+
+		// update data
+		for _, v := range dataUpdate {
+			var dataDetailUpdate *m.DetailObjekPajakPpj
+			result := tx.First(&dataDetailUpdate, v.Id)
 			if result.RowsAffected == 0 {
-				return errors.New("data tidak dapat ditemukan")
+				return errors.New("data detail objek pajak ppj tidak dapat ditemukan")
 			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return errors.New("tidak adapat menyalin data detail objek pajak ppj")
+			if err := sc.Copy(&dataDetailUpdate, &v); err != nil {
+				return errors.New("gagal mengambil data payload detail objek pajak ppj: " + err.Error())
 			}
-			dataDetail.Npwpd_Id = npwpd_id
-			dataDetail.JenisOp = &rekeningNama
-			if result := tx.Save(&dataDetail); result.Error != nil {
-				return errors.New("tidak dapat menyimpan data detail objek pajak ppj")
+			// set directur value to null if golongan orang pribadi
+			dataDetailUpdate.Npwpd_Id = npwpd_id
+			dataDetailUpdate.JenisOp = &rekeningNama
+			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
+				return errors.New("gagal menyimpan data detail objek pajak ppj: " + result.Error.Error())
+			}
+		}
+		for k := range dataUpdate {
+			dataUpdate[k].Npwpd_Id = npwpd_id
+		}
+
+		// delete data
+		for _, v := range dataDelete {
+			var dataDetailDelete *m.DetailObjekPajakPpj
+			result := tx.First(&dataDetailDelete, v.Id)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal mengambil data payload detail objek pajak ppj: " + result.Error.Error())
+			}
+
+			result = tx.Delete(&dataDetailDelete)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal menghapus data detail objek pajak ppj: " + result.Error.Error())
 			}
 		}
 	case "07":
+		var dataUpdate []m.DetailObjekPajakParkir
+		var dataDelete []m.DetailObjekPajakParkir
+		var tmpDataUpdate m.DetailObjekPajakParkir
+		var tmpDataDelete m.DetailObjekPajakParkir
 		for _, v := range input {
-			var dataDetail *m.DetailObjekPajakParkir
-			result := tx.First(&dataDetail, v.Id)
+			if v.Id != 0 && v.IsDeleted {
+				if err := sc.Copy(&tmpDataDelete, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak parkir: " + err.Error())
+				}
+				dataDelete = append(dataDelete, tmpDataDelete)
+			} else {
+				if err := sc.Copy(&tmpDataUpdate, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak parkir: " + err.Error())
+				}
+				dataUpdate = append(dataUpdate, tmpDataUpdate)
+			}
+
+		}
+
+		// update data
+		for _, v := range dataUpdate {
+			var dataDetailUpdate *m.DetailObjekPajakParkir
+			result := tx.First(&dataDetailUpdate, v.Id)
 			if result.RowsAffected == 0 {
-				return errors.New("data tidak dapat ditemukan")
+				return errors.New("data detail objek pajak parkir tidak dapat ditemukan")
 			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return errors.New("tidak adapat menyalin data detail objek pajak parkir")
+			if err := sc.Copy(&dataDetailUpdate, &v); err != nil {
+				return errors.New("gagal mengambil data payload detail objek pajak parkir: " + err.Error())
 			}
-			dataDetail.Npwpd_Id = npwpd_id
-			dataDetail.JenisOp = &rekeningNama
-			if result := tx.Save(&dataDetail); result.Error != nil {
-				return errors.New("tidak dapat menyimpan data detail objek pajak parkir")
+			// set directur value to null if golongan orang pribadi
+			dataDetailUpdate.Npwpd_Id = npwpd_id
+			dataDetailUpdate.JenisOp = &rekeningNama
+			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
+				return errors.New("gagal menyimpan data detail objek pajak parkir: " + result.Error.Error())
+			}
+		}
+		for k := range dataUpdate {
+			dataUpdate[k].Npwpd_Id = npwpd_id
+		}
+
+		// delete data
+		for _, v := range dataDelete {
+			var dataDetailDelete *m.DetailObjekPajakParkir
+			result := tx.First(&dataDetailDelete, v.Id)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal mengambil data payload detail objek pajak parkir: " + result.Error.Error())
+			}
+
+			result = tx.Delete(&dataDetailDelete)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal menghapus data detail objek pajak parkir: " + result.Error.Error())
 			}
 		}
 	case "08":
+		var dataUpdate []m.DetailObjekPajakAirTanah
+		var dataDelete []m.DetailObjekPajakAirTanah
+		var tmpDataUpdate m.DetailObjekPajakAirTanah
+		var tmpDataDelete m.DetailObjekPajakAirTanah
 		for _, v := range input {
-			var dataDetail *m.DetailObjekPajakAirTanah
-			result := tx.First(&dataDetail, v.Id)
+			if v.Id != 0 && v.IsDeleted {
+				if err := sc.Copy(&tmpDataDelete, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak air tanah: " + err.Error())
+				}
+				dataDelete = append(dataDelete, tmpDataDelete)
+			} else {
+				if err := sc.Copy(&tmpDataUpdate, &v); err != nil {
+					return errors.New("gagal mengambil data payload detail objek pajak air tanah: " + err.Error())
+				}
+				dataUpdate = append(dataUpdate, tmpDataUpdate)
+			}
+
+		}
+
+		// update data
+		for _, v := range dataUpdate {
+			var dataDetailUpdate *m.DetailObjekPajakAirTanah
+			result := tx.First(&dataDetailUpdate, v.Id)
 			if result.RowsAffected == 0 {
-				return errors.New("data tidak dapat ditemukan")
+				return errors.New("data detail objek pajak air tanah tidak dapat ditemukan")
 			}
-			if err := sc.Copy(&dataDetail, &v); err != nil {
-				return errors.New("tidak adapat menyalin data detail objek pajak air tanah")
+			if err := sc.Copy(&dataDetailUpdate, &v); err != nil {
+				return errors.New("gagal mengambil data payload detail objek pajak air tanah: " + err.Error())
 			}
-			dataDetail.Npwpd_Id = npwpd_id
-			dataDetail.JenisOp = &rekeningNama
-			if result := tx.Save(&dataDetail); result.Error != nil {
-				return errors.New("tidak dapat menyimpan data detail objek pajak air tanah")
+			// set directur value to null if golongan orang pribadi
+			dataDetailUpdate.Npwpd_Id = npwpd_id
+			dataDetailUpdate.JenisOp = &rekeningNama
+			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
+				return errors.New("gagal menyimpan data detail objek pajak air tanah: " + result.Error.Error())
+			}
+		}
+		for k := range dataUpdate {
+			dataUpdate[k].Npwpd_Id = npwpd_id
+		}
+
+		// delete data
+		for _, v := range dataDelete {
+			var dataDetailDelete *m.DetailObjekPajakAirTanah
+			result := tx.First(&dataDetailDelete, v.Id)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal mengambil data payload detail objek pajak air tanah: " + result.Error.Error())
+			}
+
+			result = tx.Delete(&dataDetailDelete)
+			if result.RowsAffected == 0 {
+				return errors.New("gagal menghapus data detail objek pajak air tanah: " + result.Error.Error())
 			}
 		}
 	}
@@ -262,7 +528,7 @@ func deleteDetailObjekPajak(npwpd_Id uint64, rekeningObjek string, tx *gorm.DB) 
 		for _, v := range DataOp {
 			result = tx.Delete(&v)
 			if result.RowsAffected == 0 {
-				errors.New("tidak dapat menghapus data objek pajak air tanah")
+				return errors.New("tidak dapat menghapus data objek pajak air tanah")
 			}
 		}
 
@@ -275,7 +541,7 @@ func deleteDetailObjekPajak(npwpd_Id uint64, rekeningObjek string, tx *gorm.DB) 
 		for _, v := range DataOp {
 			result = tx.Delete(&v)
 			if result.RowsAffected == 0 {
-				errors.New("tidak dapat menghapus data objek pajak air tanah")
+				return errors.New("tidak dapat menghapus data objek pajak air tanah")
 			}
 		}
 	case "03":
@@ -287,7 +553,7 @@ func deleteDetailObjekPajak(npwpd_Id uint64, rekeningObjek string, tx *gorm.DB) 
 		for _, v := range DataOp {
 			result = tx.Delete(&v)
 			if result.RowsAffected == 0 {
-				errors.New("tidak dapat menghapus data objek pajak air tanah")
+				return errors.New("tidak dapat menghapus data objek pajak air tanah")
 			}
 		}
 	case "04":
@@ -299,7 +565,7 @@ func deleteDetailObjekPajak(npwpd_Id uint64, rekeningObjek string, tx *gorm.DB) 
 		for _, v := range DataOp {
 			result = tx.Delete(&v)
 			if result.RowsAffected == 0 {
-				errors.New("tidak dapat menghapus data objek pajak air tanah")
+				return errors.New("tidak dapat menghapus data objek pajak air tanah")
 			}
 		}
 	case "05":
@@ -311,7 +577,7 @@ func deleteDetailObjekPajak(npwpd_Id uint64, rekeningObjek string, tx *gorm.DB) 
 		for _, v := range DataOp {
 			result = tx.Delete(&v)
 			if result.RowsAffected == 0 {
-				errors.New("tidak dapat menghapus data objek pajak air tanah")
+				return errors.New("tidak dapat menghapus data objek pajak air tanah")
 			}
 		}
 	case "07":
@@ -323,7 +589,7 @@ func deleteDetailObjekPajak(npwpd_Id uint64, rekeningObjek string, tx *gorm.DB) 
 		for _, v := range DataOp {
 			result = tx.Delete(&v)
 			if result.RowsAffected == 0 {
-				errors.New("tidak dapat menghapus data objek pajak air tanah")
+				return errors.New("tidak dapat menghapus data objek pajak air tanah")
 			}
 		}
 	case "08":

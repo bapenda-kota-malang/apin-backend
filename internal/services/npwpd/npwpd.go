@@ -190,7 +190,7 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 	var dataObjekPajak op.ObjekPajakUpdateDto
 	var dataNarahubung []npwpd.NarahubungUpdateDto
 	var dataPemilik []npwpd.PemilikWpUpdateDto
-	var dataDetailObjekPajak []npwpd.DetailObjekPajak
+	var dataDetailObjekPajak []npwpd.DetailObjekPajakUpdateDto
 	var respDataObjekPajak interface{}
 	var respDataPemilik interface{}
 	var respDataNarahubung interface{}
