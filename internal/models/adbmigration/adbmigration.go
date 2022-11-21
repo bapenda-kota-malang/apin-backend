@@ -33,6 +33,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
@@ -86,6 +87,7 @@ func init() {
 		&jenisppj.JenisPPJ{},
 		&hargareferensi.HargaReferensi{},
 		&nik.Nik{},
+		&reklas.Reklas{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
