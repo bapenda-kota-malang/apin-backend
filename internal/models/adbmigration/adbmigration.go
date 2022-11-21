@@ -25,14 +25,17 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailobjek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensinarahubung"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibank"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
@@ -48,6 +51,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -85,8 +89,11 @@ func init() {
 		&hargadasarair.HargaDasarAir{},
 		&tarifpajak.TarifPajak{},
 		&jenisppj.JenisPPJ{},
+		&referensibank.ReferensiBank{},
 		&hargareferensi.HargaReferensi{},
 		&nik.Nik{},
+		&jenisperolehan.JenisPerolehan{},
+		&paymentpoint.PaymentPoint{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
@@ -168,7 +175,15 @@ func init() {
 		&detailsptreklame.DetailSptReklame{},
 		&detailsptresto.DetailSptResto{},
 	}
+
 	a.AutoMigrate(listModelPenetapan...)
+
+	listModelPengajuan := []interface{}{
+		&pengurangan.Pengurangan{},
+		&pengurangan.Keberatan{},
+		&pengurangan.BapLapangan{},
+	}
+	a.AutoMigrate(listModelPengajuan...)
 
 	listModelPembayaran := []interface{}{
 		&sspd.Sspd{},
@@ -176,6 +191,7 @@ func init() {
 		&sinkronisasi.Sinkronisasi{},
 		&sinkronisasi.SinkronisasiDetail{},
 	}
+
 	a.AutoMigrate(listModelPembayaran...)
 
 	listModelPelayanan := []interface{}{
