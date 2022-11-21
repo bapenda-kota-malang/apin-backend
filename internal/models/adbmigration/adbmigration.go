@@ -21,6 +21,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
@@ -150,6 +151,8 @@ func init() {
 		&detailobjek.DetailPotensiParkir{},
 		&detailobjek.DetailPotensiReklame{},
 		&detailobjek.DetailPotensiResto{},
+		&njoptkpflag.NjoptkpFlag{},
+		&njoptkpflag.NjoptkpFlagDetail{},
 	}
 	a.AutoMigrate(listModelPendataan...)
 
