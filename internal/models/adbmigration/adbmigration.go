@@ -94,7 +94,6 @@ func init() {
 		&referensibank.ReferensiBank{},
 		&hargareferensi.HargaReferensi{},
 		&nik.Nik{},
-		&reklas.Reklas{},
 		&konfigurasipajak.KonfigurasiPajak{},
 		&jenisperolehan.JenisPerolehan{},
 		&paymentpoint.PaymentPoint{},
@@ -153,6 +152,7 @@ func init() {
 		&detailobjek.DetailPotensiParkir{},
 		&detailobjek.DetailPotensiReklame{},
 		&detailobjek.DetailPotensiResto{},
+		&reklas.Reklas{},
 		&njoptkpflag.NjoptkpFlag{},
 		&njoptkpflag.NjoptkpFlagDetail{},
 	}
