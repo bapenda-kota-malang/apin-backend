@@ -20,6 +20,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/konfigurasipajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
@@ -94,6 +95,7 @@ func init() {
 		&hargareferensi.HargaReferensi{},
 		&nik.Nik{},
 		&reklas.Reklas{},
+		&konfigurasipajak.KonfigurasiPajak{},
 		&jenisperolehan.JenisPerolehan{},
 		&paymentpoint.PaymentPoint{},
 	}
