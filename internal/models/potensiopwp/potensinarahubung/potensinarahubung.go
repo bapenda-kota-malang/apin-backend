@@ -37,6 +37,7 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
+	Id           *uint       `json:"id"`
 	Nama         *string     `json:"nama"`
 	Alamat       *string     `json:"alamat"`
 	RtRw         *string     `json:"rtRw"`
@@ -46,4 +47,5 @@ type UpdateDto struct {
 	Status       *t.StatusBL `json:"status"`
 	Nik          *string     `json:"nik" validate:"nik"`
 	Email        *string     `json:"email" validate:"email"`
+	Delete       *bool       `json:"delete"`
 }

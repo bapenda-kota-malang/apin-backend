@@ -15,7 +15,7 @@ import (
 // GetList Data Potensi Objek Pajak with pagination
 func GetList(w http.ResponseWriter, r *http.Request) {
 	var input m.FilterDto
-	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
 		return
 	}
 	result, err := s.GetList(input)
@@ -35,7 +35,7 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 
 func Create(w http.ResponseWriter, r *http.Request) {
 	var data m.CreateDto
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
@@ -61,13 +61,15 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data m.CreateDto
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	var data m.UpdateDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
-	// result, err := s.Update(id, data)
-	// hh.DataResponse(w, result, err)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	result, err := s.UpdateTrx(id, data, uint(authInfo.User_Id))
+	hh.DataResponse(w, result, err)
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {

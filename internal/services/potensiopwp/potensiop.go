@@ -9,9 +9,12 @@ import (
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
+	"github.com/lib/pq"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
@@ -20,11 +23,98 @@ import (
 
 const source = "potensiop"
 
-func Create(input m.CreatePotensiOpDto, tx *gorm.DB) (any, error) {
+func filePreProcess(b64String, docsname string, userId uint, oldId uuid.UUID) (fileName, path, extFile string, id uuid.UUID, err error) {
+	extFile, err = base64helper.GetExtensionBase64(b64String)
+	if err != nil {
+		return
+	}
+	path = sh.GetResourcesPath()
+	switch extFile {
+	case "pdf":
+		path = sh.GetPdfPath()
+	case "png", "jpeg":
+		path = sh.GetImgPath()
+	case "xlsx", "xls":
+		path = sh.GetExcelPath()
+	default:
+		err = errors.New("file tidak diketahui")
+		return
+	}
+	if oldId == uuid.Nil {
+		id, err = sh.GetUuidv4()
+		if err != nil {
+			err = errors.New("gagal generate uuid")
+			return
+		}
+	} else {
+		id = oldId
+	}
+	fileName = sh.GenerateFilename(docsname, id, userId, extFile)
+	return
+}
+
+func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data m.PotensiOp
+
+	if input.FotoKtp != nil {
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := filePreProcess(*input.FotoKtp, "FotoKtpPotensiOp", userId, uuid.Nil)
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		go sh.SaveFile(*input.FotoKtp, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "failed save foto", data)
+		}
+		input.FotoKtp = &fileName
+		// data.Id = id
+	}
+
+	if input.FormBapl != nil {
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := filePreProcess(*input.FormBapl, "FormBaplPotensiOp", userId, uuid.Nil)
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		go sh.SaveFile(*input.FormBapl, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
+		}
+		input.FormBapl = &fileName
+	}
+
+	if input.DokumenLainnya != nil {
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := filePreProcess(*input.DokumenLainnya, "DokumenLainnyaPotensiOp", userId, uuid.Nil)
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		go sh.SaveFile(*input.DokumenLainnya, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
+		}
+		input.DokumenLainnya = &fileName
+	}
+
+	if input.FotoObjek != nil {
+		tmp := pq.StringArray{}
+		for i, v := range *input.FotoObjek {
+			var errChan = make(chan error)
+			fileName, path, extFile, _, err := filePreProcess(v, "FotoObjek"+(strconv.Itoa(i+1))+"PotensiOp", userId, uuid.Nil)
+			if err != nil {
+				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+			}
+			go sh.SaveFile(v, fileName, path, extFile, errChan)
+			if err := <-errChan; err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
+			}
+			tmp = append(tmp, fileName)
+		}
+		input.FotoObjek = &tmp
+	}
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -32,6 +122,7 @@ func Create(input m.CreatePotensiOpDto, tx *gorm.DB) (any, error) {
 	}
 
 	// static add value to field
+	data.User_Id = userId
 	data.Status = nt.StatusAktif
 
 	// simpan data ke db satu if karena result dipakai sekali, +error

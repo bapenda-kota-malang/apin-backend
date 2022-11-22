@@ -44,7 +44,7 @@ type DetailPotensiResto struct {
 }
 
 type DetailPajakDto struct {
-	Potensiop_Id uint   `json:"potensiop_id"`
+	Potensiop_Id uint   `json:"-"`
 	JenisOp      string `json:"jenisOp" validate:"oneof='Resto' 'Reklame' 'PPJ' 'Parkir' 'Hotel' 'Hiburan' 'Air Tanah'"`
 	JumlahOp     string `json:"jumlahOp"`
 	TarifOp      string `json:"tarifOp"`
@@ -53,10 +53,12 @@ type DetailPajakDto struct {
 }
 
 type UpdateDto struct {
-	Potensiop_Id *uint   `json:"potensiop_id"`
-	JenisOp      *string `json:"jenisOp"`
+	Id           *uint   `json:"id"`
+	Potensiop_Id *uint   `json:"-"`
+	JenisOp      string  `json:"jenisOp"`
 	JumlahOp     *string `json:"jumlahOp"`
 	TarifOp      *string `json:"tarifOp"`
 	UnitOp       *string `json:"unitOp"`
 	Notes        *string `json:"notes"`
+	Delete       *bool   `json:"delete"`
 }

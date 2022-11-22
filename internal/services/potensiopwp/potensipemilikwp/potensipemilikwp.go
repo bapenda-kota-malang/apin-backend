@@ -1,6 +1,8 @@
 package potensipemilikwp
 
 import (
+	"strconv"
+
 	"gorm.io/gorm"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -13,6 +15,8 @@ import (
 
 	sdaerah "github.com/bapenda-kota-malang/apin-backend/internal/services/daerah"
 	skecamatan "github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
+
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
 const source = "potensipemilikwp"
@@ -55,26 +59,46 @@ func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func Update(input []m.PotensiPemilikWp, tx *gorm.DB) (any, error) {
-	// var data *m.PotensiPemilikWp
-	// result := a.DB.First(&data, id)
-	// if result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
+func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data []m.PotensiPemilikWp
+	rowAffected := 0
+	for _, v := range input {
+		var item m.PotensiPemilikWp
+		if v.Id != nil {
+			result := tx.First(&item, v.Id)
+			if result.RowsAffected == 0 {
+				return sh.SetError("request", "update-data", source, "failed", "data not found", data)
+			}
+			if item.Potensiop_Id != uint(potensiOp_Id) {
+				return sh.SetError("request", "update-data", source, "failed", "tidak bisa mengubah data ini", v)
+			}
+		} else {
+			item.Potensiop_Id = uint(potensiOp_Id)
+		}
+		if err := sc.Copy(&item, &v); err != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+		}
 
-	// if err := sc.Copy(&data, &input); err != nil {
-	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
-	// }
+		if v.Delete != nil && *v.Delete {
+			if result := tx.Delete(&item, v.Id); result.RowsAffected == 0 {
+				return sh.SetError("request", "update-data", source, "failed", "gagal menghapus data menyimpan data", data)
+			}
+		} else {
+			if result := tx.Save(&item); result.Error != nil {
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+			}
+		}
+		data = append(data, item)
+		rowAffected++
+	}
 
-	// if result := a.DB.Save(&data); result.Error != nil {
-	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
-	// }
-
-	// return rp.OK{
-	// 	Meta: t.IS{
-	// 		"affected": strconv.Itoa(int(result.RowsAffected)),
-	// 	},
-	// 	Data: data,
-	// }, nil
-	return nil, nil
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(rowAffected),
+		},
+		Data: data,
+	}, nil
 }
