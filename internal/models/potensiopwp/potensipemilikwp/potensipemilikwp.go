@@ -29,7 +29,7 @@ type CreateDto struct {
 	Alamat       string     `json:"alamat" validate:"required"`
 	RtRw         string     `json:"rtRw"`
 	Daerah_Id    uint       `json:"daerah_id" validate:"required;min=1"`
-	Kelurahan_Id *uint      `json:"kelurahan_id" validate:"min=1"`
+	Kelurahan_Id *uint      `json:"kelurahan_id" validate:"required;min=1"`
 	Telp         string     `json:"telp" validate:"nohp"`
 	Status       t.StatusBL `json:"status" validate:"required"`
 	Nik          *string    `json:"nik" validate:"nik"`
