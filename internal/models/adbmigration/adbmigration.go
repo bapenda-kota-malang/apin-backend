@@ -17,10 +17,14 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jalan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenispajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisusaha"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/konfigurasipajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
@@ -36,6 +40,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibank"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
@@ -91,8 +96,12 @@ func init() {
 		&referensibank.ReferensiBank{},
 		&hargareferensi.HargaReferensi{},
 		&nik.Nik{},
+		&konfigurasipajak.KonfigurasiPajak{},
 		&jenisperolehan.JenisPerolehan{},
 		&paymentpoint.PaymentPoint{},
+		&jenispajak.JenisPajak{},
+		&jenisusaha.JenisUsaha{},
+		&jenisusaha.JenisUsahaDetail{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
@@ -148,6 +157,9 @@ func init() {
 		&detailobjek.DetailPotensiParkir{},
 		&detailobjek.DetailPotensiReklame{},
 		&detailobjek.DetailPotensiResto{},
+		&reklas.Reklas{},
+		&njoptkpflag.NjoptkpFlag{},
+		&njoptkpflag.NjoptkpFlagDetail{},
 	}
 	a.AutoMigrate(listModelPendataan...)
 
