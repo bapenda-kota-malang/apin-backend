@@ -27,6 +27,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/bapl"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailobjek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensinarahubung"
@@ -131,6 +132,7 @@ func init() {
 
 	listModelPendataan := []interface{}{
 		&potensiopwp.PotensiOp{},
+		&bapl.Bapl{},
 		&detailpotensiop.DetailPotensiOp{},
 		&potensipemilikwp.PotensiPemilikWp{},
 		&potensinarahubung.PotensiNarahubung{},

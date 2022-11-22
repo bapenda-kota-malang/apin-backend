@@ -7,7 +7,6 @@ import (
 
 type SptStatus string
 type JenisKetetapan string
-type StatusPenetapan uint8
 
 const (
 	StatusBelumLunas          SptStatus = "00" //belum lunas
@@ -23,12 +22,6 @@ const (
 	JenisKetetapanSkpd    JenisKetetapan = "skpd"
 	JenisKetetapanSkpdkb  JenisKetetapan = "skpdkb"
 	JenisKetetapanSkpdkbt JenisKetetapan = "skpdkbt"
-
-	StatusPenetapanBaru             StatusPenetapan = 0 // baru
-	StatusPenetapanDisetujuiKasubid StatusPenetapan = 1 // DisetujuiKasubid
-	StatusPenetapanDisetujuiKabid   StatusPenetapan = 2 // DisetujuiKabid
-	StatusPenetapanDitolakKasubid   StatusPenetapan = 3 // DitolakKasubid
-	StatusPenetapanDitolakKabid     StatusPenetapan = 4 // DitolakKabid
 
 	TbpStatusFilterBaru       uint8 = 1 // baru
 	TbpStatusFilterPembayaran uint8 = 2 // Pembayaran

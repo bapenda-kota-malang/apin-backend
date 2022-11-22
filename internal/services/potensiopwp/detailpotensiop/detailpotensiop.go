@@ -81,7 +81,7 @@ func Update(potensiOp_Id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 		tx = a.DB
 	}
 	var data *m.DetailPotensiOp
-	result := a.DB.Where("\"Potensiop_Id\" = ?", potensiOp_Id).First(&data)
+	result := tx.Where("\"Potensiop_Id\" = ?", potensiOp_Id).First(&data)
 	if result.RowsAffected == 0 {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}

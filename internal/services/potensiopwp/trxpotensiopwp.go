@@ -12,6 +12,7 @@ import (
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 
+	sbapl "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/bapl"
 	sdetailobjek "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailobjek"
 	sdpotensiop "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailpotensiop"
 	spnarahubung "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/potensinarahubung"
@@ -22,13 +23,11 @@ import (
 func CreateTrx(input m.CreateDto, userId uint) (any, error) {
 	var dataPotensiOp m.PotensiOp
 
-	input.PotensiOp.User_Id = userId
-
 	// Transaction save to db
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data ke db satu if karena result dipakai sekali, +error
 		// save potensi op
-		respPotensiOp, err := Create(input.PotensiOp, tx)
+		respPotensiOp, err := Create(input.PotensiOp, userId, tx)
 		if err != nil {
 			return err
 		}
@@ -36,6 +35,7 @@ func CreateTrx(input m.CreateDto, userId uint) (any, error) {
 
 		// replace potensi op id
 		input.DetailPotensiOp.Potensiop_Id = dataPotensiOp.Id
+		input.Bapl.Potensiop_Id = dataPotensiOp.Id
 		for v := range input.PotensiPemilikWps {
 			input.PotensiPemilikWps[v].Potensiop_Id = dataPotensiOp.Id
 		}
@@ -67,6 +67,11 @@ func CreateTrx(input m.CreateDto, userId uint) (any, error) {
 		}
 
 		_, err = sdetailobjek.Create(input.DetailPajakDtos, tx)
+		if err != nil {
+			return err
+		}
+
+		_, err = sbapl.Create(input.Bapl, userId, tx)
 		if err != nil {
 			return err
 		}
@@ -124,6 +129,11 @@ func UpdateTrx(id int, input m.UpdateDto, userId uint) (any, error) {
 			if err != nil {
 				return err
 			}
+		}
+
+		_, err = sbapl.Update(id, input.Bapl, tx)
+		if err != nil {
+			return err
 		}
 
 		return nil

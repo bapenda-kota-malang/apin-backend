@@ -60,4 +60,5 @@ type UpdateDto struct {
 	TarifOp      *string `json:"tarifOp"`
 	UnitOp       *string `json:"unitOp"`
 	Notes        *string `json:"notes"`
+	Delete       *bool   `json:"delete"`
 }

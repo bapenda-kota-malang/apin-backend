@@ -128,6 +128,7 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 	var dPReklames []m.DetailPotensiReklame
 	var dPRestos []m.DetailPotensiResto
 	var listTransactionData []interface{}
+	var listDeleteData []interface{}
 
 	for _, v := range input {
 		switch v.JenisOp {
@@ -146,7 +147,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
 			}
-			dPAirTanahs = append(dPAirTanahs, tmp)
+			if v.Delete != nil && *v.Delete {
+				listDeleteData = append(listDeleteData, tmp)
+			} else {
+				dPAirTanahs = append(dPAirTanahs, tmp)
+			}
 		case "hiburan":
 			var tmp m.DetailPotensiHiburan
 			if v.Id != nil {
@@ -162,7 +167,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
 			}
-			dPHiburans = append(dPHiburans, tmp)
+			if v.Delete != nil && *v.Delete {
+				listDeleteData = append(listDeleteData, tmp)
+			} else {
+				dPHiburans = append(dPHiburans, tmp)
+			}
 		case "hotel":
 			var tmp m.DetailPotensiHotel
 			if v.Id != nil {
@@ -178,7 +187,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
 			}
-			dPHotels = append(dPHotels, tmp)
+			if v.Delete != nil && *v.Delete {
+				listDeleteData = append(listDeleteData, tmp)
+			} else {
+				dPHotels = append(dPHotels, tmp)
+			}
 		case "parkir":
 			var tmp m.DetailPotensiParkir
 			if v.Id != nil {
@@ -194,7 +207,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
 			}
-			dPParkirs = append(dPParkirs, tmp)
+			if v.Delete != nil && *v.Delete {
+				listDeleteData = append(listDeleteData, tmp)
+			} else {
+				dPParkirs = append(dPParkirs, tmp)
+			}
 		case "ppj":
 			var tmp m.DetailPotensiPPJ
 			if v.Id != nil {
@@ -210,7 +227,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
 			}
-			dPPpjs = append(dPPpjs, tmp)
+			if v.Delete != nil && *v.Delete {
+				listDeleteData = append(listDeleteData, tmp)
+			} else {
+				dPPpjs = append(dPPpjs, tmp)
+			}
 		case "reklame":
 			var tmp m.DetailPotensiReklame
 			if v.Id != nil {
@@ -226,7 +247,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
 			}
-			dPReklames = append(dPReklames, tmp)
+			if v.Delete != nil && *v.Delete {
+				listDeleteData = append(listDeleteData, tmp)
+			} else {
+				dPReklames = append(dPReklames, tmp)
+			}
 		case "resto":
 			var tmp m.DetailPotensiResto
 			if v.Id != nil {
@@ -242,7 +267,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
 			}
-			dPRestos = append(dPRestos, tmp)
+			if v.Delete != nil && *v.Delete {
+				listDeleteData = append(listDeleteData, tmp)
+			} else {
+				dPRestos = append(dPRestos, tmp)
+			}
 		default:
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
 		}
@@ -266,6 +295,12 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 		for _, x := range listTransactionData {
 			if result := tx2.Save(x); result.Error != nil {
 				return result.Error
+			}
+		}
+
+		for _, x := range listDeleteData {
+			if result := tx2.Delete(x); result.RowsAffected == 0 {
+				return errors.New("data tidak terhapus")
 			}
 		}
 		return nil

@@ -81,8 +81,15 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 		if err := sc.Copy(&item, &v); err != nil {
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 		}
-		if result := tx.Save(&item); result.Error != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+
+		if v.Delete != nil && *v.Delete {
+			if result := tx.Delete(&item, v.Id); result.RowsAffected == 0 {
+				return sh.SetError("request", "update-data", source, "failed", "gagal menghapus data menyimpan data", data)
+			}
+		} else {
+			if result := tx.Save(&item); result.Error != nil {
+				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+			}
 		}
 		data = append(data, item)
 		rowAffected++
