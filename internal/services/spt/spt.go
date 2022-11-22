@@ -219,7 +219,7 @@ func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
 			stringJoin = "JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\" AND \"DetailTbp\".\"NominalBayar\" <> '0' OR \"DetailTbp\".\"NominalBayar\" IS NULL"
 			statusAll = "Jatuh Tempo"
 		case m.TbpStatusFilterPenetapan:
-			baseQuery = baseQuery.Where("\"StatusPenetapan\" = ?", m.StatusPenetapanDisetujuiKabid)
+			baseQuery = baseQuery.Where("\"StatusPenetapan\" = ?", mtypes.StatusVerifikasiDisetujuiKabid)
 			statusAll = "Penetapan"
 		}
 		input.StatusData = nil
@@ -229,6 +229,7 @@ func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
 		Select("\"Spt\".*, \"DetailTbp\".\"NominalBayar\"").
 		Preload("Rekening").
 		Preload("ObjekPajak").
+		Preload("Npwpd").
 		Joins(stringJoin).
 		Scopes(gh.Filter(input)).
 		Count(&count).
@@ -243,7 +244,7 @@ func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
 		if statusAll == "" {
 			checkBaru := data[v].StatusPembayaran == m.StatusBelumLunas
 			checkLunas := data[v].NominalBayar != nil && *data[v].NominalBayar == 0
-			checkPenetapan := data[v].StatusPenetapan == m.StatusPenetapanDisetujuiKabid
+			checkPenetapan := data[v].StatusPenetapan == mtypes.StatusVerifikasiDisetujuiKabid
 			sqlTime, _ := data[v].JatuhTempo.Value()
 			checkDueDate := sqlTime.(time.Time).Unix() < time.Now().Unix()
 
@@ -290,6 +291,8 @@ func GetDetail(id uuid.UUID, typeSpt string, userId uint) (any, error) {
 		baseQuery.Where("\"Spt\".\"Type\" = ?", typeSpt)
 	}
 	result := baseQuery.
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
@@ -351,7 +354,7 @@ func Verify(id uuid.UUID, input m.VerifyDto, userId uint) (any, error) {
 	if dataRow == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
-	if data.StatusPenetapan == m.StatusPenetapanDisetujuiKabid {
+	if data.StatusPenetapan == mtypes.StatusVerifikasiDisetujuiKabid {
 		return sh.SetError("request", "update-data", source, "failed", "data telah disetujui", data)
 	}
 	if err := sc.Copy(&data, &input); err != nil {
@@ -377,25 +380,25 @@ func Verify(id uuid.UUID, input m.VerifyDto, userId uint) (any, error) {
 	switch input.StatusPenetapan {
 	case "disetujui":
 		if userRole == "kasubid" {
-			data.StatusPenetapan = m.StatusPenetapanDisetujuiKasubid
+			data.StatusPenetapan = mtypes.StatusVerifikasiDisetujuiKasubid
 		} else if userRole == "kabid" {
-			data.StatusPenetapan = m.StatusPenetapanDisetujuiKabid
+			data.StatusPenetapan = mtypes.StatusVerifikasiDisetujuiKabid
 		}
 	case "ditolak":
 		if userRole == "kasubid" {
-			data.StatusPenetapan = m.StatusPenetapanDitolakKasubid
+			data.StatusPenetapan = mtypes.StatusVerifikasiDitolakKasubid
 		} else if userRole == "kabid" {
-			data.StatusPenetapan = m.StatusPenetapanDitolakKabid
+			data.StatusPenetapan = mtypes.StatusVerifikasiDitolakKabid
 		}
 	default:
 		return sh.SetError("request", "update-data", source, "failed", "status tidak diketahui", data)
 	}
 	switch data.StatusPenetapan {
-	case m.StatusPenetapanBaru,
-		m.StatusPenetapanDisetujuiKasubid,
-		m.StatusPenetapanDisetujuiKabid,
-		m.StatusPenetapanDitolakKasubid,
-		m.StatusPenetapanDitolakKabid:
+	case mtypes.StatusVerifikasiBaru,
+		mtypes.StatusVerifikasiDisetujuiKasubid,
+		mtypes.StatusVerifikasiDisetujuiKabid,
+		mtypes.StatusVerifikasiDitolakKasubid,
+		mtypes.StatusVerifikasiDitolakKabid:
 		// do nothing
 	default:
 		return sh.SetError("request", "update-data", source, "failed", "status penetapan tidak diketahui", data)

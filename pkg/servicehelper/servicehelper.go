@@ -188,6 +188,15 @@ func EndOfMonth(date time.Time) time.Time {
 	return BeginningOfMonth(date).AddDate(0, 1, 0).Add(-time.Nanosecond)
 }
 
+// get next midnight
+//
+// e.g now = 2022-10-11 22:33:44 +0700 WIB
+//
+// Midnight(now) = 2022-10-11 00:00:00.000000000 +0700 WIB
+func Midnight(date time.Time) time.Time {
+	return time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+}
+
 // loop process to save image file from slice base64 and return slice filename
 func loopArrayPhoto(input []string, docsName string, userId uint) (arrString []string, err error) {
 	for v := range input {
@@ -435,4 +444,111 @@ func DeleteFile(input string, data string) (string, error) {
 
 	bytes, _ := json.Marshal(result)
 	return string(bytes), nil
+}
+
+// loop process to save image, excel, pdf file from base64 and return filename
+func allTypeFile(input string, docsName string, userId uint) (resultString string, err error) {
+	var errChan = make(chan error)
+	imagePath := GetImgPath()
+	pdfPath := GetPdfPath()
+	excelPath := GetExcelPath()
+	id, err2 := GetUuidv4()
+	if err2 != nil {
+		err = err2
+		return
+	}
+	extFile, err2 := base64helper.GetExtensionBase64(input)
+	if err2 != nil {
+		err = err2
+		return
+	}
+	switch extFile {
+	case "png", "jpeg":
+		fileName := GenerateFilename(docsName, id, userId, extFile)
+		go SaveFile(input, fileName, imagePath, extFile, errChan)
+		if err2 := <-errChan; err2 != nil {
+			err = err2
+			return
+		}
+		resultString = fileName
+	case "pdf":
+		fileName := GenerateFilename(docsName, id, userId, extFile)
+		go SaveFile(input, fileName, pdfPath, extFile, errChan)
+		if err2 := <-errChan; err2 != nil {
+			err = err2
+			return
+		}
+		resultString = fileName
+	case "xlsx", "xls":
+		fileName := GenerateFilename(docsName, id, userId, extFile)
+		go SaveFile(input, fileName, excelPath, extFile, errChan)
+		if err2 := <-errChan; err2 != nil {
+			err = err2
+			return
+		}
+		resultString = fileName
+	default:
+		err = fmt.Errorf("unsupported type for this process")
+		return
+	}
+
+	return
+}
+
+// all type file
+func GetAllTypeFile(input string, docsName string, userId uint) (resultString string, err error) {
+	result, err := allTypeFile(input, docsName, userId)
+	if err == nil {
+		resultString = result
+	}
+	return
+}
+
+// loop process to save image, pdf file from base64 and return filename
+func pdfAndImageFile(input string, docsName string, userId uint) (resultString string, err error) {
+	var errChan = make(chan error)
+	imagePath := GetImgPath()
+	pdfPath := GetPdfPath()
+	id, err2 := GetUuidv4()
+	if err2 != nil {
+		err = err2
+		return
+	}
+	extFile, err2 := base64helper.GetExtensionBase64(input)
+	if err2 != nil {
+		err = err2
+		return
+	}
+	switch extFile {
+	case "png", "jpeg":
+		fileName := GenerateFilename(docsName, id, userId, extFile)
+		go SaveFile(input, fileName, imagePath, extFile, errChan)
+		if err2 := <-errChan; err2 != nil {
+			err = err2
+			return
+		}
+		resultString = fileName
+	case "pdf":
+		fileName := GenerateFilename(docsName, id, userId, extFile)
+		go SaveFile(input, fileName, pdfPath, extFile, errChan)
+		if err2 := <-errChan; err2 != nil {
+			err = err2
+			return
+		}
+		resultString = fileName
+	default:
+		err = fmt.Errorf("unsupported type for this process")
+		return
+	}
+
+	return
+}
+
+// pdf and image type file
+func GetPdfOrImageFile(input string, docsName string, userId uint) (resultString string, err error) {
+	result, err := pdfAndImageFile(input, docsName, userId)
+	if err == nil {
+		resultString = result
+	}
+	return
 }

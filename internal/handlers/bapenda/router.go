@@ -19,23 +19,33 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargadasarair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jabatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jalan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jenispajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jenisppj"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jenisusaha"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jurnal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/klasifikasijalan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/konfigurasipajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nik"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/referensibank"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
@@ -127,6 +137,31 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/rekening", rekening.Crud{})
 
 	rh.RegCrud(r, "/objekpajak", objekpajak.Crud{})
+
+	rh.RegCrud(r, "/referensibank", referensibank.Crud{})
+
+	rh.RegCrud(r, "/hargareferensi", hargareferensi.Crud{})
+
+	rh.RegCrud(r, "/nik", nik.Crud{})
+
+	rh.RegCrud(r, "/reklas", reklas.Crud{})
+
+	rh.RegCrud(r, "/konfigurasipajak", konfigurasipajak.Crud{})
+	rh.RegCrud(r, "/jenisperolehan", jenisperolehan.Crud{})
+
+	rh.RegCrud(r, "/paymentpoint", paymentpoint.Crud{})
+
+	rh.RegCrud(r, "/jenispajak", jenispajak.Crud{})
+
+	rh.RegCrud(r, "/jenisusaha", jenisusaha.Crud{})
+
+	r.Route("/njoptkpflag", func(r chi.Router) {
+		r.Post("/", njoptkpflag.Create)
+		r.Get("/", njoptkpflag.GetList)
+		r.Get("/{id}", njoptkpflag.GetDetail)
+		r.Patch("/{id}", njoptkpflag.Update)
+		r.Delete("/{id}", njoptkpflag.Delete)
+	})
 
 	r.Route("/pegawai", func(r chi.Router) {
 		r.Post("/", pegawai.Create)

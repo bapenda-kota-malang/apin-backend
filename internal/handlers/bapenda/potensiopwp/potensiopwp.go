@@ -3,8 +3,9 @@ package potensiopwp
 import (
 	"net/http"
 
-	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -14,7 +15,7 @@ import (
 // GetList Data Potensi Objek Pajak with pagination
 func GetList(w http.ResponseWriter, r *http.Request) {
 	var input m.FilterDto
-	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
 		return
 	}
 	result, err := s.GetList(input)
@@ -34,11 +35,11 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 
 func Create(w http.ResponseWriter, r *http.Request) {
 	var data m.CreateDto
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
-	switch data.Golongan {
+	switch data.PotensiOp.Golongan {
 	case nt.GolonganBadan:
 		break
 	case nt.GolonganOrangPribadi:
@@ -48,7 +49,9 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Create(data)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	result, err := s.CreateTrx(data, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 
@@ -58,12 +61,14 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data m.CreateDto
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	var data m.UpdateDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
-	result, err := s.Update(id, data)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	result, err := s.UpdateTrx(id, data, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 

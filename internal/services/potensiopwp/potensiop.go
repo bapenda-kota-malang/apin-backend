@@ -1,0 +1,226 @@
+package potensiopwp
+
+import (
+	"errors"
+	"strconv"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
+	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
+	sc "github.com/jinzhu/copier"
+	"github.com/lib/pq"
+
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+)
+
+const source = "potensiop"
+
+func filePreProcess(b64String, docsname string, userId uint, oldId uuid.UUID) (fileName, path, extFile string, id uuid.UUID, err error) {
+	extFile, err = base64helper.GetExtensionBase64(b64String)
+	if err != nil {
+		return
+	}
+	path = sh.GetResourcesPath()
+	switch extFile {
+	case "pdf":
+		path = sh.GetPdfPath()
+	case "png", "jpeg":
+		path = sh.GetImgPath()
+	case "xlsx", "xls":
+		path = sh.GetExcelPath()
+	default:
+		err = errors.New("file tidak diketahui")
+		return
+	}
+	if oldId == uuid.Nil {
+		id, err = sh.GetUuidv4()
+		if err != nil {
+			err = errors.New("gagal generate uuid")
+			return
+		}
+	} else {
+		id = oldId
+	}
+	fileName = sh.GenerateFilename(docsname, id, userId, extFile)
+	return
+}
+
+func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data m.PotensiOp
+
+	if input.FotoKtp != nil {
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := filePreProcess(*input.FotoKtp, "FotoKtpPotensiOp", userId, uuid.Nil)
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		go sh.SaveFile(*input.FotoKtp, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "failed save foto", data)
+		}
+		input.FotoKtp = &fileName
+		// data.Id = id
+	}
+
+	if input.FormBapl != nil {
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := filePreProcess(*input.FormBapl, "FormBaplPotensiOp", userId, uuid.Nil)
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		go sh.SaveFile(*input.FormBapl, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
+		}
+		input.FormBapl = &fileName
+	}
+
+	if input.DokumenLainnya != nil {
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := filePreProcess(*input.DokumenLainnya, "DokumenLainnyaPotensiOp", userId, uuid.Nil)
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		go sh.SaveFile(*input.DokumenLainnya, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
+		}
+		input.DokumenLainnya = &fileName
+	}
+
+	if input.FotoObjek != nil {
+		tmp := pq.StringArray{}
+		for i, v := range *input.FotoObjek {
+			var errChan = make(chan error)
+			fileName, path, extFile, _, err := filePreProcess(v, "FotoObjek"+(strconv.Itoa(i+1))+"PotensiOp", userId, uuid.Nil)
+			if err != nil {
+				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+			}
+			go sh.SaveFile(v, fileName, path, extFile, errChan)
+			if err := <-errChan; err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
+			}
+			tmp = append(tmp, fileName)
+		}
+		input.FotoObjek = &tmp
+	}
+
+	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	// static add value to field
+	data.User_Id = userId
+	data.Status = nt.StatusAktif
+
+	// simpan data ke db satu if karena result dipakai sekali, +error
+	if result := tx.Create(&data); result.Error != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OKSimple{Data: data}, nil
+}
+
+func GetList(input m.FilterDto) (any, error) {
+	var data []m.PotensiOp
+	var count int64
+
+	var pagination gh.Pagination
+	result := a.DB.Model(&m.PotensiOp{}).
+		Scopes(gh.Filter(input)).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Preload("Rekening").
+		Preload("PotensiPemilikWp").
+		Preload("DetailPotensiOp.Kecamatan").
+		Preload("DetailPotensiOp.Kelurahan").
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
+}
+
+func GetDetail(id int) (any, error) {
+	var data *m.PotensiOp
+
+	result := a.DB.Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+		return tx.Omit("Password")
+	}).First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
+func Update(id int, input m.UpdatePotensiOpDto, tx *gorm.DB) (any, error) {
+	var data *m.PotensiOp
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func Delete(id int) (any, error) {
+	var data *m.PotensiOp
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+
+	result = a.DB.Delete(&data, id)
+	status := "deleted"
+	if result.RowsAffected == 0 {
+		data = nil
+		status = "no deletion"
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"count":  strconv.Itoa(int(result.RowsAffected)),
+			"status": status,
+		},
+		Data: data,
+	}, nil
+}
