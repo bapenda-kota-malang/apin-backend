@@ -88,6 +88,7 @@ func GetList(input m.FilterDto) (any, error) {
 	result := a.DB.
 		Model(&m.Sts{}).
 		Preload(clause.Associations).
+		Preload("StsDetail.Rekening").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -112,6 +113,7 @@ func GetDetail(sts_id int) (any, error) {
 	err := a.DB.
 		Model(&m.Sts{}).
 		Preload(clause.Associations).
+		Preload("StsDetail.Rekening").
 		First(&data, sts_id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
