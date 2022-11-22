@@ -229,6 +229,7 @@ func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
 		Select("\"Spt\".*, \"DetailTbp\".\"NominalBayar\"").
 		Preload("Rekening").
 		Preload("ObjekPajak").
+		Preload("Npwpd").
 		Joins(stringJoin).
 		Scopes(gh.Filter(input)).
 		Count(&count).
@@ -290,6 +291,8 @@ func GetDetail(id uuid.UUID, typeSpt string, userId uint) (any, error) {
 		baseQuery.Where("\"Spt\".\"Type\" = ?", typeSpt)
 	}
 	result := baseQuery.
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
