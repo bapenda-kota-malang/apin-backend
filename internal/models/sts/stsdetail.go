@@ -12,9 +12,10 @@ type StsDetail struct {
 }
 
 type StsDetailCreateDto struct {
-	Sts_Id      uint64   `json:"sts_id"`
-	Rekening_Id *uint64  `json:"rekening_id"`
-	Nominal     *float64 `json:"nominal"`
+	Sts_Id        uint64   `json:"sts_id"`
+	Rekening_Id   *uint64  `json:"rekening_id"`
+	Nominal       *float64 `json:"nominal"`
+	SspdDetail_Id []uint64 `json:"sspdDetail_id"`
 }
 type StsDetailUpdateDto struct {
 	Id          *uint64  `json:"id"`

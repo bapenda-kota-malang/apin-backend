@@ -1,9 +1,12 @@
 package sts
 
 import (
+	"fmt"
 	"strconv"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
+	ssd "github.com/bapenda-kota-malang/apin-backend/internal/services/sts/stsdetail"
+	sss "github.com/bapenda-kota-malang/apin-backend/internal/services/sts/sumberdanasts"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -19,8 +22,10 @@ const source = "sts"
 
 func Create(input m.CreateDto) (any, error) {
 	var dataSts m.Sts
-	// var dataStsDetail m.StsDetailCreateDto
-	// var respDataStsDetail interface{}
+	var dataStsDetail []m.StsDetailCreateDto
+	var dataSumberDanaSts []m.SumberDanaStsCreateDto
+	var respDataStsDetail interface{}
+	var respDataSumberDanaSts interface{}
 	var resp t.II
 
 	// data sts
@@ -29,23 +34,28 @@ func Create(input m.CreateDto) (any, error) {
 	}
 
 	// data sts detail
-	// if err := sc.Copy(&dataSspdDetail, &input.SspdDetail); err != nil {
-	// 	return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload sts detail", dataStsDetail)
-	// }
+	if err := sc.Copy(&dataStsDetail, &input.StsDetail); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload sts detail", dataStsDetail)
+	}
+
+	// data sumber dana sts
+	if err := sc.Copy(&dataSumberDanaSts, &input.SumberDanaSts); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload sts detail", dataSumberDanaSts)
+	}
 
 	// static value
-	tmpNomor := generateNomor()
-	dataSts.StsNumber = &tmpNomor
+	dataSts.NomorUrut = generateNomorUrut()
+	dataSts.NomorOutput = generateNomorOutput(dataSts.NomorUrut)
 	if input.TanggalSetor == nil {
 		dataSts.TanggalSetor = th.TimeNow()
 	} else {
-		dataSts.TanggalSetor = input.TanggalSetor
+		dataSts.TanggalSetor = th.ParseTime(input.TanggalSetor)
 	}
 
 	if input.TanggalSts == nil {
 		dataSts.TanggalSts = th.TimeNow()
 	} else {
-		dataSts.TanggalSts = input.TanggalSts
+		dataSts.TanggalSts = th.ParseTime(input.TanggalSts)
 	}
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
@@ -55,13 +65,20 @@ func Create(input m.CreateDto) (any, error) {
 		if err != nil {
 			return err
 		}
-
+		fmt.Println("dataStsdetail: ", dataStsDetail)
 		// create data sts detail
-		// resultStsDetail, err := ssd.Create(dataStsDetail, dataSts.Id, tx)
-		// if err != nil {
-		// 	return err
-		// }
-		// respDataStsDetail = resultStsDetail
+		resultStsDetail, err := ssd.Create(dataStsDetail, dataSts.Id, tx)
+		if err != nil {
+			return err
+		}
+		respDataStsDetail = resultStsDetail
+		fmt.Println("dataSumberDana: ", dataSumberDanaSts)
+		// create data sts detail
+		resultSumberDanaSts, err := sss.Create(dataSumberDanaSts, dataSts.Id, tx)
+		if err != nil {
+			return err
+		}
+		respDataSumberDanaSts = resultSumberDanaSts
 
 		return nil
 	})
@@ -71,8 +88,9 @@ func Create(input m.CreateDto) (any, error) {
 	}
 
 	resp = t.II{
-		"sts": dataSts,
-		// "stsDetail": respDataStsDetail.(rp.OKSimple).Data,
+		"sts":           dataSts,
+		"stsDetail":     respDataStsDetail.(rp.OKSimple).Data,
+		"sumberDanaSts": respDataSumberDanaSts.(rp.OKSimple).Data,
 	}
 
 	return rp.OKSimple{
