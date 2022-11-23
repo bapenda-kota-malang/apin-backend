@@ -56,6 +56,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambongrek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifreklame"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tempatpembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -154,6 +155,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/jenispajak", jenispajak.Crud{})
 
 	rh.RegCrud(r, "/jenisusaha", jenisusaha.Crud{})
+
+	rh.RegCrud(r, "/tempatpembayaran", tempatpembayaran.Crud{})
 
 	r.Route("/njoptkpflag", func(r chi.Router) {
 		r.Post("/", njoptkpflag.Create)
@@ -294,6 +297,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", sspd.Update)
 		r.Delete("/{id}", sspd.Delete)
 		r.Patch("/{id}/cancel", sspd.Cancel)
+		r.Get("/sspddetail", sspd.GetListSspdDetail)
 	})
 
 	r.Route("/sinkronisasi", func(r chi.Router) {
