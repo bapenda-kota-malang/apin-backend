@@ -113,11 +113,11 @@ type SkpdkbExisting struct {
 }
 
 type FilterDto struct {
-	Npwpd_Id        *uint64         `json:"npwpd_Id"`
+	Npwpd_Id        *uint64         `json:"npwpd_id"`
 	StatusData      *uint8          `json:"statusData"`
 	Type            mt.JenisPajak   `json:"-"`
 	JatuhTempo      *datatypes.Date `json:"jatuhTempo"`
-	JatuhTempo_Opt  *string         `json:"jatuhTempo_Opt"`
+	JatuhTempo_Opt  *string         `json:"jatuhTempo_opt"`
 	Kasubid_User_Id *string         `json:"kasubid_user_id"`
 	Kabid_User_Id   *string         `json:"kabid_user_id"`
 	Page            int             `json:"page"`
