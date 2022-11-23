@@ -54,14 +54,22 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 				o = o.Elem()
 				vOpt = o.Interface().(string)
 			}
-			opts := []string{"=", "lt", "gt", "lte", "gte", "ne", "left", "mid", "right"}
+			opts := []string{"=", "lt", "gt", "lte", "gte", "ne", "between", "left", "mid", "right"}
 			if ok := stringInSlice(vOpt, opts); !ok {
 				db.AddError(fmt.Errorf("field %s: opt undefined", iTF.Name))
 			}
 
 			// add where query
 			whereString, value := optionString(iTF.Name, vOpt, iVF.Interface())
-			db.Where(whereString, value)
+			if vOpt != "between" {
+				db.Where(whereString, value)
+			} else {
+				// valueString := iVF.String()
+				// values := strings.Split(valueString, ",")
+				if iVF.Len() == 2 {
+					db.Where(whereString, iVF.Index(0), iVF.Index(1))
+				}
+			}
 		}
 
 		return db
