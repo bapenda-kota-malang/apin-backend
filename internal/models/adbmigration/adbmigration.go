@@ -67,6 +67,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambongrek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 )
@@ -103,6 +104,7 @@ func init() {
 		&jenispajak.JenisPajak{},
 		&jenisusaha.JenisUsaha{},
 		&jenisusaha.JenisUsahaDetail{},
+		&tempatpembayaran.TempatPembayaran{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 

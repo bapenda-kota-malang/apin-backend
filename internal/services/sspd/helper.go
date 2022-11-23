@@ -10,17 +10,42 @@ import (
 	"gorm.io/datatypes"
 )
 
-func generateNomor() int {
+func generateNomorUrut() int {
 	var tmp int
 	var tmpSspd ms.Sspd
 	nomor := a.DB.Last(&tmpSspd)
 	if nomor.Error != nil {
 		return 1
 	} else {
-		tmp = *tmpSspd.SspdNumber
+		tmp = tmpSspd.NomorUrut
 		tmp++
 	}
 	return tmp
+}
+
+func generateNomorTahun(t time.Time) int {
+	tmp := t.Format("2006-01-02")
+	tmpString := tmp[2:4]
+	result, _ := strconv.Atoi(tmpString)
+	return result
+}
+
+func generateNomorOutput(tahun, urut int) string {
+	tmpTahun := strconv.Itoa(tahun)
+	tmpUrut := strconv.Itoa(urut)
+	if len(tmpUrut) == 1 {
+		tmpUrut = "00000" + tmpUrut
+	} else if len(tmpUrut) == 2 {
+		tmpUrut = "0000" + tmpUrut
+	} else if len(tmpUrut) == 3 {
+		tmpUrut = "000" + tmpUrut
+	} else if len(tmpUrut) == 4 {
+		tmpUrut = "00" + tmpUrut
+	} else if len(tmpUrut) == 5 {
+		tmpUrut = "0" + tmpUrut
+	}
+	output := tmpTahun + tmpUrut
+	return output
 }
 
 func parseCurrentTime() *datatypes.Time {

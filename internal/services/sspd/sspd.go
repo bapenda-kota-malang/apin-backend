@@ -45,14 +45,16 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 
 	tmpIsCancelled := false
 	// static value
-	tmpNomor := generateNomor()
-	dataSspd.SspdNumber = &tmpNomor
 	if input.TanggalBayar == nil {
 		dataSspd.TanggalBayar = th.TimeNow()
 	} else {
 		dataSspd.TanggalBayar = th.ParseTime(input.TanggalBayar)
 	}
-	// dataSspd.CreatedBy_User_Id = &user_Id
+
+	dataSspd.NomorTahun = generateNomorTahun(*dataSspd.TanggalBayar)
+	dataSspd.NomorUrut = generateNomorUrut()
+	dataSspd.NomorOutput = generateNomorOutput(dataSspd.NomorTahun, dataSspd.NomorUrut)
+	dataSspd.CreatedBy_User_Id = &user_Id
 	dataSspdDetail.WaktuSspdDetail = parseCurrentTime()
 	dataSspd.IsCancelled = &tmpIsCancelled
 	dataSspd.ObjekPajak_Id = &dataNpwpd.ObjekPajak_Id
