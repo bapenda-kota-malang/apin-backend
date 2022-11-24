@@ -10,6 +10,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/bapl"
@@ -26,7 +27,7 @@ func Create(input m.CreateDto, userId uint, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.Bapl
+	var data m.PotensiBapl
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -44,11 +45,11 @@ func Create(input m.CreateDto, userId uint, tx *gorm.DB) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func Verify(potensiOp_Id, userId uint, input m.VerifyDto) (any, error) {
-	var data m.Bapl
+func Verify(potensiOp_Id uuid.UUID, userId uint, input m.VerifyDto) (any, error) {
+	var data m.PotensiBapl
 
 	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
-	dataRow := a.DB.Where("\"PotensiOp_Id\" = ?", potensiOp_Id).First(&data).RowsAffected
+	dataRow := a.DB.Where("\"PotensiOp_Id\" = ?", potensiOp_Id.String()).First(&data).RowsAffected
 	if dataRow == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
@@ -115,12 +116,12 @@ func Verify(potensiOp_Id, userId uint, input m.VerifyDto) (any, error) {
 	}, nil
 }
 
-func Update(potensiOp_Id int, input *m.UpdateDto, tx *gorm.DB) (any, error) {
+func Update(potensiOp_Id uuid.UUID, input *m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.Bapl
-	result := tx.Where("\"Potensiop_Id\" = ?", potensiOp_Id).First(&data)
+	var data *m.PotensiBapl
+	result := tx.Where("\"Potensiop_Id\" = ?", potensiOp_Id.String()).First(&data)
 	if result.RowsAffected == 0 {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}

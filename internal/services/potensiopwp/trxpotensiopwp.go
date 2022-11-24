@@ -9,6 +9,7 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 
@@ -47,7 +48,7 @@ func CreateTrx(input m.CreateDto, userId uint) (any, error) {
 		}
 
 		// save detail potensi op
-		_, err = sdpotensiop.Create(input.DetailPotensiOp, tx)
+		_, err = sdpotensiop.Create(input.DetailPotensiOp, input.PotensiOp.Rekening_Id, tx)
 		if err != nil {
 			return err
 		}
@@ -85,7 +86,7 @@ func CreateTrx(input m.CreateDto, userId uint) (any, error) {
 	return rp.OKSimple{Data: dataPotensiOp}, nil
 }
 
-func UpdateTrx(id int, input m.UpdateDto, userId uint) (any, error) {
+func UpdateTrx(id uuid.UUID, input m.UpdateDto, userId uint) (any, error) {
 	var dataPotensiOp *m.PotensiOp
 	effected := 0
 
@@ -94,7 +95,7 @@ func UpdateTrx(id int, input m.UpdateDto, userId uint) (any, error) {
 		// simpan data ke db satu if karena result dipakai sekali, +error
 
 		input.PotensiOp.User_Id = &userId
-		respPotensi, err := Update(id, input.PotensiOp, tx)
+		respPotensi, err := Update(id, input.PotensiOp, userId, tx)
 		if err != nil {
 			return err
 		}
