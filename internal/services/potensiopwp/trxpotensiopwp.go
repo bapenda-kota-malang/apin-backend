@@ -94,7 +94,6 @@ func UpdateTrx(id uuid.UUID, input m.UpdateDto, userId uint) (any, error) {
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data ke db satu if karena result dipakai sekali, +error
 
-		input.PotensiOp.User_Id = &userId
 		respPotensi, err := Update(id, input.PotensiOp, userId, tx)
 		if err != nil {
 			return err

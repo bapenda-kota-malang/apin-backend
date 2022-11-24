@@ -2,6 +2,7 @@ package potensiopwp
 
 import (
 	"errors"
+	"regexp"
 	"strconv"
 
 	"gorm.io/gorm"
@@ -134,7 +135,7 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 	data.Status = nt.StatusAktif
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
-	if result := tx.Create(&data); result.Error != nil {
+	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
@@ -235,31 +236,15 @@ func Update(id uuid.UUID, input m.UpdatePotensiOpDto, userId uint, tx *gorm.DB) 
 		input.FormBapl = &fileName
 	}
 
-	if input.FotoObjekDeleted != nil && data.FotoObjek != nil {
-		deleteMap := make(map[string]struct{})
-		for _, v := range *input.FotoObjekDeleted {
-			deleteMap[v] = struct{}{}
-		}
-		newDataArray := pq.StringArray{}
-		for _, v := range *data.FotoObjek {
-			if _, exist := deleteMap[v]; exist {
-				path := sh.GetPathByFilename(v)
-				if err := sh.RemoveFile(path, v); err != nil {
-					return sh.SetError("request", "update-data", source, "failed", "failed remove file", v)
-				}
-			} else {
-				newDataArray = append(newDataArray, v)
-			}
-		}
-		data.FotoObjek = &newDataArray
-	}
-
 	if input.FotoObjek != nil {
 		tmp := pq.StringArray{}
 		lenData := 0
 		if data.FotoObjek != nil {
-			lenData = len(*data.FotoObjek)
 			tmp = *data.FotoObjek
+			re := regexp.MustCompile(`^FotoObjek(\d*)`)
+			if match := re.FindStringSubmatch(tmp[len(tmp)-1]); len(match) > 0 {
+				lenData, _ = strconv.Atoi(match[1])
+			}
 		}
 		for i, v := range *input.FotoObjek {
 			var errChan = make(chan error)
@@ -276,13 +261,13 @@ func Update(id uuid.UUID, input m.UpdatePotensiOpDto, userId uint, tx *gorm.DB) 
 		input.FotoObjek = &tmp
 	}
 
-	if input.DokumenLainnyaDeleted != nil && data.DokumenLainnya != nil {
+	if input.FotoObjekDeleted != nil && data.FotoObjek != nil {
 		deleteMap := make(map[string]struct{})
-		for _, v := range *input.DokumenLainnyaDeleted {
+		for _, v := range *input.FotoObjekDeleted {
 			deleteMap[v] = struct{}{}
 		}
 		newDataArray := pq.StringArray{}
-		for _, v := range *data.DokumenLainnya {
+		for _, v := range *input.FotoObjek {
 			if _, exist := deleteMap[v]; exist {
 				path := sh.GetPathByFilename(v)
 				if err := sh.RemoveFile(path, v); err != nil {
@@ -292,15 +277,19 @@ func Update(id uuid.UUID, input m.UpdatePotensiOpDto, userId uint, tx *gorm.DB) 
 				newDataArray = append(newDataArray, v)
 			}
 		}
-		data.DokumenLainnya = &newDataArray
+		input.FotoObjek = &newDataArray
+		data.FotoObjek = nil
 	}
 
 	if input.DokumenLainnya != nil {
 		tmp := pq.StringArray{}
 		lenData := 0
 		if data.DokumenLainnya != nil {
-			lenData = len(*data.DokumenLainnya)
-			tmp = append(*data.DokumenLainnya, tmp...)
+			tmp = *data.DokumenLainnya
+			re := regexp.MustCompile(`^DokumenLainnya(\d*)`)
+			if match := re.FindStringSubmatch(tmp[len(tmp)-1]); len(match) > 0 {
+				lenData, _ = strconv.Atoi(match[1])
+			}
 		}
 		for i, v := range *input.DokumenLainnya {
 			var errChan = make(chan error)
@@ -317,7 +306,27 @@ func Update(id uuid.UUID, input m.UpdatePotensiOpDto, userId uint, tx *gorm.DB) 
 		input.DokumenLainnya = &tmp
 	}
 
-	if err := sc.Copy(&data, &input); err != nil {
+	if input.DokumenLainnyaDeleted != nil && data.DokumenLainnya != nil {
+		deleteMap := make(map[string]struct{})
+		for _, v := range *input.DokumenLainnyaDeleted {
+			deleteMap[v] = struct{}{}
+		}
+		newDataArray := pq.StringArray{}
+		for _, v := range *input.DokumenLainnya {
+			if _, exist := deleteMap[v]; exist {
+				path := sh.GetPathByFilename(v)
+				if err := sh.RemoveFile(path, v); err != nil {
+					return sh.SetError("request", "update-data", source, "failed", "failed remove file", v)
+				}
+			} else {
+				newDataArray = append(newDataArray, v)
+			}
+		}
+		input.DokumenLainnya = &newDataArray
+		data.DokumenLainnya = nil
+	}
+
+	if err := sc.CopyWithOption(&data, &input, sc.Option{IgnoreEmpty: true}); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
