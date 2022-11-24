@@ -3,6 +3,7 @@ package gormhelper
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	// gi "github.com/juliangruber/go-intersect"
 
@@ -64,10 +65,10 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 			if vOpt != "between" {
 				db.Where(whereString, value)
 			} else {
-				// valueString := iVF.String()
-				// values := strings.Split(valueString, ",")
-				if iVF.Len() == 2 {
-					db.Where(whereString, iVF.Index(0), iVF.Index(1))
+				valueString := iVF.String()
+				values := strings.Split(valueString, ",")
+				if len(values) == 2 {
+					db.Where(whereString, values[0], values[1])
 				}
 			}
 		}
