@@ -120,13 +120,13 @@ func Update(potensiOp_Id uuid.UUID, input m.UpdateDto, tx *gorm.DB) (any, error)
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.PotensiBapl
+	var data m.PotensiBapl
 	result := tx.Where("\"Potensiop_Id\" = ?", potensiOp_Id.String()).First(&data)
 	if result.RowsAffected == 0 {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	if err := sc.Copy(&data, &input); err != nil {
+	if err := sc.CopyWithOption(&data, &input, sc.Option{IgnoreEmpty: true}); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 

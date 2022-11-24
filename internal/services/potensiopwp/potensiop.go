@@ -326,7 +326,7 @@ func Update(id uuid.UUID, input m.UpdatePotensiOpDto, userId uint, tx *gorm.DB) 
 		data.DokumenLainnya = nil
 	}
 
-	if err := sc.Copy(&data, &input); err != nil {
+	if err := sc.CopyWithOption(&data, &input, sc.Option{IgnoreEmpty: true}); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
