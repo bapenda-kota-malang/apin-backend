@@ -103,6 +103,7 @@ func GetList(input m.FilterDto) (any, error) {
 		}).
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
+		Preload("Npwpd.Rekening").
 		Preload("SspdDetails.Spt").
 		Scopes(gh.Filter(input)).
 		Count(&count).
