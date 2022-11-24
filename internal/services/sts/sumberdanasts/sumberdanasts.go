@@ -25,7 +25,7 @@ func Create(input []m.SumberDanaStsCreateDto, sts_id uint64, tx *gorm.DB) (any, 
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
-	fmt.Println("servicesSumberDana: ", data)
+	fmt.Println("servicesSumberDana: ", len(data))
 	// static add value to field
 	for k := range data {
 		data[k].Sts_Id = sts_id
@@ -36,6 +36,6 @@ func Create(input []m.SumberDanaStsCreateDto, sts_id uint64, tx *gorm.DB) (any, 
 	if result := tx.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil menyimpan data %s", source), data)
 	}
-	fmt.Println("after: ", data)
+	fmt.Println("after: ", len(data))
 	return rp.OKSimple{Data: data}, nil
 }

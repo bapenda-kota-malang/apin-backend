@@ -1,7 +1,6 @@
 package sts
 
 import (
-	"fmt"
 	"strconv"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
@@ -65,14 +64,14 @@ func Create(input m.CreateDto) (any, error) {
 		if err != nil {
 			return err
 		}
-		fmt.Println("dataStsdetail: ", dataStsDetail)
+
 		// create data sts detail
 		resultStsDetail, err := ssd.Create(dataStsDetail, dataSts.Id, tx)
 		if err != nil {
 			return err
 		}
 		respDataStsDetail = resultStsDetail
-		fmt.Println("dataSumberDana: ", dataSumberDanaSts)
+
 		// create data sts detail
 		resultSumberDanaSts, err := sss.Create(dataSumberDanaSts, dataSts.Id, tx)
 		if err != nil {

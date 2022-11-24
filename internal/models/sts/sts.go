@@ -26,8 +26,8 @@ type Sts struct {
 	Name                      *string            `json:"name" gorm:"type:varchar(100)"`
 	TanggalSts                *time.Time         `json:"tanggalSts"`
 	IsSetor                   bool               `json:"isSetor"`
-	StsDetail                 *[]StsDetail       `json:"stsDetail,omitempty" gorm:"foreignKey:Sts_Id;references:Id"`
-	SumberDanaSts             *[]SumberDanaSts   `json:"sumberDanaSts,omitempty" gorm:"foreignKey:Sts_Id;references:Id"`
+	StsDetails                *[]StsDetail       `json:"stsDetail,omitempty" gorm:"foreignKey:Sts_Id;references:Id"`
+	SumberDanaStss            *[]SumberDanaSts   `json:"sumberDanaSts,omitempty" gorm:"foreignKey:Sts_Id;references:Id"`
 }
 
 type CreateDto struct {
