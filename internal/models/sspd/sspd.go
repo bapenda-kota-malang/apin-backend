@@ -120,6 +120,7 @@ type FilterDto struct {
 	CreatedAt                     *time.Time `json:"createdAt"`
 	IsCancelled                   *bool      `json:"isCancelled"`
 	CancelledDate                 *time.Time `json:"cancelledDate"`
+	TanggalBayar_Opt              *string    `json:"tanggalBayar_opt"`
 	// fixed
 	Page     int   `json:"page"`
 	PageSize int64 `json:"page_size"`
