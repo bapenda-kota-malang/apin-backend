@@ -1,6 +1,7 @@
 package sts
 
 import (
+	"errors"
 	"strconv"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
@@ -105,7 +106,7 @@ func GetList(input m.FilterDto) (any, error) {
 	result := a.DB.
 		Model(&m.Sts{}).
 		Preload(clause.Associations).
-		Preload("StsDetail.Rekening").
+		Preload("StsDetails.Rekening").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -130,7 +131,7 @@ func GetDetail(sts_id int) (any, error) {
 	err := a.DB.
 		Model(&m.Sts{}).
 		Preload(clause.Associations).
-		Preload("StsDetail.Rekening").
+		Preload("StsDetails.Rekening").
 		First(&data, sts_id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -141,4 +142,128 @@ func GetDetail(sts_id int) (any, error) {
 	return rp.OKSimple{
 		Data: data,
 	}, err
+}
+
+func Update(id int, input m.UpdateDto) (any, error) {
+	var dataSts *m.Sts
+	var dataStsDetail []m.StsDetailUpdateDto
+	var dataSumberDanaSts []m.SumberDanaStsUpdateDto
+	var respDataStsDetail interface{}
+	var respDataSumberDanaSts interface{}
+	var resp t.II
+
+	result := a.DB.First(&dataSts, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data sts tidak dapat ditemukan")
+	}
+
+	// data sts
+	if err := sc.Copy(&dataSts, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload sts", input)
+	}
+
+	// data sts detail
+	if err := sc.Copy(&dataStsDetail, &input.StsDetail); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload sts detail", input.StsDetail)
+	}
+
+	// data sumber dana sts
+	if err := sc.Copy(&dataSumberDanaSts, &input.SumberDanaSts); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload sumber dana sts", input.SumberDanaSts)
+	}
+
+	if input.TanggalSetor == nil {
+		dataSts.TanggalSetor = th.TimeNow()
+	} else {
+		dataSts.TanggalSetor = th.ParseTime(input.TanggalSetor)
+	}
+
+	if input.TanggalSts == nil {
+		dataSts.TanggalSts = th.TimeNow()
+	} else {
+		dataSts.TanggalSts = th.ParseTime(input.TanggalSts)
+	}
+
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		// update sts
+		if result := tx.Save(&dataSts); result.Error != nil {
+			return errors.New("gagal menyimpan data sts")
+		}
+
+		// update sts detail
+		resultStsDetail, err := ssd.Update(dataStsDetail, dataSts.Id, tx)
+		if err != nil {
+			return err
+		}
+		respDataStsDetail = resultStsDetail
+
+		// update sumber dana sts
+		resultSumberDanaSts, err := sss.Update(dataSumberDanaSts, dataSts.Id, tx)
+		if err != nil {
+			return err
+		}
+		respDataSumberDanaSts = resultSumberDanaSts
+
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data: "+err.Error(), dataSts)
+	}
+
+	resp = t.II{
+		"affected":      strconv.Itoa(int(result.RowsAffected)),
+		"stsDetail":     respDataStsDetail.(rp.OKSimple).Data,
+		"sumberDanaSts": respDataSumberDanaSts.(rp.OKSimple).Data,
+		"sts":           dataSts,
+	}
+
+	return rp.OKSimple{
+		Data: resp,
+	}, nil
+}
+
+func Delete(sts_id uint64) (any, error) {
+	var status string = "deleted"
+	var data *m.Sts
+
+	// cek data sspd
+	result := a.DB.First(&data, sts_id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data sts tidak dapat ditemukan")
+	}
+
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		// delete sts detail
+		err := ssd.Delete(data.Id, tx)
+		if err != nil {
+			status = "no deletion"
+			return err
+		}
+
+		// delete sumber dana sts
+		err = sss.Delete(data.Id, tx)
+		if err != nil {
+			status = "no deletion"
+			return err
+		}
+
+		// delete sts
+		result = tx.Delete(&data, sts_id)
+		if result.RowsAffected == 0 {
+			return errors.New("tidak dapat menghapus data sts: " + result.Error.Error())
+		}
+		return nil
+
+	})
+	if err != nil {
+		return sh.SetError("request", "delete-data", source, "failed", "gagal menghapus data: "+err.Error(), data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"count":  strconv.Itoa(int(result.RowsAffected)),
+			"status": status,
+		},
+		Data: data,
+	}, nil
 }

@@ -313,6 +313,8 @@ func SetRoutes() http.Handler {
 		r.Get("/", sts.GetList)
 		r.Get("/{id}", sts.GetDetail)
 		r.Post("/", sts.Create)
+		r.Patch("/{id}", sts.Update)
+		r.Delete("/{id}", sts.Delete)
 	})
 	return r
 }
