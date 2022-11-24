@@ -14,6 +14,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"gorm.io/datatypes"
 )
 
 type PotensiOp struct {
@@ -25,6 +26,7 @@ type PotensiOp struct {
 	Status         t.Status        `json:"status"`
 	ClosingDate    *time.Time      `json:"closingDate"`
 	OpeningDate    *time.Time      `json:"openingDate"`
+	StartDate      *datatypes.Date `json:"startDate"`
 	User_Id        uint            `json:"user_id"`
 	LuasBangunan   *string         `json:"luasBangunan" gorm:"size:50"`
 	JamBuka        *string         `json:"jamBuka" gorm:"size:50"`
@@ -62,6 +64,7 @@ type CreatePotensiOpDto struct {
 	Rekening_Id    uint            `json:"rekening_id" validate:"required;min=1"`
 	ClosingDate    *time.Time      `json:"closingDate"`
 	OpeningDate    *time.Time      `json:"openingDate"`
+	StartDate      *datatypes.Date `json:"startDate"`
 	User_Id        uint            `json:"-"`
 	LuasBangunan   *string         `json:"luasBangunan"`
 	JamBuka        *string         `json:"jamBuka"`
@@ -78,25 +81,28 @@ type CreatePotensiOpDto struct {
 }
 
 type UpdatePotensiOpDto struct {
-	Assessment     *string         `json:"assessment"`
-	Golongan       *t.Golongan     `json:"golongan" validate:"min=1"`
-	Npwp           *string         `json:"npwp"`
-	Rekening_Id    *uint           `json:"rekening_id" validate:"min=1"`
-	ClosingDate    *time.Time      `json:"closingDate"`
-	OpeningDate    *time.Time      `json:"openingDate"`
-	User_Id        *uint           `json:"-"`
-	LuasBangunan   *string         `json:"luasBangunan"`
-	JamBuka        *string         `json:"jamBuka"`
-	JamTutup       *string         `json:"jamTutup"`
-	Visitors       *string         `json:"visitors"`
-	OmsetOp        *string         `json:"omsetOp"`
-	Genset         *bool           `json:"genset"`
-	AirTanah       *bool           `json:"airTanah"`
-	VendorEtax_Id  *uint           `json:"vendorEtax_id"`
-	FotoKtp        *string         `json:"fotoKtp" validate:"base64=image;b64size=1025"`
-	FotoObjek      *pq.StringArray `json:"fotoObjek" validate:"base64=image;b64size=1025"`
-	FormBapl       *string         `json:"formBapl" validate:"base64=pdf;b64size=1025"`
-	DokumenLainnya *pq.StringArray `json:"dokumenLainnya" validate:"base64=pdf,image,excel;b64size=1025"`
+	Assessment            *string         `json:"assessment"`
+	Golongan              *t.Golongan     `json:"golongan" validate:"min=1"`
+	Npwp                  *string         `json:"npwp"`
+	Rekening_Id           *uint           `json:"rekening_id" validate:"min=1"`
+	ClosingDate           *time.Time      `json:"closingDate"`
+	OpeningDate           *time.Time      `json:"openingDate"`
+	StartDate             *datatypes.Date `json:"startDate"`
+	User_Id               *uint           `json:"-"`
+	LuasBangunan          *string         `json:"luasBangunan"`
+	JamBuka               *string         `json:"jamBuka"`
+	JamTutup              *string         `json:"jamTutup"`
+	Visitors              *string         `json:"visitors"`
+	OmsetOp               *string         `json:"omsetOp"`
+	Genset                *bool           `json:"genset"`
+	AirTanah              *bool           `json:"airTanah"`
+	VendorEtax_Id         *uint           `json:"vendorEtax_id"`
+	FotoKtp               *string         `json:"fotoKtp" validate:"base64=image;b64size=1025"`
+	FotoObjek             *pq.StringArray `json:"fotoObjek" validate:"base64=image;b64size=1025"`
+	FormBapl              *string         `json:"formBapl" validate:"base64=pdf;b64size=1025"`
+	DokumenLainnya        *pq.StringArray `json:"dokumenLainnya" validate:"base64=pdf,image,excel;b64size=1025"`
+	FotoObjekDeleted      *[]string       `json:"fotoObjekDeleted"`
+	DokumenLainnyaDeleted *[]string       `json:"dokumenLainnyaDeleted"`
 }
 
 type FilterDto struct {
