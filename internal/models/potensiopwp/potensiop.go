@@ -12,11 +12,12 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
 type PotensiOp struct {
-	Id             uint            `json:"id" gorm:"primaryKey"`
+	Id             uuid.UUID       `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	Assessment     t.JenisPajak    `json:"assessment" gorm:"size:10"`
 	Golongan       t.Golongan      `json:"golongan"`
 	Npwp           *string         `json:"npwp" gorm:"size:50"`
@@ -36,23 +37,22 @@ type PotensiOp struct {
 	FotoKtp        *string         `json:"fotoKtp"`
 	FotoObjek      *pq.StringArray `json:"fotoObjek" gorm:"type:varchar[]"`
 	FormBapl       *string         `json:"formBapl"`
-	DokumenLainnya *string         `json:"dokumenLainnya"`
+	DokumenLainnya *pq.StringArray `json:"dokumenLainnya" gorm:"type:varchar[]"`
 	gormhelper.DateModel
 	Rekening *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
 	User     *user.User         `json:"user,omitempty" gorm:"foreignKey:User_Id"`
 	// VendorEtax             cm.VendorEtax           `gorm:"foreignKey:VendorEtax_Id"`
-	DetailPotensiOp   *detailpotensiop.DetailPotensiOp       `json:"detailPotensiOp,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	PotensiPemilikWp  *[]potensipemilikwp.PotensiPemilikWp   `json:"potensiPemilikWp,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	PotensiNarahubung *[]potensinarahubung.PotensiNarahubung `json:"potensiNarahubung,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	// TODO: DETAIL POTENSI DATA NUNGGU MBAK FITRI
-	DetailPotensiAirTanahs *[]detailobjek.DetailPotensiAirTanah `json:"detailPotensiAirTanahs,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiHiburans  *[]detailobjek.DetailPotensiHiburan  `json:"detailPotensiHiburans,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiHotels    *[]detailobjek.DetailPotensiHotel    `json:"detailPotensiHotels,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiPPJs      *[]detailobjek.DetailPotensiPPJ      `json:"detailPotensiPpjs,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiParkirs   *[]detailobjek.DetailPotensiParkir   `json:"DetailPotensiParkirs,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiReklames  *[]detailobjek.DetailPotensiReklame  `json:"DetailPotensiReklames,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiRestos    *[]detailobjek.DetailPotensiResto    `json:"DetailPotensiRestos,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	Bapl                   *bapl.Bapl                           `json:"bapl,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiOp        *detailpotensiop.DetailPotensiOp       `json:"detailPotensiOp,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	PotensiPemilikWp       *[]potensipemilikwp.PotensiPemilikWp   `json:"potensiPemilikWp,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	PotensiNarahubung      *[]potensinarahubung.PotensiNarahubung `json:"potensiNarahubung,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiAirTanahs *[]detailobjek.DetailPotensiAirTanah   `json:"detailPotensiAirTanahs,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiHiburans  *[]detailobjek.DetailPotensiHiburan    `json:"detailPotensiHiburans,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiHotels    *[]detailobjek.DetailPotensiHotel      `json:"detailPotensiHotels,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiPPJs      *[]detailobjek.DetailPotensiPPJ        `json:"detailPotensiPpjs,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiParkirs   *[]detailobjek.DetailPotensiParkir     `json:"DetailPotensiParkirs,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiReklames  *[]detailobjek.DetailPotensiReklame    `json:"DetailPotensiReklames,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiRestos    *[]detailobjek.DetailPotensiResto      `json:"DetailPotensiRestos,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	Bapl                   *bapl.PotensiBapl                      `json:"bapl,omitempty" gorm:"foreignKey:Potensiop_Id"`
 }
 
 type CreatePotensiOpDto struct {
@@ -74,7 +74,7 @@ type CreatePotensiOpDto struct {
 	FotoKtp        *string         `json:"fotoKtp" validate:"base64=image;b64size=1025"`
 	FotoObjek      *pq.StringArray `json:"fotoObjek" validate:"base64=image;b64size=1025"`
 	FormBapl       *string         `json:"formBapl" validate:"base64=pdf;b64size=1025"`
-	DokumenLainnya *string         `json:"dokumenLainnya" validate:"base64=pdf,image,excel;b64size=1025"`
+	DokumenLainnya *pq.StringArray `json:"dokumenLainnya" validate:"base64=pdf,image,excel;b64size=1025"`
 }
 
 type UpdatePotensiOpDto struct {
@@ -96,7 +96,7 @@ type UpdatePotensiOpDto struct {
 	FotoKtp        *string         `json:"fotoKtp" validate:"base64=image;b64size=1025"`
 	FotoObjek      *pq.StringArray `json:"fotoObjek" validate:"base64=image;b64size=1025"`
 	FormBapl       *string         `json:"formBapl" validate:"base64=pdf;b64size=1025"`
-	DokumenLainnya *string         `json:"dokumenLainnya" validate:"base64=pdf,image,excel;b64size=1025"`
+	DokumenLainnya *pq.StringArray `json:"dokumenLainnya" validate:"base64=pdf,image,excel;b64size=1025"`
 }
 
 type FilterDto struct {

@@ -148,7 +148,7 @@ func init() {
 
 	listModelPendataan := []interface{}{
 		&potensiopwp.PotensiOp{},
-		&bapl.Bapl{},
+		&bapl.PotensiBapl{},
 		&detailpotensiop.DetailPotensiOp{},
 		&potensipemilikwp.PotensiPemilikWp{},
 		&potensinarahubung.PotensiNarahubung{},

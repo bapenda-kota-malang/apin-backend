@@ -58,10 +58,15 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 		tx = a.DB
 	}
 	var data m.PotensiOp
+	id, err := sh.GetUuidv4()
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+	}
+	data.Id = id
 
 	if input.FotoKtp != nil {
 		var errChan = make(chan error)
-		fileName, path, extFile, _, err := filePreProcess(*input.FotoKtp, "FotoKtpPotensiOp", userId, uuid.Nil)
+		fileName, path, extFile, _, err := filePreProcess(*input.FotoKtp, "FotoKtpPotensiOp", userId, id)
 		if err != nil {
 			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 		}
@@ -70,12 +75,11 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 			return sh.SetError("request", "create-data", source, "failed", "failed save foto", data)
 		}
 		input.FotoKtp = &fileName
-		// data.Id = id
 	}
 
 	if input.FormBapl != nil {
 		var errChan = make(chan error)
-		fileName, path, extFile, _, err := filePreProcess(*input.FormBapl, "FormBaplPotensiOp", userId, uuid.Nil)
+		fileName, path, extFile, _, err := filePreProcess(*input.FormBapl, "FormBaplPotensiOp", userId, id)
 		if err != nil {
 			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 		}
@@ -87,23 +91,27 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 	}
 
 	if input.DokumenLainnya != nil {
-		var errChan = make(chan error)
-		fileName, path, extFile, _, err := filePreProcess(*input.DokumenLainnya, "DokumenLainnyaPotensiOp", userId, uuid.Nil)
-		if err != nil {
-			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		tmp := pq.StringArray{}
+		for i, v := range *input.DokumenLainnya {
+			var errChan = make(chan error)
+			fileName, path, extFile, _, err := filePreProcess(v, "DokumenLainnya"+(strconv.Itoa(i+1))+"PotensiOp", userId, id)
+			if err != nil {
+				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+			}
+			go sh.SaveFile(v, fileName, path, extFile, errChan)
+			if err := <-errChan; err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "failed save file", data)
+			}
+			tmp = append(tmp, fileName)
 		}
-		go sh.SaveFile(*input.DokumenLainnya, fileName, path, extFile, errChan)
-		if err := <-errChan; err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "failed save pdf", data)
-		}
-		input.DokumenLainnya = &fileName
+		input.DokumenLainnya = &tmp
 	}
 
 	if input.FotoObjek != nil {
 		tmp := pq.StringArray{}
 		for i, v := range *input.FotoObjek {
 			var errChan = make(chan error)
-			fileName, path, extFile, _, err := filePreProcess(v, "FotoObjek"+(strconv.Itoa(i+1))+"PotensiOp", userId, uuid.Nil)
+			fileName, path, extFile, _, err := filePreProcess(v, "FotoObjek"+(strconv.Itoa(i+1))+"PotensiOp", userId, id)
 			if err != nil {
 				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 			}
@@ -162,12 +170,12 @@ func GetList(input m.FilterDto) (any, error) {
 	}, nil
 }
 
-func GetDetail(id int) (any, error) {
+func GetDetail(id uuid.UUID) (any, error) {
 	var data *m.PotensiOp
 
 	result := a.DB.Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 		return tx.Omit("Password")
-	}).First(&data, id)
+	}).First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -179,11 +187,73 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.UpdatePotensiOpDto, tx *gorm.DB) (any, error) {
+func Update(id uuid.UUID, input m.UpdatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 	var data *m.PotensiOp
-	result := a.DB.First(&data, id)
+	result := a.DB.First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
+	}
+
+	if input.FotoKtp != nil {
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := filePreProcess(*input.FotoKtp, "FotoKtpPotensiOp", userId, id)
+		if err != nil {
+			return sh.SetError("request", "update-data", source, "failed", err.Error(), data)
+		}
+		go sh.SaveFile(*input.FotoKtp, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "update-data", source, "failed", "failed save foto", data)
+		}
+		input.FotoKtp = &fileName
+	}
+
+	if input.FormBapl != nil {
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := filePreProcess(*input.FormBapl, "FormBaplPotensiOp", userId, id)
+		if err != nil {
+			return sh.SetError("request", "update-data", source, "failed", err.Error(), data)
+		}
+		go sh.SaveFile(*input.FormBapl, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "update-data", source, "failed", "failed save pdf", data)
+		}
+		input.FormBapl = &fileName
+	}
+
+	if input.DokumenLainnya != nil {
+		tmp := pq.StringArray{}
+		for i, v := range *input.DokumenLainnya {
+			var errChan = make(chan error)
+			fileName, path, extFile, _, err := filePreProcess(v, "DokumenLainnya"+(strconv.Itoa(i+1))+"PotensiOp", userId, id)
+			if err != nil {
+				return sh.SetError("request", "update-data", source, "failed", err.Error(), data)
+			}
+			go sh.SaveFile(v, fileName, path, extFile, errChan)
+			if err := <-errChan; err != nil {
+				return sh.SetError("request", "update-data", source, "failed", "failed save file", data)
+			}
+			tmp = append(tmp, fileName)
+		}
+		tmp = append(tmp, *data.DokumenLainnya...)
+		input.DokumenLainnya = &tmp
+	}
+
+	if input.FotoObjek != nil {
+		tmp := pq.StringArray{}
+		for i, v := range *input.FotoObjek {
+			var errChan = make(chan error)
+			fileName, path, extFile, _, err := filePreProcess(v, "FotoObjek"+(strconv.Itoa(i+1))+"PotensiOp", userId, id)
+			if err != nil {
+				return sh.SetError("request", "update-data", source, "failed", err.Error(), data)
+			}
+			go sh.SaveFile(v, fileName, path, extFile, errChan)
+			if err := <-errChan; err != nil {
+				return sh.SetError("request", "update-data", source, "failed", "failed save pdf", data)
+			}
+			tmp = append(tmp, fileName)
+		}
+		tmp = append(tmp, *data.FotoObjek...)
+		input.FotoObjek = &tmp
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
@@ -202,14 +272,14 @@ func Update(id int, input m.UpdatePotensiOpDto, tx *gorm.DB) (any, error) {
 	}, nil
 }
 
-func Delete(id int) (any, error) {
+func Delete(id uuid.UUID) (any, error) {
 	var data *m.PotensiOp
-	result := a.DB.First(&data, id)
+	result := a.DB.First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	result = a.DB.Delete(&data, id)
+	result = a.DB.Where("\"Id\" = ?", id.String()).Delete(&data)
 	status := "deleted"
 	if result.RowsAffected == 0 {
 		data = nil

@@ -10,6 +10,7 @@ import (
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
+	"github.com/go-chi/chi/v5"
 )
 
 // GetList Data Potensi Objek Pajak with pagination
@@ -24,8 +25,8 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 
 // Return data detail Objek Pajak
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
@@ -56,8 +57,8 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
@@ -73,8 +74,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
