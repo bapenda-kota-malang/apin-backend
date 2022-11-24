@@ -11,9 +11,9 @@ import (
 )
 
 type CreateDto struct {
-	Npwpd_Id         *uint64         `json:"npwpd_Id" validate:"required;min=1"`
-	ObjekPajak_Id    *uint64         `json:"objekPajak_Id" validate:"required;min=1"`
-	Rekening_Id      *uint64         `json:"rekening_Id" validate:"required;min=1"`
+	Npwpd_Id         *uint64         `json:"npwpd_id" validate:"required;min=1"`
+	ObjekPajak_Id    *uint64         `json:"objekPajak_id" validate:"required;min=1"`
+	Rekening_Id      *uint64         `json:"rekening_id" validate:"required;min=1"`
 	LuasLokasi       *string         `json:"luasLokasi"`
 	Description      *string         `json:"description"`
 	Omset            float64         `json:"omset"`
@@ -53,8 +53,8 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Npwpd_Id         uint64          `json:"-"`
-	ObjekPajak_Id    uint64          `json:"objekPajak_Id"`
-	Rekening_Id      *uint64         `json:"rekening_Id"`
+	ObjekPajak_Id    uint64          `json:"objekPajak_id"`
+	Rekening_Id      *uint64         `json:"rekening_id"`
 	LuasLokasi       *string         `json:"luasLokasi"`
 	Description      *string         `json:"description"`
 	PeriodeAwal      *datatypes.Date `json:"-"`
@@ -98,7 +98,7 @@ type VerifyDto struct {
 }
 
 type SkpdkbExisting struct {
-	Spt_Id           uuid.UUID      `json:"spt_Id" validate:"required"`
+	Spt_Id           uuid.UUID      `json:"spt_id" validate:"required"`
 	JenisKetetapan   JenisKetetapan `json:"jenisKetetapan"`
 	DasarPengenaan   *string        `json:"dasarPengenaan" validate:"required"`
 	Kenaikan         *float64       `json:"-"`

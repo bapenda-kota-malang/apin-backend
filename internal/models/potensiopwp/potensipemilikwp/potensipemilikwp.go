@@ -4,11 +4,12 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	t "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 )
 
 type PotensiPemilikWp struct {
 	Id           uint                    `json:"id" gorm:"primaryKey"`
-	Potensiop_Id uint                    `json:"potensiop_id"`
+	Potensiop_Id uuid.UUID               `json:"potensiop_id" gorm:"type:uuid"`
 	Nama         string                  `json:"nama" gorm:"size:50"`
 	Alamat       string                  `json:"alamat" gorm:"size:50"`
 	RtRw         string                  `json:"rtRw" gorm:"size:10"`
@@ -24,7 +25,7 @@ type PotensiPemilikWp struct {
 }
 
 type CreateDto struct {
-	Potensiop_Id uint       `json:"-"`
+	Potensiop_Id uuid.UUID  `json:"-"`
 	Nama         string     `json:"nama" validate:"required"`
 	Alamat       string     `json:"alamat" validate:"required"`
 	RtRw         string     `json:"rtRw"`

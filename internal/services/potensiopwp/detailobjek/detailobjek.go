@@ -9,6 +9,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailobjek"
@@ -116,7 +117,7 @@ func Create(input []m.DetailPajakDto, tx *gorm.DB) (any, error) {
 	return rp.OKSimple{Data: listTransactionData}, nil
 }
 
-func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
+func Update(potensiOp_Id uuid.UUID, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -138,11 +139,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
 					return nil, errors.New("data tidak dapat ditemukan")
 				}
-				if tmp.Potensiop_Id != uint(potensiOp_Id) {
+				if tmp.Potensiop_Id != potensiOp_Id {
 					return sh.SetError("request", "update-data", source, "failed", "tidak bisa mengubah data ini", v)
 				}
 			} else {
-				tmp.Potensiop_Id = uint(potensiOp_Id)
+				tmp.Potensiop_Id = potensiOp_Id
 			}
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
@@ -158,11 +159,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
 					return nil, errors.New("data tidak dapat ditemukan")
 				}
-				if tmp.Potensiop_Id != uint(potensiOp_Id) {
+				if tmp.Potensiop_Id != potensiOp_Id {
 					return sh.SetError("request", "update-data", source, "failed", "tidak bisa mengubah data ini", v)
 				}
 			} else {
-				tmp.Potensiop_Id = uint(potensiOp_Id)
+				tmp.Potensiop_Id = potensiOp_Id
 			}
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
@@ -178,11 +179,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
 					return nil, errors.New("data tidak dapat ditemukan")
 				}
-				if tmp.Potensiop_Id != uint(potensiOp_Id) {
+				if tmp.Potensiop_Id != potensiOp_Id {
 					return sh.SetError("request", "update-data", source, "failed", "tidak bisa mengubah data ini", v)
 				}
 			} else {
-				tmp.Potensiop_Id = uint(potensiOp_Id)
+				tmp.Potensiop_Id = potensiOp_Id
 			}
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
@@ -198,11 +199,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
 					return nil, errors.New("data tidak dapat ditemukan")
 				}
-				if tmp.Potensiop_Id != uint(potensiOp_Id) {
+				if tmp.Potensiop_Id != potensiOp_Id {
 					return sh.SetError("request", "update-data", source, "failed", "tidak bisa mengubah data ini", v)
 				}
 			} else {
-				tmp.Potensiop_Id = uint(potensiOp_Id)
+				tmp.Potensiop_Id = potensiOp_Id
 			}
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
@@ -218,11 +219,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
 					return nil, errors.New("data tidak dapat ditemukan")
 				}
-				if tmp.Potensiop_Id != uint(potensiOp_Id) {
+				if tmp.Potensiop_Id != potensiOp_Id {
 					return sh.SetError("request", "update-data", source, "failed", "tidak bisa mengubah data ini", v)
 				}
 			} else {
-				tmp.Potensiop_Id = uint(potensiOp_Id)
+				tmp.Potensiop_Id = potensiOp_Id
 			}
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
@@ -238,11 +239,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
 					return nil, errors.New("data tidak dapat ditemukan")
 				}
-				if tmp.Potensiop_Id != uint(potensiOp_Id) {
+				if tmp.Potensiop_Id != potensiOp_Id {
 					return sh.SetError("request", "update-data", source, "failed", "tidak bisa mengubah data ini", v)
 				}
 			} else {
-				tmp.Potensiop_Id = uint(potensiOp_Id)
+				tmp.Potensiop_Id = potensiOp_Id
 			}
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)
@@ -258,11 +259,11 @@ func Update(potensiOp_Id int, input []m.UpdateDto, tx *gorm.DB) (any, error) {
 				if result := a.DB.First(&tmp, v.Id); result.RowsAffected == 0 {
 					return nil, errors.New("data tidak dapat ditemukan")
 				}
-				if tmp.Potensiop_Id != uint(potensiOp_Id) {
+				if tmp.Potensiop_Id != potensiOp_Id {
 					return sh.SetError("request", "update-data", source, "failed", "tidak bisa mengubah data ini", v)
 				}
 			} else {
-				tmp.Potensiop_Id = uint(potensiOp_Id)
+				tmp.Potensiop_Id = potensiOp_Id
 			}
 			if err := sc.Copy(&tmp, &v); err != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", v)

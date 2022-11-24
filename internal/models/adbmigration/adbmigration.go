@@ -54,6 +54,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/sptnomertracker"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
@@ -67,6 +68,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambongrek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 )
@@ -103,6 +105,7 @@ func init() {
 		&jenispajak.JenisPajak{},
 		&jenisusaha.JenisUsaha{},
 		&jenisusaha.JenisUsahaDetail{},
+		&tempatpembayaran.TempatPembayaran{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
@@ -148,7 +151,7 @@ func init() {
 
 	listModelPendataan := []interface{}{
 		&potensiopwp.PotensiOp{},
-		&bapl.Bapl{},
+		&bapl.PotensiBapl{},
 		&detailpotensiop.DetailPotensiOp{},
 		&potensipemilikwp.PotensiPemilikWp{},
 		&potensinarahubung.PotensiNarahubung{},
@@ -199,10 +202,13 @@ func init() {
 	a.AutoMigrate(listModelPengajuan...)
 
 	listModelPembayaran := []interface{}{
+		&sts.Sts{},
 		&sspd.Sspd{},
 		&sspd.SspdDetail{},
 		&sinkronisasi.Sinkronisasi{},
 		&sinkronisasi.SinkronisasiDetail{},
+		&sts.StsDetail{},
+		&sts.SumberDanaSts{},
 	}
 
 	a.AutoMigrate(listModelPembayaran...)

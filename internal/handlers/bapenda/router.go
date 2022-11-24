@@ -51,11 +51,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sts"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambongrek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifreklame"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tempatpembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -154,6 +156,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/jenispajak", jenispajak.Crud{})
 
 	rh.RegCrud(r, "/jenisusaha", jenisusaha.Crud{})
+
+	rh.RegCrud(r, "/tempatpembayaran", tempatpembayaran.Crud{})
 
 	r.Route("/njoptkpflag", func(r chi.Router) {
 		r.Post("/", njoptkpflag.Create)
@@ -294,6 +298,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", sspd.Update)
 		r.Delete("/{id}", sspd.Delete)
 		r.Patch("/{id}/cancel", sspd.Cancel)
+		r.Get("/sspddetail", sspd.GetListSspdDetail)
 	})
 
 	r.Route("/sinkronisasi", func(r chi.Router) {
@@ -302,6 +307,14 @@ func SetRoutes() http.Handler {
 		r.Post("/", sinkronisasi.Create)
 		r.Post("/detail", sinkronisasi.CreateDetail)
 		r.Patch("/detail", sinkronisasi.Update)
+	})
+
+	r.Route("/sts", func(r chi.Router) {
+		r.Get("/", sts.GetList)
+		r.Get("/{id}", sts.GetDetail)
+		r.Post("/", sts.Create)
+		r.Patch("/{id}", sts.Update)
+		r.Delete("/{id}", sts.Delete)
 	})
 	return r
 }
