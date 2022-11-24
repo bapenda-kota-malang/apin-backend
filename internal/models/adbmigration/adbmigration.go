@@ -54,6 +54,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/sptnomertracker"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
@@ -201,10 +202,13 @@ func init() {
 	a.AutoMigrate(listModelPengajuan...)
 
 	listModelPembayaran := []interface{}{
+		&sts.Sts{},
 		&sspd.Sspd{},
 		&sspd.SspdDetail{},
 		&sinkronisasi.Sinkronisasi{},
 		&sinkronisasi.SinkronisasiDetail{},
+		&sts.StsDetail{},
+		&sts.SumberDanaSts{},
 	}
 
 	a.AutoMigrate(listModelPembayaran...)

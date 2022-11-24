@@ -51,6 +51,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sts"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambongrek"
@@ -306,6 +307,12 @@ func SetRoutes() http.Handler {
 		r.Post("/", sinkronisasi.Create)
 		r.Post("/detail", sinkronisasi.CreateDetail)
 		r.Patch("/detail", sinkronisasi.Update)
+	})
+
+	r.Route("/sts", func(r chi.Router) {
+		r.Get("/", sts.GetList)
+		r.Get("/{id}", sts.GetDetail)
+		r.Post("/", sts.Create)
 	})
 	return r
 }

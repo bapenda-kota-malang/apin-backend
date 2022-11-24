@@ -111,3 +111,23 @@ func GetListSspdDetail(input m.SspdDetailFilterDto) (any, error) {
 		Data: data,
 	}, nil
 }
+
+func UpdateFromSts(input []uint64, sts_id uint64, tx *gorm.DB) error {
+	if tx == nil {
+		tx = a.DB
+	}
+
+	for _, v := range input {
+		var dataFromDb *m.SspdDetail
+		result := tx.Where(m.SspdDetail{Sspd_Id: &v}).First(&dataFromDb)
+		if result.RowsAffected == 0 {
+			return errors.New("data sspd detail tidak dapat ditemukan")
+		}
+		dataFromDb.Sts_Id = &sts_id
+		if result := tx.Save(&dataFromDb); result.Error != nil {
+			return errors.New("tidak dapat menyimpan data sspd detail")
+		}
+	}
+
+	return nil
+}
