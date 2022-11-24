@@ -46,6 +46,21 @@ func GenerateFilename(docsName string, uuid uuid.UUID, userId uint, extension st
 	return
 }
 
+// Get path based on file name
+func GetPathByFilename(filename string) (filePath string) {
+	filePath = GetResourcesPath()
+	ext := filepath.Ext(filename)
+	switch ext {
+	case ".pdf":
+		filePath = GetPdfPath()
+	case ".jpeg", ".png":
+		filePath = GetImgPath()
+	case ".xlsx", ".xls":
+		filePath = GetExcelPath()
+	}
+	return
+}
+
 // get path for resource root folder
 func GetResourcesPath() string {
 	wd, err := os.Getwd()
@@ -80,7 +95,7 @@ func GetExcelPath() string {
 	return getSpecificPath("excel")
 }
 
-func removeFile(path, filename string) error {
+func RemoveFile(path, filename string) error {
 	return os.Remove(fmt.Sprintf("%s/%s", path, filename))
 }
 
@@ -149,12 +164,25 @@ func ReplaceFile(oldFileName, b64Raw, newFileName, path, extFile string, errCh c
 	defer close(errCh)
 	saveErrCh := make(chan error)
 
+	oldFileNameSave := oldFileName
+	if oldFileName == newFileName {
+		oldPath := filepath.Join(path, oldFileName)
+		tmpOldFileName := "tmp" + oldFileName
+		newPathTmp := filepath.Join(path, tmpOldFileName)
+		if err := os.Rename(oldPath, newPathTmp); err != nil {
+			errCh <- err
+			return
+		}
+		oldFileName = tmpOldFileName
+	}
+
 	go SaveFile(b64Raw, newFileName, path, extFile, saveErrCh)
 	if err := <-saveErrCh; err != nil {
+		_ = os.Rename(filepath.Join(path, oldFileName), filepath.Join(path, oldFileNameSave))
 		errCh <- err
 		return
 	}
-	if err := removeFile(path, oldFileName); err != nil {
+	if err := RemoveFile(path, oldFileName); err != nil {
 		errCh <- err
 		return
 	}
@@ -419,19 +447,19 @@ func DeleteFile(input string, data string) (string, error) {
 
 		basePath := GetImgPath()
 
-		if err := removeFile(basePath, input); err != nil {
+		if err := RemoveFile(basePath, input); err != nil {
 			return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
 		}
 	case "pdf":
 		basePath := GetPdfPath()
 
-		if err := removeFile(basePath, input); err != nil {
+		if err := RemoveFile(basePath, input); err != nil {
 			return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
 		}
 	case "xlxs", "xls":
 		basePath := GetExcelPath()
 
-		if err := removeFile(basePath, input); err != nil {
+		if err := RemoveFile(basePath, input); err != nil {
 			return "", errors.New("tidak dapat menghapus data dari resourse, filename tidak ditemukan")
 		}
 	default:
