@@ -23,5 +23,5 @@ type UpdateDto struct {
 	DetailPajakDtos    []detailobjek.UpdateDto       `json:"detailPajaks"`
 	PotensiPemilikWps  []potensipemilikwp.UpdateDto  `json:"potensiPemilikWps"`
 	PotensiNarahubungs []potensinarahubung.UpdateDto `json:"potensiNarahubungs"`
-	Bapl               *bapl.UpdateDto               `json:"bapl"`
+	Bapl               bapl.UpdateDto                `json:"bapl"`
 }

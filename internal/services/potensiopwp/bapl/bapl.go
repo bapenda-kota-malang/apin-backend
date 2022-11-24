@@ -116,7 +116,7 @@ func Verify(potensiOp_Id uuid.UUID, userId uint, input m.VerifyDto) (any, error)
 	}, nil
 }
 
-func Update(potensiOp_Id uuid.UUID, input *m.UpdateDto, tx *gorm.DB) (any, error) {
+func Update(potensiOp_Id uuid.UUID, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
