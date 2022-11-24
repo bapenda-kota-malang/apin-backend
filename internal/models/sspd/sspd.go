@@ -96,7 +96,7 @@ type FilterDto struct {
 	NomorTahun                    *int       `json:"nomorTahun"`
 	NomorUrut                     *int       `json:"nomorUrut"`
 	NomorOutput                   *string    `json:"nomorOutput"`
-	TanggalBayar                  *time.Time `json:"tanggalBayar"`
+	TanggalBayar                  *string    `json:"tanggalBayar"`
 	ObjekPajak_Id                 *uint64    `json:"objekPajak_id"`
 	CreatedBy_User_Id             *uint64    `json:"createdBy_user_id"`
 	RekeningBendahara_Rekening_Id *uint64    `json:"rekeningBendahara_rekening_id"`
