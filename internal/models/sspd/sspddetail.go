@@ -2,7 +2,6 @@ package sspd
 
 import (
 	ms "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
-	msts "github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )
@@ -15,9 +14,9 @@ type SspdDetail struct {
 	Spt        *ms.Spt    `json:"spt,omitempty" gorm:"foreignKey:Spt_Id"`
 	Teguran_Id *uint64    `json:"teguran_id"`
 	// Teguran         *mt.Teguran     `json:"teguran,omitempty" gorm:"foreignKey:Teguran_Id"`
-	NominalBayar    *float64        `json:"nominalBayar" gorm:"type:decimal"`
-	Sts_Id          *uint64         `json:"sts_id"`
-	Sts             *msts.Sts       `json:"sts,omitempty" gorm:"foreignKey:Sts_Id"`
+	NominalBayar *float64 `json:"nominalBayar" gorm:"type:decimal"`
+	Sts_Id       *uint64  `json:"sts_id"`
+	// Sts             *msts.Sts       `json:"sts,omitempty" gorm:"foreignKey:Sts_Id"`
 	AngsuranKe      *int            `json:"angsuranKe" gorm:"type:smallint"`
 	WaktuSspdDetail *datatypes.Time `json:"waktuSspdDetail"`
 }

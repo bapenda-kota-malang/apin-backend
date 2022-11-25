@@ -6,6 +6,7 @@ import (
 	mj "github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
 	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	ms "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 )
 
 type Sts struct {
@@ -28,6 +29,7 @@ type Sts struct {
 	IsSetor                      bool               `json:"isSetor"`
 	StsDetails                   *[]StsDetail       `json:"stsDetail,omitempty" gorm:"foreignKey:Sts_Id;references:Id"`
 	SumberDanaStss               *[]SumberDanaSts   `json:"sumberDanaSts,omitempty" gorm:"foreignKey:Sts_Id;references:Id"`
+	SspdDetails                  *[]ms.SspdDetail   `json:"sspdDetail,omitempty" gorm:"foreignKey:Sts_Id;references:Id"`
 }
 
 type CreateDto struct {

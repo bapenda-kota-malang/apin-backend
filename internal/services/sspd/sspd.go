@@ -238,7 +238,7 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 	} else {
 		dataSspd.TanggalBayar = th.ParseTime(input.TanggalBayar)
 	}
-	// dataSspd.CreatedBy_User_Id = &user_id
+	dataSspd.CreatedBy_User_Id = &user_id
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// update sspd
