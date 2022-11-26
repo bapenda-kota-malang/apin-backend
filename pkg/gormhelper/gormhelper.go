@@ -3,11 +3,8 @@ package gormhelper
 import (
 	"fmt"
 	"reflect"
-<<<<<<< HEAD
-	"time"
-=======
 	"strings"
->>>>>>> 4025f8919729c6538a3e15b1d75caa1a9b9a2c57
+	"time"
 
 	// gi "github.com/juliangruber/go-intersect"
 
