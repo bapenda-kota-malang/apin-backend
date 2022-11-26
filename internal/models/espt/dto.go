@@ -8,7 +8,7 @@ import (
 )
 
 type FilterDto struct {
-	Npwpd_Id     *uint64         `json:"npwpd_Id"`
+	Npwpd_Id     *uint64         `json:"npwpd_id"`
 	LuasLokasi   *uint           `json:"luasLokasi"`
 	Omset        *float64        `json:"omset"`
 	JumlahPajak  *float64        `json:"jumlahPajak"`

@@ -45,14 +45,16 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 
 	tmpIsCancelled := false
 	// static value
-	tmpNomor := generateNomor()
-	dataSspd.SspdNumber = &tmpNomor
 	if input.TanggalBayar == nil {
 		dataSspd.TanggalBayar = th.TimeNow()
 	} else {
 		dataSspd.TanggalBayar = th.ParseTime(input.TanggalBayar)
 	}
-	// dataSspd.CreatedBy_User_Id = &user_Id
+
+	dataSspd.NomorTahun = generateNomorTahun(*dataSspd.TanggalBayar)
+	dataSspd.NomorUrut = generateNomorUrut()
+	dataSspd.NomorOutput = generateNomorOutput(dataSspd.NomorTahun, dataSspd.NomorUrut)
+	dataSspd.CreatedBy_User_Id = &user_Id
 	dataSspdDetail.WaktuSspdDetail = parseCurrentTime()
 	dataSspd.IsCancelled = &tmpIsCancelled
 	dataSspd.ObjekPajak_Id = &dataNpwpd.ObjekPajak_Id
@@ -101,6 +103,7 @@ func GetList(input m.FilterDto) (any, error) {
 		}).
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
+		Preload("Npwpd.Rekening").
 		Preload("SspdDetails.Spt").
 		Scopes(gh.Filter(input)).
 		Count(&count).
@@ -235,7 +238,7 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 	} else {
 		dataSspd.TanggalBayar = th.ParseTime(input.TanggalBayar)
 	}
-	// dataSspd.CreatedBy_User_Id = &user_id
+	dataSspd.CreatedBy_User_Id = &user_id
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// update sspd

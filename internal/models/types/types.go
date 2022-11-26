@@ -7,6 +7,7 @@ type JenisPajak string
 type Golongan int16
 type Status int16 // StatusNpwdp
 type StatusBL int16
+type StatusVerifikasi uint8
 
 const (
 	PeruntukanNonNiaga    Peruntukan = "NON NIAGA"
@@ -32,4 +33,10 @@ const (
 
 	StatusBaru StatusBL = 0 //baru
 	StatusLama StatusBL = 1 //lama
+
+	StatusVerifikasiBaru             StatusVerifikasi = 0 // baru
+	StatusVerifikasiDisetujuiKasubid StatusVerifikasi = 1 // DisetujuiKasubid
+	StatusVerifikasiDisetujuiKabid   StatusVerifikasi = 2 // DisetujuiKabid
+	StatusVerifikasiDitolakKasubid   StatusVerifikasi = 3 // DitolakKasubid
+	StatusVerifikasiDitolakKabid     StatusVerifikasi = 4 // DitolakKabid
 )

@@ -6,6 +6,7 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/sspd"
+	sd "github.com/bapenda-kota-malang/apin-backend/internal/services/sspd/sspddetail"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
@@ -76,5 +77,15 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result, err := s.Delete(uint64(id))
+	hh.DataResponse(w, result, err)
+}
+
+func GetListSspdDetail(w http.ResponseWriter, r *http.Request) {
+	var input m.SspdDetailFilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+
+	result, err := sd.GetListSspdDetail(input)
 	hh.DataResponse(w, result, err)
 }

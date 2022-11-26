@@ -10,6 +10,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 
 	mareadivision "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
@@ -17,6 +18,7 @@ import (
 
 	skecamatan "github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
 	skelurahan "github.com/bapenda-kota-malang/apin-backend/internal/services/kelurahan"
+	sobjekpajak "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajak"
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
@@ -38,15 +40,27 @@ func checkLastUpdate(condition m.DetailPotensiOp, tx *gorm.DB) (err error) {
 	return
 }
 
-func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
+func Create(input m.CreateDto, rekeningId uint, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data m.DetailPotensiOp
 
 	// TODO: CHECK IF NEW DATA EXISTING WITHIN 1 DAY
+	if err := checkLastUpdate(m.DetailPotensiOp{
+		Nama:         input.Nama,
+		Alamat:       input.Alamat,
+		RtRw:         input.RtRw,
+		Kecamatan_Id: input.Kecamatan_Id,
+		Kelurahan_Id: input.Kelurahan_Id,
+	}, tx); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+	}
 
 	// TODO: CROSS CHECK DATA EXISTING AT OBJEK PAJAK NPWPD
+	kecamatanId := uint64(input.Kecamatan_Id)
+	kelurahanId := uint64(input.Kelurahan_Id)
+	input.IsNpwpd = sobjekpajak.CheckIsNpwpd(&input.Nama, &input.Alamat, &input.RtRw, &kecamatanId, &kelurahanId, rekeningId, tx)
 
 	// check linked area
 	respKecamatan, err := skecamatan.GetDetail(int(input.Kecamatan_Id))
@@ -76,14 +90,14 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func Update(potensiOp_Id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
+func Update(potensiOp_Id uuid.UUID, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.DetailPotensiOp
-	result := a.DB.Where("\"PotensiOp_Id\" = ?", potensiOp_Id).First(&data)
+	var data m.DetailPotensiOp
+	result := tx.Where("\"Potensiop_Id\" = ?", potensiOp_Id.String()).First(&data)
 	if result.RowsAffected == 0 {
-		return nil, nil
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
@@ -100,4 +114,21 @@ func Update(potensiOp_Id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func GetExisting(nama, alamat, rtRw string, kecamatanId, kelurahanId uint, rekeningId uint, tx *gorm.DB) (data m.DetailPotensiOp, err error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	if result := tx.
+		Joins("JOIN \"PotensiOp\" ON \"PotensiOp\".\"Id\" = \"DetailPotensiOp\".\"Potensiop_Id\" AND \"PotensiOp\".\"Rekening_Id\" = ?", rekeningId).
+		Where(m.DetailPotensiOp{Nama: nama,
+			Alamat:       alamat,
+			RtRw:         rtRw,
+			Kecamatan_Id: kecamatanId,
+			Kelurahan_Id: kelurahanId}).
+		First(&data); result.Error != nil {
+		err = result.Error
+	}
+	return
 }
