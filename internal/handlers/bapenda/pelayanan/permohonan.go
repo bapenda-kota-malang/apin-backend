@@ -11,7 +11,7 @@ import (
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var input m.CreateDto
+	var input m.PermohonanRequestDto
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
@@ -31,6 +31,40 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func GetNoPelayanan(w http.ResponseWriter, r *http.Request) {
+	jt := hh.ValidateString(w, r, "jt")
+	if jt != "" {
+		return
+	}
+
+	result, err := s.GetNoPelayanan(&jt)
+	hh.DataResponse(w, result, err)
+}
+
+func GetStatusNOP(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateString(w, r, "nop")
+	if id != "" {
+		return
+	}
+	nop := fmt.Sprint(id)
+	jp := r.URL.Query().Get("jp")
+
+	result, err := s.GetStatusNOP(&nop, &jp)
+	hh.DataResponse(w, result, err)
+}
+
+func GetDetailNOP(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "nop")
+	if id < 1 {
+		return
+	}
+	nop := fmt.Sprint(id)
+	jp := r.URL.Query().Get("jp")
+
+	result, err := s.GetDetailNOP(&nop, &jp)
+	hh.DataResponse(w, result, err)
+}
+
 func GetDetail(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
@@ -47,7 +81,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data m.UpdateDto
+	var data m.PermohonanRequestDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}

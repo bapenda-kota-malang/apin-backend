@@ -158,6 +158,8 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", permohonan.GetDetail)
 		r.Patch("/{id}", permohonan.Update)
 		r.Delete("/{id}", permohonan.Delete)
+		r.Get("/statnop", permohonan.GetStatusNOP)
+		r.Get("/datanop", permohonan.GetStatusNOP)
 	})
 
 	r.Route("/ppat", func(r chi.Router) {

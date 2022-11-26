@@ -195,7 +195,10 @@ func init() {
 	a.AutoMigrate(listModelPembayaran...)
 
 	listModelPelayanan := []interface{}{
-		&permohonan.Permohonan{},
+		&permohonan.PstPermohonan{},
+		&permohonan.PstDetail{},
+		&permohonan.PstDataOPBaru{},
+		&permohonan.PstPermohonanPengurangan{},
 	}
 	a.AutoMigrate(listModelPelayanan...)
 }

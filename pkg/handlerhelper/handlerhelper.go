@@ -25,6 +25,15 @@ func ValidateAutoInc(w http.ResponseWriter, r *http.Request, input string) int {
 	return id
 }
 
+func ValidateString(w http.ResponseWriter, r *http.Request, input string) string {
+	result := chi.URLParam(r, input)
+	if result == "" {
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: "format data kosong"}, nil)
+		return ""
+	}
+	return result
+}
+
 // write error if
 func ValidateIdUuid(w http.ResponseWriter, id string) (uid uuid.UUID, pass bool) {
 	uid, err := uuid.Parse(id)
