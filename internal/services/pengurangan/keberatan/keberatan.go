@@ -42,16 +42,16 @@ func Create(input m.KeberatanCreateDto, user_Id uint64) (any, error) {
 		dataKeberatan.TanggalPengajuan = th.TimeNow()
 
 		// add data file
-		slcLaporanKeuangan, err := sh.GetAllTypeFile(*input.LaporanKeuangan, baseDocsName+"LaporanKeuangan", uint(user_Id))
-		if err != nil {
-			return err
-		}
-		dataKeberatan.LaporanKeuangan = &slcLaporanKeuangan
-		slcLaporanPengeluaran, err := sh.GetAllTypeFile(*input.LaporanPengeluaran, baseDocsName+"LaporanPengeluaran", uint(user_Id))
-		if err != nil {
-			return err
-		}
-		dataKeberatan.LaporanPengeluaran = &slcLaporanPengeluaran
+		// slcLaporanKeuangan, err := sh.GetAllTypeFile(*input.LaporanKeuangan, baseDocsName+"LaporanKeuangan", uint(user_Id))
+		// if err != nil {
+		// 	return err
+		// }
+		// dataKeberatan.LaporanKeuangan = &slcLaporanKeuangan
+		// slcLaporanPengeluaran, err := sh.GetAllTypeFile(*input.LaporanPengeluaran, baseDocsName+"LaporanPengeluaran", uint(user_Id))
+		// if err != nil {
+		// 	return err
+		// }
+		// dataKeberatan.LaporanPengeluaran = &slcLaporanPengeluaran
 		if input.DokumenLainnya != nil {
 			slcDokumenLainnya, err := sh.GetAllTypeFile(*input.DokumenLainnya, baseDocsName+"DokumenLainnya", uint(user_Id))
 			if err != nil {
@@ -59,11 +59,20 @@ func Create(input m.KeberatanCreateDto, user_Id uint64) (any, error) {
 			}
 			dataKeberatan.DokumenLainnya = &slcDokumenLainnya
 		}
-		slcSuratPermohonan, err := sh.GetPdfOrImageFile(*input.SuratPermohonan, baseDocsName+"SuratPermohonan", uint(user_Id))
-		if err != nil {
-			return err
+		if input.SuratPermohonan != nil {
+			slcSuratPermohonan, err := sh.GetPdfOrImageFile(*input.SuratPermohonan, baseDocsName+"SuratPermohonan", uint(user_Id))
+			if err != nil {
+				return err
+			}
+			dataKeberatan.SuratPermohonan = &slcSuratPermohonan
 		}
-		dataKeberatan.SuratPermohonan = &slcSuratPermohonan
+		if input.SuratPernyataan != nil {
+			slcSuratPernyataan, err := sh.GetPdfOrImageFile(*input.SuratPernyataan, baseDocsName+"SuratPernyataan", uint(user_Id))
+			if err != nil {
+				return err
+			}
+			dataKeberatan.SuratPernyataan = &slcSuratPernyataan
+		}
 		// create data keberatan
 		err = tx.Create(&dataKeberatan).Error
 		if err != nil {
