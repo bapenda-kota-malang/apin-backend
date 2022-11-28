@@ -21,6 +21,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisusaha"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelasbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/konfigurasipajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
@@ -165,6 +167,8 @@ func init() {
 		&reklas.Reklas{},
 		&njoptkpflag.NjoptkpFlag{},
 		&njoptkpflag.NjoptkpFlagDetail{},
+		&kelasbangunan.KelasBangunan{},
+		&kelastanah.KelasTanah{},
 	}
 	a.AutoMigrate(listModelPendataan...)
 

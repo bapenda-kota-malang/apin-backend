@@ -29,6 +29,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jenisusaha"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jurnal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelasbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelastanah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/konfigurasipajak"
@@ -149,6 +151,7 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/reklas", reklas.Crud{})
 
 	rh.RegCrud(r, "/konfigurasipajak", konfigurasipajak.Crud{})
+
 	rh.RegCrud(r, "/jenisperolehan", jenisperolehan.Crud{})
 
 	rh.RegCrud(r, "/paymentpoint", paymentpoint.Crud{})
@@ -158,6 +161,10 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/jenisusaha", jenisusaha.Crud{})
 
 	rh.RegCrud(r, "/tempatpembayaran", tempatpembayaran.Crud{})
+
+	rh.RegCrud(r, "/kelastanah", kelastanah.Crud{})
+
+	rh.RegCrud(r, "/kelasbangunan", kelasbangunan.Crud{})
 
 	r.Route("/njoptkpflag", func(r chi.Router) {
 		r.Post("/", njoptkpflag.Create)
