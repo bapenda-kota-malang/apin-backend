@@ -36,7 +36,7 @@ func CreateTrx(input m.CreateDto, userId uint) (any, error) {
 			input.DetailPotensiOp.Kelurahan_Id,
 			input.PotensiOp.Rekening_Id,
 			tx)
-		if err != nil {
+		if err != nil && err.Error() != "record not found" {
 			return err
 		}
 		if respExistingDetailPotensiOp.Potensiop_Id != uuid.Nil {

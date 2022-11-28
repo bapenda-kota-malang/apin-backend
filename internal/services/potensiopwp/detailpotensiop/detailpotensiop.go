@@ -45,7 +45,7 @@ func Create(input m.CreateDto, rekeningId uint, tx *gorm.DB) (any, error) {
 		input.Kelurahan_Id,
 		rekeningId,
 		tx)
-	if err != nil {
+	if err != nil && err.Error() != "record not found" {
 		return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 	}
 
