@@ -17,12 +17,11 @@ func GetExtensionBase64(b64Raw string) (extension string, err error) {
 	case "application/pdf":
 		extension = "pdf"
 		return
-	case "vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+	case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
 		extension = "xlsx"
 		return
-	case "msexcel":
+	case "application/vnd.ms-excel":
 		extension = "xls"
-		return
 	default:
 		err = errors.New("unsupported mime type")
 	}

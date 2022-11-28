@@ -42,3 +42,31 @@ func (input *CreateDetailPpjNonPlnDto) DuplicateEspt(esptDetail *mespt.Espt) err
 	}
 	return nil
 }
+
+func (input *CreateDetailPpjNonPlnDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *SkpdkbExisting) error {
+	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
+		return err
+	}
+	if err := copier.Copy(&input.DataDetails, &sptDetail); err != nil {
+		return err
+	}
+	return nil
+}
+
+type UpdateDetailPpjNonPlnDto struct {
+	UpdateDetailBaseDto
+	DataDetails mdppjnonpln.UpdateDto `json:"dataDetails" validate:"required"`
+}
+
+func (input *UpdateDetailPpjNonPlnDto) GetDetails() interface{} {
+	return input.DataDetails
+}
+
+func (input *UpdateDetailPpjNonPlnDto) LenDetails() int {
+	newEmpty := mdppjnonpln.UpdateDto{}
+	lenData := 1
+	if input.DataDetails == newEmpty {
+		lenData = 0
+	}
+	return lenData
+}

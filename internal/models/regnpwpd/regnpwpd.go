@@ -3,11 +3,11 @@ package regnpwpd
 import (
 	"time"
 
-	t "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	rop "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	t "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )

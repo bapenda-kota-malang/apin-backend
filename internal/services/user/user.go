@@ -53,6 +53,7 @@ func GetList(input m.FilterDto) (any, error) {
 
 	result := a.DB.
 		Model(&m.User{}).
+		Omit("Password").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -168,4 +169,18 @@ func Verifikasi(id int, input m.VerifikasiDto) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func GetJabatanPegawai(userId uint) (any, error) {
+	var data string
+	res := a.DB.
+		Model(m.User{}).
+		Select("\"Jabatan\".\"Nama\"").
+		Joins("JOIN \"Pegawai\" ON \"User\".\"Ref_Id\" = \"Pegawai\".\"Id\"").
+		Joins("JOIN \"Jabatan\" ON \"Pegawai\".\"Jabatan_Id\" = \"Jabatan\".\"Id\"").
+		First(&data, userId)
+	if res.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", res.Error.Error(), data)
+	}
+	return data, nil
 }

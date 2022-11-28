@@ -9,7 +9,9 @@ import (
 	mdpln "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjpln"
 	mdres "github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"github.com/google/uuid"
@@ -17,29 +19,30 @@ import (
 )
 
 type Espt struct {
-	Id               uuid.UUID       `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	Npwpd_Id         uint            `json:"npwp_id"`
-	ObjekPajak_Id    uint            `json:"objekPajak_id"`
-	Rekening_Id      uint            `json:"rekening_id"`
-	LuasLokasi       *uint           `json:"luasLokasi,omitempty" gorm:"comment:untuk pajak parkir"`
-	Description      *string         `json:"description,omitempty"`
-	PeriodeAwal      datatypes.Date  `json:"periodeAwal"`
-	PeriodeAkhir     datatypes.Date  `json:"periodeAkhir"`
-	TarifPajak_Id    uint            `json:"tarifPajak_id"`
-	EtaxSubTotal     *string         `json:"etaxSubTotal,omitempty" gorm:"size:100"`
-	EtaxTotal        *string         `json:"etaxTotal,omitempty" gorm:"size:100"`
-	EtaxJumlahPajak  *string         `json:"etaxJumlahPajak,omitempty" gorm:"size:100"`
-	Omset            float64         `json:"omset"`
-	JumlahPajak      float32         `json:"jumlahPajak"`
-	Attachment       string          `json:"attachment"`
-	JatuhTempo       datatypes.Date  `json:"jatuhTempo"`
-	Sunset           *datatypes.Date `json:"sunset,omitempty"`
-	LaporBy_User_Id  uint            `json:"laporBy_user_id"`
-	VerifyBy_User_Id *uint           `json:"verifyBy_user_id"`
-	VerifyStatus     Status          `json:"verifyStatus" gorm:"size:20"`
-	Npwpd            *npwpd.Npwpd    `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
-	// ObjekPajak          *objekpajak.ObjekPajak          `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
+	Id                  uuid.UUID                     `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	Npwpd_Id            uint                          `json:"npwpd_id"`
+	ObjekPajak_Id       uint                          `json:"objekPajak_id"`
+	Rekening_Id         uint                          `json:"rekening_id"`
+	LuasLokasi          *uint                         `json:"luasLokasi,omitempty" gorm:"comment:untuk pajak parkir"`
+	Description         *string                       `json:"description,omitempty"`
+	PeriodeAwal         datatypes.Date                `json:"periodeAwal"`
+	PeriodeAkhir        datatypes.Date                `json:"periodeAkhir"`
+	TarifPajak_Id       uint                          `json:"tarifPajak_id"`
+	EtaxSubTotal        *string                       `json:"etaxSubTotal,omitempty" gorm:"size:100"`
+	EtaxTotal           *string                       `json:"etaxTotal,omitempty" gorm:"size:100"`
+	EtaxJumlahPajak     *string                       `json:"etaxJumlahPajak,omitempty" gorm:"size:100"`
+	Omset               float64                       `json:"omset"`
+	JumlahPajak         float64                       `json:"jumlahPajak"`
+	Attachment          string                        `json:"attachment"`
+	JatuhTempo          datatypes.Date                `json:"jatuhTempo"`
+	Sunset              *datatypes.Date               `json:"sunset,omitempty"`
+	LaporBy_User_Id     uint                          `json:"laporBy_user_id"`
+	VerifyBy_User_Id    *uint                         `json:"verifyBy_user_id"`
+	VerifyStatus        Status                        `json:"verifyStatus" gorm:"size:20"`
+	Npwpd               *npwpd.Npwpd                  `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
+	ObjekPajak          *objekpajak.ObjekPajak        `json:"objekPajak,omitempty" gorm:"foreignKey:ObjekPajak_Id"`
 	Rekening            *rekening.Rekening            `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
+	TarifPajak          *tarifpajak.TarifPajak        `json:"tarifPajak,omitempty" gorm:"foreignKey:TarifPajak_Id"`
 	LaporUser           *user.User                    `json:"laporUser,omitempty" gorm:"foreignKey:LaporBy_User_Id"`
 	VerifyUser          *user.User                    `json:"verifyUser,omitempty" gorm:"foreignKey:VerifyBy_User_Id"`
 	DetailEsptAir       *mdair.DetailEsptAir          `json:"detailEsptAir,omitempty" gorm:"foreignKey:Espt_Id"`

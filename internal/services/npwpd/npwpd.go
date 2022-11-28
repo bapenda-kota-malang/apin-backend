@@ -9,6 +9,7 @@ import (
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	sn "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd/narahubung"
 	sp "github.com/bapenda-kota-malang/apin-backend/internal/services/npwpd/pemilik"
@@ -33,9 +34,9 @@ func GetList(input npwpd.FilterDto) (interface{}, error) {
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&npwpd.Npwpd{}).
-		Preload(clause.Associations).
-		Preload("User").
-		Preload("Rekening").
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Preload("ObjekPajak").
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
@@ -61,10 +62,9 @@ func GetList(input npwpd.FilterDto) (interface{}, error) {
 func GetDetail(r *http.Request, regID int) (interface{}, error) {
 	var register *npwpd.Npwpd
 	err := a.DB.Model(&npwpd.Npwpd{}).
-		Preload(clause.Associations).
-		Preload("User").
-		Preload("Rekening").
-		Preload("ObjekPajak").
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
 		Preload("PemilikWps.Daerah").
@@ -135,7 +135,7 @@ func Create(r *http.Request, input npwpd.CreateDto) (interface{}, error) {
 		var tmpNomor = generateNomor(input.IsNomorRegistrasiAuto, input.Nomor)
 		var tmpNpwpd = GenerateNpwpd(tmpNomor, *input.ObjekPajak.Kecamatan_Id, *rekening.KodeJenisUsaha)
 		dataNpwpd.JalurRegistrasi = nt.JalurRegistrasiOperator
-		dataNpwpd.Status = nt.StatusAktif
+		dataNpwpd.Status = mt.StatusAktif
 		dataNpwpd.ObjekPajak_Id = resultCastObjekPajak.Id
 		dataNpwpd.VerifiedAt = th.TimeNow()
 		dataNpwpd.Nomor = tmpNomor
@@ -190,7 +190,7 @@ func Update(id int, input npwpd.UpdateDto, user_id uint) (any, error) {
 	var dataObjekPajak op.ObjekPajakUpdateDto
 	var dataNarahubung []npwpd.NarahubungUpdateDto
 	var dataPemilik []npwpd.PemilikWpUpdateDto
-	var dataDetailObjekPajak []npwpd.DetailObjekPajak
+	var dataDetailObjekPajak []npwpd.DetailObjekPajakUpdateDto
 	var respDataObjekPajak interface{}
 	var respDataPemilik interface{}
 	var respDataNarahubung interface{}
@@ -203,7 +203,7 @@ func Update(id int, input npwpd.UpdateDto, user_id uint) (any, error) {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	if user_id > 0 {
+	if data.User_Id != nil && user_id > 0 {
 		userIdConv := uint64(user_id)
 		if *data.User_Id != userIdConv {
 			return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
@@ -397,9 +397,9 @@ func GetListForWp(input npwpd.FilterDto) (any, error) {
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
-		Preload("User").
-		Preload("Rekening").
-		Preload("ObjekPajak").
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
 		Find(&data)
@@ -423,10 +423,9 @@ func GetDetailByUser(regID int, user_id uint) (interface{}, error) {
 	var register *npwpd.Npwpd
 	err := a.DB.Model(&npwpd.Npwpd{}).
 		Where(npwpd.Npwpd{User_Id: &user_IdConv, Id: uint64(regID)}).
-		Preload(clause.Associations).
-		Preload("User").
-		Preload("Rekening").
-		Preload("ObjekPajak").
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
 		First(&register, regID).Error
@@ -479,7 +478,7 @@ func AddPhotoSuratIzin(id int, input npwpd.PhotoUpdate, user_id uint64) (any, er
 		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
 	}
 
-	slcSuratIzin, err := sh.AddMorePdf(input.SuratIzinUsaha, data.SuratIzinUsaha, "npwpdIzinUsaha", uint(user_id))
+	slcSuratIzin, err := sh.AddMorePdfAndImage(input.SuratIzinUsaha, data.SuratIzinUsaha, "npwpdIzinUsaha", uint(user_id))
 	if err != nil {
 		return nil, err
 	}

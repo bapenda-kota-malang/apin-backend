@@ -12,7 +12,7 @@ type CreateDetailAirDto struct {
 }
 
 func (input *CreateDetailAirDto) CalculateTax(taxPercentage *float64) {
-	input.Espt.JumlahPajak = float32(input.Espt.Omset * (*taxPercentage / 100) * float64(input.DataDetails.Pengenaan))
+	input.Espt.JumlahPajak = input.Espt.Omset * (*taxPercentage / 100) * float64(input.DataDetails.Pengenaan)
 }
 
 func (input *CreateDetailAirDto) GetDetails() interface{} {
@@ -44,7 +44,7 @@ type UpdateDetailAirDto struct {
 }
 
 func (input *UpdateDetailAirDto) CalculateTax(taxPercentage *float64) {
-	calc := float32(*input.Espt.Omset * *taxPercentage / 100 * float64(input.DataDetails.Pengenaan))
+	calc := *input.Espt.Omset * *taxPercentage / 100 * float64(input.DataDetails.Pengenaan)
 	input.Espt.JumlahPajak = &calc
 }
 

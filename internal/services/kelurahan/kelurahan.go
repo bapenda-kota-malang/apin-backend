@@ -121,3 +121,14 @@ func Delete(id int) (interface{}, error) {
 		Data: data,
 	}, nil
 }
+
+func CrossCheckDaerah(daerahId, kelurahanId uint) (m.Kelurahan, error) {
+	var data m.Kelurahan
+	result := a.DB.Joins("JOIN \"Kecamatan\" ON \"Kelurahan\".\"Kecamatan_Kode\" = \"Kecamatan\".\"Kode\"").
+		Joins("JOIN \"Daerah\" ON \"Kecamatan\".\"Daerah_Kode\" = \"Daerah\".\"Kode\" AND \"Daerah\".\"Id\" = ?", daerahId).
+		First(&data, kelurahanId)
+	if result.Error != nil {
+		return data, result.Error
+	}
+	return data, nil
+}

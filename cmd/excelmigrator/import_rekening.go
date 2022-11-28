@@ -4,8 +4,8 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/360EntSecGroup-Skylar/excelize"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	"github.com/xuri/excelize/v2"
 )
 
 func ImportRekening() {
@@ -23,27 +23,27 @@ func ImportRekening() {
 
 	sheet := "Data Rekening"
 
-	rowLen := len(f.GetRows(sheet))
-	for i := 0; i < rowLen+1; i++ {
+	rowLen, _ := f.GetRows(sheet)
+	for i := 0; i < len(rowLen)+1; i++ {
 		if i > 1 {
 			n := strconv.Itoa(i)
 
 			// cParentId := f.GetCellValue(sheet, "B"+n)
-			cTipe := f.GetCellValue(sheet, "C"+n)
-			cKelompok := f.GetCellValue(sheet, "D"+n)
-			cJenis := f.GetCellValue(sheet, "E"+n)
-			cObjek := f.GetCellValue(sheet, "F"+n)
-			cRincian := f.GetCellValue(sheet, "G"+n)
-			cSub1 := f.GetCellValue(sheet, "H"+n)
-			cSub2 := f.GetCellValue(sheet, "I"+n)
-			cSub3 := f.GetCellValue(sheet, "J"+n)
-			cKode := f.GetCellValue(sheet, "K"+n)
-			cNama := f.GetCellValue(sheet, "L"+n)
-			cKodeJenisPajak := f.GetCellValue(sheet, "O"+n)
-			cKodeVaJatim := f.GetCellValue(sheet, "P"+n)
-			cKodeBilling := f.GetCellValue(sheet, "Q"+n)
-			cKodeJenisUsaha := f.GetCellValue(sheet, "R"+n)
-			cJenisUsaha := f.GetCellValue(sheet, "S"+n)
+			cTipe, _ := f.GetCellValue(sheet, "C"+n)
+			cKelompok, _ := f.GetCellValue(sheet, "D"+n)
+			cJenis, _ := f.GetCellValue(sheet, "E"+n)
+			cObjek, _ := f.GetCellValue(sheet, "F"+n)
+			cRincian, _ := f.GetCellValue(sheet, "G"+n)
+			cSub1, _ := f.GetCellValue(sheet, "H"+n)
+			cSub2, _ := f.GetCellValue(sheet, "I"+n)
+			cSub3, _ := f.GetCellValue(sheet, "J"+n)
+			cKode, _ := f.GetCellValue(sheet, "K"+n)
+			cNama, _ := f.GetCellValue(sheet, "L"+n)
+			cKodeJenisPajak, _ := f.GetCellValue(sheet, "O"+n)
+			cKodeVaJatim, _ := f.GetCellValue(sheet, "P"+n)
+			cKodeBilling, _ := f.GetCellValue(sheet, "Q"+n)
+			cKodeJenisUsaha, _ := f.GetCellValue(sheet, "R"+n)
+			cJenisUsaha, _ := f.GetCellValue(sheet, "S"+n)
 
 			rekening = append(rekening, rm.Rekening{
 				Tipe:           &cTipe,

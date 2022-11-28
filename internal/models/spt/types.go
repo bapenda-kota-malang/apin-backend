@@ -22,6 +22,13 @@ const (
 	JenisKetetapanSkpd    JenisKetetapan = "skpd"
 	JenisKetetapanSkpdkb  JenisKetetapan = "skpdkb"
 	JenisKetetapanSkpdkbt JenisKetetapan = "skpdkbt"
+
+	TbpStatusFilterBaru       uint8 = 1 // baru
+	TbpStatusFilterPembayaran uint8 = 2 // Pembayaran
+	TbpStatusFilterPenyetoran uint8 = 3 // Penyetoran
+	TbpStatusFilterLunas      uint8 = 4 // Lunas
+	TbpStatusFilterJatuhTempo uint8 = 5 // Jatuh Tempo
+	TbpStatusFilterPenetapan  uint8 = 6 // Penetapan
 )
 
 type Input interface {
@@ -33,4 +40,6 @@ type Input interface {
 	LenDetails() int
 	ChangeDetails(newDetail interface{})
 	DuplicateEspt(esptDetail *espt.Espt) error
+	SkpdkbDuplicate(sptDetail *Spt, skpdkb *SkpdkbExisting) error
+	CalculateSkpdkb()
 }

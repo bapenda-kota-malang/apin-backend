@@ -44,8 +44,15 @@ func optionString(col, option string, value interface{}) (whereString string, va
 		symbol = ">="
 	case "ne":
 		symbol = "<>"
+	case "between":
+		symbol = "BETWEEN"
 	}
-	whereString = fmt.Sprintf("\"%s\" %s ?", col, symbol)
+
+	if symbol != "BETWEEN" {
+		whereString = fmt.Sprintf("\"%s\" %s ?", col, symbol)
+	} else {
+		whereString = fmt.Sprintf("\"%s\" %s ? AND ?", col, symbol)
+	}
 	return
 }
 

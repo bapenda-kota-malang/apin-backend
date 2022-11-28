@@ -97,7 +97,7 @@ func maxLengthTagValidator(val reflect.Value, exptVal string) error {
 }
 
 func emailValidator(val reflect.Value, exptVal string) error {
-	if val.Kind() == reflect.Pointer && val.IsNil() {
+	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
 		return nil
 	}
 	re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
@@ -111,10 +111,10 @@ func emailValidator(val reflect.Value, exptVal string) error {
 
 // check base64 string validation, ex: base64 or base64=pdf,image,excel or base64=pdf
 func base64Validator(val reflect.Value, exptVal string) error {
-	if val.Kind() == reflect.Pointer && val.IsNil() {
+	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
 		return nil
 	}
-	re := regexp.MustCompile(`^(data:)([\w\/\+-]*)(;charset=[\w-]+|;base64){0,1},([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$`)
+	re := regexp.MustCompile(`^(data:)([\w\/\+-.]*)(;charset=[\w-]+|;base64){0,1},([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$`)
 
 	b64RawString := h.ValStringer(val)
 	if !re.MatchString(b64RawString) {
@@ -154,7 +154,7 @@ validasi 6 karakter pertama, 2 angka pertama sesuai dengan format provinsi di In
 4 karakter terakhir adalah angka sequence.
 */
 func nikValidator(val reflect.Value, exptVal string) error {
-	if val.Kind() == reflect.Pointer && val.IsNil() {
+	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
 		return nil
 	}
 	re := regexp.MustCompile(`^(1[1-9]|21|[37][1-6]|5[1-3]|6[1-5]|[89][12])\d{2}\d{2}([04][1-9]|[1256][0-9]|[37][01])(0[1-9]|1[0-2])\d{2}\d{4}$`)
@@ -183,7 +183,7 @@ func noHpValidator(val reflect.Value, exptVal string) error {
 }
 
 func noTelpValidator(val reflect.Value, exptVal string) error {
-	if val.Kind() == reflect.Pointer && val.IsNil() {
+	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
 		return nil
 	}
 	re := regexp.MustCompile(`^(\+62|62|0)[2-9][1-9][0-9]{6,10}$`)
@@ -199,7 +199,7 @@ func noTelpValidator(val reflect.Value, exptVal string) error {
 //
 // using kb for parameter value eg: 1024 means 1024KB or 1MB or 1024000 B max allowed size file
 func b64SizeKb(val reflect.Value, exptVal string) error {
-	if val.Kind() == reflect.Pointer && val.IsNil() {
+	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
 		return nil
 	}
 

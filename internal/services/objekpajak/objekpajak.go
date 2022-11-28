@@ -11,8 +11,8 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd/types"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
+	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
@@ -128,4 +128,24 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func CheckIsNpwpd(nama, alamat, rtRw *string, kecamatanId, kelurahanId *uint64, rekeningId uint, tx *gorm.DB) bool {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data m.ObjekPajak
+
+	if result := tx.
+		Joins("JOIN \"Npwpd\" ON \"Npwpd\".\"ObjekPajak_Id\" = \"ObjekPajak\".\"Id\" AND \"Npwpd\".\"Rekening_Id\" = ?", rekeningId).
+		Where(m.ObjekPajak{Nama: nama,
+			Alamat:       alamat,
+			RtRw:         rtRw,
+			Kecamatan_Id: kecamatanId,
+			Kelurahan_Id: kelurahanId}).
+		First(&data); result.Error != nil {
+		return false
+	}
+
+	return true
 }

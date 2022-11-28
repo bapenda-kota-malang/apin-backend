@@ -2,13 +2,16 @@ package spt
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
@@ -24,6 +27,7 @@ import (
 	mhdair "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	mjppj "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
+	mtarifreklame "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
 	sdair "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptair"
@@ -38,10 +42,11 @@ import (
 	shda "github.com/bapenda-kota-malang/apin-backend/internal/services/hargadasarair"
 	sjppj "github.com/bapenda-kota-malang/apin-backend/internal/services/jenisppj"
 	stp "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
+	starifreklame "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifreklame"
 )
 
 // Process calculate tax
-func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
+func taxProcess(rekeningId *uint64, omset *float64, input m.Input) error {
 	yearNow := uint64(time.Now().Year())
 	omsetOpt := "lte"
 
@@ -49,9 +54,10 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 	if detail, ok := input.GetDetails().(mdair.CreateDto); ok {
 		switch detail.Peruntukan {
 		case mtypes.PeruntukanIndustriAir, mtypes.PeruntukanNiaga, mtypes.PeruntukanNonNiaga, mtypes.PeruntukanPdam:
+			strPeruntukan := string(detail.Peruntukan)
 			resphdair, err := shda.GetList(mhdair.FilterDto{
-				Peruntukan:     &detail.Peruntukan,
-				BatasBawah:     &omset,
+				Peruntukan:     &strPeruntukan,
+				BatasBawah:     omset,
 				BatasBawah_Opt: &omsetOpt,
 			})
 			if err != nil {
@@ -72,9 +78,7 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 		default:
 			return fmt.Errorf("unknown peruntukan air")
 		}
-	}
-
-	if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
+	} else if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
 		for v := range detail {
 			resp, err := sjppj.GetDetail(int(detail[v].JenisPPJ_Id))
 			if err != nil {
@@ -83,13 +87,44 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 			detail[v].JenisPPJ = resp.(rp.OKSimple).Data.(*mjppj.JenisPPJ)
 		}
 		input.ChangeDetails(detail)
+	} else if detail, ok := input.GetDetails().([]mdreklame.CreateDto); ok {
+		for v := range detail {
+			resp, err := starifreklame.GetDetail(int(detail[v].TarifReklame_Id))
+			if err != nil {
+				return err
+			}
+			dataReklame := resp.(rp.OKSimple).Data.(*mtarifreklame.TarifReklame)
+			if dataReklame.JenisMasa == mtarifreklame.MasaPajakHari {
+				resp, err := starifreklame.GetList(mtarifreklame.FilterDto{
+					JenisMasa:    int16(mtarifreklame.MasaPajakHari),
+					JenisReklame: dataReklame.JenisReklame,
+				})
+				for _, vInner := range resp.(rp.OK).Data.([]mtarifreklame.TarifReklame) {
+					if vInner.MasaPajak == nil {
+						continue
+					}
+					if strings.ToLower(*vInner.MasaPajak) == "bulan" {
+						detail[v].TarifBulan = *vInner.Tarif
+					} else if strings.ToLower(*vInner.MasaPajak) == "minggu" {
+						detail[v].TarifMinggu = *vInner.Tarif
+					} else if strings.ToLower(*vInner.MasaPajak) == "hari" {
+						detail[v].TarifHari = *vInner.Tarif
+					}
+				}
+				if err != nil {
+					return err
+				}
+			}
+			detail[v].TarifReklame = dataReklame
+		}
+		input.ChangeDetails(detail)
 	}
 
 	// get tarif pajak data for calculate tax
 	rspTp, err := stp.GetList(mtp.FilterDto{
-		Rekening_Id:   &rekeningId,
+		Rekening_Id:   rekeningId,
 		Tahun:         &yearNow,
-		OmsetAwal:     &omset,
+		OmsetAwal:     omset,
 		OmsetAwal_Opt: &omsetOpt,
 	})
 	if err != nil {
@@ -109,25 +144,22 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 
 // Transform espt to spt data
 func TransformEspt(esptDetail *mespt.Espt) (input m.Input, err error) {
-	input = &m.CreateDetailHotelDto{}
-
 	if esptDetail.DetailEsptAir != nil {
 		input = &m.CreateDetailAirDto{}
-	}
-	if esptDetail.DetailEsptHiburan != nil {
+	} else if esptDetail.DetailEsptHiburan != nil {
 		input = &m.CreateDetailHiburanDto{}
-	}
-	if esptDetail.DetailEsptParkir != nil {
+	} else if esptDetail.DetailEsptParkir != nil {
 		input = &m.CreateDetailParkirDto{}
-	}
-	if esptDetail.DetailEsptPpjNonPln != nil {
+	} else if esptDetail.DetailEsptHotel != nil {
+		input = &m.CreateDetailHotelDto{}
+	} else if esptDetail.DetailEsptPpjNonPln != nil {
 		input = &m.CreateDetailPpjNonPlnDto{}
-	}
-	if esptDetail.DetailEsptPpjPln != nil {
+	} else if esptDetail.DetailEsptPpjPln != nil {
 		input = &m.CreateDetailPpjPlnDto{}
-	}
-	if esptDetail.DetailEsptResto != nil {
+	} else if esptDetail.DetailEsptResto != nil {
 		input = &m.CreateDetailRestoDto{}
+	} else {
+		input = &m.CreateDetailBaseDto{}
 	}
 
 	input.DuplicateEspt(esptDetail)
@@ -149,14 +181,17 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 	err := tx.Transaction(func(tx *gorm.DB) error {
 		createDto := input.GetSpt(opts["baseUri"].(string)).(m.CreateDto)
 		if createDto.JumlahPajak == 0 {
-			err := taxProcess(*createDto.Rekening_Id, createDto.Omset, input)
+			err := taxProcess(createDto.Rekening_Id, &createDto.Omset, input)
 			if err != nil {
 				return err
+			}
+			if opts["baseUri"].(string) == "skpdkb" {
+				input.CalculateSkpdkb()
 			}
 			createDto = input.GetSpt(opts["baseUri"].(string)).(m.CreateDto)
 		}
 
-		respSpt, err := Create(createDto, opts["userId"].(uint), opts["newFile"].(bool), tx)
+		respSpt, err := Create(createDto, opts, tx)
 		if err != nil {
 			return err
 		}
@@ -224,6 +259,7 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 				data.DetailSptPln = &details
 			}
 		case []mdreklame.CreateDto:
+			// TODO: REKLAME PROCESS
 			respDetails, err := sdreklame.Create(dataDetails, tx)
 			if err != nil {
 				return err
@@ -251,4 +287,144 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil menyimpan data: %s", err), data)
 	}
 	return rp.OKSimple{Data: data}, nil
+}
+
+func UpdateDetail(id uuid.UUID, input m.Input, opts map[string]interface{}) (interface{}, error) {
+	var data m.Spt
+	affected := "0"
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		updateDto := input.GetSpt(opts["baseUri"].(string)).(m.UpdateDto)
+		err := taxProcess(updateDto.Rekening_Id, updateDto.Omset, input)
+		if err != nil {
+			return err
+		}
+		updateDto = input.GetSpt(opts["baseUri"].(string)).(m.UpdateDto)
+
+		respEspt, err := Update(id, updateDto, opts, tx)
+		if err != nil {
+			return err
+		}
+		data = respEspt.(rp.OK).Data.(m.Spt)
+		affected = respEspt.(rp.OK).Meta["affected"]
+
+		if input.LenDetails() == 0 {
+			return nil
+		}
+
+		switch dataReal := input.GetDetails().(type) {
+		case mdair.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
+			}
+			respDetails, err := sdair.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdair.DetailSptAir)
+				data.DetailSptAir = &details
+			}
+		case mdhiburan.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
+			}
+			respDetails, err := sdhiburan.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdhiburan.DetailSptHiburan)
+				data.DetailSptHiburan = &details
+			}
+		case []mdhotel.UpdateDto:
+			var detailList []mdhotel.DetailSptHotel
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := sdhotel.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdhotel.DetailSptHotel)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailSptHotel = &detailList
+		case []mdparkir.UpdateDto:
+			var detailList []mdparkir.DetailSptParkir
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := sdparkir.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdparkir.DetailSptParkir)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailSptParkir = &detailList
+		case mdnonpln.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
+			}
+			respDetails, err := sdnonpln.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdnonpln.DetailSptPpjNonPln)
+				data.DetailSptNonPln = &details
+			}
+		case []mdpln.UpdateDto:
+			var detailList []mdpln.DetailSptPpjPln
+			for i := range dataReal {
+				id := 0
+				if dataReal[i].Id != 0 {
+					id = int(dataReal[i].Id)
+				}
+				respDetails, err := sdpln.Update(id, dataReal[i], tx)
+				if err != nil {
+					return err
+				}
+				if respDetails != nil {
+					details := respDetails.(rp.OKSimple).Data.(mdpln.DetailSptPpjPln)
+					detailList = append(detailList, details)
+				}
+			}
+			data.DetailSptPln = &detailList
+		case mdresto.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
+			}
+			respDetails, err := sdresto.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdresto.DetailSptResto)
+				data.DetailSptResto = &details
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "update-data", source, "failed", err.Error(), data)
+	}
+	return rp.OK{
+		Meta: t.IS{
+			"affected": affected,
+		},
+		Data: data,
+	}, nil
 }

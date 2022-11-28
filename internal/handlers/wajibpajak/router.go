@@ -16,10 +16,15 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/static"
+
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/tarifpajak"
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -134,5 +139,22 @@ func SetRoutes() http.Handler {
 		r.Get("/", hargadasarair.GetList)
 		r.Get("/peruntukan", hargadasarair.GetPeruntukan)
 	})
+
+	r.Route("/sptpd", func(r chi.Router) {
+		r.Get("/", spt.GetList)
+		r.Get("/{id}", spt.GetDetail)
+	})
+
+	r.Route("/skpd", func(r chi.Router) {
+		r.Get("/", spt.GetList)
+		r.Get("/{id}", spt.GetDetail)
+	})
+
+	r.Route("/pengajuan", func(r chi.Router) {
+		r.Post("/{category}", pengurangan.Create)
+	})
+
+	fs := http.FileServer(http.Dir(servicehelper.GetResourcesPath()))
+	r.Handle("/static/{filename}", http.StripPrefix("/static/", static.AuthFile(static.JoinPrefix(fs))))
 	return r
 }
