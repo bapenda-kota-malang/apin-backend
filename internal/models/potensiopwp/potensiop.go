@@ -58,6 +58,7 @@ type PotensiOp struct {
 }
 
 type CreatePotensiOpDto struct {
+	Id             uuid.UUID       `json:"-"`
 	Assessment     string          `json:"assessment"`
 	Golongan       t.Golongan      `json:"golongan" validate:"required;min=1"`
 	Npwp           *string         `json:"npwp"`

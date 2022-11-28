@@ -59,15 +59,17 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 		tx = a.DB
 	}
 	var data m.PotensiOp
-	id, err := sh.GetUuidv4()
-	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+	if input.Id == uuid.Nil {
+		id, err := sh.GetUuidv4()
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		input.Id = id
 	}
-	data.Id = id
 
 	if input.FotoKtp != nil {
 		var errChan = make(chan error)
-		fileName, path, extFile, _, err := filePreProcess(*input.FotoKtp, "FotoKtpPotensiOp", userId, id)
+		fileName, path, extFile, _, err := filePreProcess(*input.FotoKtp, "FotoKtpPotensiOp", userId, input.Id)
 		if err != nil {
 			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 		}
@@ -80,7 +82,7 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 
 	if input.FormBapl != nil {
 		var errChan = make(chan error)
-		fileName, path, extFile, _, err := filePreProcess(*input.FormBapl, "FormBaplPotensiOp", userId, id)
+		fileName, path, extFile, _, err := filePreProcess(*input.FormBapl, "FormBaplPotensiOp", userId, input.Id)
 		if err != nil {
 			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 		}
@@ -95,7 +97,7 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 		tmp := pq.StringArray{}
 		for i, v := range *input.DokumenLainnya {
 			var errChan = make(chan error)
-			fileName, path, extFile, _, err := filePreProcess(v, "DokumenLainnya"+(strconv.Itoa(i+1))+"PotensiOp", userId, id)
+			fileName, path, extFile, _, err := filePreProcess(v, "DokumenLainnya"+(strconv.Itoa(i+1))+"PotensiOp", userId, input.Id)
 			if err != nil {
 				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 			}
@@ -112,7 +114,7 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 		tmp := pq.StringArray{}
 		for i, v := range *input.FotoObjek {
 			var errChan = make(chan error)
-			fileName, path, extFile, _, err := filePreProcess(v, "FotoObjek"+(strconv.Itoa(i+1))+"PotensiOp", userId, id)
+			fileName, path, extFile, _, err := filePreProcess(v, "FotoObjek"+(strconv.Itoa(i+1))+"PotensiOp", userId, input.Id)
 			if err != nil {
 				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 			}
