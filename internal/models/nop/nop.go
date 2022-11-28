@@ -8,10 +8,10 @@ import (
 type Nop struct {
 	Id uint64 `json:"id" gorm:"primaryKey"`
 	gh.DateModel
-	Provinsi_Kode     *uint64            `json:"provinsi_kode"`
-	Daerah_Kode       *uint64            `json:"daerah_kode"`
-	Kecamatan_Kode    *uint64            `json:"kecamatan_kode"`
-	Kelurahan_Kode    *uint64            `json:"kelurahan_kode"`
+	Provinsi_Kode     *string            `json:"provinsi_kode" gorm:"type:char(2)"`
+	Daerah_Kode       *string            `json:"daerah_kode" gorm:"type:char(2)"`
+	Kecamatan_Kode    *string            `json:"kecamatan_kode" gorm:"type:char(3)"`
+	Kelurahan_Kode    *string            `json:"kelurahan_kode" gorm:"type:char(3)"`
 	KodeBlok          *string            `json:"kodeBlok"`
 	NoUrut            *string            `json:"noUrut"`
 	KodeJenisOp       *string            `json:"kodeJenisOp"`
@@ -34,10 +34,10 @@ type Nop struct {
 }
 
 type CreateDto struct {
-	Provinsi_Kode     *uint64  `json:"provinsi_kode"`
-	Daerah_Kode       *uint64  `json:"daerah_kode"`
-	Kecamatan_Kode    *uint64  `json:"kecamatan_kode"`
-	Kelurahan_Kode    *uint64  `json:"kelurahan_kode"`
+	Provinsi_Kode     *string  `json:"provinsi_kode"`
+	Daerah_Kode       *string  `json:"daerah_kode"`
+	Kecamatan_Kode    *string  `json:"kecamatan_kode"`
+	Kelurahan_Kode    *string  `json:"kelurahan_kode"`
 	KodeBlok          *string  `json:"kodeBlok"`
 	NoUrut            *string  `json:"noUrut"`
 	KodeJenisOp       *string  `json:"kodeJenisOp"`
@@ -59,10 +59,10 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
-	Provinsi_Kode     *uint64  `json:"provinsi_kode"`
-	Daerah_Kode       *uint64  `json:"daerah_kode"`
-	Kecamatan_Kode    *uint64  `json:"kecamatan_kode"`
-	Kelurahan_Kode    *uint64  `json:"kelurahan_kode"`
+	Provinsi_Kode     *string  `json:"provinsi_kode"`
+	Daerah_Kode       *string  `json:"daerah_kode"`
+	Kecamatan_Kode    *string  `json:"kecamatan_kode"`
+	Kelurahan_Kode    *string  `json:"kelurahan_kode"`
 	KodeBlok          *string  `json:"kodeBlok"`
 	NoUrut            *string  `json:"noUrut"`
 	KodeJenisOp       *string  `json:"kodeJenisOp"`
@@ -84,10 +84,10 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	Provinsi_Kode     *uint64  `json:"provinsi_kode"`
-	Daerah_Kode       *uint64  `json:"daerah_kode"`
-	Kecamatan_Kode    *uint64  `json:"kecamatan_kode"`
-	Kelurahan_Kode    *uint64  `json:"kelurahan_kode"`
+	Provinsi_Kode     *string  `json:"provinsi_kode"`
+	Daerah_Kode       *string  `json:"daerah_kode"`
+	Kecamatan_Kode    *string  `json:"kecamatan_kode"`
+	Kelurahan_Kode    *string  `json:"kelurahan_kode"`
 	KodeBlok          *string  `json:"kodeBlok"`
 	NoUrut            *string  `json:"noUrut"`
 	KodeJenisOp       *string  `json:"kodeJenisOp"`
