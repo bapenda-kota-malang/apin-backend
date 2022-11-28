@@ -37,6 +37,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nik"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/njoptkpflag"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
@@ -165,6 +166,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/kelastanah", kelastanah.Crud{})
 
 	rh.RegCrud(r, "/kelasbangunan", kelasbangunan.Crud{})
+
+	rh.RegCrud(r, "/nop", nop.Crud{})
 
 	r.Route("/njoptkpflag", func(r chi.Router) {
 		r.Post("/", njoptkpflag.Create)
