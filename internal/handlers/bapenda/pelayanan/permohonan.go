@@ -31,37 +31,13 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func GetNoPelayanan(w http.ResponseWriter, r *http.Request) {
-	jt := hh.ValidateString(w, r, "jt")
-	if jt != "" {
-		return
-	}
-
-	result, err := s.GetNoPelayanan(&jt)
-	hh.DataResponse(w, result, err)
-}
-
 func GetStatusNOP(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateString(w, r, "nop")
-	if id != "" {
+	nop := hh.ValidateString(w, r, "id")
+	if nop == "" {
 		return
 	}
-	nop := fmt.Sprint(id)
-	jp := r.URL.Query().Get("jp")
 
-	result, err := s.GetStatusNOP(&nop, &jp)
-	hh.DataResponse(w, result, err)
-}
-
-func GetDetailNOP(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "nop")
-	if id < 1 {
-		return
-	}
-	nop := fmt.Sprint(id)
-	jp := r.URL.Query().Get("jp")
-
-	result, err := s.GetDetailNOP(&nop, &jp)
+	result, err := s.GetStatusNOP(&nop)
 	hh.DataResponse(w, result, err)
 }
 
@@ -87,6 +63,21 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := s.Update(id, data)
+	hh.DataResponse(w, result, err)
+}
+
+func UpdateStatus(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	var data m.PermohonanRequestDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.UpdateStatus(id, data)
 	hh.DataResponse(w, result, err)
 }
 

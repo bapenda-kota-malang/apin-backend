@@ -27,11 +27,12 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
-	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
+	pstpermohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/bapl"
@@ -72,6 +73,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 )
 
 func init() {
@@ -215,10 +217,20 @@ func init() {
 	a.AutoMigrate(listModelPembayaran...)
 
 	listModelPelayanan := []interface{}{
-		&permohonan.PstPermohonan{},
-		&permohonan.PstDetail{},
-		&permohonan.PstDataOPBaru{},
-		&permohonan.PstPermohonanPengurangan{},
+		&pstpermohonan.PstPermohonan{},
+		&pstpermohonan.PstDetail{},
+		&pstpermohonan.PstDataOPBaru{},
+		&pstpermohonan.PstPermohonanPengurangan{},
 	}
 	a.AutoMigrate(listModelPelayanan...)
+
+	listModelObjekPajakPBB := []interface{}{
+		&objekpajakpbb.ObjekPajakPbb{},
+	}
+	a.AutoMigrate(listModelObjekPajakPBB...)
+
+	listModelWajibPajakPBB := []interface{}{
+		&wajibpajakpbb.WajibPajakPBB{},
+	}
+	a.AutoMigrate(listModelWajibPajakPBB...)
 }

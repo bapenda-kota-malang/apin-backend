@@ -1,4 +1,4 @@
-package permohonan
+package pstpermohonan
 
 import (
 	"fmt"
@@ -34,10 +34,6 @@ type PstPermohonan struct {
 	NIP                    *string         `json:"nip" gorm:"type:varchar(9)"`
 	PenerimaanBerkas       *string         `json:"penerimaanBerkas" gorm:"type:varchar(50)"`
 	gormhelper.DateModel
-
-	PstDataOPBaru            *PstDataOPBaru            `json:"nopBaru" gorm:"foreignKey:Id;references:PermohonanId"`
-	PstDetail                *PstDetail                `json:"nopDetail" gorm:"foreignKey:Id;references:PermohonanId"`
-	PstPermohonanPengurangan *PstPermohonanPengurangan `json:"nopPengurangan" gorm:"foreignKey:Id;references:PermohonanId"`
 }
 
 type PermohonanRequestDto struct {
@@ -60,7 +56,7 @@ type PermohonanRequestDto struct {
 	NIP                   *string `json:"nip"`
 	JenisPengurangan      *string `json:"jenisPengurangan"`
 	PersentasePengurangan *string `json:"persentasePengurangan"`
-	SeksiBerkasID         *string `json:"seksiBerkasID"`
+	SeksiBerkasID         *string `json:"seksiBerkas"`
 	CatatanPenyerahan     *string `json:"catatanPenyerahan"`
 	NamaPenerima          *string `json:"namaPenerima"`
 	NIPPenyerah           *string `json:"nipPenyerah"`
@@ -80,72 +76,6 @@ type FilterDto struct {
 	LetakOP           *string         `json:"letakOP"`
 	TahunPajak        *string         `json:"tahunPajak"`
 	PenerimaanBerkas  *string         `json:"penerimaanBerkas"`
-}
-
-type PstDetail struct {
-	Id                    uint64          `json:"id" gorm:"primaryKey;autoIncrement"`
-	PermohonanId          *uint64         `json:"permohonanId" gorm:"type:integer"`
-	KanwilId              *string         `json:"kanwilId" gorm:"type:varchar(2)"`
-	KppbbId               *string         `json:"kppbbId" gorm:"type:varchar(2)"`
-	TahunPelayanan        *string         `json:"tahunPelayanan" gorm:"type:varchar(4)"`
-	BundelPelayanan       *string         `json:"jenisPelayanan" gorm:"type:varchar(4)"`
-	NoUrutPelayanan       *string         `json:"noUrutPelayanan" gorm:"type:varchar(3)"`
-	PermohonanProvinsiID  *string         `json:"permohonanProvinsiID" gorm:"type:varchar(2)"`
-	PermohonanKotaID      *string         `json:"permohonanKotaID" gorm:"type:varchar(2)"`
-	PermohonanKecamatanID *string         `json:"permohonanKecamatanID" gorm:"type:varchar(3)"`
-	PermohonanKelurahanID *string         `json:"permohonanKelurahanID" gorm:"type:varchar(3)"`
-	PermohonanBlokID      *string         `json:"permohonanBlokID" gorm:"type:varchar(3)"`
-	NoUrutPemohon         *string         `json:"noUrutPemohon" gorm:"type:varchar(4)"`
-	PemohonJenisOPID      *string         `json:"pemohonJenisOPID" gorm:"type:varchar(1)"`
-	JenisPelayananID      *string         `json:"jenisPelayananID" gorm:"type:varchar(4)"`
-	TahunPajakPemohon     *string         `json:"tahunPajakPemohon" gorm:"type:varchar(30)"`
-	NIP                   *string         `json:"nip" gorm:"type:varchar(9)"`
-	Notes                 *string         `json:"catatan" gorm:"type:varchar(75)"`
-	StatusSelesai         *int            `json:"keterangan" gorm:"type:integer"`
-	TanggalSelesai        *datatypes.Date `json:"tanggalSelesai"`
-	SeksiBerkasID         *string         `json:"seksiBerkasID" gorm:"type:varchar(2)"`
-	TanggalPenyerahan     *datatypes.Date `json:"tanggalPenyerahan"`
-	gormhelper.DateModel
-}
-
-type PstDataOPBaru struct {
-	Id                    uint64  `json:"id" gorm:"primaryKey;autoIncrement"`
-	PermohonanId          *uint64 `json:"permohonanId" gorm:"type:integer"`
-	KanwilId              *string `json:"kanwilId" gorm:"type:varchar(2)"`
-	KppbbId               *string `json:"kppbbId" gorm:"type:varchar(2)"`
-	TahunPelayanan        *string `json:"tahunPelayanan" gorm:"type:varchar(4)"`
-	BundelPelayanan       *string `json:"jenisPelayanan" gorm:"type:varchar(4)"`
-	NoUrutPelayanan       *string `json:"noUrutPelayanan" gorm:"type:varchar(3)"`
-	PermohonanProvinsiID  *string `json:"permohonanProvinsiID" gorm:"type:varchar(2)"`
-	PermohonanKotaID      *string `json:"permohonanKotaID" gorm:"type:varchar(2)"`
-	PermohonanKecamatanID *string `json:"permohonanKecamatanID" gorm:"type:varchar(3)"`
-	PermohonanKelurahanID *string `json:"permohonanKelurahanID" gorm:"type:varchar(3)"`
-	PermohonanBlokID      *string `json:"permohonanBlokID" gorm:"type:varchar(3)"`
-	NoUrutPemohon         *string `json:"noUrutPemohon" gorm:"type:varchar(4)"`
-	PemohonJenisOPID      *string `json:"pemohonJenisOPID" gorm:"type:varchar(1)"`
-	NamaWPBaru            *string `json:"namaWP" gorm:"type:varchar(30)"`
-	LetakOPBaru           *string `json:"letakOP" gorm:"type:varchar(40)"`
-	gormhelper.DateModel
-}
-
-type PstPermohonanPengurangan struct {
-	Id                    uint64   `json:"id" gorm:"primaryKey;autoIncrement"`
-	PermohonanId          *uint64  `json:"permohonanId" gorm:"type:integer"`
-	KanwilId              *string  `json:"kanwilId" gorm:"type:varchar(2)"`
-	KppbbId               *string  `json:"kppbbId" gorm:"type:varchar(2)"`
-	TahunPelayanan        *string  `json:"tahunPelayanan" gorm:"type:varchar(4)"`
-	BundelPelayanan       *string  `json:"jenisPelayanan" gorm:"type:varchar(4)"`
-	NoUrutPelayanan       *string  `json:"noUrutPelayanan" gorm:"type:varchar(3)"`
-	PermohonanProvinsiID  *string  `json:"permohonanProvinsiID" gorm:"type:varchar(2)"`
-	PermohonanKotaID      *string  `json:"permohonanKotaID" gorm:"type:varchar(2)"`
-	PermohonanKecamatanID *string  `json:"permohonanKecamatanID" gorm:"type:varchar(3)"`
-	PermohonanKelurahanID *string  `json:"permohonanKelurahanID" gorm:"type:varchar(3)"`
-	PermohonanBlokID      *string  `json:"permohonanBlokID" gorm:"type:varchar(3)"`
-	NoUrutPemohon         *string  `json:"noUrutPemohon" gorm:"type:varchar(4)"`
-	PemohonJenisOPID      *string  `json:"pemohonJenisOPID" gorm:"type:varchar(1)"`
-	JenisPengurangan      *string  `json:"jenisPengurangan" gorm:"type:varchar(1)"`
-	PersentasePengurangan *float64 `json:"persentasePengurangan" gorm:"type:decimal(5,2)"`
-	gormhelper.DateModel
 }
 
 type permohonanNOP struct {
@@ -169,6 +99,31 @@ type PermohonanNOPResponse struct {
 	PersentasePengurangan *string `json:"persentasePengurangan"`
 }
 
+type PstPermohonanResponse struct {
+	Id                     uint64          `json:"id"`
+	NoPelayanan            *string         `json:"noPelayanan"`
+	NOP                    *string         `json:"nop"`
+	KanwilId               *string         `json:"kanwilId"`
+	KppbbId                *string         `json:"kppbbId"`
+	TahunPelayanan         *string         `json:"tahunPelayanan"`
+	BundelPelayanan        *string         `json:"bundlePelayanan"`
+	NoUrutPelayanan        *string         `json:"noUrutPelayanan"`
+	NoSuratPermohonan      *string         `json:"noSuratPermohonan"`
+	TanggalSuratPermohonan *datatypes.Date `json:"tanggalSuratPermohonan"`
+	NamaPemohon            *string         `json:"namaWP"`
+	AlamatPemohon          *string         `json:"letakOP"`
+	Keterangan             *string         `json:"keterangan"`
+	CatatanPermohonan      *string         `json:"catatan"`
+	StatusKolektif         *string         `json:"statusKolektif"`
+	TanggalTerima          *datatypes.Date `json:"tanggalTerima"`
+	NIP                    *string         `json:"nip"`
+	PenerimaanBerkas       *string         `json:"penerimaanBerkas"`
+
+	PstDataOPBaru            *PstDataOPBaru            `json:"pstBaru"`
+	PstDetail                *PstDetail                `json:"pstDetil"`
+	PstPermohonanPengurangan *PstPermohonanPengurangan `json:"pstPengurangan"`
+}
+
 func DecodeNOPPermohonan(nop *string) *permohonanNOP {
 	if nop != nil {
 		var tempNOP string
@@ -189,6 +144,30 @@ func DecodeNOPPermohonan(nop *string) *permohonanNOP {
 
 func (i PstPermohonan) GetDataPermohonanNoPelayanan() string {
 	result := fmt.Sprintf("%s%s%s", *i.TahunPelayanan, *i.BundelPelayanan, *i.NoUrutPelayanan)
+	return result
+}
+
+func (i PstPermohonan) SetPstPermohonanResponse() PstPermohonanResponse {
+	result := PstPermohonanResponse{
+		Id:                     i.Id,
+		NoPelayanan:            i.NoPelayanan,
+		NOP:                    i.NOP,
+		KanwilId:               i.KanwilId,
+		KppbbId:                i.KppbbId,
+		TahunPelayanan:         i.TahunPelayanan,
+		BundelPelayanan:        i.BundelPelayanan,
+		NoUrutPelayanan:        i.NoUrutPelayanan,
+		NoSuratPermohonan:      i.NoSuratPermohonan,
+		TanggalSuratPermohonan: i.TanggalSuratPermohonan,
+		NamaPemohon:            i.NamaPemohon,
+		AlamatPemohon:          i.AlamatPemohon,
+		Keterangan:             i.Keterangan,
+		CatatanPermohonan:      i.CatatanPermohonan,
+		StatusKolektif:         i.StatusKolektif,
+		TanggalTerima:          i.TanggalTerima,
+		NIP:                    i.NIP,
+		PenerimaanBerkas:       i.PenerimaanBerkas,
+	}
 	return result
 }
 
@@ -265,8 +244,44 @@ func (i PstPermohonan) GetDataPermohonanRequestDtoTransformer(nop *PermohonanNOP
 	return result
 }
 
-func (i PstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto) (*PstDataOPBaru, *PstDetail, *PstPermohonanPengurangan) {
+func (i PstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto) (*PstDataOPBaru, *PstDetailInput, *PstPermohonanPengurangan) {
+	var (
+		// tempTglPenyerahan *datatypes.Date
+		tempTglSelesai *datatypes.Date
+	)
+
 	tempNOP := DecodeNOPPermohonan(req.NOP)
+	// if req.TanggalPenyerahan != nil {
+	// 	tempTglPenyerahan = (*datatypes.Date)(gormhelper.StringToDate(*req.TanggalPenyerahan))
+	// }
+	if req.TanggalSelesai != nil {
+		tempTglSelesai = (*datatypes.Date)(gormhelper.StringToDate(*req.TanggalSelesai))
+	}
+
+	detail := PstDetailInput{
+		PermohonanId:          &i.Id,
+		KanwilId:              i.KanwilId,
+		KppbbId:               i.KanwilId,
+		TahunPelayanan:        i.TahunPelayanan,
+		BundelPelayanan:       i.BundelPelayanan,
+		NoUrutPelayanan:       i.NoUrutPelayanan,
+		PermohonanProvinsiID:  &tempNOP.PermohonanProvinsiID,
+		PermohonanKotaID:      &tempNOP.PermohonanKotaID,
+		PermohonanKecamatanID: &tempNOP.PermohonanKecamatanID,
+		PermohonanKelurahanID: &tempNOP.PermohonanKelurahanID,
+		PermohonanBlokID:      &tempNOP.PermohonanBlokID,
+		NoUrutPemohon:         &tempNOP.NoUrutPemohon,
+		PemohonJenisOPID:      &tempNOP.PemohonJenisOPID,
+		JenisPelayananID:      i.BundelPelayanan,
+		TahunPajakPemohon:     req.TahunPajak,
+		TanggalSelesai:        tempTglSelesai,
+		// NIP:                   req.NIPPenyerah,
+		// Notes:                 req.CatatanPenyerahan,
+		// StatusSelesai:         req.StatusSelesai,
+		// SeksiBerkasID:         req.SeksiBerkasID,
+		// TanggalPenyerahan:     tempTglPenyerahan,
+	}
+
 	if *i.BundelPelayanan == JenisPelayanan[0] {
 		data := PstDataOPBaru{
 			PermohonanId:          &i.Id,
@@ -285,34 +300,7 @@ func (i PstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto) (*
 			NamaWPBaru:            i.NamaPemohon,
 			LetakOPBaru:           i.AlamatPemohon,
 		}
-		return &data, nil, nil
-	} else if *i.BundelPelayanan == JenisPelayanan[1] {
-		// currentTime := time.Now()
-		// datenow, _ := time.Parse("2006-01-02", currentTime.Format("2006-01-02"))
-		data := PstDetail{
-			PermohonanId:          &i.Id,
-			KanwilId:              i.KanwilId,
-			KppbbId:               i.KanwilId,
-			TahunPelayanan:        i.TahunPelayanan,
-			BundelPelayanan:       i.BundelPelayanan,
-			NoUrutPelayanan:       i.NoUrutPelayanan,
-			PermohonanProvinsiID:  &tempNOP.PermohonanProvinsiID,
-			PermohonanKotaID:      &tempNOP.PermohonanKotaID,
-			PermohonanKecamatanID: &tempNOP.PermohonanKecamatanID,
-			PermohonanKelurahanID: &tempNOP.PermohonanKelurahanID,
-			PermohonanBlokID:      &tempNOP.PermohonanBlokID,
-			NoUrutPemohon:         &tempNOP.NoUrutPemohon,
-			PemohonJenisOPID:      &tempNOP.PemohonJenisOPID,
-			JenisPelayananID:      i.BundelPelayanan,
-			TahunPajakPemohon:     req.TahunPajak,
-			NIP:                   req.NIPPenyerah,
-			Notes:                 req.CatatanPenyerahan,
-			StatusSelesai:         req.StatusSelesai,
-			TanggalSelesai:        (*datatypes.Date)(gormhelper.StringToDate(*req.TanggalSelesai)),
-			SeksiBerkasID:         req.SeksiBerkasID,
-			TanggalPenyerahan:     (*datatypes.Date)(gormhelper.StringToDate(*req.TanggalPenyerahan)),
-		}
-		return nil, &data, nil
+		return &data, &detail, nil
 	} else if *i.BundelPelayanan == JenisPelayanan[2] {
 		tempPengurangan, _ := strconv.ParseFloat(strings.TrimSpace(*req.PersentasePengurangan), 64)
 		data := PstPermohonanPengurangan{
@@ -332,24 +320,9 @@ func (i PstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto) (*
 			JenisPengurangan:      req.JenisPengurangan,
 			PersentasePengurangan: &tempPengurangan,
 		}
-		return nil, nil, &data
+		return nil, &detail, &data
 	}
-	return nil, nil, nil
-}
-
-func (i PstDataOPBaru) GetDataPermohonanNOP() string {
-	result := fmt.Sprintf("%s%s%s%s%s%s%s", *i.PermohonanProvinsiID, *i.PermohonanKotaID, *i.PermohonanKecamatanID, *i.PermohonanKelurahanID, *i.PermohonanBlokID, *i.NoUrutPemohon, *i.PemohonJenisOPID)
-	return result
-}
-
-func (i PstDetail) GetDataPermohonanNOP() string {
-	result := fmt.Sprintf("%s%s%s%s%s%s%s", *i.PermohonanProvinsiID, *i.PermohonanKotaID, *i.PermohonanKecamatanID, *i.PermohonanKelurahanID, *i.PermohonanBlokID, *i.NoUrutPemohon, *i.PemohonJenisOPID)
-	return result
-}
-
-func (i PstPermohonanPengurangan) GetDataPermohonanNOP() string {
-	result := fmt.Sprintf("%s%s%s%s%s%s%s", *i.PermohonanProvinsiID, *i.PermohonanKotaID, *i.PermohonanKecamatanID, *i.PermohonanKelurahanID, *i.PermohonanBlokID, *i.NoUrutPemohon, *i.PemohonJenisOPID)
-	return result
+	return nil, &detail, nil
 }
 
 func (i PstDataOPBaru) GetNOPResponse() *PermohonanNOPResponse {
