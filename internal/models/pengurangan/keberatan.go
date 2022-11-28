@@ -20,6 +20,7 @@ type Keberatan struct {
 	LaporanKeuangan      *string         `json:"laporanKeuangan" gorm:"size:2048"`
 	LaporanPengeluaran   *string         `json:"laporanPengeluaran" gorm:"size:2048"`
 	DokumenLainnya       *string         `json:"dokumenLainnya" gorm:"size:2048"`
+	SuratPernyataan      *string         `json:"suratPernyataan" gorm:"size:2048"`
 	PersentaseKeberatan  *float64        `json:"persentaseKeberatan"`
 	Status               *int            `json:"status"`
 	VerifKasubid_User_Id *uint64         `json:"verifKasubid_user_id"`
@@ -47,6 +48,7 @@ type KeberatanCreateDto struct {
 	LaporanKeuangan      *string         `json:"laporanKeuangan"`
 	LaporanPengeluaran   *string         `json:"laporanPengeluaran"`
 	DokumenLainnya       *string         `json:"dokumenLainnya"`
+	SuratPernyataan      *string         `json:"suratPernyataan"`
 	PersentaseKeberatan  *float64        `json:"persentaseKeberatan"`
 	Status               *int            `json:"status"`
 	VerifKasubid_User_Id *uint64         `json:"verifKasubid_user_id"`
