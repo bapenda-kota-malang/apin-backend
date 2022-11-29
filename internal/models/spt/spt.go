@@ -22,6 +22,21 @@ import (
 	"gorm.io/datatypes"
 )
 
+/*
+Notes:
+Status:
+--Baru
+00: Belum Lunas;
+--Pembayaran
+11: Lunas Penuh; 12: Kurang Bayar; 13: Kurang Bayar Angsuran; 14: Lebih Bayar;
+TODO: TANYA INI 2X,3X
+-- Unknown
+21: Salah Penetapan; 22: Double;
+31: Restitusi Penuh; 32: Restitusi Sebagian;
+--Penyetoran
+40: Penyetoran
+*/
+
 type Spt struct {
 	Id                  uuid.UUID       `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	Npwpd_Id            uint64          `json:"npwpd_Id"`

@@ -126,8 +126,7 @@ type FilterDto struct {
 
 type ListDataDto struct {
 	Spt
-	NominalBayar *float64 `json:"-"`
-	StatusFinal  *string  `json:"statusFinal"`
+	StatusFinal *string `json:"statusFinal"`
 }
 
 type CreateDetailBaseDto struct {
