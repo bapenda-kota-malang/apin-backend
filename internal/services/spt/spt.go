@@ -180,20 +180,19 @@ func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
 		baseQuery.Joins("JOIN \"Npwpd\" ON \"Spt\".\"Npwpd_Id\" = \"Npwpd\".\"Id\" AND \"Npwpd\".\"User_Id\" = ?", userId)
 	}
 	opts := "gte"
-	dataDateNow := datatypes.Date(time.Now())
 	if input.JatuhTempo != nil {
 		val, _ := input.JatuhTempo.Value()
 		endOfMonthDate := datatypes.Date(sh.EndOfMonth(val.(time.Time)))
 		input.JatuhTempo = &endOfMonthDate
 		opts = "="
 	} else {
+		dataDateNow := datatypes.Date(time.Now())
 		input.JatuhTempo = &dataDateNow
 	}
-	stringJoin := "FULL JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\""
-	statusAll := "Baru"
+	statusAll := ""
 	if input.StatusData != nil {
-		stringJoin = "LEFT JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\""
 		statusData := *input.StatusData
+		// if from wp and status data not in baru, pembayaran, lunas, jatuh tempo then error
 		if cmdBase == "wp" {
 			switch statusData {
 			case m.TbpStatusFilterBaru, m.TbpStatusFilterPembayaran, m.TbpStatusFilterLunas, m.TbpStatusFilterJatuhTempo:
@@ -204,19 +203,24 @@ func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
 		switch statusData {
 		case m.TbpStatusFilterBaru:
 			baseQuery = baseQuery.Where("\"StatusPembayaran\" = ?", m.StatusBelumLunas)
+			statusAll = "Baru"
 		case m.TbpStatusFilterPembayaran:
-			stringJoin = "JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\" AND \"DetailTbp\".\"NominalBayar\" <> '0' OR \"DetailTbp\".\"NominalBayar\" IS NULL"
+			baseQuery = baseQuery.Where("\"StatusPembayaran\" LIKE ?", "1%")
 			statusAll = "Pembayaran"
 		case m.TbpStatusFilterPenyetoran:
-			// TODO: Wait for STS
-			// stringJoin = "JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\" AND \"DetailTbp\".\"NominalBayar\""
-			// statusAll = "Penyetoran"
+			baseQuery = baseQuery.Where("\"StatusPembayaran\" = ?", m.StatusPenyetoran)
+			statusAll = "Penyetoran"
 		case m.TbpStatusFilterLunas:
-			stringJoin = "JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\" AND \"DetailTbp\".\"NominalBayar\" = '0'"
+			baseQuery = baseQuery.Where("\"StatusPembayaran\" = ?", m.StatusLunas)
 			statusAll = "Lunas"
 		case m.TbpStatusFilterJatuhTempo:
 			opts = "lt"
-			stringJoin = "JOIN \"DetailTbp\" ON \"DetailTbp\".\"Spt_Id\" = \"Spt\".\"Id\" AND \"DetailTbp\".\"NominalBayar\" <> '0' OR \"DetailTbp\".\"NominalBayar\" IS NULL"
+			listData := []string{
+				string(m.StatusBelumLunas),
+				string(m.StatusKurangBayar),
+				string(m.StatusKurangBayarAngsuran),
+			}
+			baseQuery = baseQuery.Where("\"StatusPembayaran\" IN ?", listData)
 			statusAll = "Jatuh Tempo"
 		case m.TbpStatusFilterPenetapan:
 			baseQuery = baseQuery.Where("\"StatusPenetapan\" = ?", mtypes.StatusVerifikasiDisetujuiKabid)
@@ -226,11 +230,10 @@ func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
 	}
 	input.JatuhTempo_Opt = &opts
 	result := baseQuery.
-		Select("\"Spt\".*, \"DetailTbp\".\"NominalBayar\"").
+		Select("\"Spt\".*").
 		Preload("Rekening").
 		Preload("ObjekPajak").
 		Preload("Npwpd").
-		Joins(stringJoin).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -242,27 +245,37 @@ func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
 	for v := range data {
 		status := statusAll
 		if statusAll == "" {
-			checkBaru := data[v].StatusPembayaran == m.StatusBelumLunas
-			checkLunas := data[v].NominalBayar != nil && *data[v].NominalBayar == 0
-			checkPenetapan := data[v].StatusPenetapan == mtypes.StatusVerifikasiDisetujuiKabid
-			sqlTime, _ := data[v].JatuhTempo.Value()
-			checkDueDate := sqlTime.(time.Time).Unix() < time.Now().Unix()
-
-			if checkBaru {
+			switch data[v].StatusPembayaran {
+			case m.StatusBelumLunas:
 				status = "Baru"
-			} else if checkPenetapan && cmdBase == "bapenda" {
-				status = "Penetapan"
-			} else if checkLunas {
+			case m.StatusLunas:
 				status = "Lunas"
-			} else {
+			case m.StatusKurangBayar, m.StatusKurangBayarAngsuran:
 				switch cmdBase {
 				case "bapenda":
 					status = "Pembayaran"
 				case "wp":
 					status = "Belum Lunas"
 				}
+			case m.StatusLebihBayar:
+				switch cmdBase {
+				case "bapenda":
+					status = "Pembayaran"
+				case "wp":
+					status = "Lebih Bayar"
+				}
+			case m.StatusPenyetoran:
+				status = "Penyetoran"
 			}
-			if checkDueDate && !checkLunas {
+
+			if data[v].StatusPenetapan == mtypes.StatusVerifikasiDisetujuiKabid && cmdBase == "bapenda" {
+				status = "Penetapan"
+			}
+
+			// jika sudah lewat masa jatuh tempo dan belum lunas maka jatuh tempo
+			sqlTime, _ := data[v].JatuhTempo.Value()
+			checkDueDate := sqlTime.(time.Time).Unix() < time.Now().Unix()
+			if checkDueDate && !(data[v].StatusPembayaran == m.StatusLunas) {
 				status = "Jatuh Tempo"
 			}
 		}
@@ -345,6 +358,51 @@ func Update(id uuid.UUID, input m.UpdateDto, opts map[string]interface{}, tx *go
 		},
 		Data: data,
 	}, nil
+}
+
+// Update status pembayaran berdasarkan jumlah pajak - nominal bayar yang diterima
+func UpdateStatus(id uuid.UUID, nominalBayar float64, tx *gorm.DB) error {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data m.Spt
+
+	if dataRow := tx.First(&data, "\"Id\" = ?", id.String()).RowsAffected; dataRow == 0 {
+		return errors.New("data tidak dapat ditemukan")
+	}
+
+	sisa := data.JumlahPajak - nominalBayar
+
+	if sisa == 0 {
+		data.StatusPembayaran = m.StatusLunas
+	} else if sisa > 0 {
+		data.StatusPembayaran = m.StatusKurangBayar
+	} else {
+		data.StatusPembayaran = m.StatusLebihBayar
+	}
+
+	if result := tx.Save(&data); result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+// update status pembayaran menjadi penyetoran (40)
+func UpdatePenyetoran(id uuid.UUID, tx *gorm.DB) error {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data m.Spt
+
+	if dataRow := tx.First(&data, "\"Id\" = ?", id.String()).RowsAffected; dataRow == 0 {
+		return errors.New("data tidak dapat ditemukan")
+	}
+	data.StatusPembayaran = m.StatusPenyetoran
+	if result := tx.Save(&data); result.Error != nil {
+		return result.Error
+	}
+	return nil
 }
 
 func Verify(id uuid.UUID, input m.VerifyDto, userId uint) (any, error) {
