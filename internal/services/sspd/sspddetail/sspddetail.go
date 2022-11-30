@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
+	ms "github.com/bapenda-kota-malang/apin-backend/internal/services/spt"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -37,6 +38,24 @@ func Create(input m.SspdDetailCreateDto, sspd_id uint64, tx *gorm.DB) (any, erro
 	if result := tx.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil menyimpan data %s", source), data)
 	}
+
+	// ambil data sspd detail sesuai spt id
+	var dataFromDb []m.SspdDetail
+	result := tx.Where(m.SspdDetail{Spt_Id: data.Spt_Id}).Find(&dataFromDb)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil data %s", source), data)
+	}
+
+	// hitung total nominal bayar
+	var tmpNominalBayar float64
+	for _, v := range dataFromDb {
+		tmpNominalBayar += v.NominalBayar
+	}
+
+	// kirim data ke spt untuk merubah status spt
+	if err := ms.UpdateStatus(*data.Spt_Id, tmpNominalBayar, tx); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengupdate status data spt", data)
+	}
 	return rp.OKSimple{Data: data}, nil
 }
 
@@ -61,18 +80,19 @@ func Update(input m.SspdDetailUpdateDto, sspd_id uint64, tx *gorm.DB) (any, erro
 	}
 
 	var data m.SspdDetail
-
+	fmt.Println("iddhere: ", input.Id)
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", fmt.Sprintf("gagal mengambil data payload %s", source), data)
 	}
 
 	var dataFromDb *m.SspdDetail
-	result := tx.Where(m.SspdDetail{Sspd_Id: &sspd_id}).First(&dataFromDb)
+	result := tx.Where(m.SspdDetail{Id: input.Id}).First(&dataFromDb)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data sspd detail tidak dapat ditemukan")
 	}
 
+	data.Spt_Id = dataFromDb.Spt_Id
 	err := sc.Copy(&dataFromDb, &data)
 	if err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload sspd detail", data)
@@ -82,7 +102,23 @@ func Update(input m.SspdDetailUpdateDto, sspd_id uint64, tx *gorm.DB) (any, erro
 	if result := tx.Save(&dataFromDb); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data sspd detail", dataFromDb)
 	}
-	return rp.OKSimple{Data: data}, nil
+
+	// ambil data sspd detail sesuai spt id
+	var dataFromDbArray []m.SspdDetail
+	result = tx.Where(m.SspdDetail{Spt_Id: dataFromDb.Spt_Id}).Find(&dataFromDbArray)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal mengambil data %s", source), data)
+	}
+
+	// hitung total nominal bayar
+	var tmpNominalBayar float64
+	for _, v := range dataFromDbArray {
+		tmpNominalBayar += v.NominalBayar
+	}
+	if err := ms.UpdateStatus(*dataFromDb.Spt_Id, tmpNominalBayar, tx); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengupdate status data spt", data)
+	}
+	return rp.OKSimple{Data: dataFromDb}, nil
 }
 
 func GetListSspdDetail(input m.SspdDetailFilterDto) (any, error) {
