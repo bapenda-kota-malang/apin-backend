@@ -5,6 +5,20 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb12"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb13"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb14"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb15"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb16"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb2"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb3"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb4"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb5"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb6"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb7"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb8"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb9"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbmezanin"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthiburan"
@@ -173,6 +187,20 @@ func init() {
 		&njoptkpflag.NjoptkpFlagDetail{},
 		&kelasbangunan.KelasBangunan{},
 		&kelastanah.KelasTanah{},
+		&dbkbjpb2.DbkbJpb2{},
+		&dbkbjpb3.DbkbJpb3{},
+		&dbkbjpb4.DbkbJpb4{},
+		&dbkbjpb5.DbkbJpb5{},
+		&dbkbjpb6.DbkbJpb6{},
+		&dbkbjpb7.DbkbJpb7{},
+		&dbkbjpb8.DbkbJpb8{},
+		&dbkbjpb9.DbkbJpb9{},
+		&dbkbjpb12.DbkbJpb12{},
+		&dbkbjpb13.DbkbJpb13{},
+		&dbkbjpb14.DbkbJpb14{},
+		&dbkbjpb15.DbkbJpb15{},
+		&dbkbjpb16.DbkbJpb16{},
+		&dbkbmezanin.DbkbMezanin{},
 	}
 	a.AutoMigrate(listModelPendataan...)
 

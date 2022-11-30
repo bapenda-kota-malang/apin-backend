@@ -17,6 +17,20 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb12"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb13"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb14"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb15"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb16"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb2"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb3"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb4"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb5"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb6"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb7"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb8"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb9"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbmezanin"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargadasarair"
@@ -169,6 +183,34 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/kelasbangunan", kelasbangunan.Crud{})
 
 	rh.RegCrud(r, "/nop", nop.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb2", dbkbjpb2.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb3", dbkbjpb3.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb4", dbkbjpb4.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb5", dbkbjpb5.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb6", dbkbjpb6.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb7", dbkbjpb7.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb8", dbkbjpb8.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb9", dbkbjpb9.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb12", dbkbjpb12.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb13", dbkbjpb13.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb14", dbkbjpb14.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb15", dbkbjpb15.Crud{})
+
+	rh.RegCrud(r, "/dbkbjpb16", dbkbjpb16.Crud{})
+
+	rh.RegCrud(r, "/dbkbmezanin", dbkbmezanin.Crud{})
 
 	r.Route("/njoptkpflag", func(r chi.Router) {
 		r.Post("/", njoptkpflag.Create)
