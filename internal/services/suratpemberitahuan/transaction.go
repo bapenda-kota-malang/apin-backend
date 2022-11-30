@@ -48,7 +48,7 @@ func TrxSchedule(db *gorm.DB) (resp rp.OKSimple, err error) {
 			telahDibayar := float64(0)
 			sspdDetails := respSspdDetail.(rp.OK).Data.([]msspd.SspdDetail)
 			for i := range sspdDetails {
-				telahDibayar += *sspdDetails[i].NominalBayar
+				telahDibayar += sspdDetails[i].NominalBayar
 			}
 			mapSuratDetail[v.Npwpd_Id] = append(mapSuratDetail[v.Npwpd_Id], msuratdetail.CreateDto{Spt_Id: v.Id})
 			if suratDto, exist := mapSurat[v.Npwpd_Id]; exist {
