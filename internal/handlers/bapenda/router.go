@@ -76,6 +76,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tempatpembayaran"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/undanganpemeriksaan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -368,6 +369,15 @@ func SetRoutes() http.Handler {
 		r.Post("/", sts.Create)
 		r.Patch("/{id}", sts.Update)
 		r.Delete("/{id}", sts.Delete)
+	})
+
+	r.Route("/undanganpemeriksaan", func(r chi.Router) {
+		r.Get("/", undanganpemeriksaan.GetList)
+		r.Get("/{id}", undanganpemeriksaan.GetDetail)
+		r.Post("/", undanganpemeriksaan.Create)
+		r.Patch("/{id}", undanganpemeriksaan.Update)
+		r.Patch("/updatestatusterbit", undanganpemeriksaan.UpdateStatusTerbit)
+		r.Delete("/{id}", undanganpemeriksaan.Delete)
 	})
 
 	r.Route("/suratpemberitahuan", func(r chi.Router) {
