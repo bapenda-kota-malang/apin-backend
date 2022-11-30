@@ -58,6 +58,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/sptnomertracker"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
@@ -218,4 +219,10 @@ func init() {
 	}
 
 	a.AutoMigrate(listModelPembayaran...)
+
+	listModelPenagihanPemeriksaan := []interface{}{
+		&undanganpemeriksaan.UndanganPemeriksaan{},
+	}
+
+	a.AutoMigrate(listModelPenagihanPemeriksaan...)
 }
