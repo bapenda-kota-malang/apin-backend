@@ -25,15 +25,7 @@ import (
 
 const source = "detailpotensiop"
 
-func checkLastUpdate(condition m.DetailPotensiOp, tx *gorm.DB) (err error) {
-	if tx == nil {
-		tx = a.DB
-	}
-	var data m.DetailPotensiOp
-	err = tx.Where(condition).Find(&data).Error
-	if err != nil {
-		return
-	}
+func checkLastUpdate(data m.DetailPotensiOp) (err error) {
 	if time.Now().Unix() <= sh.Midnight(data.UpdatedAt).AddDate(0, 0, 1).Unix() {
 		err = errors.New("telah melakukan entry data pada hari ini")
 	}
@@ -46,18 +38,21 @@ func Create(input m.CreateDto, rekeningId uint, tx *gorm.DB) (any, error) {
 	}
 	var data m.DetailPotensiOp
 
-	// TODO: CHECK IF NEW DATA EXISTING WITHIN 1 DAY
-	if err := checkLastUpdate(m.DetailPotensiOp{
-		Nama:         input.Nama,
-		Alamat:       input.Alamat,
-		RtRw:         input.RtRw,
-		Kecamatan_Id: input.Kecamatan_Id,
-		Kelurahan_Id: input.Kelurahan_Id,
-	}, tx); err != nil {
+	data, err := GetExisting(input.Nama,
+		input.Alamat,
+		input.RtRw,
+		input.Kecamatan_Id,
+		input.Kelurahan_Id,
+		rekeningId,
+		tx)
+	if err != nil && err.Error() != "record not found" {
 		return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 	}
 
-	// TODO: CROSS CHECK DATA EXISTING AT OBJEK PAJAK NPWPD
+	if err := checkLastUpdate(data); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+	}
+
 	kecamatanId := uint64(input.Kecamatan_Id)
 	kelurahanId := uint64(input.Kelurahan_Id)
 	input.IsNpwpd = sobjekpajak.CheckIsNpwpd(&input.Nama, &input.Alamat, &input.RtRw, &kecamatanId, &kelurahanId, rekeningId, tx)
