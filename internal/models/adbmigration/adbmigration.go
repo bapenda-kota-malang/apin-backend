@@ -220,11 +220,11 @@ func init() {
 		&sts.SumberDanaSts{},
 	}
 	a.AutoMigrate(listModelPembayaran...)
+
 	listModelPenagihan := []interface{}{
 		&suratpemberitahuan.SuratPemberitahuan{},
 		&suratdpemberitahuanetail.SuratPemberitahuanDetail{},
 		&undanganpemeriksaan.UndanganPemeriksaan{},
 	}
-
 	a.AutoMigrate(listModelPenagihan...)
 }
