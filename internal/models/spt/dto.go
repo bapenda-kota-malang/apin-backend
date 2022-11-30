@@ -122,6 +122,7 @@ type FilterDto struct {
 	Kabid_User_Id   *string         `json:"kabid_user_id"`
 	Page            int             `json:"page"`
 	PageSize        int             `json:"page_size"`
+	NoPagination    bool            `json:"no_pagination"`
 }
 
 type ListDataDto struct {
