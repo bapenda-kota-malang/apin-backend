@@ -171,11 +171,14 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetList(input m.FilterDto, userId uint, cmdBase string) (any, error) {
+func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
 	var data []m.ListDataDto
 	var count int64
 	var pagination gh.Pagination
-	baseQuery := a.DB.Model(&m.Spt{})
+	baseQuery := tx.Model(&m.Spt{})
 	if userId != 0 {
 		baseQuery.Joins("JOIN \"Npwpd\" ON \"Spt\".\"Npwpd_Id\" = \"Npwpd\".\"Id\" AND \"Npwpd\".\"User_Id\" = ?", userId)
 	}
@@ -371,7 +374,12 @@ func UpdateStatus(id uuid.UUID, nominalBayar float64, tx *gorm.DB) error {
 		return errors.New("data tidak dapat ditemukan")
 	}
 
-	sisa := data.JumlahPajak - nominalBayar
+	denda := float64(0)
+	if data.Denda != nil {
+		denda = *data.Denda
+	}
+
+	sisa := (data.JumlahPajak + denda) - nominalBayar
 
 	if sisa == 0 {
 		data.StatusPembayaran = m.StatusLunas
@@ -570,7 +578,7 @@ func SkpdkbNew(input m.Input, opts map[string]interface{}) (any, error) {
 		return nil
 	})
 	if err != nil {
-		return sh.SetError("request", "create-skpdkb-existing", source, "failed", "transaction skpd existing: "+err.Error(), createdData)
+		return sh.SetError("request", "create-skpdkb-new", source, "failed", "transaction skpd new: "+err.Error(), createdData)
 	}
 	return rp.OKSimple{Data: createdData}, nil
 }

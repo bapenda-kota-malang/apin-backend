@@ -10,6 +10,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
@@ -335,6 +336,14 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", undanganpemeriksaan.Update)
 		r.Patch("/updatestatusterbit", undanganpemeriksaan.UpdateStatusTerbit)
 		r.Delete("/{id}", undanganpemeriksaan.Delete)
+	})
+
+	r.Route("/suratpemberitahuan", func(r chi.Router) {
+		r.Get("/", suratpemberitahuan.GetList)
+		r.Get("/{id}", suratpemberitahuan.GetDetail)
+		r.Post("/", suratpemberitahuan.CreateSchedule)
+		r.Patch("/", suratpemberitahuan.UpdateBulk)
+		r.Patch("/{id}", suratpemberitahuan.UpdateSingle)
 	})
 	return r
 }

@@ -23,8 +23,8 @@ type Sspd struct {
 	ObjekPajak                    *mop.ObjekPajak       `json:"objekPajak" gorm:"foreignKey:ObjekPajak_Id"`
 	CreatedBy_User_Id             *uint64               `json:"createdBy_user_id"`
 	User                          *mu.User              `json:"user" gorm:"foreignKey:CreatedBy_User_Id"`
-	BendaharaPenerima_User_Id     *uint64               `json:"bendaharaPenerima_user_id"`
-	BendaharaPenerima             *mp.Pegawai           `json:"bendaharaPenerima,omitempty" gorm:"foreignKey:BendaharaPenerima_User_Id"`
+	BendaharaPenerima_Pegawai_Id  uint64                `json:"bendaharaPenerima_pegawai_id"`
+	BendaharaPenerima             *mp.Pegawai           `json:"bendaharaPenerima,omitempty" gorm:"foreignKey:BendaharaPenerima_Pegawai_Id"`
 	RekeningBendahara_Rekening_Id *uint64               `json:"rekeningBendahara_rekening_id"`
 	Rekening                      *mr.Rekening          `json:"rekening" gorm:"foreignKey:RekeningBendahara_Rekening_Id"`
 	IdBt                          *int                  `json:"idBt"`
@@ -54,27 +54,27 @@ type Sspd struct {
 }
 
 type CreateDto struct {
-	TanggalBayar                  *string    `json:"tanggalBayar"`
-	ObjekPajak_Id                 *uint64    `json:"objekPajak_id"`
-	CreatedBy_User_Id             *uint64    `json:"createdBy_user_id"`
-	RekeningBendahara_Rekening_Id *uint64    `json:"rekeningBendahara_rekening_id"`
-	BendaharaPenerima_User_Id     *uint64    `json:"bendaharaPenerima_user_id"`
-	IdBt                          *int       `json:"idBt"`
-	Jurnal_Id                     *uint64    `json:"jurnal_id"`
-	Note                          *string    `json:"note"`
-	PenyetorName                  *string    `json:"penyetorName"`
-	PenyetorAddress               *string    `json:"penyetorAddress"`
-	Npwpd_Npwpd                   *string    `json:"npwpd_npwpd"`
-	Nominal                       *float64   `json:"nominal"`
-	IsKetetapan                   *bool      `json:"isKetetapan"`
-	IdAktivitas                   *int       `json:"idAktivitas"`
-	IsAngsuran                    *bool      `json:"isAngsuran"`
-	JumlahAngsuran                *int       `json:"jumlahAngsuran"`
-	KetetapanDate                 *time.Time `json:"ketetapanDate"`
-	NominalBunga                  *float64   `json:"nominalBunga"`
-	NominalDenda                  *float64   `json:"nominalDenda"`
-	Total                         *float64   `json:"total"`
-	TempatPembayaran_Id           *uint64    `json:"tempatPembayaran_id"`
+	TanggalBayar                  *string  `json:"tanggalBayar"`
+	ObjekPajak_Id                 *uint64  `json:"objekPajak_id"`
+	CreatedBy_User_Id             *uint64  `json:"createdBy_user_id"`
+	RekeningBendahara_Rekening_Id *uint64  `json:"rekeningBendahara_rekening_id"`
+	BendaharaPenerima_Pegawai_Id  *uint64  `json:"bendaharaPenerima_pegawai_id"`
+	IdBt                          *int     `json:"idBt"`
+	Jurnal_Id                     *uint64  `json:"jurnal_id"`
+	Note                          *string  `json:"note"`
+	PenyetorName                  *string  `json:"penyetorName"`
+	PenyetorAddress               *string  `json:"penyetorAddress"`
+	Npwpd_Npwpd                   *string  `json:"npwpd_npwpd"`
+	Nominal                       *float64 `json:"nominal"`
+	IsKetetapan                   *bool    `json:"isKetetapan"`
+	IdAktivitas                   *int     `json:"idAktivitas"`
+	IsAngsuran                    *bool    `json:"isAngsuran"`
+	JumlahAngsuran                *int     `json:"jumlahAngsuran"`
+	KetetapanDate                 *string  `json:"ketetapanDate"`
+	NominalBunga                  *float64 `json:"nominalBunga"`
+	NominalDenda                  *float64 `json:"nominalDenda"`
+	Total                         *float64 `json:"total"`
+	TempatPembayaran_Id           *uint64  `json:"tempatPembayaran_id"`
 	gh.DateModel
 	IsCancelled   *bool      `json:"isCancelled"`
 	CancelledDate *time.Time `json:"cancelledDate"`
@@ -83,13 +83,28 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
-	Id                        *uint64              `json:"id"`
-	TanggalBayar              *string              `json:"tanggalBayar"`
-	Note                      *string              `json:"note"`
-	CreatedBy_User_Id         *uint64              `json:"createdBy_user_id"`
-	BendaharaPenerima_User_Id *uint64              `json:"bendaharaPenerima_user_id"`
-	TempatPembayaran          *string              `json:"tempatPembayaran"`
-	SspdDetail                *SspdDetailCreateDto `json:"sspdDetail"`
+	TanggalBayar                  *string              `json:"tanggalBayar"`
+	ObjekPajak_Id                 *uint64              `json:"objekPajak_id"`
+	CreatedBy_User_Id             *uint64              `json:"createdBy_user_id"`
+	RekeningBendahara_Rekening_Id *uint64              `json:"rekeningBendahara_rekening_id"`
+	BendaharaPenerima_Pegawai_Id  *uint64              `json:"bendaharaPenerima_pegawai_id"`
+	IdBt                          *int                 `json:"idBt"`
+	Jurnal_Id                     *uint64              `json:"jurnal_id"`
+	Note                          *string              `json:"note"`
+	PenyetorName                  *string              `json:"penyetorName"`
+	PenyetorAddress               *string              `json:"penyetorAddress"`
+	Npwpd_Npwpd                   *string              `json:"npwpd_npwpd"`
+	Nominal                       *float64             `json:"nominal"`
+	IsKetetapan                   *bool                `json:"isKetetapan"`
+	IdAktivitas                   *int                 `json:"idAktivitas"`
+	IsAngsuran                    *bool                `json:"isAngsuran"`
+	JumlahAngsuran                *int                 `json:"jumlahAngsuran"`
+	KetetapanDate                 *string              `json:"ketetapanDate"`
+	NominalBunga                  *float64             `json:"nominalBunga"`
+	NominalDenda                  *float64             `json:"nominalDenda"`
+	Total                         *float64             `json:"total"`
+	TempatPembayaran_Id           *uint64              `json:"tempatPembayaran_id"`
+	SspdDetail                    *SspdDetailUpdateDto `json:"sspdDetail"`
 }
 
 type FilterDto struct {
@@ -99,6 +114,7 @@ type FilterDto struct {
 	TanggalBayar                  *string    `json:"tanggalBayar"`
 	ObjekPajak_Id                 *uint64    `json:"objekPajak_id"`
 	CreatedBy_User_Id             *uint64    `json:"createdBy_user_id"`
+	BendaharaPenerima_Pegawai_Id  *uint64    `json:"bendaharaPenerima_pegawai_id"`
 	RekeningBendahara_Rekening_Id *uint64    `json:"rekeningBendahara_rekening_id"`
 	IdBt                          *int       `json:"idBt"`
 	Jurnal_Id                     *uint64    `json:"jurnal_id"`

@@ -91,12 +91,15 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	}, nil
 }
 
-func GetList(input m.FilterDto) (any, error) {
+func GetList(input m.FilterDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
 	var data []m.Sspd
 	var count int64
 
 	var pagination gh.Pagination
-	result := a.DB.
+	result := tx.
 		Model(&m.Sspd{}).
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
@@ -224,7 +227,6 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data sspd tidak dapat ditemukan")
 	}
-
 	if err := sc.Copy(&dataSspd, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload sspd", input)
 	}
@@ -239,7 +241,7 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 		dataSspd.TanggalBayar = th.ParseTime(input.TanggalBayar)
 	}
 	dataSspd.CreatedBy_User_Id = &user_id
-
+	dataSspdDetail.WaktuSspdDetail = parseCurrentTime()
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// update sspd
 		if result := tx.Save(&dataSspd); result.Error != nil {

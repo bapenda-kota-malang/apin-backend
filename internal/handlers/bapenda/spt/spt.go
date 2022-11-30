@@ -127,7 +127,7 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 		input.Type = mtypes.JenisPajakOA
 	}
 
-	result, err := s.GetList(input, 0, "bapenda")
+	result, err := s.GetList(input, 0, "bapenda", nil)
 	hh.DataResponse(w, result, err)
 }
 
