@@ -58,6 +58,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/sptnomertracker"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan"
+	suratdpemberitahuanetail "github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan/detail"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
@@ -216,6 +218,11 @@ func init() {
 		&sts.StsDetail{},
 		&sts.SumberDanaSts{},
 	}
-
 	a.AutoMigrate(listModelPembayaran...)
+
+	listModelPenagihan := []interface{}{
+		&suratpemberitahuan.SuratPemberitahuan{},
+		&suratdpemberitahuanetail.SuratPemberitahuanDetail{},
+	}
+	a.AutoMigrate(listModelPenagihan...)
 }
