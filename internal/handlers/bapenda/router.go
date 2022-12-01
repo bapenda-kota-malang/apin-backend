@@ -9,6 +9,7 @@ import (
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bapenagihan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
@@ -334,6 +335,15 @@ func SetRoutes() http.Handler {
 		r.Post("/", suratpemberitahuan.CreateSchedule)
 		r.Patch("/", suratpemberitahuan.UpdateBulk)
 		r.Patch("/{id}", suratpemberitahuan.UpdateSingle)
+	})
+
+	r.Route("/bapenagihan", func(r chi.Router) {
+		r.Get("/", bapenagihan.GetList)
+		r.Get("/{id}", bapenagihan.GetDetail)
+		r.Post("/", bapenagihan.Create)
+		r.Patch("/{id}", bapenagihan.Update)
+		r.Patch("/verify/{id}", bapenagihan.Verify)
+		r.Delete("/{id}", bapenagihan.Delete)
 	})
 	return r
 }

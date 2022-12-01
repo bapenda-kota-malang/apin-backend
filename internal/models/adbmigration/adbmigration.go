@@ -5,6 +5,8 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
+	bapenagihandetail "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/detail"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthiburan"
@@ -223,6 +225,8 @@ func init() {
 	listModelPenagihan := []interface{}{
 		&suratpemberitahuan.SuratPemberitahuan{},
 		&suratdpemberitahuanetail.SuratPemberitahuanDetail{},
+		&bapenagihan.BaPenagihan{},
+		&bapenagihandetail.BaPenagihanDetail{},
 	}
 	a.AutoMigrate(listModelPenagihan...)
 }
