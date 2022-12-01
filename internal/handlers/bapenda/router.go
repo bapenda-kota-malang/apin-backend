@@ -386,6 +386,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", suratpemberitahuan.CreateSchedule)
 		r.Patch("/", suratpemberitahuan.UpdateBulk)
 		r.Patch("/{id}", suratpemberitahuan.UpdateSingle)
+		r.Delete("/{id}", suratpemberitahuan.Delete)
 	})
 	return r
 }

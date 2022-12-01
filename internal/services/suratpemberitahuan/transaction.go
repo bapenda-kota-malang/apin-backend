@@ -1,6 +1,7 @@
 package suratpemberitahuan
 
 import (
+	"math"
 	"time"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -13,6 +14,7 @@ import (
 	servsspddetail "github.com/bapenda-kota-malang/apin-backend/internal/services/sspd/sspddetail"
 	ssuratdetail "github.com/bapenda-kota-malang/apin-backend/internal/services/suratpemberitahuan/detail"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -37,10 +39,21 @@ func TrxSchedule(db *gorm.DB) (resp rp.OKSimple, err error) {
 		mapSuratDetail := make(map[uint64][]msuratdetail.CreateDto)
 		mapSurat := make(map[uint64]m.CreateDto)
 		for _, v := range sptList {
-			sptTax := v.JumlahPajak
-			if v.Denda != nil {
-				sptTax += *v.Denda
+			// to get difference months basically:
+			// 1. get now time change it to end of month and remove hour, min, second, nanosec
+			nowMonth := sh.Midnight(sh.EndOfMonth(time.Now()))
+			// 2. sub with jatuh tempo value to get time difference duration
+			diffDuration := nowMonth.Sub(time.Time(v.JatuhTempo))
+			// 3. get hours duration divided by 24 then 30 to get difference month
+			diffMonth := diffDuration.Hours() / 24 / 30
+			// 4. remove fractional from result step 3
+			diffMonth, _ = math.Modf(diffMonth)
+			// max diff 24 month
+			if diffMonth > 24 {
+				diffMonth = 24
 			}
+			// sptTax = (jumlah pajak * 2%) * diff month
+			sptTax := (v.JumlahPajak * 0.02) * diffMonth
 			respSspdDetail, err := servsspddetail.GetListSspdDetail(msspd.SspdDetailFilterDto{Spt_Id: &v.Id})
 			if err != nil {
 				return err
@@ -55,7 +68,12 @@ func TrxSchedule(db *gorm.DB) (resp rp.OKSimple, err error) {
 				suratDto.Nominal += sptTax - telahDibayar
 				mapSurat[v.Npwpd_Id] = suratDto
 			} else {
-				mapSurat[v.Npwpd_Id] = m.CreateDto{Npwpd_Id: v.Npwpd_Id, Tanggal: dateNow, JatuhTempo: v.JatuhTempo, Nominal: sptTax - telahDibayar}
+				mapSurat[v.Npwpd_Id] = m.CreateDto{
+					Npwpd_Id:   v.Npwpd_Id,
+					Tanggal:    dateNow,
+					JatuhTempo: datatypes.Date(sh.EndOfMonth(sh.BeginningOfPreviosMonth())),
+					Nominal:    sptTax - telahDibayar,
+				}
 			}
 		}
 		for k, v := range mapSurat {
