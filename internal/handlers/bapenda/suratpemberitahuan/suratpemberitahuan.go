@@ -58,3 +58,12 @@ func UpdateSingle(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Update(id, data, nil)
 	hh.DataResponse(w, result, err)
 }
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+	result, err := s.Delete(id, nil)
+	hh.DataResponse(w, result, err)
+}

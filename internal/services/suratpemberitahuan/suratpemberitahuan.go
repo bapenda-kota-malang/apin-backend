@@ -53,7 +53,8 @@ func GetList(input m.FilterDto, tx *gorm.DB) (any, error) {
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
-		Preload("Npwpd").
+		Preload("Npwpd.ObjekPajak").
+		Preload("SuratPemberitahuanDetail.Spt").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
@@ -76,7 +77,11 @@ func GetDetail(id int, tx *gorm.DB) (any, error) {
 	}
 	var data *m.SuratPemberitahuan
 
-	result := tx.Preload(clause.Associations).Preload("SuratPemberitahuanDetail.Spt").First(&data, id)
+	result := tx.
+		Preload(clause.Associations).
+		Preload("SuratPemberitahuanDetail.Spt").
+		Preload("Npwpd.ObjekPajak").
+		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -148,6 +153,10 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
+	}
+
+	if data.Status != 0 {
+		return sh.SetError("request", "update-data", source, "failed", "hanya data belum terbit yang bisa dihapus", data)
 	}
 
 	result = tx.Delete(&data, id)
