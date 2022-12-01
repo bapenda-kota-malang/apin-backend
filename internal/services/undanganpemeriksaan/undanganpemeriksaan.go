@@ -7,6 +7,7 @@ import (
 
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -31,6 +32,7 @@ func Create(input m.CreateDto, user_id uint64, tx *gorm.DB) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 	data.Tanggal = th.ParseTime(input.Tanggal)
+	data.Pukul = parseCurrentTime(input.Pukul)
 	data.Petugas_User_Id = &user_id
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Create(&data); result.Error != nil {
@@ -47,6 +49,10 @@ func GetList(input m.FilterDto) (any, error) {
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&m.UndanganPemeriksaan{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		Preload("Npwpd.ObjekPajak").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -69,7 +75,12 @@ func GetList(input m.FilterDto) (any, error) {
 func GetDetail(id int) (any, error) {
 	var data *m.UndanganPemeriksaan
 
-	result := a.DB.First(&data, id)
+	result := a.DB.Model(&m.UndanganPemeriksaan{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		Preload("Npwpd.ObjekPajak").
+		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -94,6 +105,7 @@ func Update(id int, user_id uint64, input m.UpdateDto, tx *gorm.DB) (any, error)
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 	data.Tanggal = th.ParseTime(input.Tanggal)
+	data.Pukul = parseCurrentTime(input.Pukul)
 	data.Petugas_User_Id = &user_id
 	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data undangan pemeriksaan", data)
