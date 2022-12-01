@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/detail"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"github.com/google/uuid"
@@ -23,8 +24,9 @@ type BaPenagihan struct {
 	VerifyBy_User_Id *uint64        `json:"verifyBy_user_id"`
 	VerifyAt         *time.Time     `json:"verifyAt"`
 	gormhelper.DateModel
-	VerifyBy          *user.User                  `json:"verifyBy,omitempty" gorm:"foreignKey:VerifyBy_User_Id"`
-	BaPenagihanDetail *[]detail.BaPenagihanDetail `json:"baPenagihanDetail,omitempty" gorm:"foreignKey:BaPenagihan_Id"`
+	VerifyBy          *user.User                               `json:"verifyBy,omitempty" gorm:"foreignKey:VerifyBy_User_Id"`
+	Undangan          *undanganpemeriksaan.UndanganPemeriksaan `json:"undanganPemeriksaan,omitempty" gorm:"foreignKey:Undangan_Id"`
+	BaPenagihanDetail *[]detail.BaPenagihanDetail              `json:"baPenagihanDetail,omitempty" gorm:"foreignKey:BaPenagihan_Id"`
 }
 
 type CreateDto struct {
