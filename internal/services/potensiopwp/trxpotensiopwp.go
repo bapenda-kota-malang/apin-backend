@@ -28,6 +28,21 @@ func CreateTrx(input m.CreateDto, userId uint) (any, error) {
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data ke db satu if karena result dipakai sekali, +error
 		// save potensi op
+		respExistingDetailPotensiOp, err := sdpotensiop.GetExisting(
+			input.DetailPotensiOp.Nama,
+			input.DetailPotensiOp.Alamat,
+			input.DetailPotensiOp.RtRw,
+			input.DetailPotensiOp.Kecamatan_Id,
+			input.DetailPotensiOp.Kelurahan_Id,
+			input.PotensiOp.Rekening_Id,
+			tx)
+		if err != nil && err.Error() != "record not found" {
+			return err
+		}
+		if respExistingDetailPotensiOp.Potensiop_Id != uuid.Nil {
+			input.PotensiOp.Id = respExistingDetailPotensiOp.Potensiop_Id
+		}
+
 		respPotensiOp, err := Create(input.PotensiOp, userId, tx)
 		if err != nil {
 			return err
@@ -59,12 +74,9 @@ func CreateTrx(input m.CreateDto, userId uint) (any, error) {
 			return err
 		}
 
-		// save narahubungs if len narahubung > 0
-		if len(input.PotensiNarahubungs) > 0 {
-			_, err := spnarahubung.Create(input.PotensiNarahubungs, tx)
-			if err != nil {
-				return err
-			}
+		_, err = spnarahubung.Create(input.PotensiNarahubungs, tx)
+		if err != nil {
+			return err
 		}
 
 		_, err = sdetailobjek.Create(input.DetailPajakDtos, tx)

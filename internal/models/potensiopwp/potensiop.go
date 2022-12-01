@@ -54,10 +54,11 @@ type PotensiOp struct {
 	DetailPotensiParkirs   *[]detailobjek.DetailPotensiParkir     `json:"DetailPotensiParkirs,omitempty" gorm:"foreignKey:Potensiop_Id"`
 	DetailPotensiReklames  *[]detailobjek.DetailPotensiReklame    `json:"DetailPotensiReklames,omitempty" gorm:"foreignKey:Potensiop_Id"`
 	DetailPotensiRestos    *[]detailobjek.DetailPotensiResto      `json:"DetailPotensiRestos,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	Bapl                   *bapl.PotensiBapl                      `json:"bapl,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	Bapl                   *[]bapl.PotensiBapl                    `json:"bapl,omitempty" gorm:"foreignKey:Potensiop_Id"`
 }
 
 type CreatePotensiOpDto struct {
+	Id             uuid.UUID       `json:"-"`
 	Assessment     string          `json:"assessment"`
 	Golongan       t.Golongan      `json:"golongan" validate:"required;min=1"`
 	Npwp           *string         `json:"npwp"`
