@@ -12,6 +12,7 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
@@ -80,12 +81,23 @@ func GetDetail(id int, tx *gorm.DB) (any, error) {
 	result := tx.
 		Preload(clause.Associations).
 		Preload("SuratPemberitahuanDetail.Spt").
-		Preload("Npwpd.ObjekPajak").
+		Preload("Npwpd.ObjekPajak.Kelurahan").
+		Preload("Npwpd.ObjekPajak.Kecamatan").
 		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+	}
+
+	for i := range data.SuratPemberitahuanDetail {
+		var sspdDetail *[]sspd.SspdDetail
+		if result := tx.Where("\"Spt_Id\" = ?", data.SuratPemberitahuanDetail[i].Spt_Id.String()).
+			// Joins("JOIN \"SspdDetail\" ON \"SspdDetail\".\"Spt_Id\" = \"SuratPemberitahuanDetail\".\"Spt_Id\"").
+			Find(&sspdDetail); result.Error != nil {
+			return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data sspd detail", data)
+		}
+		data.SuratPemberitahuanDetail[i].SspdDetail = sspdDetail
 	}
 
 	return rp.OKSimple{
