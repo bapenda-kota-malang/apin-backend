@@ -7,6 +7,7 @@ import (
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
 	bapenagihandetail "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/detail"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/baplpengajuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb12"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb13"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb14"
@@ -37,6 +38,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisusaha"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelasbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
@@ -235,8 +237,8 @@ func init() {
 
 	listModelPengajuan := []interface{}{
 		&pengurangan.Pengurangan{},
-		&pengurangan.Keberatan{},
-		&pengurangan.BapLapangan{},
+		&keberatan.Keberatan{},
+		&baplpengajuan.BapLapangan{},
 	}
 	a.AutoMigrate(listModelPengajuan...)
 

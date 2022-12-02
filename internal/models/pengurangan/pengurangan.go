@@ -37,7 +37,7 @@ type Pengurangan struct {
 	PetugasUser           *mu.User        `json:"petugasUser" gorm:"foreignKey:VerifPetugas_User_Id"`
 }
 
-type PenguranganCreateDto struct {
+type CreateDto struct {
 	Spt_Id                *uuid.UUID      `json:"spt_id"`
 	Pemohon_User_Id       *uint64         `json:"pemohon_user_id"`
 	NominalKetetapan      *float64        `json:"nominalKetetapan"`

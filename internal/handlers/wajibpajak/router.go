@@ -15,6 +15,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/jenisppj"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/keberatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
@@ -150,8 +151,12 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", spt.GetDetail)
 	})
 
-	r.Route("/pengajuan", func(r chi.Router) {
-		r.Post("/{category}", pengurangan.Create)
+	r.Route("/pengurangan", func(r chi.Router) {
+		r.Post("/", pengurangan.Create)
+	})
+
+	r.Route("/keberatan", func(r chi.Router) {
+		r.Post("/", keberatan.Create)
 	})
 
 	fs := http.FileServer(http.Dir(servicehelper.GetResourcesPath()))
