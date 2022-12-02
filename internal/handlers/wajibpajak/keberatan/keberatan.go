@@ -1,11 +1,11 @@
-package pengurangan
+package keberatan
 
 import (
 	"net/http"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/pengurangan"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/keberatan"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 

@@ -1,8 +1,7 @@
-package pengurangan
+package keberatan
 
 import (
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
-	ms "github.com/bapenda-kota-malang/apin-backend/internal/services/pengurangan"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -14,13 +13,13 @@ import (
 
 const source = "keberatan"
 
-func Create(input m.KeberatanCreateDto, user_Id uint64) (any, error) {
+func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	var dataKeberatan m.Keberatan
 	var resp t.II
 	var errChan = make(chan error)
 	var baseDocsName = "keberatan"
 
-	fileName, path, extFile, err := ms.FilePreProcess(*input.FotoKtp, uint(user_Id), baseDocsName+"FotoKtp")
+	fileName, path, extFile, err := FilePreProcess(*input.FotoKtp, uint(user_Id), baseDocsName+"FotoKtp")
 	if err != nil {
 		return sh.SetError("request", "create-data", source, "failed", err.Error(), nil)
 	}

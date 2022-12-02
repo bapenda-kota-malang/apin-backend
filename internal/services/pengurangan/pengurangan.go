@@ -13,7 +13,7 @@ import (
 
 const source = "pengurangan"
 
-func Create(input m.PenguranganCreateDto, user_Id uint64) (any, error) {
+func Create(input m.CreateDto, user_Id uint64) (any, error) {
 	var dataPengurangan m.Pengurangan
 	var resp t.II
 	var errChan = make(chan error)
