@@ -11,7 +11,7 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
-type BapLapangan struct {
+type PengajuanBapl struct {
 	Id                         uint64     `json:"id" gorm:"primaryKey"`
 	Keberatan_Id               *uint64    `json:"keberatan_id"`
 	TanggalKunjungan           *time.Time `json:"tanggalKunjungan"`
@@ -29,4 +29,42 @@ type BapLapangan struct {
 	KasubidUser    *mu.User                  `json:"kasubidUser,omitempty" gorm:"foreignKey:VerifKasubid_User_Id"`
 	User           *mu.User                  `json:"user,omitempty" gorm:"foreignKey:EntryBy_User_Id"`
 	Pengurangan    *mpengurangan.Pengurangan `json:"pengurangan,omitempty" gorm:"foreignKey:Pengurangan_Id"`
+}
+
+type CreateDto struct {
+	Keberatan_Id               *uint64 `json:"keberatan_id"`
+	TanggalKunjungan           *string `json:"tanggalKunjungan"`
+	Npwpd_Id                   *uint64 `json:"npwpd_id"`
+	Hasil                      *string `json:"hasil" gorm:"type:varchar(255)"`
+	PetugasLapangan_Pegawai_Id *uint64 `json:"petugasLapangan_pegawai_id"`
+	VerifKasubid_User_Id       *uint64 `json:"verifKasubid_user_id"`
+	EntryBy_User_Id            *uint64 `json:"entryBy_user_id"`
+	JenisTransaksi             *int    `json:"jenisTransaksi"`
+	Pengurangan_Id             *uint64 `json:"pengurangan_id"`
+}
+
+type UpdateDto struct {
+	Keberatan_Id               *uint64 `json:"keberatan_id"`
+	TanggalKunjungan           *string `json:"tanggalKunjungan"`
+	Npwpd_Id                   *uint64 `json:"npwpd_id"`
+	Hasil                      *string `json:"hasil" gorm:"type:varchar(255)"`
+	PetugasLapangan_Pegawai_Id *uint64 `json:"petugasLapangan_pegawai_id"`
+	VerifKasubid_User_Id       *uint64 `json:"verifKasubid_user_id"`
+	EntryBy_User_Id            *uint64 `json:"entryBy_user_id"`
+	JenisTransaksi             *int    `json:"jenisTransaksi"`
+	Pengurangan_Id             *uint64 `json:"pengurangan_id"`
+}
+
+type FilterDto struct {
+	Keberatan_Id               *uint64 `json:"keberatan_id"`
+	TanggalKunjungan           *string `json:"tanggalKunjungan"`
+	Npwpd_Id                   *uint64 `json:"npwpd_id"`
+	Hasil                      *string `json:"hasil" gorm:"type:varchar(255)"`
+	PetugasLapangan_Pegawai_Id *uint64 `json:"petugasLapangan_pegawai_id"`
+	VerifKasubid_User_Id       *uint64 `json:"verifKasubid_user_id"`
+	EntryBy_User_Id            *uint64 `json:"entryBy_user_id"`
+	JenisTransaksi             *int    `json:"jenisTransaksi"`
+	Pengurangan_Id             *uint64 `json:"pengurangan_id"`
+	Page                       int     `json:"page"`
+	PageSize                   int     `json:"page_size"`
 }

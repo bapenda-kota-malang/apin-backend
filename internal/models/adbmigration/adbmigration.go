@@ -238,7 +238,8 @@ func init() {
 	listModelPengajuan := []interface{}{
 		&pengurangan.Pengurangan{},
 		&keberatan.Keberatan{},
-		&baplpengajuan.BapLapangan{},
+		&baplpengajuan.PengajuanBapl{},
+		&keberatan.PembetulanKeberatan{},
 	}
 	a.AutoMigrate(listModelPengajuan...)
 
