@@ -1,4 +1,4 @@
-package detail
+package petugas
 
 import (
 	"strconv"
@@ -10,17 +10,17 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/detail"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "bapenagihandetail"
+const source = "bapenagihanpetugas"
 
 func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data []m.BaPenagihanDetail
+	var data []m.BaPenagihanPetugas
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -40,13 +40,13 @@ func Update(input []m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var datas []m.BaPenagihanDetail
+	var datas []m.BaPenagihanPetugas
 	rowsAffected := 0
 	for _, v := range input {
-		var data m.BaPenagihanDetail
+		var data m.BaPenagihanPetugas
 		// if flag delete then delete search then delete
 		if v.Deleted {
-			result := tx.Where(&m.BaPenagihanDetail{BaPenagihan_Id: v.BaPenagihan_Id, Petugas_User_Id: v.Petugas_User_Id}).First(&data)
+			result := tx.Where(&m.BaPenagihanPetugas{BaPenagihan_Id: v.BaPenagihan_Id, Petugas_Id: v.Petugas_Id}).First(&data)
 			if result.RowsAffected == 0 {
 				return nil, nil
 			}
@@ -81,7 +81,7 @@ func Update(input []m.UpdateDto, tx *gorm.DB) (any, error) {
 }
 
 func Delete(id int) (any, error) {
-	var data *m.BaPenagihanDetail
+	var data *m.BaPenagihanPetugas
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil

@@ -3,7 +3,7 @@ package bapenagihan
 import (
 	"time"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/detail"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
@@ -24,9 +24,9 @@ type BaPenagihan struct {
 	VerifyBy_User_Id *uint64        `json:"verifyBy_user_id"`
 	VerifyAt         *time.Time     `json:"verifyAt"`
 	gormhelper.DateModel
-	VerifyBy          *user.User                               `json:"verifyBy,omitempty" gorm:"foreignKey:VerifyBy_User_Id"`
-	Undangan          *undanganpemeriksaan.UndanganPemeriksaan `json:"undanganPemeriksaan,omitempty" gorm:"foreignKey:Undangan_Id"`
-	BaPenagihanDetail *[]detail.BaPenagihanDetail              `json:"baPenagihanDetail,omitempty" gorm:"foreignKey:BaPenagihan_Id"`
+	VerifyBy           *user.User                               `json:"verifyBy,omitempty" gorm:"foreignKey:VerifyBy_User_Id"`
+	Undangan           *undanganpemeriksaan.UndanganPemeriksaan `json:"undanganPemeriksaan,omitempty" gorm:"foreignKey:Undangan_Id"`
+	BaPenagihanPetugas *[]petugas.BaPenagihanPetugas            `json:"baPenagihanPetugas,omitempty" gorm:"foreignKey:BaPenagihan_Id"`
 }
 
 type CreateDto struct {
@@ -68,7 +68,7 @@ type UpdateDto struct {
 	Hasil              string                       `json:"hasil"`
 	Dokumentasi        []FilesUpdateDokumentasi     `json:"dokumentasi"`
 	DokumenLainLain    []FilesUpdateDokumenLainLain `json:"dokumenLainLain"`
-	BaPenagihanDetails []detail.UpdateDto           `json:"baPenagihanDetails"`
+	BaPenagihanPetugas []petugas.UpdateDto          `json:"baPenagihanPetugas"`
 }
 
 type VerifikasiDto struct {

@@ -5,8 +5,8 @@ import (
 	"github.com/google/uuid"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
-	mbapenagihandetail "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/detail"
-	sbapenagihandetail "github.com/bapenda-kota-malang/apin-backend/internal/services/bapenagihan/detail"
+	mbapenagihanpetugas "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
+	sbapenagihanpetugas "github.com/bapenda-kota-malang/apin-backend/internal/services/bapenagihan/petugas"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"gorm.io/gorm"
@@ -20,16 +20,16 @@ func TrxCreate(input m.CreateDto, userId uint) (any, error) {
 			return err
 		}
 		data = respBaPenagihan.(rp.OKSimple).Data.(m.BaPenagihan)
-		inputDetails := []mbapenagihandetail.CreateDto{}
+		inputDetails := []mbapenagihanpetugas.CreateDto{}
 		for _, v := range input.PetugasListDetail {
-			inputDetails = append(inputDetails, mbapenagihandetail.CreateDto{BaPenagihan_Id: data.Id, Petugas_User_Id: v})
+			inputDetails = append(inputDetails, mbapenagihanpetugas.CreateDto{BaPenagihan_Id: data.Id, Petugas_Id: v})
 		}
-		respBaPenagihanDetail, err := sbapenagihandetail.Create(inputDetails, tx)
+		respBaPenagihanPetugas, err := sbapenagihanpetugas.Create(inputDetails, tx)
 		if err != nil {
 			return err
 		}
-		dataBaPenagihanDetail := respBaPenagihanDetail.(rp.OKSimple).Data.([]mbapenagihandetail.BaPenagihanDetail)
-		data.BaPenagihanDetail = &dataBaPenagihanDetail
+		dataBaPenagihanPetugas := respBaPenagihanPetugas.(rp.OKSimple).Data.([]mbapenagihanpetugas.BaPenagihanPetugas)
+		data.BaPenagihanPetugas = &dataBaPenagihanPetugas
 
 		return nil
 	})
@@ -48,16 +48,16 @@ func TrxUpdate(id uuid.UUID, input m.UpdateDto, userId uint) (any, error) {
 		}
 		data = respBaPenagihan.(rp.OK).Data.(m.BaPenagihan)
 
-		for i := range input.BaPenagihanDetails {
-			input.BaPenagihanDetails[i].BaPenagihan_Id = data.Id
+		for i := range input.BaPenagihanPetugas {
+			input.BaPenagihanPetugas[i].BaPenagihan_Id = data.Id
 		}
 
-		respBaPenagihanDetail, err := sbapenagihandetail.Update(input.BaPenagihanDetails, tx)
+		respBaPenagihanPetugas, err := sbapenagihanpetugas.Update(input.BaPenagihanPetugas, tx)
 		if err != nil {
 			return err
 		}
-		dataBaPenagihanDetail := respBaPenagihanDetail.(rp.OK).Data.([]mbapenagihandetail.BaPenagihanDetail)
-		data.BaPenagihanDetail = &dataBaPenagihanDetail
+		dataBaPenagihanPetugas := respBaPenagihanPetugas.(rp.OK).Data.([]mbapenagihanpetugas.BaPenagihanPetugas)
+		data.BaPenagihanPetugas = &dataBaPenagihanPetugas
 
 		return nil
 	})
