@@ -405,14 +405,14 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetList)
 		r.Get("/{id}", pengurangan.GetDetail)
 		r.Post("/", pengurangan.Create)
-		r.Patch("/{id}", pengurangan.Verify)
+		r.Patch("/verify/{id}", pengurangan.Verify)
 	})
 
 	r.Route("/keberatan", func(r chi.Router) {
 		r.Get("/", keberatan.GetList)
 		r.Get("/{id}", keberatan.GetDetail)
 		r.Post("/", keberatan.Create)
-		r.Patch("/{id}", keberatan.Verify)
+		r.Patch("/verify/{id}", keberatan.Verify)
 	})
 	return r
 }

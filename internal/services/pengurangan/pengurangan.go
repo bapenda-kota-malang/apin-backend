@@ -3,7 +3,6 @@ package pengurangan
 import (
 	"strconv"
 	"strings"
-	"time"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	suser "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
@@ -15,6 +14,7 @@ import (
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const source = "pengurangan"
@@ -98,6 +98,9 @@ func GetList(input m.FilterDto) (any, error) {
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&m.Pengurangan{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -120,7 +123,11 @@ func GetList(input m.FilterDto) (any, error) {
 func GetDetail(id int) (any, error) {
 	var data *m.Pengurangan
 
-	result := a.DB.First(&data, id)
+	result := a.DB.Model(&m.Pengurangan{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -159,9 +166,12 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 		}
 		data.VerifPetugas_User_Id = &userId
 		data.Status = input.Status
-		data.TanggalPetugas = time.Now()
+		data.TanggalVerifPetugas = parseTimeNowToPointer()
 		userRole = "petugas"
 	} else if kasubid := strings.Contains(jabatan, "KEPALA SUB BIDANG"); kasubid {
+		if data.VerifKasubid_User_Id != nil {
+			return sh.SetError("request", "verify-data", source, "failed", "data sudah diverifikasi oleh kasubid", data)
+		}
 		if data.VerifPetugas_User_Id == nil {
 			return sh.SetError("request", "verify-data", source, "failed", "data belum diverifikasi oleh petugas", data)
 		}
@@ -170,9 +180,12 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 		}
 		data.VerifKasubid_User_Id = &userId
 		data.Status = input.Status
-		data.TanggalKasubid = time.Now()
+		data.TanggalVerifKasubid = parseTimeNowToPointer()
 		userRole = "kasubid"
 	} else if kabid := strings.Contains(jabatan, "KEPALA BIDANG"); kabid {
+		if data.VerifKabid_User_Id != nil {
+			return sh.SetError("request", "verify-data", source, "failed", "data sudah diverifikasi oleh kabid", data)
+		}
 		if data.VerifKasubid_User_Id == nil {
 			return sh.SetError("request", "verify-data", source, "failed", "data belum diverifikasi oleh kasubid", data)
 		}
@@ -181,9 +194,12 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 		}
 		data.VerifKabid_User_Id = &userId
 		data.Status = input.Status
-		data.TanggalKabid = time.Now()
+		data.TanggalVerifKabid = parseTimeNowToPointer()
 		userRole = "kabid"
 	} else if kaban := strings.Contains(jabatan, "KEPALA BADAN"); kaban {
+		if data.VerifKaban_User_Id != nil {
+			return sh.SetError("request", "verify-data", source, "failed", "data sudah diverifikasi oleh kaban", data)
+		}
 		if data.VerifKabid_User_Id == nil {
 			return sh.SetError("request", "verify-data", source, "failed", "data belum diverifikasi oleh kabid", data)
 		}
@@ -192,7 +208,7 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 		}
 		data.VerifKaban_User_Id = &userId
 		data.Status = input.Status
-		data.TanggalKaban = time.Now()
+		data.TanggalVerifKaban = parseTimeNowToPointer()
 		userRole = "kaban"
 	}
 

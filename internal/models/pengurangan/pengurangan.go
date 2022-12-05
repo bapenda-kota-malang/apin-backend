@@ -26,10 +26,10 @@ type Pengurangan struct {
 	VerifKabid_User_Id    *uint64         `json:"verifKabid_user_id"`
 	VerifKaban_User_Id    *uint64         `json:"verifKaban_user_id"`
 	VerifPetugas_User_Id  *uint64         `json:"verifPetugas_user_id"`
-	TanggalKasubid        time.Time       `json:"tanggalKasubid"`
-	TanggalKabid          time.Time       `json:"tanggalKabid"`
-	TanggalKaban          time.Time       `json:"tanggalKaban"`
-	TanggalPetugas        time.Time       `json:"tanggalPetugas"`
+	TanggalVerifKasubid   *time.Time      `json:"tanggalVerifKasubid"`
+	TanggalVerifKabid     *time.Time      `json:"tanggalVerifKabid"`
+	TanggalVerifKaban     *time.Time      `json:"tanggalVerifKaban"`
+	TanggalVerifPetugas   *time.Time      `json:"tanggalVerifPetugas"`
 	TanggalPengajuan      *time.Time      `json:"tanggalPengajuan"`
 	UpdatedAt             *time.Time      `json:"updatedAt"`
 	DeletedAt             *gorm.DeletedAt `json:"deletedAt" gorm:"index"`
@@ -58,28 +58,28 @@ type CreateDto struct {
 }
 
 type FilterDto struct {
-	Spt_Id                *uuid.UUID `json:"spt_id"`
-	Pemohon_User_Id       *uint64    `json:"pemohon_user_id"`
-	NominalKetetapan      *float64   `json:"nominalKetetapan"`
-	AlasanPengurangan     *string    `json:"alasanPengurangan"`
-	SuratPermohonan       *string    `json:"suratPermohonan"`
-	FotoKtp               *string    `json:"fotoKtp"`
-	LaporanKeuangan       *string    `json:"laporanKeuangan"`
-	LaporanPengeluaran    *string    `json:"laporanPengeluaran"`
-	DokumenLainnya        *string    `json:"dokumenLainnya"`
-	PersentasePengurangan *float64   `json:"persentasePengurangan"`
-	Status                *int       `json:"status"`
-	VerifKasubid_User_Id  *uint64    `json:"verifKasubid_user_id"`
-	VerifKabid_User_Id    *uint64    `json:"verifKabid_user_id"`
-	VerifKaban_User_Id    *uint64    `json:"verifKaban_user_id"`
-	VerifPetugas_User_Id  *uint64    `json:"verifPetugas_user_id"`
-	TanggalKasubid        *time.Time `json:"tanggalKasubid"`
-	TanggalKabid          *time.Time `json:"tanggalKabid"`
-	TanggalKaban          *time.Time `json:"tanggalKaban"`
-	TanggalPetugas        *time.Time `json:"tanggalPetugas"`
-	TanggalPengajuan      *string    `json:"tanggalPengajuan"`
-	Page                  int        `json:"page"`
-	PageSize              int        `json:"page_size"`
+	Spt_Id                   *uuid.UUID `json:"spt_id"`
+	Pemohon_User_Id          *uint64    `json:"pemohon_user_id"`
+	NominalKetetapan         *float64   `json:"nominalKetetapan"`
+	AlasanPengurangan        *string    `json:"alasanPengurangan"`
+	SuratPermohonan          *string    `json:"suratPermohonan"`
+	FotoKtp                  *string    `json:"fotoKtp"`
+	LaporanKeuangan          *string    `json:"laporanKeuangan"`
+	LaporanPengeluaran       *string    `json:"laporanPengeluaran"`
+	DokumenLainnya           *string    `json:"dokumenLainnya"`
+	PersentasePengurangan    *float64   `json:"persentasePengurangan"`
+	Status                   *int       `json:"status"`
+	VerifKasubid_User_Id     *uint64    `json:"verifKasubid_user_id"`
+	VerifKabid_User_Id       *uint64    `json:"verifKabid_user_id"`
+	VerifKaban_User_Id       *uint64    `json:"verifKaban_user_id"`
+	VerifPetugas_User_Id     *uint64    `json:"verifPetugas_user_id"`
+	TanggalVerifVerifKasubid *time.Time `json:"tanggalVerifVerifKasubid"`
+	TanggalVerifVerifKabid   *time.Time `json:"tanggalVerifVerifKabid"`
+	TanggalVerifVerifKaban   *time.Time `json:"tanggalVerifVerifKaban"`
+	TanggalVerifVerifPetugas *time.Time `json:"tanggalVerifVerifPetugas"`
+	TanggalPengajuan         *string    `json:"tanggalPengajuan"`
+	Page                     int        `json:"page"`
+	PageSize                 int        `json:"page_size"`
 }
 
 type VerifyDto struct {
