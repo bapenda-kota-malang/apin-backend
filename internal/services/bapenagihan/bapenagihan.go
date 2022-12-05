@@ -160,7 +160,7 @@ func GetDetail(id uuid.UUID, tx *gorm.DB) (any, error) {
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
-		Preload("BaPenagihanDetail.Petugas", func(tx *gorm.DB) *gorm.DB {
+		Preload("BaPenagihanPetugas.Petugas", func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
 		Preload("Undangan.Npwpd.ObjekPajak").
