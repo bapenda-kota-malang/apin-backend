@@ -133,7 +133,7 @@ func GetList(input m.FilterDto, tx *gorm.DB) (any, error) {
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
-		Preload("Undangan.SuratPembertahuan.Npwpd.ObjekPajak").
+		Preload("Undangan.Npwpd.ObjekPajak").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
@@ -163,7 +163,7 @@ func GetDetail(id uuid.UUID, tx *gorm.DB) (any, error) {
 		Preload("BaPenagihanDetail.Petugas", func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
-		Preload("Undangan.SuratPembertahuan.Npwpd.ObjekPajak").
+		Preload("Undangan.Npwpd.ObjekPajak").
 		First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
