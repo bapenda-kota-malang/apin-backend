@@ -101,6 +101,7 @@ func GetList(input m.FilterDto) (any, error) {
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
+		Preload("Spt.Npwpd.ObjekPajak").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -127,6 +128,7 @@ func GetDetail(id int) (any, error) {
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
+		Preload("Spt.Npwpd.ObjekPajak").
 		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
