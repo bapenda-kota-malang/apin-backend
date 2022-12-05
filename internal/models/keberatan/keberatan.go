@@ -27,6 +27,10 @@ type Keberatan struct {
 	VerifKabid_User_Id   *uint64         `json:"verifKabid_user_id"`
 	VerifKaban_User_Id   *uint64         `json:"verifKaban_user_id"`
 	VerifPetugas_User_Id *uint64         `json:"verifPetugas_user_id"`
+	TanggalKasubid       time.Time       `json:"tanggalKasubid"`
+	TanggalKabid         time.Time       `json:"tanggalKabid"`
+	TanggalKaban         time.Time       `json:"tanggalKaban"`
+	TanggalPetugas       time.Time       `json:"tanggalPetugas"`
 	TanggalPengajuan     *time.Time      `json:"tanggalPengajuan"`
 	UpdatedAt            *time.Time      `json:"updatedAt"`
 	DeletedAt            *gorm.DeletedAt `json:"deletedAt" gorm:"index"`
@@ -72,6 +76,10 @@ type FilterDto struct {
 	VerifKabid_User_Id   *uint64    `json:"verifKabid_user_id"`
 	VerifKaban_User_Id   *uint64    `json:"verifKaban_user_id"`
 	VerifPetugas_User_Id *uint64    `json:"verifPetugas_user_id"`
+	TanggalKasubid       *time.Time `json:"tanggalKasubid"`
+	TanggalKabid         *time.Time `json:"tanggalKabid"`
+	TanggalKaban         *time.Time `json:"tanggalKaban"`
+	TanggalPetugas       *time.Time `json:"tanggalPetugas"`
 	TanggalPengajuan     *string    `json:"tanggalPengajuan"`
 	Page                 int        `json:"page"`
 	PageSize             int        `json:"page_size"`

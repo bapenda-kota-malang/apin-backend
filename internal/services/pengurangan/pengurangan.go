@@ -3,6 +3,7 @@ package pengurangan
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	suser "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
@@ -148,40 +149,7 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 	userRole := ""
 
 	//validasi status dan jabatan yg mengolah data
-	if kasubid := strings.Contains(jabatan, "KEPALA SUB BIDANG"); kasubid {
-		if data.Status != 0 {
-			if data.Status == 1 {
-				return sh.SetError("request", "verify-data", source, "failed", "data sudah disetujui oleh kasubid", data)
-			} else if data.Status == 2 {
-				return sh.SetError("request", "verify-data", source, "failed", "data sudah ditolak oleh kasubid", data)
-			}
-		}
-		data.VerifKasubid_User_Id = &userId
-		data.Status = input.Status
-		userRole = "kasubid"
-	} else if kabid := strings.Contains(jabatan, "KEPALA BIDANG"); kabid {
-		if data.Status != 0 {
-			if data.Status == 1 {
-				return sh.SetError("request", "verify-data", source, "failed", "data sudah disetujui oleh kabid", data)
-			} else if data.Status == 2 {
-				return sh.SetError("request", "verify-data", source, "failed", "data sudah ditolak oleh kabid", data)
-			}
-		}
-		data.VerifKabid_User_Id = &userId
-		data.Status = input.Status
-		userRole = "kabid"
-	} else if kaban := strings.Contains(jabatan, "KEPALA BADAN"); kaban {
-		if data.Status != 0 {
-			if data.Status == 1 {
-				return sh.SetError("request", "verify-data", source, "failed", "data sudah disetujui oleh kaban", data)
-			} else if data.Status == 2 {
-				return sh.SetError("request", "verify-data", source, "failed", "data sudah ditolak oleh kaban", data)
-			}
-		}
-		data.VerifKaban_User_Id = &userId
-		data.Status = input.Status
-		userRole = "kaban"
-	} else if petugas := strings.Contains(jabatan, "PETUGAS"); petugas {
+	if petugas := strings.Contains(jabatan, "PETUGAS"); petugas {
 		if data.Status != 0 {
 			if data.Status == 1 {
 				return sh.SetError("request", "verify-data", source, "failed", "data sudah disetujui oleh petugas", data)
@@ -191,8 +159,43 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 		}
 		data.VerifPetugas_User_Id = &userId
 		data.Status = input.Status
+		data.TanggalPetugas = time.Now()
 		userRole = "petugas"
+	} else if kasubid := strings.Contains(jabatan, "KEPALA SUB BIDANG"); kasubid {
+		if data.VerifPetugas_User_Id == nil {
+			return sh.SetError("request", "verify-data", source, "failed", "data belum diverifikasi oleh petugas", data)
+		}
+		if data.Status == 2 {
+			return sh.SetError("request", "verify-data", source, "failed", "data sudah ditolak oleh petugas", data)
+		}
+		data.VerifKasubid_User_Id = &userId
+		data.Status = input.Status
+		data.TanggalKasubid = time.Now()
+		userRole = "kasubid"
+	} else if kabid := strings.Contains(jabatan, "KEPALA BIDANG"); kabid {
+		if data.VerifKasubid_User_Id == nil {
+			return sh.SetError("request", "verify-data", source, "failed", "data belum diverifikasi oleh kasubid", data)
+		}
+		if data.Status == 2 {
+			return sh.SetError("request", "verify-data", source, "failed", "data sudah ditolak oleh kasubid", data)
+		}
+		data.VerifKabid_User_Id = &userId
+		data.Status = input.Status
+		data.TanggalKabid = time.Now()
+		userRole = "kabid"
+	} else if kaban := strings.Contains(jabatan, "KEPALA BADAN"); kaban {
+		if data.VerifKabid_User_Id == nil {
+			return sh.SetError("request", "verify-data", source, "failed", "data belum diverifikasi oleh kabid", data)
+		}
+		if data.Status == 2 {
+			return sh.SetError("request", "verify-data", source, "failed", "data sudah ditolak oleh kabid", data)
+		}
+		data.VerifKaban_User_Id = &userId
+		data.Status = input.Status
+		data.TanggalKaban = time.Now()
+		userRole = "kaban"
 	}
+
 	if userRole == "" {
 		return sh.SetError("request", "verify-data", source, "failed", "pegawai bukan kabid, kasubid, kaban maupun petugas", data)
 	}
