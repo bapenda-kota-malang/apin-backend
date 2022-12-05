@@ -1,10 +1,15 @@
 package pengurangan
 
 import (
+	"strconv"
+	"strings"
+
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
+	suser "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
@@ -82,5 +87,120 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 
 	return rp.OKSimple{
 		Data: resp,
+	}, nil
+}
+
+func GetList(input m.FilterDto) (any, error) {
+	var data []m.Pengurangan
+	var count int64
+
+	var pagination gh.Pagination
+	result := a.DB.
+		Model(&m.Pengurangan{}).
+		Scopes(gh.Filter(input)).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data pengurangan", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
+}
+
+func GetDetail(id int) (any, error) {
+	var data *m.Pengurangan
+
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data pengurangan", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
+func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
+	//ambil data based on id
+	var data *m.Pengurangan
+
+	result := a.DB.First(&data, id)
+	if result.Error != nil {
+		return sh.SetError("request", "verify-data", source, "failed", "gagal mengambil data pengurangan", data)
+	}
+	//ambil nama jabatan based on userId
+	resp, err := suser.GetJabatanPegawai(uint(userId))
+	if err != nil {
+		return sh.SetError("request", "verify-data", source, "failed", "gagal data pegawai: "+err.Error(), data)
+	}
+	jabatan := strings.ToUpper(resp.(string))
+	userRole := ""
+
+	//validasi status dan jabatan yg mengolah data
+	if kasubid := strings.Contains(jabatan, "KEPALA SUB BIDANG"); kasubid {
+		if data.Status != 0 {
+			if data.Status == 1 {
+				return sh.SetError("request", "verify-data", source, "failed", "data sudah disetujui oleh kasubid", data)
+			} else if data.Status == 2 {
+				return sh.SetError("request", "verify-data", source, "failed", "data sudah ditolak oleh kasubid", data)
+			}
+		}
+		data.VerifKasubid_User_Id = &userId
+		data.Status = input.Status
+		userRole = "kasubid"
+	} else if kabid := strings.Contains(jabatan, "KEPALA BIDANG"); kabid {
+		if data.Status != 0 {
+			if data.Status == 1 {
+				return sh.SetError("request", "verify-data", source, "failed", "data sudah disetujui oleh kabid", data)
+			} else if data.Status == 2 {
+				return sh.SetError("request", "verify-data", source, "failed", "data sudah ditolak oleh kabid", data)
+			}
+		}
+		data.VerifKabid_User_Id = &userId
+		data.Status = input.Status
+		userRole = "kabid"
+	} else if kaban := strings.Contains(jabatan, "KEPALA BADAN"); kaban {
+		if data.Status != 0 {
+			if data.Status == 1 {
+				return sh.SetError("request", "verify-data", source, "failed", "data sudah disetujui oleh kaban", data)
+			} else if data.Status == 2 {
+				return sh.SetError("request", "verify-data", source, "failed", "data sudah ditolak oleh kaban", data)
+			}
+		}
+		data.VerifKaban_User_Id = &userId
+		data.Status = input.Status
+		userRole = "kaban"
+	} else if petugas := strings.Contains(jabatan, "PETUGAS"); petugas {
+		if data.Status != 0 {
+			if data.Status == 1 {
+				return sh.SetError("request", "verify-data", source, "failed", "data sudah disetujui oleh petugas", data)
+			} else if data.Status == 2 {
+				return sh.SetError("request", "verify-data", source, "failed", "data sudah ditolak oleh petugas", data)
+			}
+		}
+		data.VerifPetugas_User_Id = &userId
+		data.Status = input.Status
+		userRole = "petugas"
+	}
+	if userRole == "" {
+		return sh.SetError("request", "verify-data", source, "failed", "pegawai bukan kabid, kasubid, kaban maupun petugas", data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "verify-data", source, "failed", "gagal menyimpan data pengurangan", data)
+	}
+	return rp.OKSimple{
+		Data: data,
 	}, nil
 }
