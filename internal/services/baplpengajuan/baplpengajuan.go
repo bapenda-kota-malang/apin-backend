@@ -1,6 +1,7 @@
 package baplpengajuan
 
 import (
+	"fmt"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -14,6 +15,7 @@ import (
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/baplpengajuan"
+	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
@@ -23,6 +25,20 @@ func Create(input m.CreateDto, user_Id uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
+
+	if input.PetugasLapangan_Pegawai_Id != nil {
+		for _, v := range input.PetugasLapangan_Pegawai_Id {
+			var data *mp.Pegawai
+
+			result := a.DB.First(&data, &v)
+			if result.RowsAffected == 0 {
+				return sh.SetError("request", "get-data-detail", source, "failed", fmt.Sprintf("pegawai dengan id %d tidak terdaftar", *v), data)
+			} else if result.Error != nil {
+				return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data pegawa: "+result.Error.Error(), data)
+			}
+		}
+	}
+
 	var data m.PengajuanBapl
 	var baseDocsName = "pengurangan"
 	var errChan = make(chan error)
@@ -114,6 +130,22 @@ func GetDetail(id int) (any, error) {
 		return nil, nil
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data bapl pengajuan", data)
+	}
+
+	if data.PetugasLapangan_Pegawai_Id != nil {
+		for _, v := range *data.PetugasLapangan_Pegawai_Id {
+			var dataPegawai mp.Pegawai
+
+			result := a.DB.First(&dataPegawai, &v)
+			if result.RowsAffected == 0 {
+				return nil, nil
+			} else if result.Error != nil {
+				return sh.SetError("request", "get-data-detail", source, "failed", fmt.Sprintf("gagal mengambil data pegawai dengan id %d", &v), dataPegawai)
+			}
+
+			data.Pegawai = append(data.Pegawai, dataPegawai)
+		}
+
 	}
 
 	return rp.OKSimple{
