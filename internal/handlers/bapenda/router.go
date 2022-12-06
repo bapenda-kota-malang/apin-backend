@@ -420,6 +420,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", baplpengajuan.Create)
 		r.Get("/", baplpengajuan.GetList)
 		r.Get("/{id}", baplpengajuan.GetDetail)
+		r.Delete("/{id}", baplpengajuan.Delete)
 	})
 	return r
 }
