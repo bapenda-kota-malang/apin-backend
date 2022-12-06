@@ -14,6 +14,7 @@ import (
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
+	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
@@ -164,6 +165,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/tempatpembayaran", tempatpembayaran.Crud{})
 
 	rh.RegCrud(r, "/sppt", sppt.Crud{})
+
+	rh.RegCrud(r, "/bphtb", bphtbsptpd.Crud{})
 
 	r.Route("/njoptkpflag", func(r chi.Router) {
 		r.Post("/", njoptkpflag.Create)

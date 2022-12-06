@@ -5,6 +5,7 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	bphtb "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthiburan"
@@ -240,4 +241,9 @@ func init() {
 		&wajibpajakpbb.WajibPajakPBB{},
 	}
 	a.AutoMigrate(listModelWajibPajakPBB...)
+
+	listModelBphtbSptpd := []interface{}{
+		&bphtb.Sptpd{},
+	}
+	a.AutoMigrate(listModelBphtbSptpd...)
 }
