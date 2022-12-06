@@ -8,7 +8,7 @@ import (
 type Sppt struct {
 	Id                     uint64          `json:"id" gorm:"primaryKey"`
 	BlokKavNoWP_sppt       *string         `json:"blokKavNoWP_sppt" gorm:"type:varchar(15)"`
-	Faktorpengurangan_sppt *int            `json:"faktorpengurangan_sppt" gorm:"type:number(12)"`
+	Faktorpengurangan_sppt *int            `json:"faktorpengurangan_sppt"`
 	JalanWPskp_sppt        *string         `json:"jalanWPskp_sppt" gorm:"type:varchar(30)"`
 	BankPersepsi_Id        *string         `json:"bankPersepsi_Id" gorm:"type:varchar(2)"`
 	BankTunggal_Id         *string         `json:"bankTunggal_Id" gorm:"type:varchar(2)"`
@@ -26,27 +26,27 @@ type Sppt struct {
 	TP_Id                  *string         `json:"tp_Id" gorm:"type:varchar(2)"`
 	KelurahanWP_sppt       *string         `json:"kelurahanWP_sppt" gorm:"type:varchar(30)"`
 	KotaWP_sppt            *string         `json:"kotaWP_sppt" gorm:"type:varchar(30)"`
-	LuasBangunan_sppt      *int            `json:"luasBangunan_sppt" gorm:"type:number(12)"`
-	LuasBumi_sppt          *int            `json:"luasBumi_sppt" gorm:"type:number(12)"`
+	LuasBangunan_sppt      *int            `json:"luasBangunan_sppt"`
+	LuasBumi_sppt          *int            `json:"luasBumi_sppt"`
 	NIPPencetakan_sppt     *string         `json:"nipPencetakan_sppt" gorm:"type:varchar(9)"`
-	NJKPskp_sppt           *float32        `json:"njKPskp_sppt" gorm:"type:number(5,2)"`
-	NJOPTKP_sppt           *int            `json:"njopTKP_sppt" gorm:"type:number(8)"`
-	NJOPBangunan_sppt      *int            `json:"njopBangunan_sppt" gorm:"type:number(15)"`
-	NJOPBumi_sppt          *int            `json:"njopBumi_sppt" gorm:"type:number(15)"`
-	NJOP_sppt              *int            `json:"njop_sppt" gorm:"type:number(15)"`
+	NJKPskp_sppt           *float32        `json:"njKPskp_sppt" gorm:"type:decimal(5,2)"`
+	NJOPTKP_sppt           *int            `json:"njopTKP_sppt"`
+	NJOPBangunan_sppt      *int            `json:"njopBangunan_sppt"`
+	NJOPBumi_sppt          *int            `json:"njopBumi_sppt"`
+	NJOP_sppt              *int            `json:"njop_sppt"`
 	NamaWP_sppt            *string         `json:"namaWP_sppt" gorm:"type:varchar(30)"`
 	NoPersil_sppt          *string         `json:"noPersil_sppt" gorm:"type:varchar(5)"`
 	NoUrut                 *string         `json:"noUrut" gorm:"type:varchar(4)"`
 	NoVirtualAccount       *string         `json:"noVirtualAccount" gorm:"type:varchar(20)"`
 	Npwp_sppt              *string         `json:"npwp_sppt" gorm:"type:varchar(15)"`
-	PBBterhutang_sppt      *int            `json:"pbbTerhutang_sppt" gorm:"type:number(15)"`
-	PBBygHarusDibayar_sppt *int            `json:"pbbYgHarusDibayar_sppt" gorm:"type:number(15)"`
+	PBBterhutang_sppt      *int            `json:"pbbTerhutang_sppt"`
+	PBBygHarusDibayar_sppt *int            `json:"pbbYgHarusDibayar_sppt"`
 	Pemutihan              *datatypes.Date `json:"pemutihan"`
 	QRCode                 *string         `json:"qrCode" gorm:"type:TEXT"`
 	QRInvoiceNumber        *string         `json:"qrInvoiceNumber" gorm:"type:varchar(25)"`
 	RtWP_sppt              *string         `json:"rtWP_sppt" gorm:"type:varchar(3)"`
 	RwWP_sppt              *string         `json:"rwWP_sppt" gorm:"type:varchar(2)"`
-	Siklus_sppt            *int            `json:"siklus_sppt" gorm:"type:number(2)"`
+	Siklus_sppt            *int            `json:"siklus_sppt"`
 	StatusCetak_sppt       *string         `json:"statusCetak_sppt" gorm:"type:varchar(1)"`
 	StatusPembayaran_sppt  *string         `json:"statusPembayaran_sppt" gorm:"type:varchar(1)"`
 	StatusTagihan_sppt     *string         `json:"statusTagihan_sppt" gorm:"type:varchar(1)"`

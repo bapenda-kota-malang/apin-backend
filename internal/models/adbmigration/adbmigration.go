@@ -285,7 +285,7 @@ func init() {
 	a.AutoMigrate(listModelWajibPajakPBB...)
 
 	listModelBphtbSptpd := []interface{}{
-		&bphtb.Sptpd{},
+		&bphtb.BphtbSptpd{},
 	}
 	a.AutoMigrate(listModelBphtbSptpd...)
 

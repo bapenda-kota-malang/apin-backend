@@ -20,7 +20,7 @@ func Create(input m.RequestSptpd, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.Sptpd
+	var data m.BphtbSptpd
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -36,12 +36,12 @@ func Create(input m.RequestSptpd, tx *gorm.DB) (any, error) {
 }
 
 func GetList(input m.RequestSptpd) (any, error) {
-	var data []m.Sptpd
+	var data []m.BphtbSptpd
 	var count int64
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.Sptpd{}).
+		Model(&m.BphtbSptpd{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -62,7 +62,7 @@ func GetList(input m.RequestSptpd) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.Sptpd
+	var data *m.BphtbSptpd
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -77,7 +77,7 @@ func GetDetail(id int) (any, error) {
 }
 
 func GetDetailbyField(field string, value string) (any, error) {
-	var data *m.Sptpd
+	var data *m.BphtbSptpd
 
 	result := a.DB.Where(field, value).First(&data)
 	if result.RowsAffected == 0 {
@@ -95,7 +95,7 @@ func Update(id int, input m.RequestSptpd, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.Sptpd
+	var data *m.BphtbSptpd
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -120,7 +120,7 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.Sptpd
+	var data *m.BphtbSptpd
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil

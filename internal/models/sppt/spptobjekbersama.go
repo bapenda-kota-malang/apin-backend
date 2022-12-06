@@ -15,10 +15,10 @@ type SpptObjekBersama struct {
 	KelasBangunan_Id       *string `json:"kelasBangunan_Id" gorm:"type:varchar(3)"`
 	KelasTanah_Id          *string `json:"kelasTanah_Id" gorm:"type:varchar(3)"`
 	Propinsi_Id            *string `json:"propinsi_Id" gorm:"type:varchar(2)"`
-	LuasBangunanBeban_sppt *int    `json:"luasBangunanBeban_sppt" gorm:"type:number(12)"`
-	LuasBumiBeban_sppt     *int    `json:"luasBumiBeban_sppt" gorm:"type:number(12)"`
-	NJOPBangunanBeban_sppt *int    `json:"njopBangunanBeban_sppt" gorm:"type:number(15)"`
-	NJOPBumiBeban_sppt     *int    `json:"njopBumiBeban_sppt" gorm:"type:number(15)"`
+	LuasBangunanBeban_sppt *int    `json:"luasBangunanBeban_sppt"`
+	LuasBumiBeban_sppt     *int    `json:"luasBumiBeban_sppt"`
+	NJOPBangunanBeban_sppt *int    `json:"njopBangunanBeban_sppt"`
+	NJOPBumiBeban_sppt     *int    `json:"njopBumiBeban_sppt"`
 	NoUrut                 *string `json:"noUrut" gorm:"type:varchar(4)"`
 	TahunAwalKelasBangunan *string `json:"tahunAwalKelasBangunan" gorm:"type:varchar(30)"`
 	TahunAwalKelasTanah    *string `json:"tahunAwalKelasTanah" gorm:"type:varchar(30)"`
