@@ -65,6 +65,10 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 		}
 		input.Id = id
+	} else {
+		if err := tx.First(&data, "\"Id\" = ?", input.Id.String()).Error; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
 	}
 
 	if input.FotoKtp != nil {
@@ -128,7 +132,7 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 	}
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
-	if err := sc.Copy(&data, &input); err != nil {
+	if err := sc.CopyWithOption(&data, &input, sc.Option{IgnoreEmpty: true}); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 

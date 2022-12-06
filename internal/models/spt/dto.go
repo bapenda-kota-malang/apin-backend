@@ -122,12 +122,12 @@ type FilterDto struct {
 	Kabid_User_Id   *string         `json:"kabid_user_id"`
 	Page            int             `json:"page"`
 	PageSize        int             `json:"page_size"`
+	NoPagination    bool            `json:"no_pagination"`
 }
 
 type ListDataDto struct {
 	Spt
-	NominalBayar *float64 `json:"-"`
-	StatusFinal  *string  `json:"statusFinal"`
+	StatusFinal *string `json:"statusFinal"`
 }
 
 type CreateDetailBaseDto struct {
