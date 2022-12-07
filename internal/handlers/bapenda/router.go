@@ -67,6 +67,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/paymentpoint"
@@ -482,6 +483,12 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/dbkbfasum/nondep", nondep.Crud{})
 	rh.RegCrud(r, "/dbkbfasum/depminmax", depminmax.Crud{})
 	rh.RegCrud(r, "/dbkbfasum/depjpbklsbintang", depjpbklsbintang.Crud{})
+
+	r.Route("/objekpajakpbb", func(r chi.Router) {
+		r.Post("/", objekpajakpbb.Create)
+		r.Get("/", objekpajakpbb.GetList)
+		r.Get("/{id}", objekpajakpbb.GetDetail)
+	})
 
 	return r
 }
