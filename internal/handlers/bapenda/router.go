@@ -10,6 +10,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bapenagihan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datanir"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetablok"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetaznt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
@@ -453,5 +460,20 @@ func SetRoutes() http.Handler {
 		r.Post("/", keberatan.Create)
 		r.Patch("/verify/{id}", keberatan.Verify)
 	})
+
+	rh.RegCrud(r, "/datapetablok", datapetablok.Crud{})
+	r.Post("/datapetablok/bulk", datapetablok.CreateBulk)
+
+	rh.RegCrud(r, "/datanir", datanir.Crud{})
+	r.Post("/datanir/bulk", datanir.CreateBulk)
+
+	rh.RegCrud(r, "/datapetaznt", datapetaznt.Crud{})
+	r.Post("/datapetaznt/bulk", datapetaznt.CreateBulk)
+
+	rh.RegCrud(r, "/dbkbfasum", dbkbfasum.Crud{})
+	rh.RegCrud(r, "/dbkbfasum/nondep", nondep.Crud{})
+	rh.RegCrud(r, "/dbkbfasum/depminmax", depminmax.Crud{})
+	rh.RegCrud(r, "/dbkbfasum/depjpbklsbintang", depjpbklsbintang.Crud{})
+
 	return r
 }
