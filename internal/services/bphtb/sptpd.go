@@ -62,14 +62,25 @@ func GetList(input m.RequestSptpd) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.BphtbSptpd
+	var (
+		model    *m.BphtbSptpd
+		lampiran *m.Lampiran
+	)
 
-	result := a.DB.First(&data, id)
+	result := a.DB.First(&model, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
-		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", model)
 	}
+
+	data := new(m.ResponseSptpd)
+	if err := sc.Copy(&data, &model); err != nil {
+		return sh.SetError("request", "copy-data-detail", source, "failed", "gagal menyalin data", model)
+	}
+	_ = a.DB.First(&lampiran, model.NoDokumen)
+
+	data.DataLampiran = lampiran
 
 	return rp.OKSimple{
 		Data: data,
