@@ -8,6 +8,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
 	bapenagihanpetugas "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/baplpengajuan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/datapetablok"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb12"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb13"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb14"
@@ -262,4 +263,9 @@ func init() {
 		&undanganpemeriksaan.UndanganPemeriksaan{},
 	}
 	a.AutoMigrate(listModelPenagihan...)
+
+	listModelPembuatanZnt := []interface{}{
+		&datapetablok.DataPetaBlok{},
+	}
+	a.AutoMigrate(listModelPembuatanZnt...)
 }
