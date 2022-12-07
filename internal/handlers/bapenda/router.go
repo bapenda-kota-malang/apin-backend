@@ -12,6 +12,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bapenagihan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datanir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetablok"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetaznt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
@@ -422,6 +423,9 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/datanir", datanir.Crud{})
 	r.Post("/datanir/bulk", datanir.CreateBulk)
+
+	rh.RegCrud(r, "/datapetaznt", datapetaznt.Crud{})
+	r.Post("/datapetaznt/bulk", datapetaznt.CreateBulk)
 
 	return r
 }
