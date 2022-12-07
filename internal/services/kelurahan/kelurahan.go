@@ -2,6 +2,7 @@ package kecamatan
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -66,6 +67,20 @@ func GetList(input m.KelurahanFilterDto) (interface{}, error) {
 func GetDetail(id int) (interface{}, error) {
 	var data *m.Kelurahan
 	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
+func GetDetailByCode(id int) (interface{}, error) {
+	var data *m.Kelurahan
+	result := a.DB.Where("Kode", fmt.Sprint(id)).First(&data)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {

@@ -16,6 +16,7 @@ import (
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
+	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb12"
@@ -62,6 +63,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
+	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pelayanan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penagihan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
@@ -71,6 +74,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sts"
@@ -83,6 +87,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/undanganpemeriksaan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 
 	_ "github.com/bapenda-kota-malang/apin-backend/internal/models/adbmigration"
@@ -184,6 +189,10 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/tempatpembayaran", tempatpembayaran.Crud{})
 
+	rh.RegCrud(r, "/sppt", sppt.Crud{})
+
+	rh.RegCrud(r, "/bphtbsptpd", bphtbsptpd.Crud{})
+
 	rh.RegCrud(r, "/kelastanah", kelastanah.Crud{})
 
 	rh.RegCrud(r, "/kelasbangunan", kelasbangunan.Crud{})
@@ -232,6 +241,19 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", pegawai.GetDetail)
 		r.Patch("/{id}", pegawai.Update)
 		r.Delete("/{id}", pegawai.Delete)
+	})
+
+	r.Route("/permohonan", func(r chi.Router) {
+		r.Patch("/{id}/status", permohonan.UpdateStatus)
+		r.Post("/", permohonan.Create)
+		r.Get("/", permohonan.GetList)
+		r.Get("/{id}", permohonan.GetDetail)
+		r.Patch("/{id}", permohonan.Update)
+		r.Delete("/{id}", permohonan.Delete)
+	})
+
+	r.Route("/statnop", func(r chi.Router) {
+		r.Get("/{id}", permohonan.GetStatusNOP)
 	})
 
 	r.Route("/ppat", func(r chi.Router) {
@@ -285,6 +307,7 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/provinsi", func(r chi.Router) {
+		r.Get("/{id}/kode", provinsi.GetDetailByCode)
 		r.Post("/", provinsi.Create)
 		r.Get("/", provinsi.GetList)
 		r.Get("/{id}", provinsi.GetDetail)
@@ -292,7 +315,14 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", provinsi.Delete)
 	})
 
+	r.Route("/penagihan", func(r chi.Router) {
+		r.Get("/himbauan", penagihan.GetReportHimbauan)
+		r.Get("/tunggakan", penagihan.GetReportTunggakan)
+		r.Get("/himpunan", penagihan.GetReportTunggakanHimpunan)
+	})
+
 	r.Route("/daerah", func(r chi.Router) {
+		r.Get("/{id}/kode", daerah.GetDetailByCode)
 		r.Post("/", daerah.Create)
 		r.Get("/", daerah.GetList)
 		r.Get("/{id}", daerah.GetDetail)
@@ -301,6 +331,7 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/kecamatan", func(r chi.Router) {
+		r.Get("/{id}/kode", kecamatan.GetDetailByCode)
 		r.Post("/", kecamatan.Create)
 		r.Get("/", kecamatan.GetList)
 		r.Get("/{id}", kecamatan.GetDetail)
@@ -309,6 +340,7 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/kelurahan", func(r chi.Router) {
+		r.Get("/{id}/kode", kelurahan.GetDetailByCode)
 		r.Post("/", kelurahan.Create)
 		r.Get("/", kelurahan.GetList)
 		r.Get("/{id}", kelurahan.GetDetail)
@@ -319,6 +351,11 @@ func SetRoutes() http.Handler {
 	r.Route("/wajibpajak", func(r chi.Router) {
 		r.Get("/", wajibpajak.GetList)
 		r.Get("/{id}", wajibpajak.GetDetail)
+	})
+
+	r.Route("/wajibpajakpbb", func(r chi.Router) {
+		r.Get("/", wajibpajakpbb.GetList)
+		r.Get("/{id}", wajibpajakpbb.GetDetail)
 	})
 
 	r.Route("/sptpd", func(r chi.Router) {

@@ -24,3 +24,8 @@ type ProvinsiFilterDto struct {
 	PageSize     int64   `json:"page_size"`
 	NoPagination bool    `json:"no_pagination"`
 }
+
+type BlokDto struct {
+	Kode string `json:"kode" validate:"requred;min=1"`
+	Nama string `json:"nama" validate:"required;maxLength=100"`
+}

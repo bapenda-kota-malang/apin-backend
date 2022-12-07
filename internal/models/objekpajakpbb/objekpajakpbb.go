@@ -55,3 +55,20 @@ type ObjekPajakPbb struct {
 	UpdatedAt             *time.Time         `json:"updatedAt"`
 	DeletedAt             gorm.DeletedAt     `json:"deletedAt" gorm:"index"`
 }
+
+type ObjekPajakRequestDto struct {
+	Nama         *string `json:"nama" validate:"required"`
+	Nop          *string `json:"nop"`
+	Alamat       *string `json:"alamat"  validate:"required"`
+	Rt           *string `json:"rt" validate:"required"`
+	Rw           *string `json:"rw" validate:"required"`
+	Kecamatan_Id *uint64 `json:"kecamatan_id" validate:"required"`
+	Kelurahan_Id *uint64 `json:"kelurahan_id" validate:"required"`
+	Telp         *string `json:"telp" validate:"nohp"`
+}
+
+type FilterDto struct {
+	Nop      *string `json:"nop"`
+	Page     int     `json:"page"`
+	PageSize int     `json:"page_size"`
+}

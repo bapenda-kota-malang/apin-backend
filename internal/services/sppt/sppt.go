@@ -1,52 +1,48 @@
-package daerah
+package skpd
 
 import (
-	"errors"
-	"fmt"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "daerah"
+const source = "skpd"
 
-func Create(input m.DaerahCreateDto) (any, error) {
-	var data m.Daerah
-	var dataP m.Provinsi
-	checkProvinceCode := a.DB.Where(&m.Provinsi{Kode: input.Provinsi_Kode}).First(&dataP)
-	if checkProvinceCode.RowsAffected == 0 {
-		return nil, errors.New("provinsi dengan kode tersebut belum terdaftar")
-	}
-	if err := sc.Copy(&data, input); err != nil {
+func Create(input m.RequestDto) (any, error) {
+	var data m.Sppt
+
+	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
+	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	result := a.DB.Create(&data)
-	if result.Error != nil {
+	// simpan data ke db satu if karena result dipakai sekali, +error
+	if result := a.DB.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetList(input m.DaerahFilterDto) (interface{}, error) {
-	var data []m.Daerah
+func GetList(input m.FilterDto) (any, error) {
+	var data []m.Sppt
 	var count int64
-	var pagination gh.Pagination
 
-	query := a.DB.
-		Model(&m.Daerah{}).
+	var pagination gh.Pagination
+	result := a.DB.
+		Model(&m.Sppt{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
-		Scopes(gh.Paginate(input, &pagination))
-	result := query.Find(&data)
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
@@ -62,8 +58,9 @@ func GetList(input m.DaerahFilterDto) (interface{}, error) {
 	}, nil
 }
 
-func GetDetail(id int) (interface{}, error) {
-	var data *m.Daerah
+func GetDetail(id int) (any, error) {
+	var data *m.Sppt
+
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -76,30 +73,17 @@ func GetDetail(id int) (interface{}, error) {
 	}, nil
 }
 
-func GetDetailByCode(id int) (interface{}, error) {
-	var data *m.Daerah
-	result := a.DB.Where("Kode", fmt.Sprint(id)).First(&data)
-	if result.RowsAffected == 0 {
-		return nil, nil
-	} else if result.Error != nil {
-		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
-	}
-
-	return rp.OKSimple{
-		Data: data,
-	}, nil
-}
-
-func Update(id int, input m.DaerahUpdateDto) (interface{}, error) {
-	var data *m.Daerah
-
+func Update(id int, input m.RequestDto) (any, error) {
+	var data *m.Sppt
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return nil, nil
 	}
-	if err := sc.Copy(&data, input); err != nil {
+
+	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
+
 	if result := a.DB.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
@@ -112,11 +96,11 @@ func Update(id int, input m.DaerahUpdateDto) (interface{}, error) {
 	}, nil
 }
 
-func Delete(id int) (interface{}, error) {
-	var data *m.Daerah
+func Delete(id int) (any, error) {
+	var data *m.Sppt
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return nil, nil
 	}
 
 	result = a.DB.Delete(&data, id)

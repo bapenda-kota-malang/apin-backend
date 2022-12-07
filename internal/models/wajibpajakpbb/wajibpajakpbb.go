@@ -15,11 +15,11 @@ type WajibPajakPbb struct {
 	Rt             string        `json:"rt" gorm:"type:char(2)"`
 	Kelurahan_Kode string        `json:"kelurahan_kode" gorm:"type:char(3)"`
 	Kelurahan      *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Kode;references:Kode"`
-	Kota_Kode      string        `json:"kota_kode" gorm:"type:char(3)"`
-	Kota           *ad.Daerah    `json:"kota,omitempty" gorm:"foreignKey:Kota_Kode;references:Kode"`
+	Daerah_Kode    string        `json:"daerah_kode" gorm:"type:char(3)"`
+	Daerah         *ad.Daerah    `json:"kota,omitempty" gorm:"foreignKey:Daerah_Kode;references:Kode"`
 	KodePos        string        `json:"kodePos" gorm:"type:varchar2(5)"`
 	Telp           string        `json:"telp" gorm:"type:varchar2(20)"`
 	Npwp           string        `json:"npwp" gorm:"type:varchar(20)"`
-	Pekerjaan      string        `json:"pekerjaan" gorm:"type:varchar"`
+	Pekerjaan      string        `json:"pekerjaan" gorm:"type:varchar(100)"`
 	gh.DateModel
 }
