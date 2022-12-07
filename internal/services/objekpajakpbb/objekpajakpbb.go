@@ -11,29 +11,127 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
+	miop "github.com/bapenda-kota-malang/apin-backend/internal/models/indukobjekpajak"
+	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
+	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
+	siop "github.com/bapenda-kota-malang/apin-backend/internal/services/indukobjekpajak"
+	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
+	swp "github.com/bapenda-kota-malang/apin-backend/internal/services/wajibpajakpbb"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "objekpajak"
+const source = "objekpajakpbb"
 
-func Create(input m.ObjekPajakRequestDto, tx *gorm.DB) (any, error) {
-	if tx == nil {
-		tx = a.DB
-	}
+func Create(input m.CreateDto) (any, error) {
 	var data m.ObjekPajakPbb
+	var dataWajibPajakPbb mwp.CreateDto
+	var dataAnggotaObjekPajak maop.CreateDto
+	var dataIndukObjekPajak miop.CreateDto
+	var dataObjekPajakBumi mopb.CreateDto
+	var respDataWajibPajakPbb interface{}
+	var respDataAnggotaObjekPajak interface{}
+	var respDataIndukObjekPajak interface{}
+	var respDataObjekPajakBumi interface{}
+	var resp t.II
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	// simpan data ke db satu if karena result dipakai sekali, +error
-	if result := tx.Create(&data); result.Error != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
+	// copy data wajibpajakPbb
+	if err := sc.Copy(&dataWajibPajakPbb, input.WajibPajakPbbs); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload wajibpajakpbb", input.WajibPajakPbbs)
 	}
 
-	return rp.OKSimple{Data: data}, nil
+	// copy data objek pajak bumi
+	if err := sc.Copy(&dataObjekPajakBumi, input.ObjekPajakBumis); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload objek pajak bumi", input.ObjekPajakBumis)
+	}
+
+	if input.IndukObjekPajaks != nil {
+		// copy data induk objek pajak
+		if err := sc.Copy(&dataIndukObjekPajak, input.IndukObjekPajaks); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload induk objek pajak", input.IndukObjekPajaks)
+		}
+
+		// copy data anggota objek pajak
+		if err := sc.Copy(&dataAnggotaObjekPajak, input.AnggotaObjekPajaks); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload anggota objek pajak", input.AnggotaObjekPajaks)
+		}
+	}
+
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		// create data wajibpajakpbb
+		resultWajibPajakPbb, err := swp.Create(dataWajibPajakPbb, tx)
+		if err != nil {
+			return err
+		}
+		respDataWajibPajakPbb = resultWajibPajakPbb
+		resultCastWajibPajakPbb := resultWajibPajakPbb.(rp.OKSimple).Data.(mwp.WajibPajakPbb)
+		// add static value
+		data.WajibPajakPbb_Id = &resultCastWajibPajakPbb.Id
+
+		// create data objekpajakpbb
+		err = tx.Create(&data).Error
+		if err != nil {
+			return err
+		}
+
+		// create data objek pajak bumi
+		resultObjekPajakBumi, err := sopb.Create(dataObjekPajakBumi, tx)
+		if err != nil {
+			return err
+		}
+		respDataObjekPajakBumi = resultObjekPajakBumi
+
+		if input.IndukObjekPajaks != nil {
+			// create data induk objek pajak
+			resultIndukObjekPajak, err := siop.Create(dataIndukObjekPajak, tx)
+			if err != nil {
+				return err
+			}
+			respDataIndukObjekPajak = resultIndukObjekPajak
+			resultCastIndukObjekPajak := resultIndukObjekPajak.(rp.OKSimple).Data.(miop.IndukObjekPajak)
+
+			// create data anggota objek pajak
+			dataAnggotaObjekPajak.IndukObjekPajak_Id = &resultCastIndukObjekPajak.Id
+			resultAnggotaObjekPajak, err := saop.Create(dataAnggotaObjekPajak, tx)
+			if err != nil {
+				return err
+			}
+			respDataAnggotaObjekPajak = resultAnggotaObjekPajak
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
+	}
+
+	if input.IndukObjekPajaks != nil {
+		resp = t.II{
+			"objekPajakPbb":     data,
+			"wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakBumi":    respDataObjekPajakBumi.(rp.OKSimple).Data,
+			"indukObjekPajak":   respDataIndukObjekPajak.(rp.OKSimple).Data,
+			"anggotaObjekPajak": respDataAnggotaObjekPajak.(rp.OKSimple).Data,
+		}
+	} else {
+		resp = t.II{
+			"objekPajakPbb":  data,
+			"wajibPajakPbb":  respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakBumi": respDataObjekPajakBumi.(rp.OKSimple).Data,
+		}
+	}
+
+	return rp.OKSimple{
+		Data: resp,
+	}, nil
 }
 
 func GetList(input m.FilterDto) (any, error) {
@@ -92,7 +190,7 @@ func GetDetailbyField(field string, value string) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.ObjekPajakRequestDto, tx *gorm.DB) (any, error) {
+func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}

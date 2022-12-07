@@ -7,6 +7,7 @@ type JenisDinding string
 type JenisLantai string
 type JenisLangitLangit string
 type JenisTransaksi string
+type KelasBangunan string
 
 const (
 	// kondisi bangunan
@@ -52,4 +53,9 @@ const (
 	JenisTransaksiPemutakhiran      JenisTransaksi = "22" // pemutakhiran data bangunan
 	JenisTransaksiPenghapusan       JenisTransaksi = "23" // penghapusan data bangunan
 	JenisTransaksiPenilaianIndividu JenisTransaksi = "24" // penilaian individu
+
+	KelasBangunan1 KelasBangunan = "1" // kelas 1
+	KelasBangunan2 KelasBangunan = "2" // kelas 2
+	KelasBangunan3 KelasBangunan = "3" // kelas 3
+	KelasBangunan4 KelasBangunan = "4" // kelas 4
 )
