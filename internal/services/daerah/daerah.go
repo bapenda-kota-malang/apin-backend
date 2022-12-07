@@ -43,6 +43,7 @@ func GetList(input m.DaerahFilterDto) (interface{}, error) {
 
 	query := a.DB.
 		Model(&m.Daerah{}).
+		Preload("Provinsi").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination))
@@ -64,7 +65,9 @@ func GetList(input m.DaerahFilterDto) (interface{}, error) {
 
 func GetDetail(id int) (interface{}, error) {
 	var data *m.Daerah
-	result := a.DB.First(&data, id)
+	result := a.DB.Model(&m.Daerah{}).
+		Preload("Provinsi").
+		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
