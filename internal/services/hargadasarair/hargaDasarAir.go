@@ -11,6 +11,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
@@ -35,6 +36,17 @@ func Create(input m.CreateDto) (any, error) {
 func GetList(input m.FilterDto) (any, error) {
 	var data []m.HargaDasarAir
 	var count int64
+
+	if input.Peruntukan != nil {
+		switch *input.Peruntukan {
+		case string(types.PeruntukanPdam),
+			string(types.PeruntukanIndustriAir),
+			string(types.PeruntukanNonNiaga),
+			string(types.PeruntukanNiaga):
+		default:
+			return sh.SetError("request", "get-data-list", source, "failed", "data peruntukan tidak diketahui", data)
+		}
+	}
 
 	var pagination gh.Pagination
 	result := a.DB.
@@ -70,6 +82,24 @@ func GetDetail(id int) (any, error) {
 
 	return rp.OKSimple{
 		Data: data,
+	}, nil
+}
+
+func GetPeruntukan() (any, error) {
+	var data []m.PeruntukanList
+	result := a.DB.Model(&m.HargaDasarAir{}).Distinct("Peruntukan").Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	var finalData []string
+
+	for i := range data {
+		finalData = append(finalData, string(data[i].Peruntukan))
+	}
+
+	return rp.OKSimple{
+		Data: finalData,
 	}, nil
 }
 

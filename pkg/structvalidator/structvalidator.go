@@ -9,8 +9,10 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/exp/maps"
+	"gorm.io/datatypes"
 )
 
 // error format, exported for casting purpose
@@ -71,7 +73,10 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		// identify type and value of the field
 		fieldT := inputT.Field(i)
 		fieldV := inputV.Field(i)
-		for fieldV.Kind() == reflect.Pointer {
+		for fieldV.Kind() == reflect.Ptr {
+			if fieldV.IsZero() {
+				break
+			}
 			fieldV = fieldV.Elem()
 		}
 
@@ -83,30 +88,63 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 			if fieldT.Anonymous {
 				embeddedMode = "(embedded)"
 			}
-			// fmt.Println(fieldT.Name, "is skiped")
-			// fmt.Println(fieldT.Name, "is", fieldT.Type.Kind())
-
-			maps.Copy(errList, Validate(fieldV.Interface(), fieldT.Name, embeddedMode))
+			tag := fieldT.Tag.Get("json")
+			if tag == "" {
+				tag = fieldT.Name
+			}
+			maps.Copy(errList, Validate(fieldV.Interface(), tag, embeddedMode))
 			continue
 		}
 
 		tag := fieldT.Tag.Get(tagName)
 		if tag != "" {
 			parsedTag := parseTag(tag)
-			for _, kv := range parsedTag {
-				if _, ok := tagValidator[kv.Key]; ok {
-					fmt.Println(fieldT.Name, "is being validated")
-					err := tagValidator[kv.Key](fieldV, kv.Val)
-					if err != nil {
-						fmt.Println(fieldT.Name, "validation is failed")
-						key := fieldT.Tag.Get("json")
-						if key == "" {
-							key = fieldT.Name
-						}
-						errList[nameSpace+key] = ValidationError{err.Error(), kv.Key, kv.Val, fieldV.Interface()}
-						break // 1 err is enough, break from error check of the current field
+			key := fieldT.Tag.Get("json")
+			if key == "" {
+				key = fieldT.Name
+			}
+			// based on slice or not
+			if fieldV.Kind() == reflect.Slice {
+				// special case untuk required
+				required := false
+				for _, v := range parsedTag {
+					if v.Key == "required" {
+						required = true
+						break
 					}
 				}
+				// empty array
+				if fieldV.Len() == 0 {
+					if required {
+						errList[nameSpace+key] = ValidationError{"nilai/isi dibutuhkan", "required", "", fieldV.Interface()}
+					}
+					continue
+				}
+				// loop
+				if fieldV.Index(0).Kind() == reflect.Struct {
+					for ix := 0; ix < fieldV.Len(); ix++ {
+						maps.Copy(errList, Validate(fieldV.Index(ix).Interface(), fmt.Sprintf("%v[%v]", key, ix)))
+					}
+				} else {
+					for ix := 0; ix < fieldV.Len(); ix++ {
+						CheckParsedTag(parsedTag, fieldV.Index(ix), errList, fmt.Sprintf("%v[%v]", key, ix))
+					}
+				}
+			} else {
+				// non slice
+				CheckParsedTag(parsedTag, fieldV, errList, nameSpace+key)
+				// 	maps.Copy(errList, Validate(fieldV.Index(ix).Interface(), fmt.Sprintf("%v[%v]", key, ix)))
+				// for _, kv := range parsedTag {
+				// 	if _, ok := tagValidator[kv.Key]; ok {
+				// 		// fmt.Println(fieldT.Name, "is being validated")
+				// 		err := tagValidator[kv.Key](fieldV, kv.Val)
+				// 		if err != nil {
+				// 			// fmt.Println(fieldT.Name, "validation is failed")
+				// 			errList[nameSpace+key] = ValidationError{err.Error(), kv.Key, kv.Val, fieldV.Interface()}
+				// 			break // 1 err is enough, break from error check of the current field
+				// 		}
+				// 	}
+				// }
 			}
 		}
 	}
@@ -117,23 +155,32 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 	return nil
 }
 
+func CheckParsedTag(parsedTag []keyVal, fv reflect.Value, el map[string]ValidationError, key string) {
+	for _, kv := range parsedTag {
+		if _, ok := tagValidator[kv.Key]; ok {
+			// fmt.Println(fieldT.Name, "is being validated")
+			err := tagValidator[kv.Key](fv, kv.Val)
+			if err != nil {
+				// fmt.Println(fieldT.Name, "validation is failed")
+				el[key] = ValidationError{err.Error(), kv.Key, kv.Val, fv.Interface()}
+				break // 1 err is enough, break from error check of the current field
+			}
+		}
+	}
+}
+
 // Validation from IO Reader
 func ValidateIoReader(container interface{}, input io.Reader) map[string]ValidationError {
-	// cV := reflect.ValueOf(container)
-	// if cV.Kind() != reflect.Ptr || cV.Type().Kind() != reflect.Struct {
-	// 	panic("requires pointer of a struct typed input")
-	// }
 	decoder := json.NewDecoder(input)
 	err := decoder.Decode(&container)
 	if err != nil {
-		// cI := reflect.ValueOf(container).E()
-		cI := reflect.ValueOf(container).Elem().Interface()
-		cV := reflect.ValueOf(cI)
-		// cT := reflect.TypeOf(cV)
-		// myType := cT.String()//
-		myType := fmt.Sprintf("%T", cV)
+		cV := reflect.ValueOf(container)
+		for cV.Kind() == reflect.Pointer || cV.Kind() == reflect.Interface {
+			cV = cV.Elem()
+		}
+		structName := cV.Type().Name()
 		return map[string]ValidationError{
-			"struct": {fmt.Sprintf("gagal mengambil data %v", myType), "struct", fmt.Sprintf("value of %v", myType), ""},
+			"struct": {fmt.Sprintf("gagal parsing payload ke %v, pesan error: %v", structName, err), "struct", fmt.Sprintf("value of %v", structName), ""},
 		}
 	}
 
@@ -196,9 +243,50 @@ func ValidateURL(container any, url url.URL) map[string]ValidationError {
 				v := autoCastInt(valInt, fieldV)
 				fieldV.Set(v)
 			}
+		case float64, *float64:
+			strFloat, err := strconv.ParseFloat(vals[0], 64)
+			if err != nil {
+				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}
+			}
+			if fieldV.Kind() == reflect.Ptr {
+				fieldV.Set(reflect.ValueOf(&strFloat))
+			} else {
+				fieldV.Set(reflect.ValueOf(strFloat))
+			}
+		case float32, *float32:
+			strFloat, err := strconv.ParseFloat(vals[0], 32)
+			if err != nil {
+				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}
+			}
+			strFloat32 := float32(strFloat)
+			if fieldV.Kind() == reflect.Ptr {
+				fieldV.Set(reflect.ValueOf(&strFloat32))
+			} else {
+				fieldV.Set(reflect.ValueOf(strFloat32))
+			}
 		case []string, *[]string:
 			fieldV.Set(reflect.ValueOf(&vals))
-
+		case datatypes.Date, *datatypes.Date:
+			time, err := time.Parse("2006-01-02T15:04:05.000Z", vals[0])
+			if err != nil {
+				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}
+			}
+			date := datatypes.Date(time)
+			if fieldV.Kind() == reflect.Ptr {
+				fieldV.Set(reflect.ValueOf(&date))
+			} else {
+				fieldV.Set(reflect.ValueOf(date))
+			}
+		case time.Time, *time.Time:
+			time, err := time.Parse("2006-01-02T15:04:05.000Z", vals[0])
+			if err != nil {
+				errList[key] = ValidationError{err.Error(), key, vals[0], fieldV.Interface()}
+			}
+			if fieldV.Kind() == reflect.Ptr {
+				fieldV.Set(reflect.ValueOf(&time))
+			} else {
+				fieldV.Set(reflect.ValueOf(time))
+			}
 		// TODO: make any *[]int as a function
 		case *[]int8:
 			failed := false

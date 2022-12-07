@@ -8,6 +8,7 @@ import (
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
+	"github.com/go-chi/chi/v5"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
@@ -24,11 +25,10 @@ func validateDetail(w http.ResponseWriter, body io.ReadCloser, data interface{})
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var input m.CreateInput
+	var input m.Input
 	var err error
 	var result any
-	query := r.URL.Query()
-	category := query.Get("category")
+	category := r.URL.Query().Get("category")
 	switch category {
 	case "air":
 		var tmp m.CreateDetailAirDto
@@ -36,35 +36,49 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "hotel":
 		var tmp m.CreateDetailHotelDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "hiburan":
 		var tmp m.CreateDetailHiburanDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "parkir":
 		var tmp m.CreateDetailParkirDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "resto":
 		var tmp m.CreateDetailRestoDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
+	case "ppjnonpln":
+		var tmp m.CreateDetailPpjNonPlnDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "ppjpln":
+		var tmp m.CreateDetailPpjPlnDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
 	default:
 		err = errors.New("category tidak diketahui")
 		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
@@ -83,28 +97,31 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.GetList(input)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	result, err := s.GetList(input, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
-	result, err := s.GetDetail(id)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	result, err := s.GetDetail(id, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
-	var input m.UpdateInput
+	var input m.Input
 	var err error
 	var result any
-	query := r.URL.Query()
-	category := query.Get("category")
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	category := r.URL.Query().Get("category")
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 	switch category {
@@ -114,35 +131,49 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "hotel":
 		var tmp m.UpdateDetailHotelDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "hiburan":
 		var tmp m.UpdateDetailHiburanDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "parkir":
 		var tmp m.UpdateDetailParkirDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
 	case "resto":
 		var tmp m.UpdateDetailRestoDto
 		err = validateDetail(w, r.Body, &tmp)
 		if err != nil {
 			return
 		}
-		input = tmp
+		input = &tmp
+	case "ppjnonpln":
+		var tmp m.UpdateDetailPpjNonPlnDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
+	case "ppjpln":
+		var tmp m.UpdateDetailPpjPlnDto
+		err = validateDetail(w, r.Body, &tmp)
+		if err != nil {
+			return
+		}
+		input = &tmp
 	default:
 		err = errors.New("category tidak diketahui")
 		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
@@ -156,8 +187,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 

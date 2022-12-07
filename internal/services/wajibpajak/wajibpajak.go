@@ -11,6 +11,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
@@ -22,14 +23,39 @@ import (
 
 const source = "wajibpajak"
 
+func filePreProcess(b64String string) (fileName, path, extFile string, err error) {
+	extFile, err = base64helper.GetExtensionBase64(b64String)
+	if err != nil {
+		return
+	}
+	path = sh.GetResourcesPath()
+	switch extFile {
+	case "png", "jpeg":
+		path = sh.GetImgPath()
+	default:
+		err = errors.New("file bukan gambar")
+		return
+	}
+	id, err := sh.GetUuidv4()
+	if err != nil {
+		err = errors.New("gagal generate uuid")
+		return
+	}
+	fileName = sh.GenerateFilename("ktpWajibPajak", id, 0, extFile)
+	return
+}
+
 func Create(input m.RegistrasiWajibPajak) (any, error) {
 	var data m.WajibPajak
 	var dataU mu.CreateDto
 	var respDataU interface{}
-	var imgNameChan = make(chan string)
 	var errChan = make(chan error)
 
-	go sh.SaveImage(input.WajibPajak.FotoKtp, imgNameChan, errChan)
+	fileName, path, extFile, err := filePreProcess(input.WajibPajak.FotoKtp)
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+	}
+	go sh.SaveFile(input.WajibPajak.FotoKtp, fileName, path, extFile, errChan)
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input.WajibPajak); err != nil {
@@ -53,12 +79,12 @@ func Create(input m.RegistrasiWajibPajak) (any, error) {
 	// }
 
 	if err := <-errChan; err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "image unsupported", data)
+		return sh.SetError("request", "create-data", source, "failed", "save image: "+err.Error(), data)
 	}
-	data.FotoKtp = <-imgNameChan
-	data.Email = dataU.Email
+	data.FotoKtp = fileName
+	// data.Email = dataU.Email
 
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data ke db satu if karena result dipakai sekali, +error
 		if result := tx.Create(&data); result.Error != nil {
 			return result.Error
@@ -135,7 +161,6 @@ func GetDetail(id int) (any, error) {
 
 func Update(id int, input m.UpdateDto) (any, error) {
 	var data *m.WajibPajak
-	var imgNameChan = make(chan string)
 	var errChan = make(chan error)
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -143,11 +168,15 @@ func Update(id int, input m.UpdateDto) (any, error) {
 	}
 
 	if input.FotoKtp != nil {
-		go sh.ReplaceImage(data.FotoKtp, *input.FotoKtp, imgNameChan, errChan)
-		if err := <-errChan; err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "image unsupported", data)
+		fileName, path, extFile, err := filePreProcess(*input.FotoKtp)
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 		}
-		data.FotoKtp = <-imgNameChan
+		go sh.ReplaceFile(data.FotoKtp, *input.FotoKtp, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "replace image: "+err.Error(), data)
+		}
+		data.FotoKtp = fileName
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
@@ -208,10 +237,14 @@ func CheckerPTwo(input m.CheckerPTwoDto) (interface{}, error) {
 }
 
 func CheckerPFour(input m.CheckerPFourDto) (interface{}, error) {
-	if err := sh.CheckImage(input.FotoKtp); err != nil {
+	ext, err := base64helper.GetExtensionBase64(input.FotoKtp)
+	if err != nil {
 		return nil, err
 	}
-	return rp.OKSimple{
-		Data: nil,
-	}, nil
+	if ext == "png" || ext == "jpg" {
+		return rp.OKSimple{
+			Data: nil,
+		}, nil
+	}
+	return nil, errors.New("data bukan gambar")
 }

@@ -17,7 +17,8 @@ type TarifReklame struct {
 	JenisReklame        *string                            `json:"jenisReklame" gorm:"type:varchar(200)"`
 	DasarPengenaan      *string                            `json:"dasarPengenaan" gorm:"type:varchar(100)"`
 	KlasifikasiJalan_Id *string                            `json:"klasifikasiJalan_id" gorm:"type:varchar(3)"`
-	KlasifikasiJalan    *klasifikasijalan.KlasifikasiJalan `json:"rekening,omitempty" gorm:"foreignKey:KlasifikasiJalan_Id"`
+	KlasifikasiJalan    *klasifikasijalan.KlasifikasiJalan `json:"omitempty" gorm:"foreignKey:KlasifikasiJalan_Id"`
+	MasaPajak           *string                            `json:"masaPajak,omitempty" gorm:"size:100"`
 	Tarif               *float64                           `json:"tarif" gorm:"type:decimal"`
 }
 
@@ -26,6 +27,7 @@ type CreateDto struct {
 	JenisReklame        string    `json:"jenisReklame" validate:"required"`
 	DasarPengenaan      string    `json:"dasarPengenaan" validate:"required"`
 	KlasifikasiJalan_Id string    `json:"klasifikasiJalan_id" validate:"required"`
+	MasaPajak           *string   `json:"masaPajak,omitempty"`
 	Tarif               float64   `json:"tarif" validate:"required"`
 }
 
@@ -34,15 +36,17 @@ type UpdateDto struct {
 	JenisReklame        *string   `json:"jenisReklame"`
 	DasarPengenaan      string    `json:"dasarPengenaan"`
 	KlasifikasiJalan_Id string    `json:"klasifikasiJalan_id"`
+	MasaPajak           *string   `json:"masaPajak,omitempty"`
 	Tarif               float64   `json:"tarif"`
 }
 
 type FilterDto struct {
-	// JenisMasa           JenisMasa `json:"jenisMasa"`
+	JenisMasa           int16    `json:"jenisMasa"`
 	JenisReklame        *string  `json:"jenisReklame"`
 	DasarPengenaan      *string  `json:"dasarPengenaan"`
 	KlasifikasiJalan_Id *string  `json:"klasifikasiJalan_id"`
 	Tarif               *float64 `json:"tarif"`
+	MasaPajak           *string  `json:"masaPajak,omitempty"`
 	Page                int      `json:"page"`
 	PageSize            int      `json:"page_size"`
 }

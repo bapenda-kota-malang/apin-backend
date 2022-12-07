@@ -33,7 +33,7 @@ COPY public."Jurnal" ("Id", "Kode", "Nama") FROM stdin;
 -- Name: Jurnal_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."Jurnal_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Jurnal_Id_seq"', 11, false);
 
 
 --

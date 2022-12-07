@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -22,6 +23,21 @@ func ValidateAutoInc(w http.ResponseWriter, r *http.Request, input string) int {
 		return 0
 	}
 	return id
+}
+
+// write error if
+func ValidateIdUuid(w http.ResponseWriter, id string) (uid uuid.UUID, pass bool) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{
+			Message: "id bukan valid uuid",
+		}, nil)
+		pass = false
+		return
+	}
+
+	pass = true
+	return
 }
 
 // write error response if validation fails, return boool true on success

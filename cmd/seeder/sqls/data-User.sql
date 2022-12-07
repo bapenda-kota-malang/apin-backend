@@ -103,7 +103,7 @@ COPY public."User" ("Id", "Name", "Salt", "Password", "Position", "Ref_Id", "Gro
 -- Name: User_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."User_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."User_Id_seq"', 103, false);
 
 
 --

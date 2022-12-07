@@ -21,7 +21,7 @@ SET row_security = off;
 --
 
 COPY public."HargaDasarAir" ("Id", "Peruntukan", "BatasBawah", "BatasAtas", "TarifMataAir", "TarifBukanMataAir") FROM stdin;
-26	NON NIAGA	11001	-	125.00	125.00
+26	NON NIAGA	11001	999999	125.00	125.00
 27	PDAM	0	999999	125.00	125.00
 10	NON NIAGA	0	50	255.00	225.00
 11	NON NIAGA	51	500	295.00	265.00
@@ -32,12 +32,12 @@ COPY public."HargaDasarAir" ("Id", "Peruntukan", "BatasBawah", "BatasAtas", "Tar
 16	NIAGA	51	500	480.00	450.00
 17	NIAGA	501	1000	580.00	550.00
 18	NIAGA	1001	2500	680.00	650.00
-19	NIAGA	2500	-	780.00	750.00
+19	NIAGA	2500	999999	780.00	750.00
 20	INDUSTRI	0	50	1580.00	1550.00
 21	INDUSTRI	51	500	2280.00	2250.00
 22	INDUSTRI	501	1000	2980.00	2950.00
 23	INDUSTRI	1001	2500	3680.00	3650.00
-25	INDUSTRI	2501	-	4380.00	4350.00
+25	INDUSTRI	2501	999999	4380.00	4350.00
 \.
 
 
@@ -45,7 +45,7 @@ COPY public."HargaDasarAir" ("Id", "Peruntukan", "BatasBawah", "BatasAtas", "Tar
 -- Name: HargaDasarAir_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."HargaDasarAir_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."HargaDasarAir_Id_seq"', 27, false);
 
 
 --

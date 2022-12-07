@@ -1,90 +1,104 @@
 package detailsptresto
 
 import (
+	"errors"
 	"strconv"
-	"time"
 
-	ms "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
-	mdsres "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
-	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
+	"gorm.io/gorm"
 )
 
 const source = "detailSptResto"
 
-func Create(input ms.CreateRestoDto) (any, error) {
-	var dataS ms.Spt
-	var dataD mdsres.DetailSptResto
-
-	if err := sc.Copy(&dataS, input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataS)
-	}
-	if err := sc.Copy(&dataD, input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataD)
+func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
 	}
 
-	err := a.DB.Create(&dataS).Error
-	if err != nil {
-		return nil, err
+	var data m.DetailSptResto
+
+	//  copy input (payload) ke struct data jika tidak ada akan error
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	dataD.Spt_Id = dataS.Id
+	// check relasi id tabel ke tabel relasi
+	// espt table
+	// if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
+	// 	return nil, nil
+	// }
 
-	err = a.DB.Create(&dataD).Error
-	if err != nil {
-		return nil, err
+	// static add value to field
+
+	// Transaction save to db
+	// simpan data ke db satu if karena result dipakai sekali, +error
+	if result := tx.Create(&data); result.Error != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
-	return rp.OKSimple{Data: t.II{
-		"spt":            dataS,
-		"detailSptResto": dataD,
-	}}, nil
+	return rp.OKSimple{Data: data}, nil
 }
 
-func Update(id int, input ms.UpdateRestoDto) (any, error) {
-	// spt
-	var data *ms.Spt
-	result := a.DB.First(&data, id)
-	if result.RowsAffected == 0 {
-		return nil, nil
+func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
 	}
+	var data m.DetailSptResto
 
+	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
+	if id != 0 {
+		if dataRow := tx.First(&data, id).RowsAffected; dataRow == 0 {
+			return nil, errors.New("data tidak dapat ditemukan")
+		}
+	}
+	// copy to model struct
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	data.SptDate = time.Now()
-	data.StartDate = th.ParseTime(input.StartDate)
-	data.EndDate = th.ParseTime(input.EndDate)
-	data.DueDate = th.ParseTime(input.DueDate)
-	data.TanggalLunas = th.ParseTime(input.TanggalLunas)
-	data.CancelledAt = th.ParseTime(input.CancelledAt)
-	if result := a.DB.Save(&data); result.Error != nil {
+	// check relasi id tabel ke tabel relasi
+	// potensiop table
+	// if result := a.DB.First(&mr.Rekening{}, dataPotensiOp.Rekening_Id); result.RowsAffected == 0 {
+	// 	return nil, nil
+	// }
+
+	// simpan data ke db satu if karena result dipakai sekali, +error
+	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
-	//detailspt
-	var dataD mdsres.DetailSptResto
-	result = a.DB.Where(mdsres.DetailSptResto{Spt_Id: uint64(id)}).First(&dataD)
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
+func Delete(id int, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data *m.DetailSptResto
+	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
-		return nil, nil
+		return nil, errors.New("data tidak dapat ditemukan")
 	}
-	if err := sc.Copy(&dataD, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", dataD)
-	}
-	if result := a.DB.Save(&dataD); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", dataD)
+
+	result = tx.Delete(&data, id)
+	status := "deleted"
+	if result.RowsAffected == 0 {
+		data = nil
+		status = "no deletion"
 	}
 
 	return rp.OK{
 		Meta: t.IS{
-			"affected": strconv.Itoa(int(result.RowsAffected)),
+			"count":  strconv.Itoa(int(result.RowsAffected)),
+			"status": status,
 		},
 		Data: data,
 	}, nil
-
 }

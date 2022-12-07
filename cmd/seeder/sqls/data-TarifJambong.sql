@@ -32,7 +32,7 @@ COPY public."TarifJambong" ("Id", "JenisReklame", "Nominal") FROM stdin;
 -- Name: TarifJambong_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."TarifJambong_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."TarifJambong_Id_seq"', 6, false);
 
 
 --
