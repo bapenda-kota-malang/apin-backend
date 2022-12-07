@@ -10,7 +10,7 @@ import (
 )
 
 type ObjekPajakBangunan struct {
-	opp.DetailLspop
+	opp.NopDetail
 	NoBangunan            int               `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode" gorm:"type:char(2)"`
 	Jpb                   j.Jpb             `json:"jpb,omitempty" gorm:"foreignKey:Jpb_Kode;references:Kode"`

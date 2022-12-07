@@ -6,6 +6,6 @@ import (
 )
 
 type IndukObjekPajak struct {
-	opp.DetailLspop
+	opp.NopDetail
 	gh.DateModel
 }

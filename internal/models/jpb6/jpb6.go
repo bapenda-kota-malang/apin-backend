@@ -7,7 +7,7 @@ import (
 )
 
 type Jpb6 struct {
-	opp.DetailLspop
+	opp.NopDetail
 	NoBangunan     int              `json:"noBangunan"`
 	KelasBangunan6 jt.KelasBangunan `json:"kelasBangunan6" gorm:"type:char(1)"`
 	gh.DateModel

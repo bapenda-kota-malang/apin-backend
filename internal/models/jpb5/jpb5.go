@@ -7,7 +7,7 @@ import (
 )
 
 type Jpb5 struct {
-	opp.DetailLspop
+	opp.NopDetail
 	NoBangunan             int              `json:"noBangunan"`
 	KelasBangunan5         jt.KelasBangunan `json:"kelasBangunan5" gorm:"type:char(1)"`
 	LuasKamarAcCentral     int              `json:"luasKamarAcCentral"`

@@ -9,24 +9,23 @@ import (
 	"gorm.io/gorm"
 )
 
-type DetailLspop struct {
-	Id           uint64        `json:"id" gorm:"primarykey"`
-	Provinsi_Id  string        `json:"provinsi_id" gorm:"type:char(2)"`
-	Provinsi     *ad.Provinsi  `json:"provinsi,omitempty" gorm:"foreignKey:Provinsi_Id;references:Id"`
-	Kota_Id      string        `json:"kota_id" gorm:"type:char(2)"`
-	Kota         *ad.Daerah    `json:"kota,omitempty" gorm:"foreignKey:Kota_Id;references:Id"`
-	Kecamatan_Id string        `json:"kecamatan_id" gorm:"type:char(3)"`
-	Kecamatan    *ad.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_Id;references:Id"`
-	Kelurahan_Id string        `json:"kelurahan_id" gorm:"type:char(3)"`
-	Kelurahan    *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Id;references:Id"`
-	// Blok_Id      string        `json:"blok_id" gorm:"type:char(3)"`
-	// Blok         *ad.Blok      `json:"blok,omitempty" gorm:"foreignKey:Blok_Id;references:Id"`
-	NoUrut  string `json:"noUrut" gorm:"type:char(4)"`
-	JenisOp string `json:"jenisOp" gorm:"type:char(1)"`
+type NopDetail struct {
+	Id             uint64        `json:"id" gorm:"primarykey"`
+	Provinsi_Kode  string        `json:"provinsi_kode" gorm:"type:char(2)"`
+	Provinsi       *ad.Provinsi  `json:"provinsi,omitempty" gorm:"foreignKey:Provinsi_Id;references:Id"`
+	Kota_Kode      string        `json:"kota_kode" gorm:"type:char(2)"`
+	Kota           *ad.Daerah    `json:"kota,omitempty" gorm:"foreignKey:Kota_Id;references:Id"`
+	Kecamatan_Kode string        `json:"kecamatan_kode" gorm:"type:char(3)"`
+	Kecamatan      *ad.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_Id;references:Id"`
+	Kelurahan_Kode string        `json:"kelurahan_kode" gorm:"type:char(3)"`
+	Kelurahan      *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Id;references:Id"`
+	Blok_Id        string        `json:"blok_id" gorm:"type:char(3)"`
+	NoUrut         string        `json:"noUrut" gorm:"type:char(4)"`
+	JenisOp        string        `json:"jenisOp" gorm:"type:char(1)"`
 }
 
 type ObjekPajakPbb struct {
-	DetailLspop
+	NopDetail
 	Nik                   string            `json:"nik" gorm:"type:char(30)"`
 	NoFormulirSpop        string            `json:"noFormulirSpop" gorm:"type:char(11)"`
 	NoPersil              string            `json:"noPersil" gorm:"type:varchar(5)"`

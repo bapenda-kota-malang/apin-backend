@@ -6,7 +6,7 @@ import (
 )
 
 type FasilitasBangunan struct {
-	opp.DetailLspop
+	opp.NopDetail
 	NoBangunan    int    `json:"noBangunan"`
 	KodeFasilitas string `json:"kodeFasilitas" gorm:"type:char(2)"`
 	JumlahSatuan  int    `json:"jumlahSatuan"`

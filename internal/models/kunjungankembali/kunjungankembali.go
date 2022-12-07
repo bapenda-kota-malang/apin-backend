@@ -8,7 +8,7 @@ import (
 )
 
 type KunjunganKembali struct {
-	opp.DetailLspop
+	opp.NopDetail
 	NoBangunan              int        `json:"noBangunan"`
 	TanggalKunjunganKembali *time.Time `json:"tanggalKunjunganKembali"`
 	Status                  int        `json:"number"`
