@@ -6,6 +6,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -126,27 +127,43 @@ func writeSeedSql(files []string) error {
 	return nil
 }
 
-// import sql file to database use exec from bash psql command
-func importToDb(c *Config) error {
+func generateCommand(c *Config, notrx bool) string {
 	uri := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", c.DbUser, c.Password, c.Host, c.Port, c.DbName)
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("psql %s -1 -f seed.sql", uri))
-	stderr, err := cmd.StderrPipe()
+	trxCommand := " -1 "
+	if notrx {
+		trxCommand = " "
+	}
+	return fmt.Sprintf("psql %s%s-f seed.sql", uri, trxCommand)
+}
+
+// import sql file to database use exec from bash psql command
+func importToDb(cmd string) error {
+	exec := exec.Command("bash", "-c", cmd)
+	stderr, err := exec.StderrPipe()
 	if err != nil {
 		return fmt.Errorf("exec stderrpipe: %v", err)
 	}
-	if err := cmd.Start(); err != nil {
+	if err := exec.Start(); err != nil {
 		return fmt.Errorf("cmd start err: %s", err)
 	}
 
 	errout, _ := io.ReadAll(stderr)
 
-	if err := cmd.Wait(); err != nil {
+	if err := exec.Wait(); err != nil {
 		return fmt.Errorf("cmd wait err: %s", errout)
 	}
 	if len(errout) != 0 {
 		return errors.New(string(errout))
 	}
 	return nil
+}
+
+// get flag and return result
+func flagCommand() (notrx *bool, updateSql *bool) {
+	notrx = flag.Bool("notrx", false, "for using transaction when execute seeder psql command")
+	updateSql = flag.Bool("updatesql", false, "for auto update list seed.sql with sql file inside sqls folder")
+	flag.Parse()
+	return
 }
 
 func main() {
@@ -156,25 +173,30 @@ func main() {
 		log.Fatalf("load config: %s", err)
 	}
 
-	// get path
-	wd, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("get wd path: %s", err)
-	}
-	basePath := path.Join(wd, "sqls")
+	notrx, updateSql := flagCommand()
 
-	// get list files
-	files, err := getListFile(basePath)
-	if err != nil {
-		log.Fatalf("get list file: %s", err)
+	if *updateSql {
+		// get path
+		wd, err := os.Getwd()
+		if err != nil {
+			log.Fatalf("get wd path: %s", err)
+		}
+		basePath := path.Join(wd, "sqls")
+
+		// get list files
+		files, err := getListFile(basePath)
+		if err != nil {
+			log.Fatalf("get list file: %s", err)
+		}
+
+		// create seed.sql for make one file sql
+		if err := writeSeedSql(files); err != nil {
+			log.Fatalf("write sql file: %s", err)
+		}
 	}
 
-	// create seed.sql for make one file sql
-	if err := writeSeedSql(files); err != nil {
-		log.Fatalf("write sql file: %s", err)
-	}
-
-	if err := importToDb(c); err != nil {
+	cmd := generateCommand(c, *notrx)
+	if err := importToDb(cmd); err != nil {
 		log.Fatalf("seeding failed: %s", err)
 	}
 	log.Println("seeding done")
