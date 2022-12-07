@@ -580,3 +580,14 @@ func GetPdfOrImageFile(input string, docsName string, userId uint) (resultString
 	}
 	return
 }
+
+func FixedLengthString(length int, str string) string {
+	var verb string = str
+	if len(str) < length {
+		tempL := length - len(str)
+		for i := 0; i < tempL; i++ {
+			verb = "0" + verb
+		}
+	}
+	return verb
+}

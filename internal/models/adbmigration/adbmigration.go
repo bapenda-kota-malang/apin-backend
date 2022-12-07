@@ -8,6 +8,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
 	bapenagihanpetugas "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/baplpengajuan"
+	bphtb "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datanir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datapetablok"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datapetaznt"
@@ -55,10 +56,12 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	pstpermohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/bapl"
@@ -71,6 +74,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -102,6 +106,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 )
 
 func init() {
@@ -267,6 +272,36 @@ func init() {
 		&sts.SumberDanaSts{},
 	}
 	a.AutoMigrate(listModelPembayaran...)
+
+	listModelSppt := []interface{}{
+		&sppt.Sppt{},
+		&sppt.SpptObjekBersama{},
+		&sppt.SpptSimulasi{},
+	}
+	a.AutoMigrate(listModelSppt...)
+
+	listModelPelayanan := []interface{}{
+		&pstpermohonan.PstPermohonan{},
+		&pstpermohonan.PstDetail{},
+		&pstpermohonan.PstDataOPBaru{},
+		&pstpermohonan.PstPermohonanPengurangan{},
+	}
+	a.AutoMigrate(listModelPelayanan...)
+
+	listModelObjekPajakPBB := []interface{}{
+		&objekpajakpbb.ObjekPajakPbb{},
+	}
+	a.AutoMigrate(listModelObjekPajakPBB...)
+
+	listModelWajibPajakPBB := []interface{}{
+		&wajibpajakpbb.WajibPajakPBB{},
+	}
+	a.AutoMigrate(listModelWajibPajakPBB...)
+
+	listModelBphtbSptpd := []interface{}{
+		&bphtb.BphtbSptpd{},
+	}
+	a.AutoMigrate(listModelBphtbSptpd...)
 
 	listModelPenagihan := []interface{}{
 		&suratpemberitahuan.SuratPemberitahuan{},

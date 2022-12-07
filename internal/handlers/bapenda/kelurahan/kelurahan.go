@@ -38,6 +38,16 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func GetDetailByCode(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	result, err := s.GetDetailByCode(id)
+	hh.DataResponse(w, result, err)
+}
+
 func Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {

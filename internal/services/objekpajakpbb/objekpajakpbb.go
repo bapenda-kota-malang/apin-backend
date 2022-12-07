@@ -1,52 +1,52 @@
-package daerah
+package objekpajakpbb
 
 import (
-	"errors"
-	"fmt"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
+	"gorm.io/gorm"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "daerah"
+const source = "objekpajak"
 
-func Create(input m.DaerahCreateDto) (any, error) {
-	var data m.Daerah
-	var dataP m.Provinsi
-	checkProvinceCode := a.DB.Where(&m.Provinsi{Kode: input.Provinsi_Kode}).First(&dataP)
-	if checkProvinceCode.RowsAffected == 0 {
-		return nil, errors.New("provinsi dengan kode tersebut belum terdaftar")
+func Create(input m.ObjekPajakRequestDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
 	}
-	if err := sc.Copy(&data, input); err != nil {
+	var data m.ObjekPajakPbb
+
+	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
+	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	result := a.DB.Create(&data)
-	if result.Error != nil {
+	// simpan data ke db satu if karena result dipakai sekali, +error
+	if result := tx.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetList(input m.DaerahFilterDto) (interface{}, error) {
-	var data []m.Daerah
+func GetList(input m.FilterDto) (any, error) {
+	var data []m.ObjekPajakPbb
 	var count int64
-	var pagination gh.Pagination
 
-	query := a.DB.
-		Model(&m.Daerah{}).
+	var pagination gh.Pagination
+	result := a.DB.
+		Model(&m.ObjekPajakPbb{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
-		Scopes(gh.Paginate(input, &pagination))
-	result := query.Find(&data)
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
@@ -62,8 +62,9 @@ func GetList(input m.DaerahFilterDto) (interface{}, error) {
 	}, nil
 }
 
-func GetDetail(id int) (interface{}, error) {
-	var data *m.Daerah
+func GetDetail(id int) (any, error) {
+	var data *m.ObjekPajakPbb
+
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -76,9 +77,10 @@ func GetDetail(id int) (interface{}, error) {
 	}, nil
 }
 
-func GetDetailByCode(id int) (interface{}, error) {
-	var data *m.Daerah
-	result := a.DB.Where("Kode", fmt.Sprint(id)).First(&data)
+func GetDetailbyField(field string, value string) (any, error) {
+	var data *m.ObjekPajakPbb
+
+	result := a.DB.Where(field, value).First(&data)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -90,17 +92,20 @@ func GetDetailByCode(id int) (interface{}, error) {
 	}, nil
 }
 
-func Update(id int, input m.DaerahUpdateDto) (interface{}, error) {
-	var data *m.Daerah
-
-	result := a.DB.First(&data, id)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+func Update(id int, input m.ObjekPajakRequestDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
 	}
-	if err := sc.Copy(&data, input); err != nil {
+	var data *m.ObjekPajakPbb
+	result := tx.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
-	if result := a.DB.Save(&data); result.Error != nil {
+
+	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
@@ -112,14 +117,17 @@ func Update(id int, input m.DaerahUpdateDto) (interface{}, error) {
 	}, nil
 }
 
-func Delete(id int) (interface{}, error) {
-	var data *m.Daerah
-	result := a.DB.First(&data, id)
+func Delete(id int, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data *m.ObjekPajakPbb
+	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return nil, nil
 	}
 
-	result = a.DB.Delete(&data, id)
+	result = tx.Delete(&data, id)
 	status := "deleted"
 	if result.RowsAffected == 0 {
 		data = nil
