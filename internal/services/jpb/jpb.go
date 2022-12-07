@@ -1,27 +1,23 @@
-package jenisperolehan
+package jpb
 
 import (
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
-	"gorm.io/gorm"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/jpb"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "wajibpajakpbb"
+const source = "jpb"
 
-func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
-	if tx == nil {
-		tx = a.DB
-	}
-	var data m.WajibPajakPbb
+func Create(input m.CreateDto) (any, error) {
+	var data m.Jpb
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -29,26 +25,26 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
-	if result := tx.Create(&data); result.Error != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data wajibpajakpbb", data)
+	if result := a.DB.Create(&data); result.Error != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
 }
 
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.WajibPajakPbb
+	var data []m.Jpb
 	var count int64
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.WajibPajakPbb{}).
+		Model(&m.Jpb{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
 	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data wajibpajakpbb", data)
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
 
 	return rp.OK{
@@ -63,13 +59,13 @@ func GetList(input m.FilterDto) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.WajibPajakPbb
+	var data *m.Jpb
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
-		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data wajibpajakpbb", data)
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
 
 	return rp.OKSimple{
@@ -77,21 +73,19 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
-	if tx == nil {
-		tx = a.DB
-	}
-	var data *m.WajibPajakPbb
-	result := tx.First(&data, id)
+func Update(id int, input m.UpdateDto) (any, error) {
+	var data *m.Jpb
+	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
+
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	if result := tx.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data wajibpajakpbb", data)
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
 	return rp.OK{
@@ -102,17 +96,14 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	}, nil
 }
 
-func Delete(id int, tx *gorm.DB) (any, error) {
-	if tx == nil {
-		tx = a.DB
-	}
-	var data *m.WajibPajakPbb
-	result := tx.First(&data, id)
+func Delete(id int) (any, error) {
+	var data *m.Jpb
+	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
 
-	result = tx.Delete(&data, id)
+	result = a.DB.Delete(&data, id)
 	status := "deleted"
 	if result.RowsAffected == 0 {
 		data = nil

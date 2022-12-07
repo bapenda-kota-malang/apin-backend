@@ -8,7 +8,7 @@ import (
 type Pegawai struct {
 	Id         int       `json:"id" gorm:"primaryKey;autoIncrement"`
 	Nama       string    `json:"nama" gorm:"size:100"`
-	Nip        string    `json:"nip" gorm:"size:30;index"`
+	Nip        string    `json:"nip" gorm:"size:30;index;unique"`
 	Jabatan_Id int       `json:"jabatan_id" gorm:"index"`
 	Pangkat_Id int       `json:"pangkat_id" gorm:"index"`
 	Skpd_Id    int       `json:"skpd_id"`

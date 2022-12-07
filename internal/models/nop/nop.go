@@ -1,6 +1,7 @@
 package nop
 
 import (
+	ad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	jp "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
@@ -108,4 +109,40 @@ type FilterDto struct {
 	RefBangunan       *float64 `json:"refBangunan"`
 	Page              int      `json:"page"`
 	PageSize          int      `json:"page_size"`
+}
+
+// spop/lspop
+type NopDetail struct {
+	Id             uint64        `json:"id" gorm:"primarykey"`
+	Provinsi_Kode  *string       `json:"provinsi_kode" gorm:"type:char(2)"`
+	Provinsi       *ad.Provinsi  `json:"provinsi,omitempty" gorm:"foreignKey:Provinsi_Kode;references:Kode"`
+	Kota_Kode      *string       `json:"kota_kode" gorm:"type:char(2)"`
+	Kota           *ad.Daerah    `json:"kota,omitempty" gorm:"foreignKey:Kota_Kode;references:Kode"`
+	Kecamatan_Kode *string       `json:"kecamatan_kode" gorm:"type:char(3)"`
+	Kecamatan      *ad.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_Kode;references:Kode"`
+	Kelurahan_Kode *string       `json:"kelurahan_kode" gorm:"type:char(3)"`
+	Kelurahan      *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Kode;references:Kode"`
+	Blok_Id        *string       `json:"blok_id" gorm:"type:char(3)"`
+	NoUrut         *string       `json:"noUrut" gorm:"type:char(4)"`
+	JenisOp        *string       `json:"jenisOp" gorm:"type:char(1)"`
+}
+
+type NopDetailCreateDto struct {
+	Provinsi_Kode  *string `json:"provinsi_kode"`
+	Kota_Kode      *string `json:"kota_kode"`
+	Kecamatan_Kode *string `json:"kecamatan_kode"`
+	Kelurahan_Kode *string `json:"kelurahan_kode"`
+	Blok_Id        *string `json:"blok_id"`
+	NoUrut         *string `json:"noUrut"`
+	JenisOp        *string `json:"jenisOp"`
+}
+
+type NopDetailUpdateDto struct {
+	Provinsi_Kode  *string `json:"provinsi_kode"`
+	Kota_Kode      *string `json:"kota_kode"`
+	Kecamatan_Kode *string `json:"kecamatan_kode"`
+	Kelurahan_Kode *string `json:"kelurahan_kode"`
+	Blok_Id        *string `json:"blok_id"`
+	NoUrut         *string `json:"noUrut"`
+	JenisOp        *string `json:"jenisOp"`
 }
