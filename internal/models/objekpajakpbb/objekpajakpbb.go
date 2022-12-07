@@ -5,6 +5,7 @@ import (
 
 	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
 	miop "github.com/bapenda-kota-malang/apin-backend/internal/models/indukobjekpajak"
+	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	ot "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb/types"
@@ -73,6 +74,7 @@ type CreateDto struct {
 	ObjekPajakBumis    mopb.CreateDto  `json:"objekPajakBumi"`
 	AnggotaObjekPajaks *maop.CreateDto `json:"anggotaObjekPajak"`
 	IndukObjekPajaks   *miop.CreateDto `json:"indukObjekPajak"`
+	KunjunganKembalis  *mkk.CreateDto  `json:"kunjunganKembali"`
 }
 
 type UpdateDto struct {

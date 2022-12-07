@@ -13,11 +13,13 @@ import (
 
 	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
 	miop "github.com/bapenda-kota-malang/apin-backend/internal/models/indukobjekpajak"
+	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
 	siop "github.com/bapenda-kota-malang/apin-backend/internal/services/indukobjekpajak"
+	skk "github.com/bapenda-kota-malang/apin-backend/internal/services/kunjungankembali"
 	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
 	swp "github.com/bapenda-kota-malang/apin-backend/internal/services/wajibpajakpbb"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -32,10 +34,12 @@ func Create(input m.CreateDto) (any, error) {
 	var dataAnggotaObjekPajak maop.CreateDto
 	var dataIndukObjekPajak miop.CreateDto
 	var dataObjekPajakBumi mopb.CreateDto
+	var dataKunjunganKembali mkk.CreateDto
 	var respDataWajibPajakPbb interface{}
 	var respDataAnggotaObjekPajak interface{}
 	var respDataIndukObjekPajak interface{}
 	var respDataObjekPajakBumi interface{}
+	var respDataKunjunganKembali interface{}
 	var resp t.II
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
@@ -62,6 +66,13 @@ func Create(input m.CreateDto) (any, error) {
 		// copy data anggota objek pajak
 		if err := sc.Copy(&dataAnggotaObjekPajak, input.AnggotaObjekPajaks); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload anggota objek pajak", input.AnggotaObjekPajaks)
+		}
+	}
+
+	if input.KunjunganKembalis != nil {
+		// copy data kunjungan kembali
+		if err := sc.Copy(&dataKunjunganKembali, input.KunjunganKembalis); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload kunjungan kembali", input.KunjunganKembalis)
 		}
 	}
 
@@ -119,6 +130,14 @@ func Create(input m.CreateDto) (any, error) {
 			respDataAnggotaObjekPajak = resultAnggotaObjekPajak
 		}
 
+		if input.KunjunganKembalis != nil {
+			// create data kunjungan kembali
+			resultKunjunganKembali, err := skk.Create(dataKunjunganKembali, tx)
+			if err != nil {
+				return err
+			}
+			respDataKunjunganKembali = resultKunjunganKembali
+		}
 		return nil
 	})
 
@@ -126,7 +145,16 @@ func Create(input m.CreateDto) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
 	}
 
-	if input.IndukObjekPajaks != nil {
+	if input.IndukObjekPajaks != nil && input.KunjunganKembalis != nil {
+		resp = t.II{
+			"objekPajakPbb":     data,
+			"wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakBumi":    respDataObjekPajakBumi.(rp.OKSimple).Data,
+			"indukObjekPajak":   respDataIndukObjekPajak.(rp.OKSimple).Data,
+			"anggotaObjekPajak": respDataAnggotaObjekPajak.(rp.OKSimple).Data,
+			"kunjunganKembali":  respDataKunjunganKembali.(rp.OKSimple).Data,
+		}
+	} else if input.IndukObjekPajaks != nil && input.KunjunganKembalis == nil {
 		resp = t.II{
 			"objekPajakPbb":     data,
 			"wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
@@ -134,7 +162,14 @@ func Create(input m.CreateDto) (any, error) {
 			"indukObjekPajak":   respDataIndukObjekPajak.(rp.OKSimple).Data,
 			"anggotaObjekPajak": respDataAnggotaObjekPajak.(rp.OKSimple).Data,
 		}
-	} else {
+	} else if input.IndukObjekPajaks == nil && input.KunjunganKembalis != nil {
+		resp = t.II{
+			"objekPajakPbb":    data,
+			"wajibPajakPbb":    respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakBumi":   respDataObjekPajakBumi.(rp.OKSimple).Data,
+			"kunjunganKembali": respDataKunjunganKembali.(rp.OKSimple).Data,
+		}
+	} else if input.IndukObjekPajaks == nil && input.KunjunganKembalis == nil {
 		resp = t.II{
 			"objekPajakPbb":  data,
 			"wajibPajakPbb":  respDataWajibPajakPbb.(rp.OKSimple).Data,
