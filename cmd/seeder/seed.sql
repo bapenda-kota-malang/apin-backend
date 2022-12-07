@@ -12,6 +12,8 @@
 \i sqls/data-JenisPPJ.sql
 \i sqls/data-Jabatan.sql
 \i sqls/data-Provinsi.sql
+\i sqls/data-DbkbFasum.sql
+\i sqls/data-Jpb.sql
 
 -- below for table have relation to parent
 \i sqls/data-SumberDana.sql
@@ -21,6 +23,9 @@
 \i sqls/data-Daerah.sql
 \i sqls/data-Kecamatan.sql
 \i sqls/data-Kelurahan.sql
+\i sqls/data-DbkbFasumDepJpbKlsBintang.sql
+\i sqls/data-DbkbFasumDepMinMax.sql
+\i sqls/data-DbkbFasumNonDep.sql
 
 -- below for table have relation to child
 
