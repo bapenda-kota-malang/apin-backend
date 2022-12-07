@@ -23,6 +23,7 @@ import (
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/baplpengajuan"
 	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
@@ -459,6 +460,13 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", keberatan.GetDetail)
 		r.Post("/", keberatan.Create)
 		r.Patch("/verify/{id}", keberatan.Verify)
+	})
+
+	r.Route("/baplpengajuan", func(r chi.Router) {
+		r.Post("/", baplpengajuan.Create)
+		r.Get("/", baplpengajuan.GetList)
+		r.Get("/{id}", baplpengajuan.GetDetail)
+		r.Delete("/{id}", baplpengajuan.Delete)
 	})
 
 	rh.RegCrud(r, "/datapetablok", datapetablok.Crud{})
