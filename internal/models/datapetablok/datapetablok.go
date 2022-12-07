@@ -20,13 +20,13 @@ type CreateDto struct {
 	Daerah_Kode    string `json:"daerah_kode" validate:"required;minLength=2;maxLength=2"`
 	Kecamatan_Kode string `json:"kecamatan_kode" validate:"required;minLength=3;maxLength=3"`
 	Kelurahan_Kode string `json:"kelurahan_kode" validate:"required;minLength=3;maxLength=3"`
-	Blok_Kode      string `json:"blok_kode" validate:"required"`
-	StatusPetaBlok int8   `json:"statusPetaBlok" validate:"required"`
+	Blok_Kode      string `json:"blok_kode" validate:"required;minLength=3;maxLength=3"`
+	StatusPetaBlok int8   `json:"statusPetaBlok" validate:"required;min=0;max=1"`
 }
 
 type DataDto struct {
-	Blok_Kode      string `json:"blok_kode" validate:"required"`
-	StatusPetaBlok int8   `json:"statusPetaBlok" validate:"required"`
+	Blok_Kode      string `json:"blok_kode" validate:"required;minLength=3;maxLength=3"`
+	StatusPetaBlok int8   `json:"statusPetaBlok" validate:"required;min=0;max=1"`
 }
 
 type CreateBulkDto struct {
