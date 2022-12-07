@@ -11,6 +11,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datanir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datapetablok"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datapetaznt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum/depjpbklsbintang"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum/depminmax"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum/nondep"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb12"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb13"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb14"
@@ -209,6 +213,13 @@ func init() {
 		&dbkbjpb15.DbkbJpb15{},
 		&dbkbjpb16.DbkbJpb16{},
 		&dbkbmezanin.DbkbMezanin{},
+		&datapetablok.DataPetaBlok{},
+		&datanir.DataNir{},
+		&datapetaznt.DataPetaZnt{},
+		&dbkbfasum.DbkbFasum{},
+		&nondep.DbkbFasumNonDep{},
+		&depminmax.DbkbFasumDepMinMax{},
+		&depjpbklsbintang.DbkbFasumDepJpbKlsBintang{},
 	}
 	a.AutoMigrate(listModelPendataan...)
 
@@ -265,11 +276,4 @@ func init() {
 		&undanganpemeriksaan.UndanganPemeriksaan{},
 	}
 	a.AutoMigrate(listModelPenagihan...)
-
-	listModelPembuatanZnt := []interface{}{
-		&datapetablok.DataPetaBlok{},
-		&datanir.DataNir{},
-		&datapetaznt.DataPetaZnt{},
-	}
-	a.AutoMigrate(listModelPembuatanZnt...)
 }
