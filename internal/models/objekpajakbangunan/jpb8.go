@@ -1,4 +1,4 @@
-package jpb8
+package objekpajakbangunan
 
 import (
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
@@ -17,7 +17,7 @@ type Jpb8 struct {
 	gh.DateModel
 }
 
-type CreateDto struct {
+type Jpb8CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
@@ -28,7 +28,7 @@ type CreateDto struct {
 	DayaDukungLantai *int    `json:"dayaDukungLantai"`
 }
 
-type UpdateDto struct {
+type Jpb8UpdateDto struct {
 	nop.NopDetailUpdateDto
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
@@ -39,7 +39,7 @@ type UpdateDto struct {
 	DayaDukungLantai *int    `json:"dayaDukungLantai"`
 }
 
-type FilterDto struct {
+type Jpb8FilterDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`

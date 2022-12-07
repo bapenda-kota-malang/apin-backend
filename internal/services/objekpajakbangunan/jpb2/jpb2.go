@@ -1,4 +1,4 @@
-package objekpajakbangunan
+package jpb2
 
 import (
 	"strconv"

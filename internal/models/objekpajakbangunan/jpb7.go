@@ -1,4 +1,4 @@
-package jpb7
+package objekpajakbangunan
 
 import (
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
@@ -16,7 +16,7 @@ type Jpb7 struct {
 	gh.DateModel
 }
 
-type CreateDto struct {
+type Jpb7CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan             *int          `json:"noBangunan"`
 	JenisHotel             JenisHotel    `json:"jenisHotel"`
@@ -26,7 +26,7 @@ type CreateDto struct {
 	LuasRuangLainAcCentral *int          `json:"luasRuangLainAcCentral"`
 }
 
-type UpdateDto struct {
+type Jpb7UpdateDto struct {
 	nop.NopDetailUpdateDto
 	NoBangunan             *int          `json:"noBangunan"`
 	JenisHotel             JenisHotel    `json:"jenisHotel"`
@@ -36,7 +36,7 @@ type UpdateDto struct {
 	LuasRuangLainAcCentral *int          `json:"luasRuangLainAcCentral"`
 }
 
-type FilterDto struct {
+type Jpb7FilterDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan             *int `json:"noBangunan"`
 	JumlahKamar            *int `json:"jumlahKamar"`

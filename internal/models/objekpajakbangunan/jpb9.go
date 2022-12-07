@@ -5,26 +5,26 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
-type Jpb2 struct {
+type Jpb9 struct {
 	nop.NopDetail
 	NoBangunan     *int          `json:"noBangunan"`
-	KelasBangunan2 KelasBangunan `json:"kelasBangunan2" gorm:"type:char(1)"`
+	KelasBangunan9 KelasBangunan `json:"kelasBangunan9" gorm:"type:char(1)"`
 	gh.DateModel
 }
 
-type Jpb2CreateDto struct {
+type Jpb9CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan     *int          `json:"noBangunan"`
-	KelasBangunan2 KelasBangunan `json:"kelasBangunan2"`
+	KelasBangunan9 KelasBangunan `json:"kelasBangunan9"`
 }
 
-type Jpb2UpdateDto struct {
-	nop.NopDetailUpdateDto
+type Jpb9UpdateDto struct {
+	nop.NopDetailCreateDto
 	NoBangunan     *int          `json:"noBangunan"`
-	KelasBangunan2 KelasBangunan `json:"kelasBangunan2"`
+	KelasBangunan9 KelasBangunan `json:"kelasBangunan9"`
 }
 
-type Jpb2FilterDto struct {
+type Jpb9FilterDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan *int `json:"noBangunan"`
 	Page       int  `json:"page"`

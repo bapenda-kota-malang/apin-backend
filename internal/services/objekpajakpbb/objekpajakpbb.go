@@ -21,6 +21,7 @@ import (
 	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
 	swp "github.com/bapenda-kota-malang/apin-backend/internal/services/wajibpajakpbb"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 )
 
 const source = "objekpajakpbb"
@@ -74,6 +75,18 @@ func Create(input m.CreateDto) (any, error) {
 		resultCastWajibPajakPbb := resultWajibPajakPbb.(rp.OKSimple).Data.(mwp.WajibPajakPbb)
 		// add static value
 		data.WajibPajakPbb_Id = &resultCastWajibPajakPbb.Id
+		if input.TanggalPemeriksaan != nil {
+
+			data.TanggalPemeriksaan = th.ParseTime(input.TanggalPemeriksaan)
+		}
+		if input.TanggalPendataan != nil {
+
+			data.TanggalPendataan = th.ParseTime(input.TanggalPendataan)
+		}
+		if input.TanggalPerekaman != nil {
+
+			data.TanggalPerekaman = th.ParseTime(input.TanggalPerekaman)
+		}
 
 		// create data objekpajakpbb
 		err = tx.Create(&data).Error

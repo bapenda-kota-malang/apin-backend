@@ -2,7 +2,7 @@ package jpb
 
 type Jpb struct {
 	Id   uint64 `json:"id" gorm:"primarykey"`
-	Kode string `json:"kode" gorm:"type:char(2)"`
+	Kode string `json:"kode" gorm:"type:char(2);unique"`
 	Nama string `json:"nama" gorm:"type:varchar(30)"`
 }
 

@@ -1,4 +1,4 @@
-package jpb15
+package objekpajakbangunan
 
 import (
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
@@ -13,21 +13,21 @@ type Jpb15 struct {
 	gh.DateModel
 }
 
-type CreateDto struct {
+type Jpb15CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan     *int       `json:"noBangunan"`
 	LetakTanki     LetakTanki `json:"letakTanki"`
 	KapasitasTanki *int       `json:"kapasitasTanki"`
 }
 
-type UpdateDto struct {
+type Jpb15UpdateDto struct {
 	nop.NopDetailUpdateDto
 	NoBangunan     *int       `json:"noBangunan"`
 	LetakTanki     LetakTanki `json:"letakTanki"`
 	KapasitasTanki *int       `json:"kapasitasTanki"`
 }
 
-type FilterDto struct {
+type Jpb15FilterDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan     *int `json:"noBangunan"`
 	KapasitasTanki *int `json:"kapasitasTanki"`

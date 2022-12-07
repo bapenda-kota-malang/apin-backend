@@ -11,13 +11,13 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/jpb5"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
 const source = "jpb5"
 
-func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
+func Create(input m.Jpb5CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -36,7 +36,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetList(input m.FilterDto) (any, error) {
+func GetList(input m.Jpb5FilterDto) (any, error) {
 	var data []m.Jpb5
 	var count int64
 
@@ -77,7 +77,7 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
+func Update(id int, input m.Jpb5UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}

@@ -62,11 +62,11 @@ type CreateDto struct {
 	NjopBangunan          *int              `json:"njopBangunan"`
 	StatusPeta            *int              `json:"statusPeta"`
 	JenisTransaksi        ot.JenisTransaksi `json:"jenisTransaksi"`
-	TanggalPendataan      *time.Time        `json:"tanggalPendataan"`
+	TanggalPendataan      *string           `json:"tanggalPendataan"`
 	Pendata_Pegawai_Nip   *string           `json:"pendata_pegawai_nip"`
-	TanggalPemeriksaan    *time.Time        `json:"tanggalPemeriksaan"`
+	TanggalPemeriksaan    *string           `json:"tanggalPemeriksaan"`
 	Pemeriksa_Pegawai_Nip *string           `json:"pemeriksa_pegawai_nip"`
-	TanggalPerekaman      *time.Time        `json:"tanggalPerekaman"`
+	TanggalPerekaman      *string           `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip"`
 	//data wajibpajakpbb
 	WajibPajakPbbs     mwp.CreateDto   `json:"wajibPajakPbb"`
@@ -92,11 +92,11 @@ type UpdateDto struct {
 	NjopBangunan          *int              `json:"njopBangunan"`
 	StatusPeta            *int              `json:"statusPeta"`
 	JenisTransaksi        ot.JenisTransaksi `json:"jenisTransaksi"`
-	TanggalPendataan      *time.Time        `json:"tanggalPendataan"`
+	TanggalPendataan      *string           `json:"tanggalPendataan"`
 	Pendata_Pegawai_Nip   *string           `json:"pendata_pegawai_nip"`
-	TanggalPemeriksaan    *time.Time        `json:"tanggalPemeriksaan"`
+	TanggalPemeriksaan    *string           `json:"tanggalPemeriksaan"`
 	Pemeriksa_Pegawai_Nip *string           `json:"pemeriksa_pegawai_nip"`
-	TanggalPerekaman      *time.Time        `json:"tanggalPerekaman"`
+	TanggalPerekaman      *string           `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip"`
 	//data wajibpajakpbb
 	WajibPajakPbbs mwp.CreateDto `json:"wajibPajakPbb"`

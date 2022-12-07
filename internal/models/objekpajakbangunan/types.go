@@ -8,6 +8,10 @@ type JenisLantai string
 type JenisLangitLangit string
 type JenisTransaksi string
 type KelasBangunan string
+type JenisHotel string
+type JumlahBintang string
+type TipeBangunan string
+type LetakTanki string
 
 const (
 	// kondisi bangunan
@@ -58,4 +62,23 @@ const (
 	KelasBangunan2 KelasBangunan = "2" // kelas 2
 	KelasBangunan3 KelasBangunan = "3" // kelas 3
 	KelasBangunan4 KelasBangunan = "4" // kelas 4
+
+	// jenis hotel
+	JenisHotelNonResort JenisHotel = "1" // non-resort
+	JenisHotelResort    JenisHotel = "2" // resort
+
+	// jumlah bintang
+	JumlahBintang5          JumlahBintang = "1" // 5
+	JumlahBintang4          JumlahBintang = "2" // 4
+	JumlahBintang3          JumlahBintang = "3" // 3
+	JumlahBintang2          JumlahBintang = "4" // 2
+	JumlahBintangNonBintang JumlahBintang = "5" // non-bintang
+
+	TipeBangunan4 TipeBangunan = "1" // 4
+	TipeBangunan3 TipeBangunan = "2" // 3
+	TipeBangunan2 TipeBangunan = "3" // 2
+	TipeBangunan1 TipeBangunan = "4" // 1
+
+	LetakTankiDiatasTanah  LetakTanki = "1" // di atas tanah
+	LetakTankiDibawahTanah LetakTanki = "2" // di bawah tanah
 )
