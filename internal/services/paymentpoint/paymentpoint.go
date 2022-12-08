@@ -17,7 +17,7 @@ import (
 
 const source = "payment point"
 
-func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
+func Create(input m.CreateDto, user_Id uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -28,6 +28,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
+	data.User_Id = &user_Id
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data payment point", data)
@@ -77,7 +78,7 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
+func Update(id int, input m.UpdateDto, user_Id uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -90,6 +91,7 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
+	data.User_Id = &user_Id
 	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data payment point", data)
 	}

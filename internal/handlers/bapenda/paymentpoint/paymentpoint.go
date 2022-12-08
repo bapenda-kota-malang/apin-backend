@@ -6,6 +6,7 @@ import (
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/paymentpoint"
 )
 
@@ -17,7 +18,8 @@ func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Create(data, nil)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err := s.Create(data, uint64(authInfo.User_Id), nil)
 	hh.DataResponse(w, result, err)
 }
 
@@ -51,8 +53,8 @@ func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
-
-	result, err := s.Update(id, data, nil)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err := s.Update(id, data, uint64(authInfo.User_Id), nil)
 	hh.DataResponse(w, result, err)
 }
 
