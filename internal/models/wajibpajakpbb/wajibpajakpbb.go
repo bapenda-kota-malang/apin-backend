@@ -13,9 +13,9 @@ type WajibPajakPbb struct {
 	BlokKavNo      *string       `json:"blokKavNo" gorm:"type:varchar(15)"`
 	Rw             *string       `json:"rw" gorm:"type:char(2)"`
 	Rt             *string       `json:"rt" gorm:"type:char(2)"`
-	Kelurahan_Kode *string       `json:"kelurahan_kode" gorm:"type:char(3)"`
+	Kelurahan_Kode *string       `json:"kelurahan_kode" gorm:"type:char(10)"`
 	Kelurahan      *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Kode;references:Kode"`
-	Daerah_Kode    *string       `json:"daerah_kode" gorm:"type:char(3)"`
+	Daerah_Kode    *string       `json:"daerah_kode" gorm:"type:char(4)"`
 	Daerah         *ad.Daerah    `json:"kota,omitempty" gorm:"foreignKey:Daerah_Kode;references:Kode"`
 	KodePos        *string       `json:"kodePos" gorm:"type:varchar(5)"`
 	Telp           *string       `json:"telp" gorm:"type:varchar(20)"`
