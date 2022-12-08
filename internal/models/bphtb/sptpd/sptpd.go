@@ -362,6 +362,98 @@ type ResponseSptpd struct {
 	BlokKavNo                 *string         `json:"blokKavNo"`
 	RT                        *string         `json:"rT"`
 	Rw                        *string         `json:"rw"`
+	Status                    *string         `json:"status"`
 
 	DataLampiran *Lampiran `json:"lampiran"`
+}
+
+type RequestApprovalSptpd struct {
+	NoDokumen           *string  `json:"noDokumen"`
+	User_id             *string  `json:"user_id"`
+	Id_pp               *string  `json:"id_pp"`
+	KodeValidasi        *string  `json:"kodeValidasi"`
+	IsLunas             *string  `json:"isLunas"`
+	ValidasiDisependa   *string  `json:"validasiDisependa"`
+	ValidasiBank        *string  `json:"validasiBank"`
+	Dispenda_User_id    *string  `json:"pegawai_User_id"`
+	AlasanReject        *string  `json:"alasanReject"`
+	Bank_Id             *string  `json:"bank_Id"`
+	FlagDispenda        *int     `json:"flagDispenda"`
+	FlagPPAT            *int     `json:"flagPPAT"`
+	IsKurangBayar       *string  `json:"isKurangBayar"`
+	KurangBayar         *float64 `json:"kurangBayar"`
+	NoReff              *string  `json:"noReff"`
+	IdBilling           *string  `json:"idBilling"`
+	Proses              *string  `json:"proses"`
+	ApprovePPAT         *string  `json:"approvePPAT"`
+	NoPelayanan         *string  `json:"noPelayanan"`
+	NamaPetugasLapangan *string  `json:"namaPetugasLapangan"`
+	NamaStaff           *string  `json:"namaStaff"`
+	Status              *string  `json:"status"`
+	gormhelper.DateModel
+}
+
+func (req RequestApprovalSptpd) SetDataApproval(i *BphtbSptpd) *BphtbSptpd {
+	if req.User_id != nil {
+		i.User_id = req.User_id
+	}
+	if req.Id_pp != nil {
+		i.Id_pp = req.Id_pp
+	}
+	if req.KodeValidasi != nil {
+		i.KodeValidasi = req.KodeValidasi
+	}
+	if req.IsLunas != nil {
+		i.IsLunas = req.IsLunas
+	}
+	if req.ValidasiDisependa != nil {
+		i.ValidasiDisependa = req.ValidasiDisependa
+	}
+	if req.ValidasiBank != nil {
+		i.ValidasiBank = req.ValidasiBank
+	}
+	if req.Dispenda_User_id != nil {
+		i.Dispenda_User_id = req.Dispenda_User_id
+	}
+	if req.AlasanReject != nil {
+		i.AlasanReject = req.AlasanReject
+	}
+	if req.Bank_Id != nil {
+		i.Bank_Id = req.Bank_Id
+	}
+	if req.FlagDispenda != nil {
+		i.FlagDispenda = req.FlagDispenda
+	}
+	if req.FlagPPAT != nil {
+		i.FlagPPAT = req.FlagPPAT
+	}
+	if req.IsKurangBayar != nil {
+		i.IsKurangBayar = req.IsKurangBayar
+	}
+	if req.KurangBayar != nil {
+		i.KurangBayar = req.KurangBayar
+	}
+	if req.NoReff != nil {
+		i.NoReff = req.NoReff
+	}
+	if req.IdBilling != nil {
+		i.IdBilling = req.IdBilling
+	}
+	if req.Proses != nil {
+		i.Proses = req.Proses
+	}
+	if req.ApprovePPAT != nil {
+		i.ApprovePPAT = req.ApprovePPAT
+	}
+	if req.NoPelayanan != nil {
+		i.NoPelayanan = req.NoPelayanan
+	}
+	if req.NamaPetugasLapangan != nil {
+		i.NamaPetugasLapangan = req.NamaPetugasLapangan
+	}
+	if req.NamaStaff != nil {
+		i.NamaStaff = req.NamaStaff
+	}
+	i.Status = req.Status
+	return i
 }
