@@ -55,26 +55,6 @@ func GetListVerifikasi(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func (c Crud) GetListPpat(w http.ResponseWriter, r *http.Request) {
-	var input m.RequestSptpd
-	if !hh.ValidateStructByURL(w, *r.URL, &input) {
-		return
-	}
-
-	result, err := s.GetListPpat(input)
-	hh.DataResponse(w, result, err)
-}
-
-func (c Crud) GetDetailPpat(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
-		return
-	}
-
-	result, err := s.GetDetailPpat(id)
-	hh.DataResponse(w, result, err)
-}
-
 func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
