@@ -329,6 +329,7 @@ func init() {
 
 	listModelBphtbSptpd := []interface{}{
 		&bphtb.BphtbSptpd{},
+		&bphtb.Lampiran{},
 	}
 	a.AutoMigrate(listModelBphtbSptpd...)
 

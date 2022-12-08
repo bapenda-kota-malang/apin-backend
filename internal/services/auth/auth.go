@@ -69,6 +69,7 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 		ref_type = "pegawai"
 		ref["nama"] = refData.Nama
 		ref["nip"] = refData.Nip
+		ref["jabatan_id"] = refData.Jabatan_Id
 
 	} else if user.Position == 2 {
 		var refData am.Ppat

@@ -1,4 +1,5 @@
 -- list parent table
+\i sqls/data-BphtbSptpd.sql
 \i sqls/data-Group.sql
 \i sqls/data-HargaDasarAir.sql
 \i sqls/data-Jurnal.sql

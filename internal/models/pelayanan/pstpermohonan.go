@@ -76,6 +76,8 @@ type FilterDto struct {
 	LetakOP           *string         `json:"letakOP"`
 	TahunPajak        *string         `json:"tahunPajak"`
 	PenerimaanBerkas  *string         `json:"penerimaanBerkas"`
+	Page              int             `json:"page"`
+	PageSize          int             `json:"page_size"`
 }
 
 type permohonanNOP struct {

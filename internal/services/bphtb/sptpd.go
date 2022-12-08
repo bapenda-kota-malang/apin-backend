@@ -6,6 +6,7 @@ import (
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 
+	area "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -62,14 +63,52 @@ func GetList(input m.RequestSptpd) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.BphtbSptpd
+	var (
+		model    *m.BphtbSptpd
+		lampiran *m.Lampiran
 
-	result := a.DB.First(&data, id)
+		provinsi  *area.Provinsi
+		kota      *area.Daerah
+		kecamatan *area.Kecamatan
+		kelurahan *area.Kelurahan
+		// blok      *area.Blok
+	)
+
+	result := a.DB.First(&model, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
-		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", model)
 	}
+
+	data := new(m.ResponseSptpd)
+	if err := sc.Copy(&data, &model); err != nil {
+		return sh.SetError("request", "copy-data-detail", source, "failed", "gagal menyalin data", model)
+	}
+
+	_ = a.DB.Where("Kode", data.PermohonanProvinsiID).First(&provinsi)
+	_ = a.DB.Where("Kode", *data.PermohonanProvinsiID+*data.PermohonanKotaID).First(&kota)
+	_ = a.DB.Where("Kode", *data.PermohonanProvinsiID+*data.PermohonanKotaID+*data.PermohonanKecamatanID).First(&kecamatan)
+	_ = a.DB.Where("Kode", *data.PermohonanProvinsiID+*data.PermohonanKotaID+*data.PermohonanKecamatanID+*data.PermohonanKelurahanID).First(&kelurahan)
+
+	data.OPProvinsi = &provinsi.Nama
+	data.OPKota = &kota.Nama
+	data.OPKecamatan = &kecamatan.Nama
+	data.OPKelurahan = &kelurahan.Nama
+
+	_ = a.DB.Where("Kode", data.Provinsi_Id).First(&provinsi)
+	_ = a.DB.Where("Kode", *data.Provinsi_Id+*data.Kabupaten_id).First(&kota)
+	_ = a.DB.Where("Kode", *data.Provinsi_Id+*data.Kabupaten_id+*data.Kecamatan_Id).First(&kecamatan)
+	_ = a.DB.Where("Kode", *data.Provinsi_Id+*data.Kabupaten_id+*data.Kecamatan_Id+*data.Kelurahan_Id).First(&kelurahan)
+
+	data.Provinsi_wp = &provinsi.Nama
+	data.Kabupaten_wp = &kota.Nama
+	data.Kecamatan_wp = &kecamatan.Nama
+	data.Kelurahan_wp = &kelurahan.Nama
+
+	_ = a.DB.Where("NoSspd", model.NoDokumen).First(&lampiran)
+
+	data.DataLampiran = lampiran
 
 	return rp.OKSimple{
 		Data: data,
