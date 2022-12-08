@@ -46,8 +46,9 @@ func SetRoutes() http.Handler {
 
 	r.Route("/bphtbsptpd", func(r chi.Router) {
 		bphtbsptpdCrud := bphtbsptpd.Crud{}
-		r.Get("/", bphtbsptpdCrud.GetList)
-		r.Get("/{id}", bphtbsptpdCrud.GetDetail)
+		r.Get("/", bphtbsptpdCrud.GetListPpat)
+		r.Get("/{id}", bphtbsptpdCrud.GetDetailPpat)
+		r.Patch("/{id}/verify", bphtbsptpdCrud.VerifyPpat)
 	})
 
 	return r
