@@ -122,7 +122,7 @@ type NopDetail struct {
 	Kecamatan      *ad.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_Kode;references:Kode"`
 	Kelurahan_Kode *string       `json:"kelurahan_kode" gorm:"type:char(3)"`
 	Kelurahan      *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Kode;references:Kode"`
-	Blok_Id        *string       `json:"blok_id" gorm:"type:char(3)"`
+	Blok_Kode      *string       `json:"blok_id" gorm:"type:char(3)"`
 	NoUrut         *string       `json:"noUrut" gorm:"type:char(4)"`
 	JenisOp        *string       `json:"jenisOp" gorm:"type:char(1)"`
 }
@@ -132,7 +132,7 @@ type NopDetailCreateDto struct {
 	Kota_Kode      *string `json:"kota_kode"`
 	Kecamatan_Kode *string `json:"kecamatan_kode"`
 	Kelurahan_Kode *string `json:"kelurahan_kode"`
-	Blok_Id        *string `json:"blok_id"`
+	Blok_Kode      *string `json:"blok_id"`
 	NoUrut         *string `json:"noUrut"`
 	JenisOp        *string `json:"jenisOp"`
 }
@@ -142,7 +142,7 @@ type NopDetailUpdateDto struct {
 	Kota_Kode      *string `json:"kota_kode"`
 	Kecamatan_Kode *string `json:"kecamatan_kode"`
 	Kelurahan_Kode *string `json:"kelurahan_kode"`
-	Blok_Id        *string `json:"blok_id"`
+	Blok_Kode      *string `json:"blok_id"`
 	NoUrut         *string `json:"noUrut"`
 	JenisOp        *string `json:"jenisOp"`
 }

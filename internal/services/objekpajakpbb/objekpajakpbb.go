@@ -42,6 +42,7 @@ func Create(input m.CreateDto) (any, error) {
 	var respDataKunjunganKembali interface{}
 	var resp t.II
 
+	resultNop := nopParser(*input.Nop)
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
@@ -67,6 +68,23 @@ func Create(input m.CreateDto) (any, error) {
 		if err := sc.Copy(&dataAnggotaObjekPajak, input.AnggotaObjekPajaks); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload anggota objek pajak", input.AnggotaObjekPajaks)
 		}
+		resultNopInduk := nopParser(*input.NopInduk)
+		dataIndukObjekPajak.NopDetailCreateDto.Provinsi_Kode = &resultNopInduk[0]
+		dataIndukObjekPajak.NopDetailCreateDto.Kota_Kode = &resultNopInduk[1]
+		dataIndukObjekPajak.NopDetailCreateDto.Kecamatan_Kode = &resultNopInduk[2]
+		dataIndukObjekPajak.NopDetailCreateDto.Kelurahan_Kode = &resultNopInduk[3]
+		dataIndukObjekPajak.NopDetailCreateDto.Blok_Kode = &resultNopInduk[4]
+		dataIndukObjekPajak.NopDetailCreateDto.NoUrut = &resultNopInduk[5]
+		dataIndukObjekPajak.NopDetailCreateDto.JenisOp = &resultNopInduk[6]
+
+		resultNopAnggota := nopParser(*input.NopAnggota)
+		dataAnggotaObjekPajak.Provinsi_Kode = &resultNopAnggota[0]
+		dataAnggotaObjekPajak.Kota_Kode = &resultNopAnggota[1]
+		dataAnggotaObjekPajak.Kecamatan_Kode = &resultNopAnggota[2]
+		dataAnggotaObjekPajak.Kelurahan_Kode = &resultNopAnggota[3]
+		dataAnggotaObjekPajak.Blok_Kode = &resultNopAnggota[4]
+		dataAnggotaObjekPajak.NoUrut = &resultNopAnggota[5]
+		dataAnggotaObjekPajak.JenisOp = &resultNopAnggota[6]
 	}
 
 	if input.KunjunganKembalis != nil {
@@ -75,6 +93,14 @@ func Create(input m.CreateDto) (any, error) {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload kunjungan kembali", input.KunjunganKembalis)
 		}
 	}
+
+	data.NopDetail.Provinsi_Kode = &resultNop[0]
+	data.NopDetail.Kota_Kode = &resultNop[1]
+	data.NopDetail.Kecamatan_Kode = &resultNop[2]
+	data.NopDetail.Kelurahan_Kode = &resultNop[3]
+	data.NopDetail.Blok_Kode = &resultNop[4]
+	data.NopDetail.NoUrut = &resultNop[5]
+	data.NopDetail.JenisOp = &resultNop[6]
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// create data wajibpajakpbb

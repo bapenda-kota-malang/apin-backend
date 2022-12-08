@@ -10,6 +10,7 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -28,6 +29,9 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
+	if input.TanggalKunjunganKembali != nil {
+		data.TanggalKunjunganKembali = th.ParseTime(input.TanggalKunjunganKembali)
+	}
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Create(&data); result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data kunjungankembali", data)

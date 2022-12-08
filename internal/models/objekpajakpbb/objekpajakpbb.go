@@ -75,6 +75,10 @@ type CreateDto struct {
 	AnggotaObjekPajaks *maop.CreateDto `json:"anggotaObjekPajak"`
 	IndukObjekPajaks   *miop.CreateDto `json:"indukObjekPajak"`
 	KunjunganKembalis  *mkk.CreateDto  `json:"kunjunganKembali"`
+	//nop
+	Nop        *string `json:"nop"`
+	NopInduk   *string `json:"nopInduk"`
+	NopAnggota *string `json:"nopAnggota"`
 }
 
 type UpdateDto struct {
