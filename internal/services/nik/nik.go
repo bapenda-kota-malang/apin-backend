@@ -5,6 +5,7 @@ import (
 
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -43,6 +44,7 @@ func GetList(input m.FilterDto) (any, error) {
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&m.Nik{}).
+		Preload(clause.Associations).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -65,7 +67,10 @@ func GetList(input m.FilterDto) (any, error) {
 func GetDetail(id int) (any, error) {
 	var data *m.Nik
 
-	result := a.DB.First(&data, id)
+	result := a.DB.
+		Model(&m.Nik{}).
+		Preload(clause.Associations).
+		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
