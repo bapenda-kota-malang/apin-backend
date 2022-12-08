@@ -43,6 +43,7 @@ func GetList(input m.KelurahanFilterDto) (interface{}, error) {
 
 	query := a.DB.
 		Model(&m.Kelurahan{}).
+		Preload("Kecamatan.Daerah.Provinsi").
 		Scopes(gh.Filter(input)).
 		Count(&count)
 	if input.Kecamatan_Kode == nil {
@@ -66,7 +67,10 @@ func GetList(input m.KelurahanFilterDto) (interface{}, error) {
 
 func GetDetail(id int) (interface{}, error) {
 	var data *m.Kelurahan
-	result := a.DB.First(&data, id)
+	result := a.DB.
+		Model(&m.Kelurahan{}).
+		Preload("Kecamatan.Daerah.Provinsi").
+		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {

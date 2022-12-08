@@ -1,7 +1,6 @@
-package wajibpajakpbb
+package jenisperolehan
 
 import (
-	"errors"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -9,56 +8,47 @@ import (
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
 const source = "wajibpajakpbb"
 
-func Create(input m.RequestDto) (any, error) {
-	var data m.WajibPajakPBB
+func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data m.WajibPajakPbb
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		// simpan data ke db satu if karena result dipakai sekali, +error
-		if result := tx.Create(&data); result.Error != nil {
-			return result.Error
-		}
-
-		return nil
-	})
-	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
+	// simpan data ke db satu if karena result dipakai sekali, +error
+	if result := tx.Create(&data); result.Error != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data wajibpajakpbb", data)
 	}
 
-	resp := t.II{
-		"wajibPajakPBB": data,
-	}
-
-	return rp.OKSimple{Data: resp}, nil
+	return rp.OKSimple{Data: data}, nil
 }
 
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.WajibPajakPBB
+	var data []m.WajibPajakPbb
 	var count int64
-	var pagination gh.Pagination
 
+	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.WajibPajakPBB{}).
+		Model(&m.WajibPajakPbb{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
 	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data wajibpajakpbb", data)
 	}
 
 	return rp.OK{
@@ -73,13 +63,13 @@ func GetList(input m.FilterDto) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.WajibPajakPBB
+	var data *m.WajibPajakPbb
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
-		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data wajibpajakpbb", data)
 	}
 
 	return rp.OKSimple{
@@ -87,37 +77,52 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.RequestDto) (any, error) {
-	var data *m.WajibPajakPBB
-	result := a.DB.First(&data, id)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
 	}
-
+	var data *m.WajibPajakPbb
+	result := tx.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	// if result := a.DB.First(&mad.Kecamatan{}, data.Kecamatan_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
-	if result := a.DB.First(&mad.Kelurahan{}, data.Kelurahan_Id); result.RowsAffected == 0 {
-		return nil, nil
-	}
-	if result := a.DB.First(&mad.Daerah{}, data.Kota_id); result.RowsAffected == 0 {
-		return nil, nil
-	}
-	// if result := a.DB.First(&mad.Provinsi{}, data.Provinsi_Id); result.RowsAffected == 0 {
-	// 	return nil, nil
-	// }
-
-	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	if result := tx.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data wajibpajakpbb", data)
 	}
 
 	return rp.OK{
 		Meta: t.IS{
 			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func Delete(id int, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data *m.WajibPajakPbb
+	result := tx.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	result = tx.Delete(&data, id)
+	status := "deleted"
+	if result.RowsAffected == 0 {
+		data = nil
+		status = "no deletion"
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"count":  strconv.Itoa(int(result.RowsAffected)),
+			"status": status,
 		},
 		Data: data,
 	}, nil

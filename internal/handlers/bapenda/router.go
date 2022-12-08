@@ -23,6 +23,7 @@ import (
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/baplpengajuan"
 	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
@@ -51,6 +52,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jenisusaha"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jpb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jurnal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/keberatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
@@ -65,6 +67,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/paymentpoint"
@@ -172,6 +175,7 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/rekening", rekening.Crud{})
 
+	rh.RegCrud(r, "/jpb", jpb.Crud{})
 	rh.RegCrud(r, "/objekpajak", objekpajak.Crud{})
 
 	rh.RegCrud(r, "/referensibank", referensibank.Crud{})
@@ -459,6 +463,13 @@ func SetRoutes() http.Handler {
 		r.Patch("/verify/{id}", keberatan.Verify)
 	})
 
+	r.Route("/baplpengajuan", func(r chi.Router) {
+		r.Post("/", baplpengajuan.Create)
+		r.Get("/", baplpengajuan.GetList)
+		r.Get("/{id}", baplpengajuan.GetDetail)
+		r.Delete("/{id}", baplpengajuan.Delete)
+	})
+
 	rh.RegCrud(r, "/datapetablok", datapetablok.Crud{})
 	r.Post("/datapetablok/bulk", datapetablok.CreateBulk)
 
@@ -472,6 +483,12 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/dbkbfasum/nondep", nondep.Crud{})
 	rh.RegCrud(r, "/dbkbfasum/depminmax", depminmax.Crud{})
 	rh.RegCrud(r, "/dbkbfasum/depjpbklsbintang", depjpbklsbintang.Crud{})
+
+	r.Route("/objekpajakpbb", func(r chi.Router) {
+		r.Post("/", objekpajakpbb.Create)
+		r.Get("/", objekpajakpbb.GetList)
+		r.Get("/{id}", objekpajakpbb.GetDetail)
+	})
 
 	return r
 }
