@@ -67,6 +67,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
@@ -490,5 +491,10 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", objekpajakpbb.GetDetail)
 	})
 
+	r.Route("/objekpajakbangunan", func(r chi.Router) {
+		r.Post("/", objekpajakbangunan.Create)
+		r.Get("/", objekpajakbangunan.GetList)
+		r.Get("/{id}", objekpajakbangunan.GetDetail)
+	})
 	return r
 }
