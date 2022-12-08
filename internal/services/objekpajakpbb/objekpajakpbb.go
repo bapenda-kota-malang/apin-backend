@@ -65,7 +65,7 @@ func Create(input m.CreateDto) (any, error) {
 		}
 
 		// data induk objek
-		resultNopInduk, kode := nopParser(*input.NopInduk)
+		resultNopInduk, kode := sh.NopParser(*input.NopInduk)
 		dataIndukObjekPajak.NopDetailCreateDto.Provinsi_Kode = &resultNopInduk[0]
 		dataIndukObjekPajak.NopDetailCreateDto.Kota_Kode = &resultNopInduk[1]
 		dataIndukObjekPajak.NopDetailCreateDto.Kecamatan_Kode = &resultNopInduk[2]
@@ -75,7 +75,7 @@ func Create(input m.CreateDto) (any, error) {
 		dataIndukObjekPajak.NopDetailCreateDto.JenisOp = &resultNopInduk[6]
 		dataIndukObjekPajak.NopDetailCreateDto.Area_Kode = &kode
 
-		resultNopAnggota, kode := nopParser(*input.NopAnggota)
+		resultNopAnggota, kode := sh.NopParser(*input.NopAnggota)
 		dataAnggotaObjekPajak.Provinsi_Kode = &resultNopAnggota[0]
 		dataAnggotaObjekPajak.Kota_Kode = &resultNopAnggota[1]
 		dataAnggotaObjekPajak.Kecamatan_Kode = &resultNopAnggota[2]
@@ -91,7 +91,7 @@ func Create(input m.CreateDto) (any, error) {
 		if err := sc.Copy(&dataKunjunganKembali, input.KunjunganKembalis); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload kunjungan kembali", input.KunjunganKembalis)
 		}
-		resultNopKK, kode := nopParser(*input.Nop)
+		resultNopKK, kode := sh.NopParser(*input.Nop)
 		dataKunjunganKembali.NopDetailCreateDto.Provinsi_Kode = &resultNopKK[0]
 		dataKunjunganKembali.NopDetailCreateDto.Kota_Kode = &resultNopKK[1]
 		dataKunjunganKembali.NopDetailCreateDto.Kecamatan_Kode = &resultNopKK[2]
@@ -101,7 +101,7 @@ func Create(input m.CreateDto) (any, error) {
 		dataKunjunganKembali.NopDetailCreateDto.JenisOp = &resultNopKK[6]
 		dataKunjunganKembali.Area_Kode = &kode
 	}
-	resultNop, kode := nopParser(*input.Nop)
+	resultNop, kode := sh.NopParser(*input.Nop)
 	data.NopDetail.Provinsi_Kode = &resultNop[0]
 	data.NopDetail.Kota_Kode = &resultNop[1]
 	data.NopDetail.Kecamatan_Kode = &resultNop[2]

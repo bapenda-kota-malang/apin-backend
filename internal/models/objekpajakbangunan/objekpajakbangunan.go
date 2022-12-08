@@ -61,6 +61,7 @@ type CreateDto struct {
 	Pemeriksa_Pegawai_Nip *string           `json:"pemeriksa_pegawai_nip"`
 	TanggalPerekaman      *string           `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip"`
+	Nop                   *string           `json:"nop"`
 }
 
 type UpdateDto struct {
