@@ -39,6 +39,7 @@ func VerifyPpat(id int, input m.VerifyPpatDto, userId int, tx *gorm.DB) (any, er
 	// change field
 	data.Status = &statusString
 	data.VerifikasiPpatAt = &now
+	data.AlasanReject = input.AlasanReject
 
 	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengubah data status oleh ppat", data)
