@@ -236,6 +236,11 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/dbkbmezanin", dbkbmezanin.Crud{})
 
+	r.Route("/bphtbsptpd-approval", func(r chi.Router) {
+		r.Get("/{tp}", bphtbsptpd.GetListVerifikasi)
+		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
+	})
+
 	r.Route("/njoptkpflag", func(r chi.Router) {
 		r.Post("/", njoptkpflag.Create)
 		r.Get("/", njoptkpflag.GetList)
