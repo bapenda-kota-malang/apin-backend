@@ -1,6 +1,8 @@
 package bphtb
 
 import (
+	"time"
+
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"gorm.io/datatypes"
 )
@@ -62,8 +64,9 @@ type BphtbSptpd struct {
 	IsLunas                   *string         `json:"isLunas" gorm:"type:varchar(50)"`
 	ValidasiDisependa         *string         `json:"validasiDisependa" gorm:"type:varchar(50)"`
 	ValidasiBank              *string         `json:"validasiBank" gorm:"type:varchar(50)"`
-	TglValidasiDispenda       *datatypes.Date `json:"tglValidasiDispenda"`
+	VerifikasiPpatAt          *time.Time      `json:"verifikasiPpatAt"`
 	TglValidasiBank           *datatypes.Date `json:"tglValidasiBank"`
+	TglValidasiDispenda       *datatypes.Date `json:"tglValidasiDispenda"`
 	Dispenda_User_id          *string         `json:"pegawai_User_id" gorm:"type:varchar(50)"`
 	AlasanReject              *string         `json:"alasanReject" gorm:"type:text"`
 	Bank_Id                   *string         `json:"bank_Id" gorm:"type:varchar(50)"`
@@ -90,10 +93,10 @@ type BphtbSptpd struct {
 	Proses                    *string         `json:"proses" gorm:"type:varchar(2)"`
 	NamaWp                    *string         `json:"namaWp" gorm:"type:varchar(50)"`
 	Alamat                    *string         `json:"alamat" gorm:"type:varchar(50)"`
-	Provinsi_Id               *uint64         `json:"provinsi_Id" gorm:"type:int"`
-	Kabupaten_id              *uint64         `json:"kabupaten_id" gorm:"type:int"`
-	Kecamatan_Id              *uint64         `json:"kecamatan_Id" gorm:"type:int"`
-	Kelurahan_Id              *uint64         `json:"kelurahan_Id" gorm:"type:int"`
+	Provinsi_Id               *string         `json:"provinsi_Id" gorm:"type:varchar(2)"`
+	Kabupaten_id              *string         `json:"kabupaten_id" gorm:"type:varchar(2)"`
+	Kecamatan_Id              *string         `json:"kecamatan_Id" gorm:"type:varchar(3)"`
+	Kelurahan_Id              *string         `json:"kelurahan_Id" gorm:"type:varchar(3)"`
 	KodePos                   *string         `json:"kodePos" gorm:"type:varchar(50)"`
 	RtRw                      *string         `json:"rtRw" gorm:"type:varchar(50)"`
 	WajibPajak_id             *uint64         `json:"wajibPajak_id" gorm:"type:int"`
@@ -119,6 +122,7 @@ type BphtbSptpd struct {
 	BlokKavNo                 *string         `json:"blokKavNo" gorm:"type:varchar(50)"`
 	RT                        *string         `json:"rT" gorm:"type:varchar(50)"`
 	Rw                        *string         `json:"rw" gorm:"type:varchar(50)"`
+	Status                    *string         `json:"status" gorm:"type:varchar(50)"`
 	gormhelper.DateModel
 }
 
@@ -206,10 +210,10 @@ type RequestSptpd struct {
 	Proses                    *string         `json:"proses"`
 	NamaWp                    *string         `json:"namaWp"`
 	Alamat                    *string         `json:"alamat"`
-	Provinsi_Id               *uint64         `json:"provinsi_Id"`
-	Kabupaten_id              *uint64         `json:"kabupaten_id"`
-	Kecamatan_Id              *uint64         `json:"kecamatan_Id"`
-	Kelurahan_Id              *uint64         `json:"kelurahan_Id"`
+	Provinsi_Id               *string         `json:"provinsi_Id"`
+	Kabupaten_id              *string         `json:"kabupaten_id"`
+	Kecamatan_Id              *string         `json:"kecamatan_Id"`
+	Kelurahan_Id              *string         `json:"kelurahan_Id"`
 	KodePos                   *string         `json:"kodePos"`
 	RtRw                      *string         `json:"rtRw"`
 	WajibPajak_id             *uint64         `json:"wajibPajak_id"`
@@ -235,6 +239,8 @@ type RequestSptpd struct {
 	BlokKavNo                 *string         `json:"blokKavNo"`
 	RT                        *string         `json:"rT"`
 	Rw                        *string         `json:"rw"`
+	Page                      int             `json:"page"`
+	PageSize                  int             `json:"page_size"`
 	gormhelper.DateModel
 }
 
@@ -323,10 +329,14 @@ type ResponseSptpd struct {
 	Proses                    *string         `json:"proses"`
 	NamaWp                    *string         `json:"namaWp"`
 	Alamat                    *string         `json:"alamat"`
-	Provinsi_Id               *uint64         `json:"provinsi_Id"`
-	Kabupaten_id              *uint64         `json:"kabupaten_id"`
-	Kecamatan_Id              *uint64         `json:"kecamatan_Id"`
-	Kelurahan_Id              *uint64         `json:"kelurahan_Id"`
+	Provinsi_Id               *string         `json:"provinsi_Id"`
+	Provinsi_wp               *string         `json:"provinsi_wp"`
+	Kabupaten_id              *string         `json:"kabupaten_id"`
+	Kabupaten_wp              *string         `json:"kabupaten_wp"`
+	Kecamatan_Id              *string         `json:"kecamatan_Id"`
+	Kecamatan_wp              *string         `json:"kecamatan_wp"`
+	Kelurahan_Id              *string         `json:"kelurahan_Id"`
+	Kelurahan_wp              *string         `json:"kelurahan_wp"`
 	KodePos                   *string         `json:"kodePos"`
 	RtRw                      *string         `json:"rtRw"`
 	WajibPajak_id             *uint64         `json:"wajibPajak_id"`

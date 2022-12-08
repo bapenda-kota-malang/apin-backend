@@ -30,6 +30,6 @@ type Lampiran struct {
 	PenelitianDataObjek                *string         `json:"penelitianDataObjek" gorm:"type:varchar(1)"`
 	PenelitianNilaiBphtb               *string         `json:"penelitianNilaiBphtb" gorm:"type:varchar(1)"`
 	PenelitianDokumen                  *string         `json:"penelitianDokumen" gorm:"type:varchar(1)"`
-	PegawaiId                          *string         `json:"pegawaiId" gorm:"type:bigint(20)"`
+	PegawaiId                          *int64          `json:"pegawaiId" gorm:"type:bigint"`
 	gormhelper.DateModel
 }
