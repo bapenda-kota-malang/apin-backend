@@ -1,4 +1,4 @@
-package objekpajakbumi
+package regkunjungankembali
 
 import (
 	"strconv"
@@ -10,45 +10,49 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regkunjungankembali"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "objekpajakbumi"
+const source = "reg kunjungankembali"
 
 func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.ObjekPajakBumi
+	var data m.RegKunjunganKembali
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
+	if input.TanggalKunjunganKembali != nil {
+		data.TanggalKunjunganKembali = th.ParseTime(input.TanggalKunjunganKembali)
+	}
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Create(&data); result.Error != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data objekpajakbumi", data)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data reg kunjungankembali", data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
 }
 
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.ObjekPajakBumi
+	var data []m.RegKunjunganKembali
 	var count int64
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.ObjekPajakBumi{}).
+		Model(&m.RegKunjunganKembali{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
 	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objekpajakbumi", data)
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data reg kunjungankembali", data)
 	}
 
 	return rp.OK{
@@ -63,13 +67,13 @@ func GetList(input m.FilterDto) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.ObjekPajakBumi
+	var data *m.RegKunjunganKembali
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
-		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data objekpajakbumi", data)
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data reg kunjungankembali", data)
 	}
 
 	return rp.OKSimple{
@@ -81,7 +85,7 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.ObjekPajakBumi
+	var data *m.RegKunjunganKembali
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -91,7 +95,7 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	}
 
 	if result := tx.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data objekpajakbumi", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data reg kunjungankembali", data)
 	}
 
 	return rp.OK{
@@ -106,7 +110,7 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.ObjekPajakBumi
+	var data *m.RegKunjunganKembali
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -127,7 +131,3 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 		Data: data,
 	}, nil
 }
-
-// func PerubahanZnt(nop , kodeZnt string) (any, error) {
-
-// }

@@ -36,14 +36,14 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("test: ", *data.Jpb_Kode)
+	fmt.Println("test: ", data.Jpb_Kode)
 	r.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
 
-	result, err = s.Create(data, nil)
+	result, err = s.Create(data)
 	hh.DataResponse(w, result, err)
 }
 

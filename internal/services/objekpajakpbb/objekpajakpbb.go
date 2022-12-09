@@ -67,7 +67,7 @@ func Create(input m.CreateDto) (any, error) {
 		// data induk objek
 		resultNopInduk, kode := sh.NopParser(*input.NopInduk)
 		dataIndukObjekPajak.NopDetailCreateDto.Provinsi_Kode = &resultNopInduk[0]
-		dataIndukObjekPajak.NopDetailCreateDto.Kota_Kode = &resultNopInduk[1]
+		dataIndukObjekPajak.NopDetailCreateDto.Daerah_Kode = &resultNopInduk[1]
 		dataIndukObjekPajak.NopDetailCreateDto.Kecamatan_Kode = &resultNopInduk[2]
 		dataIndukObjekPajak.NopDetailCreateDto.Kelurahan_Kode = &resultNopInduk[3]
 		dataIndukObjekPajak.NopDetailCreateDto.Blok_Kode = &resultNopInduk[4]
@@ -77,7 +77,7 @@ func Create(input m.CreateDto) (any, error) {
 
 		resultNopAnggota, kode := sh.NopParser(*input.NopAnggota)
 		dataAnggotaObjekPajak.Provinsi_Kode = &resultNopAnggota[0]
-		dataAnggotaObjekPajak.Kota_Kode = &resultNopAnggota[1]
+		dataAnggotaObjekPajak.Daerah_Kode = &resultNopAnggota[1]
 		dataAnggotaObjekPajak.Kecamatan_Kode = &resultNopAnggota[2]
 		dataAnggotaObjekPajak.Kelurahan_Kode = &resultNopAnggota[3]
 		dataAnggotaObjekPajak.Blok_Kode = &resultNopAnggota[4]
@@ -93,7 +93,7 @@ func Create(input m.CreateDto) (any, error) {
 		}
 		resultNopKK, kode := sh.NopParser(*input.Nop)
 		dataKunjunganKembali.NopDetailCreateDto.Provinsi_Kode = &resultNopKK[0]
-		dataKunjunganKembali.NopDetailCreateDto.Kota_Kode = &resultNopKK[1]
+		dataKunjunganKembali.NopDetailCreateDto.Daerah_Kode = &resultNopKK[1]
 		dataKunjunganKembali.NopDetailCreateDto.Kecamatan_Kode = &resultNopKK[2]
 		dataKunjunganKembali.NopDetailCreateDto.Kelurahan_Kode = &resultNopKK[3]
 		dataKunjunganKembali.NopDetailCreateDto.Blok_Kode = &resultNopKK[4]
@@ -101,15 +101,30 @@ func Create(input m.CreateDto) (any, error) {
 		dataKunjunganKembali.NopDetailCreateDto.JenisOp = &resultNopKK[6]
 		dataKunjunganKembali.Area_Kode = &kode
 	}
+
+	// add static field for objek pajak pbb
 	resultNop, kode := sh.NopParser(*input.Nop)
 	data.NopDetail.Provinsi_Kode = &resultNop[0]
-	data.NopDetail.Kota_Kode = &resultNop[1]
+	data.NopDetail.Daerah_Kode = &resultNop[1]
 	data.NopDetail.Kecamatan_Kode = &resultNop[2]
 	data.NopDetail.Kelurahan_Kode = &resultNop[3]
 	data.NopDetail.Blok_Kode = &resultNop[4]
 	data.NopDetail.NoUrut = &resultNop[5]
 	data.NopDetail.JenisOp = &resultNop[6]
 	data.NopDetail.Area_Kode = &kode
+
+	if input.TanggalPemeriksaan != nil {
+
+		data.TanggalPemeriksaan = th.ParseTime(input.TanggalPemeriksaan)
+	}
+	if input.TanggalPendataan != nil {
+
+		data.TanggalPendataan = th.ParseTime(input.TanggalPendataan)
+	}
+	if input.TanggalPerekaman != nil {
+
+		data.TanggalPerekaman = th.ParseTime(input.TanggalPerekaman)
+	}
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// create data wajibpajakpbb
@@ -121,18 +136,6 @@ func Create(input m.CreateDto) (any, error) {
 		resultCastWajibPajakPbb := resultWajibPajakPbb.(rp.OKSimple).Data.(mwp.WajibPajakPbb)
 		// add static value
 		data.WajibPajakPbb_Id = &resultCastWajibPajakPbb.Id
-		if input.TanggalPemeriksaan != nil {
-
-			data.TanggalPemeriksaan = th.ParseTime(input.TanggalPemeriksaan)
-		}
-		if input.TanggalPendataan != nil {
-
-			data.TanggalPendataan = th.ParseTime(input.TanggalPendataan)
-		}
-		if input.TanggalPerekaman != nil {
-
-			data.TanggalPerekaman = th.ParseTime(input.TanggalPerekaman)
-		}
 
 		// create data objekpajakpbb
 		err = tx.Create(&data).Error

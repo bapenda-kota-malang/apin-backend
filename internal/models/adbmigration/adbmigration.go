@@ -77,7 +77,12 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibank"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/reganggotaobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regindukobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regkunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
@@ -308,6 +313,15 @@ func init() {
 		&kunjungankembali.KunjunganKembali{},
 	}
 	a.AutoMigrate(listModelSpop...)
+
+	listModelRegSpop := []interface{}{
+		&regobjekpajakpbb.RegObjekPajakPbb{},
+		&regobjekpajakbumi.RegObjekPajakBumi{},
+		&regindukobjekpajak.RegIndukObjekPajak{},
+		&reganggotaobjekpajak.RegAnggotaObjekPajak{},
+		&regkunjungankembali.RegKunjunganKembali{},
+	}
+	a.AutoMigrate(listModelRegSpop...)
 
 	listModelLspop := []interface{}{
 		&objekpajakbangunan.ObjekPajakBangunan{},

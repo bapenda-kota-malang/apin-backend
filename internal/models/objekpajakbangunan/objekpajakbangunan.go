@@ -3,6 +3,7 @@ package objekpajakbangunan
 import (
 	"time"
 
+	mf "github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
 	j "github.com/bapenda-kota-malang/apin-backend/internal/models/jpb"
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	p "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
@@ -13,8 +14,8 @@ import (
 type ObjekPajakBangunan struct {
 	nop.NopDetail
 	NoBangunan            *int              `json:"noBangunan"`
-	Jpb_Kode              *string           `json:"jpb_kode" gorm:"type:char(2)"`
-	Jpb                   j.Jpb             `json:"jpb,omitempty" gorm:"foreignKey:Jpb_Kode;references:Kode"`
+	Jpb_Kode              string            `json:"jpb_kode" gorm:"type:char(2)"`
+	Jpb                   *j.Jpb            `json:"jpb,omitempty" gorm:"foreignKey:Jpb_Kode;references:Kode"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop" gorm:"type:char(11)"`
 	TahunDibangun         *string           `json:"tahunDibangun" gorm:"type:char(4)"`
 	TahunRenovasi         *string           `json:"tahunRenovasi" gorm:"type:char(4)"`
@@ -42,7 +43,7 @@ type ObjekPajakBangunan struct {
 type CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int              `json:"noBangunan"`
-	Jpb_Kode              *string           `json:"jpb_kode"`
+	Jpb_Kode              string            `json:"jpb_kode"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop"`
 	TahunDibangun         *string           `json:"tahunDibangun"`
 	TahunRenovasi         *string           `json:"tahunRenovasi"`
@@ -62,6 +63,7 @@ type CreateDto struct {
 	TanggalPerekaman      *string           `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip"`
 	Nop                   *string           `json:"nop"`
+	FasilitasBangunans    *mf.CreateDto     `json:"fasilitasBangunan"`
 }
 
 type UpdateDto struct {
