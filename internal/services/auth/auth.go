@@ -59,6 +59,7 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 	// Get Ref
 	ref := t.II{}
 	ref_type := ""
+	jabatan_id := 0
 	if user.Position == 1 {
 		var refData pm.Pegawai
 		if err := getAndCheck(result, &refData, pm.Pegawai{Id: user.Ref_Id}); err != nil {
@@ -70,7 +71,7 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 		ref["nama"] = refData.Nama
 		ref["nip"] = refData.Nip
 		ref["jabatan_id"] = refData.Jabatan_Id
-
+		jabatan_id = refData.Jabatan_Id
 	} else if user.Position == 2 {
 		var refData am.Ppat
 		if err := getAndCheck(result, &refData, am.Ppat{Id: user.Ref_Id}); err != nil {
@@ -105,6 +106,7 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 	atClaims := jwt.MapClaims{}
 	atClaims["user_id"] = user.Id
 	atClaims["ref_id"] = user.Ref_Id
+	atClaims["jabatan_id"] = jabatan_id
 	atClaims["exp"] = atExpires
 	atClaims["uuid"] = aUuid
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
@@ -208,10 +210,15 @@ func ExtractToken(r *http.Request, tokenType TokenType) (*AuthInfo, error) {
 		if err != nil {
 			return nil, err
 		}
+		jabatan_id, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["jabatan_id"]), 10, 64)
+		if err != nil {
+			return nil, err
+		}
 		return &AuthInfo{
-			Uuid:    accessUuid,
-			User_Id: int(user_id),
-			Ref_Id:  int(ref_id),
+			Uuid:       accessUuid,
+			User_Id:    int(user_id),
+			Ref_Id:     int(ref_id),
+			Jabatan_Id: int(jabatan_id),
 		}, nil
 	}
 	return nil, err

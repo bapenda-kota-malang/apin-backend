@@ -6,6 +6,7 @@ import (
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 
+	// "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	area "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -15,7 +16,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 )
 
-const source = "objekpajak"
+const source = "bphtbsptpd"
 
 func Create(input m.RequestSptpd, tx *gorm.DB) (any, error) {
 	if tx == nil {
@@ -47,6 +48,69 @@ func GetList(input m.RequestSptpd) (any, error) {
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
+}
+
+func GetListApproval(input m.RequestSptpd, auth int, tp string) (any, error) {
+	var data []m.BphtbSptpd
+	var count int64
+	var result *gorm.DB
+
+	var pagination gh.Pagination
+	if (auth == 0 || auth == 4) && tp == "ver" {
+		result = a.DB.
+			Model(&m.BphtbSptpd{}).
+			Where("\"Status\" IN ?", []string{"01", "03", "04", "05", "06", "07", "08", "09"}).
+			Scopes(gh.Filter(input)).
+			Count(&count).
+			Scopes(gh.Paginate(input, &pagination)).
+			Find(&data)
+	} else if (auth == 0 || auth == 4) && tp == "byr" {
+		result = a.DB.
+			Model(&m.BphtbSptpd{}).
+			Where("\"Status\" IN ?", []string{"09", "10", "11", "12", "13"}).
+			Scopes(gh.Filter(input)).
+			Count(&count).
+			Scopes(gh.Paginate(input, &pagination)).
+			Find(&data)
+	} else if auth == 3 && tp == "ver" {
+		result = a.DB.
+			Model(&m.BphtbSptpd{}).
+			Where("\"Status\" IN ?", []string{"03", "06", "07", "08", "09"}).
+			Scopes(gh.Filter(input)).
+			Count(&count).
+			Scopes(gh.Paginate(input, &pagination)).
+			Find(&data)
+	} else if (auth == 0 || auth == 3 || auth == 2) && tp == "val" {
+		result = a.DB.
+			Model(&m.BphtbSptpd{}).
+			Where("\"Status\" IN ?", []string{"11", "14", "15"}).
+			Scopes(gh.Filter(input)).
+			Count(&count).
+			Scopes(gh.Paginate(input, &pagination)).
+			Find(&data)
+	} else if auth == 2 && tp == "ver" {
+		result = a.DB.
+			Model(&m.BphtbSptpd{}).
+			Where("\"Status\" IN ?", []string{"06", "08", "09"}).
+			Scopes(gh.Filter(input)).
+			Count(&count).
+			Scopes(gh.Paginate(input, &pagination)).
+			Find(&data)
+	}
+
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
@@ -145,6 +209,95 @@ func Update(id int, input m.RequestSptpd, tx *gorm.DB) (any, error) {
 
 	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+func Approval(id int, kd string, auth int, input m.RequestApprovalSptpd, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data *m.BphtbSptpd
+	result := tx.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	data = input.SetDataApproval(data)
+
+	tempVal := []string{"10", "11", "12", "13"}
+	if kd == "03" && auth == 4 {
+		//verifikasi staff
+
+		tempVal := "0"
+		data.Proses = &tempVal
+		// data.Dispenda_User_id = auth.user_id
+		// data.NamaStaff = ""
+	} else if kd == "04" && auth == 4 {
+		//penolakan staff
+
+		tempVal := "-1"
+		data.Proses = &tempVal
+		// data.Dispenda_User_id = auth.user_id
+		// data.NamaStaff = ""
+	} else if kd == "05" && auth == 3 {
+		//verifikasi kabid
+
+		tempVal := "2"
+		data.Proses = &tempVal
+	} else if kd == "06" && auth == 3 {
+		//tolak kabid
+		// tempVal := "2"
+		// data.Proses = &tempVal
+	} else if kd == "07" && auth == 3 {
+		//tolak kabid
+		// tempVal := "2"
+		// data.Proses = &tempVal
+	} else if kd == "08" && auth == 2 {
+		//tolak kabid
+		// tempVal := "2"
+		// data.Proses = &tempVal
+	} else if kd == "09" && auth == 2 {
+		//tolak kabid
+		// tempVal := "2"
+		// data.Proses = &tempVal
+	} else if stringInSlice(kd, tempVal) && auth == 4 {
+		//tolak kabid
+		// tempVal := "2"
+		// data.Proses = &tempVal
+	} else if kd == "14" && auth == 3 {
+		//tolak kabid
+		// tempVal := "2"
+		// data.Proses = &tempVal
+	} else if kd == "15" && auth == 2 {
+		//tolak kabid
+		// tempVal := "2"
+		// data.Proses = &tempVal
+	} else if auth == 0 {
+		//tolak kabid
+		// tempVal := "2"
+		// data.Proses = &tempVal
+	} else {
+		return sh.SetError("request", "approval-data", source, "failed", "gagal melakukan approval data, user status tidak valid", data)
+	}
+
+	if result := tx.Save(&data); result.Error != nil {
+		return sh.SetError("request", "approval-data", source, "failed", "gagal melakukan approval data", data)
 	}
 
 	return rp.OK{
