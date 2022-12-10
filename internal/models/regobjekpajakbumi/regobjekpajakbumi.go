@@ -9,7 +9,7 @@ type RegObjekPajakBumi struct {
 	nop.NopDetail
 	NoBumi          *int      `json:"noBumi"`
 	KodeZNT         *string   `json:"kodeZnt" gorm:"type:char(2)"`
-	LuasBumi        *int      `json:"luasBumi"`
+	LuasBumi        int       `json:"luasBumi"`
 	JenisBumi       JenisBumi `json:"jenisBumi" gorm:"type:char(1)"`
 	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
 	gh.DateModel
@@ -20,7 +20,7 @@ type CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBumi          *int      `json:"noBumi"`
 	KodeZNT         *string   `json:"kodeZnt"`
-	LuasBumi        *int      `json:"luasBumi"`
+	LuasBumi        int       `json:"luasBumi"`
 	JenisBumi       JenisBumi `json:"jenisBumi"`
 	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
 }
@@ -29,7 +29,7 @@ type UpdateDto struct {
 	nop.NopDetailUpdateDto
 	NoBumi          *int      `json:"noBumi"`
 	KodeZNT         *string   `json:"kodeZnt"`
-	LuasBumi        *int      `json:"luasBumi"`
+	LuasBumi        int       `json:"luasBumi"`
 	JenisBumi       JenisBumi `json:"jenisBumi"`
 	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
 }
