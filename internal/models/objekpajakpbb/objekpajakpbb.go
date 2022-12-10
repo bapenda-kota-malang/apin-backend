@@ -4,7 +4,6 @@ import (
 	"time"
 
 	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
-	miop "github.com/bapenda-kota-malang/apin-backend/internal/models/indukobjekpajak"
 	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
@@ -73,12 +72,11 @@ type CreateDto struct {
 	WajibPajakPbbs     mwp.CreateDto   `json:"wajibPajakPbb"`
 	ObjekPajakBumis    mopb.CreateDto  `json:"objekPajakBumi"`
 	AnggotaObjekPajaks *maop.CreateDto `json:"anggotaObjekPajak"`
-	IndukObjekPajaks   *miop.CreateDto `json:"indukObjekPajak"`
 	KunjunganKembalis  *mkk.CreateDto  `json:"kunjunganKembali"`
 	//nop
 	Nop        *string `json:"nop"`
-	NopInduk   *string `json:"nopInduk"`
-	NopAnggota *string `json:"nopAnggota"`
+	NopBersama *string `json:"nopBersama"`
+	NopAsal    *string `json:"nopAsal"`
 }
 
 type UpdateDto struct {

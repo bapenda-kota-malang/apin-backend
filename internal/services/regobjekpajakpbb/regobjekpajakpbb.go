@@ -1,6 +1,7 @@
 package regobjekpajakpbb
 
 import (
+	"errors"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -12,14 +13,16 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/reganggotaobjekpajak"
-	miop "github.com/bapenda-kota-malang/apin-backend/internal/models/regindukobjekpajak"
-	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/regkunjungankembali"
-	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
+	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	mopp "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	mraop "github.com/bapenda-kota-malang/apin-backend/internal/models/reganggotaobjekpajak"
+	mrkk "github.com/bapenda-kota-malang/apin-backend/internal/models/regkunjungankembali"
+	mropb "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
-	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/regwajibpajakpbb"
+	mrwp "github.com/bapenda-kota-malang/apin-backend/internal/models/regwajibpajakpbb"
+	mwpp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/reganggotaobjekpajak"
-	siop "github.com/bapenda-kota-malang/apin-backend/internal/services/regindukobjekpajak"
 	skk "github.com/bapenda-kota-malang/apin-backend/internal/services/regkunjungankembali"
 	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/regobjekpajakbumi"
 	swp "github.com/bapenda-kota-malang/apin-backend/internal/services/regwajibpajakpbb"
@@ -31,17 +34,18 @@ const source = "reg objekpajakpbb"
 
 func Create(input m.CreateDto) (any, error) {
 	var data m.RegObjekPajakPbb
-	var dataWajibPajakPbb mwp.CreateDto
-	var dataAnggotaObjekPajak maop.CreateDto
-	var dataIndukObjekPajak miop.CreateDto
-	var dataObjekPajakBumi mopb.CreateDto
-	var dataKunjunganKembali mkk.CreateDto
+	var dataWajibPajakPbb mrwp.CreateDto
+	var dataAnggotaObjekPajak mraop.CreateDto
+	var dataObjekPajakBumi mropb.CreateDto
+	var dataKunjunganKembali mrkk.CreateDto
 	var respDataWajibPajakPbb interface{}
 	var respDataAnggotaObjekPajak interface{}
-	var respDataIndukObjekPajak interface{}
 	var respDataObjekPajakBumi interface{}
 	var respDataKunjunganKembali interface{}
 	var resp t.II
+
+	// parsing nop
+	resultNop, kode := sh.NopParser(*input.Nop)
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -58,31 +62,30 @@ func Create(input m.CreateDto) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg objek pajak bumi", input.RegObjekPajakBumis)
 	}
 
-	if input.NopInduk != nil {
+	if input.NopBersama != nil {
 		// copy data anggota objek pajak
 		if err := sc.Copy(&dataAnggotaObjekPajak, input.RegAnggotaObjekPajaks); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg anggota objek pajak", input.RegAnggotaObjekPajaks)
 		}
 
-		// data induk objek
-		resultNopInduk, kode := sh.NopParser(*input.NopInduk)
-		dataIndukObjekPajak.NopDetailCreateDto.Provinsi_Kode = &resultNopInduk[0]
-		dataIndukObjekPajak.NopDetailCreateDto.Daerah_Kode = &resultNopInduk[1]
-		dataIndukObjekPajak.NopDetailCreateDto.Kecamatan_Kode = &resultNopInduk[2]
-		dataIndukObjekPajak.NopDetailCreateDto.Kelurahan_Kode = &resultNopInduk[3]
-		dataIndukObjekPajak.NopDetailCreateDto.Blok_Kode = &resultNopInduk[4]
-		dataIndukObjekPajak.NopDetailCreateDto.NoUrut = &resultNopInduk[5]
-		dataIndukObjekPajak.NopDetailCreateDto.JenisOp = &resultNopInduk[6]
-		dataIndukObjekPajak.NopDetailCreateDto.Area_Kode = &kode
+		// data induk
+		resultNopBersama, kodeBersama := sh.NopParser(*input.NopBersama)
+		dataAnggotaObjekPajak.Induk_Provinsi_Kode = &resultNopBersama[0]
+		dataAnggotaObjekPajak.Induk_Daerah_Kode = &resultNopBersama[1]
+		dataAnggotaObjekPajak.Induk_Kecamatan_Kode = &resultNopBersama[2]
+		dataAnggotaObjekPajak.Induk_Kelurahan_Kode = &resultNopBersama[3]
+		dataAnggotaObjekPajak.Induk_Blok_Kode = &resultNopBersama[4]
+		dataAnggotaObjekPajak.Induk_NoUrut = &resultNopBersama[5]
+		dataAnggotaObjekPajak.Induk_JenisOp = &resultNopBersama[6]
+		dataAnggotaObjekPajak.Induk_Area_Kode = &kodeBersama
 
-		resultNopAnggota, kode := sh.NopParser(*input.NopAnggota)
-		dataAnggotaObjekPajak.Provinsi_Kode = &resultNopAnggota[0]
-		dataAnggotaObjekPajak.Daerah_Kode = &resultNopAnggota[1]
-		dataAnggotaObjekPajak.Kecamatan_Kode = &resultNopAnggota[2]
-		dataAnggotaObjekPajak.Kelurahan_Kode = &resultNopAnggota[3]
-		dataAnggotaObjekPajak.Blok_Kode = &resultNopAnggota[4]
-		dataAnggotaObjekPajak.NoUrut = &resultNopAnggota[5]
-		dataAnggotaObjekPajak.JenisOp = &resultNopAnggota[6]
+		dataAnggotaObjekPajak.Provinsi_Kode = &resultNop[0]
+		dataAnggotaObjekPajak.Daerah_Kode = &resultNop[1]
+		dataAnggotaObjekPajak.Kecamatan_Kode = &resultNop[2]
+		dataAnggotaObjekPajak.Kelurahan_Kode = &resultNop[3]
+		dataAnggotaObjekPajak.Blok_Kode = &resultNop[4]
+		dataAnggotaObjekPajak.NoUrut = &resultNop[5]
+		dataAnggotaObjekPajak.JenisOp = &resultNop[6]
 		dataAnggotaObjekPajak.Area_Kode = &kode
 	}
 
@@ -103,7 +106,7 @@ func Create(input m.CreateDto) (any, error) {
 	}
 
 	// add static field for objek pajak pbb
-	resultNop, kode := sh.NopParser(*input.Nop)
+
 	data.NopDetail.Provinsi_Kode = &resultNop[0]
 	data.NopDetail.Daerah_Kode = &resultNop[1]
 	data.NopDetail.Kecamatan_Kode = &resultNop[2]
@@ -133,7 +136,7 @@ func Create(input m.CreateDto) (any, error) {
 			return err
 		}
 		respDataWajibPajakPbb = resultWajibPajakPbb
-		resultCastWajibPajakPbb := resultWajibPajakPbb.(rp.OKSimple).Data.(mwp.RegWajibPajakPbb)
+		resultCastWajibPajakPbb := resultWajibPajakPbb.(rp.OKSimple).Data.(mrwp.RegWajibPajakPbb)
 		// add static value
 		data.RegWajibPajakPbb_Id = &resultCastWajibPajakPbb.Id
 
@@ -150,17 +153,8 @@ func Create(input m.CreateDto) (any, error) {
 		}
 		respDataObjekPajakBumi = resultObjekPajakBumi
 
-		if input.NopInduk != nil {
-			// create data induk objek pajak
-			resultIndukObjekPajak, err := siop.Create(dataIndukObjekPajak, tx)
-			if err != nil {
-				return err
-			}
-			respDataIndukObjekPajak = resultIndukObjekPajak
-			resultCastIndukObjekPajak := resultIndukObjekPajak.(rp.OKSimple).Data.(miop.RegIndukObjekPajak)
-
+		if input.NopBersama != nil {
 			// create data anggota objek pajak
-			dataAnggotaObjekPajak.RegIndukObjekPajak_Id = &resultCastIndukObjekPajak.Id
 			resultAnggotaObjekPajak, err := saop.Create(dataAnggotaObjekPajak, tx)
 			if err != nil {
 				return err
@@ -183,31 +177,29 @@ func Create(input m.CreateDto) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
 	}
 
-	if input.NopInduk != nil && input.RegKunjunganKembalis != nil {
+	if input.NopBersama != nil && input.RegKunjunganKembalis != nil {
 		resp = t.II{
 			"regObjekPajakPbb":     data,
 			"regWajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"regObjekPajakBumi":    respDataObjekPajakBumi.(rp.OKSimple).Data,
-			"regIndukObjekPajak":   respDataIndukObjekPajak.(rp.OKSimple).Data,
 			"regAnggotaObjekPajak": respDataAnggotaObjekPajak.(rp.OKSimple).Data,
 			"regKunjunganKembali":  respDataKunjunganKembali.(rp.OKSimple).Data,
 		}
-	} else if input.NopInduk != nil && input.RegKunjunganKembalis == nil {
+	} else if input.NopBersama != nil && input.RegKunjunganKembalis == nil {
 		resp = t.II{
 			"regObjekPajakPbb":     data,
 			"regWajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"regObjekPajakBumi":    respDataObjekPajakBumi.(rp.OKSimple).Data,
-			"regIndukObjekPajak":   respDataIndukObjekPajak.(rp.OKSimple).Data,
 			"regAnggotaObjekPajak": respDataAnggotaObjekPajak.(rp.OKSimple).Data,
 		}
-	} else if input.NopInduk == nil && input.RegKunjunganKembalis != nil {
+	} else if input.NopBersama == nil && input.RegKunjunganKembalis != nil {
 		resp = t.II{
 			"regObjekPajakPbb":    data,
 			"regWajibPajakPbb":    respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"regObjekPajakBumi":   respDataObjekPajakBumi.(rp.OKSimple).Data,
 			"regKunjunganKembali": respDataKunjunganKembali.(rp.OKSimple).Data,
 		}
-	} else if input.NopInduk == nil && input.RegKunjunganKembalis == nil {
+	} else if input.NopBersama == nil && input.RegKunjunganKembalis == nil {
 		resp = t.II{
 			"regObjekPajakPbb":  data,
 			"regWajibPajakPbb":  respDataWajibPajakPbb.(rp.OKSimple).Data,
@@ -335,4 +327,88 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func VerifySpop(id int, input m.VerifyDto) (any, error) {
+	if input.Status > 2 {
+		return nil, errors.New("status tidak diketahui")
+	}
+
+	var data *m.RegObjekPajakPbb
+	var dataObjekPajakPbb mopp.ObjekPajakPbb
+	var dataWajibPajakPbb mwpp.WajibPajakPbb
+	var dataObjekPajakBumi mopb.ObjekPajakBumi
+	// var dataCreateSpop *mopp.CreateDto
+
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data registrasi spop tidak dapat ditemukan")
+	}
+	if data.Status != m.StatusBaru {
+		if data.Status == m.StatusDisetujui {
+			return nil, errors.New("data sudah disetujui")
+		} else if data.Status == m.StatusDitolak {
+			return nil, errors.New("data sudah ditolak")
+		}
+	}
+
+	if input.Status == m.StatusDitolak {
+		data.Status = m.StatusDitolak
+		if result := a.DB.Save(&data); result.Error != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data registrasi spop", data)
+		}
+		return rp.OK{
+			Meta: t.IS{
+				"affected": strconv.Itoa(int(result.RowsAffected)),
+			},
+			Data: data,
+		}, nil
+	} else if input.Status == m.StatusDisetujui {
+		data.Status = m.StatusDisetujui
+		if result := a.DB.Save(&data); result.Error != nil {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data registrasi spop", data)
+		}
+	}
+
+	// copy data reg objek pajak pbb
+	if err := sc.Copy(&dataObjekPajakPbb, &data); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data reg objek pajak pbb: "+err.Error(), data)
+	}
+
+	// find data reg wajibpajakpbb
+	var dataRegWp *mrwp.RegWajibPajakPbb
+	err := a.DB.Where(mrwp.RegWajibPajakPbb{Id: *data.RegWajibPajakPbb_Id}).First(&dataRegWp).Error
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data reg wajib pajak pbb", data)
+	}
+
+	// copy data reg wajib pajak
+	if err := sc.Copy(&dataWajibPajakPbb, &dataRegWp); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data reg wajib pajak pbb", dataRegWp)
+	}
+
+	// reg objek pajak bumi condition for query
+	condition := mropb.RegObjekPajakBumi{
+		NopDetail: nop.NopDetail{
+			Provinsi_Kode:  data.Provinsi_Kode,
+			Daerah_Kode:    data.Daerah_Kode,
+			Kecamatan_Kode: data.Kecamatan_Kode,
+			Kelurahan_Kode: data.Kelurahan_Kode,
+			Blok_Kode:      data.Blok_Kode,
+			NoUrut:         data.NoUrut,
+			JenisOp:        data.JenisOp,
+		}}
+	// find data reg objek pajak bumi
+	var dataRegOpb *mropb.RegObjekPajakBumi
+	err = a.DB.Where(condition).First(&dataRegOpb).Error
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data reg objek pajak bumi", data)
+	}
+
+	// copy data reg objek pajak bumi
+	if err := sc.Copy(&dataObjekPajakBumi, &dataRegOpb); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data reg objek pajak", dataRegWp)
+	}
+
+	return nil, nil
 }

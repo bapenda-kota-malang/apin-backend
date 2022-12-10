@@ -17,7 +17,7 @@ import (
 // spop
 type RegObjekPajakPbb struct {
 	nop.NopDetail
-	RegWajibPajakPbb_Id   *uint64               `json:"WajibPajakPbb_id"`
+	RegWajibPajakPbb_Id   *uint64               `json:"regWajibPajakPbb_id"`
 	RegWajibPajakPbb      *mwp.RegWajibPajakPbb `json:"regWajibPajakPbb,omitempty" gorm:"foreignKey:RegWajibPajakPbb_Id"`
 	NoFormulirSpop        *string               `json:"noFormulirSpop" gorm:"type:char(11)"`
 	NoPersil              *string               `json:"noPersil" gorm:"type:varchar(5)"`
@@ -32,7 +32,8 @@ type RegObjekPajakPbb struct {
 	NjopBumi              *int                  `json:"njopBumi"`
 	NjopBangunan          *int                  `json:"njopBangunan"`
 	StatusPeta            *int                  `json:"statusPeta"`
-	Status                *int                  `json:"status"`
+	Status                VerifyStatus          `json:"status"`
+	NopAsal               *string               `json:"nopAsal"`
 	JenisTransaksi        ot.JenisTransaksi     `json:"jenisTransaksi" gorm:"type:varchar(2)"`
 	TanggalPendataan      *time.Time            `json:"tanggalPendataan"`
 	Pendata_Pegawai_Nip   *string               `json:"pendata_pegawai_nip" gorm:"type:char(9)"`
@@ -78,8 +79,8 @@ type CreateDto struct {
 	RegKunjunganKembalis  *mkk.CreateDto  `json:"regKunjunganKembali"`
 	//nop
 	Nop        *string `json:"nop"`
-	NopInduk   *string `json:"nopInduk"`
-	NopAnggota *string `json:"nopAnggota"`
+	NopBersama *string `json:"nopBersama"`
+	NopAsal    *string `json:"nopAsal"`
 }
 
 type UpdateDto struct {
@@ -141,4 +142,8 @@ type FilterDto struct {
 	Perekam_Pegawai_Nip   *string            `json:"perekam_pegawai_nip"`
 	Page                  int                `json:"page"`
 	PageSize              int                `json:"page_size"`
+}
+
+type VerifyDto struct {
+	Status VerifyStatus `json:"status" validate:"min=1;max=2"`
 }

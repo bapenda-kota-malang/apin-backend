@@ -2,6 +2,7 @@ package regobjekpajakpbb
 
 type JenisTransaksi string
 type StatusWp int
+type VerifyStatus int
 
 const (
 	JenisTransaksiPerekaman          JenisTransaksi = "1" // perekaman data op
@@ -14,4 +15,8 @@ const (
 	StatusWpPengelola StatusWp = 3
 	StatusWpPemakai   StatusWp = 4
 	StatusWpSengketa  StatusWp = 5
+
+	StatusBaru      VerifyStatus = 0
+	StatusDisetujui VerifyStatus = 1
+	StatusDitolak   VerifyStatus = 2
 )
