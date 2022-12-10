@@ -3,12 +3,19 @@ package sptpd
 import (
 	"strconv"
 
+	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	// "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	area "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
+	mppat "github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
+	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
+	sppat "github.com/bapenda-kota-malang/apin-backend/internal/services/ppat"
+	swp "github.com/bapenda-kota-malang/apin-backend/internal/services/wajibpajak"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -18,32 +25,110 @@ import (
 
 const source = "bphtbsptpd"
 
-func Create(input m.RequestSptpd, tx *gorm.DB) (any, error) {
-	if tx == nil {
-		tx = a.DB
-	}
+func Create(input m.CreateDto, from string, authInfo *auth.AuthInfo) (any, error) {
 	var data m.BphtbSptpd
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		// bphtb section
+		if err := sc.Copy(&data, &input); err != nil {
+			return err
+		}
+		data.Lampiran = nil
+		// change data based from parameter and add static data
+		id, err := sh.GetUuidv4()
+		if err != nil {
+			return err
+		}
+		data.Id = id
+		switch from {
+		case "ppat":
+			respPpat, err := sppat.GetDetail(authInfo.Ref_Id)
+			if err != nil {
+				return err
+			}
+			ppatDataId := strconv.Itoa(respPpat.(rp.OKSimple).Data.(*mppat.Ppat).Id)
+			data.Ppat_Id = &ppatDataId
+		case "wp":
+			respWp, err := swp.GetDetail(authInfo.Ref_Id)
+			if err != nil {
+				return err
+			}
+			wpNik := respWp.(rp.OKSimple).Data.(*mwp.WajibPajak).Nik
+			data.WajibPajak_NIK = &wpNik
+		}
+		if data.GambarOp != nil {
+			var errChan = make(chan error)
+			fileName, path, extFile, _, err := sh.FilePreProcess(*data.GambarOp, "bphtbGambarOp", uint(authInfo.User_Id), id)
+			if err != nil {
+				return err
+			}
+			go sh.SaveFile(*data.GambarOp, fileName, path, extFile, errChan)
+			if err := <-errChan; err != nil {
+				return err
+			}
+			data.GambarOp = &fileName
+		}
+		data.Status = "00"
 
-	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
-	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+		if result := tx.Create(&data); result.Error != nil {
+			return result.Error
+		}
+
+		// TODO: lampiran section
+		var lampiran m.Lampiran
+		if err := sc.Copy(&lampiran, &input.Lampiran); err != nil {
+			return err
+		}
+		id, err = sh.GetUuidv4()
+		if err != nil {
+			return err
+		}
+		lampiran.BphtbSptpd_Id = data.Id
+
+		// save lampiran surat pernyataan
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := sh.FilePreProcess(lampiran.LampiranFotocopySuratPernyataan, "lampiranFcSuratPernyataan", uint(authInfo.User_Id), id)
+		if err != nil {
+			return err
+		}
+		go sh.SaveFile(lampiran.LampiranFotocopySuratPernyataan, fileName, path, extFile, errChan)
+		if err := <-errChan; err != nil {
+			return err
+		}
+		lampiran.LampiranFotocopySuratPernyataan = fileName
+
+		if result := tx.Create(&lampiran); result.Error != nil {
+			return result.Error
+		}
+		data.Lampiran = &lampiran
+
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal membuat data: "+err.Error(), data)
 	}
-
-	// simpan data ke db satu if karena result dipakai sekali, +error
-	if result := tx.Create(&data); result.Error != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
-	}
-
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetList(input m.RequestSptpd) (any, error) {
+func GetList(input m.FilterDto, auth int, tp string) (any, error) {
 	var data []m.BphtbSptpd
 	var count int64
 
+	queryBase := a.DB.Model(&m.BphtbSptpd{})
+
+	if (auth == 0 || auth == 4) && tp == "ver" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"01", "03", "04", "05", "06", "07", "08", "09"})
+	} else if (auth == 0 || auth == 4) && tp == "byr" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"09", "10", "11", "12", "13"})
+	} else if auth == 3 && tp == "ver" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"03", "06", "07", "08", "09"})
+	} else if (auth == 0 || auth == 3 || auth == 2) && tp == "val" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"11", "14", "15"})
+	} else if auth == 2 && tp == "ver" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"06", "08", "09"})
+	}
+
 	var pagination gh.Pagination
-	result := a.DB.
-		Model(&m.BphtbSptpd{}).
+	result := queryBase.
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -63,73 +148,9 @@ func GetList(input m.RequestSptpd) (any, error) {
 	}, nil
 }
 
-func GetListApproval(input m.RequestSptpd, auth int, tp string) (any, error) {
-	var data []m.BphtbSptpd
-	var count int64
-	var result *gorm.DB
-
-	var pagination gh.Pagination
-	if (auth == 0 || auth == 4) && tp == "ver" {
-		result = a.DB.
-			Model(&m.BphtbSptpd{}).
-			Where("\"Status\" IN ?", []string{"01", "03", "04", "05", "06", "07", "08", "09"}).
-			Scopes(gh.Filter(input)).
-			Count(&count).
-			Scopes(gh.Paginate(input, &pagination)).
-			Find(&data)
-	} else if (auth == 0 || auth == 4) && tp == "byr" {
-		result = a.DB.
-			Model(&m.BphtbSptpd{}).
-			Where("\"Status\" IN ?", []string{"09", "10", "11", "12", "13"}).
-			Scopes(gh.Filter(input)).
-			Count(&count).
-			Scopes(gh.Paginate(input, &pagination)).
-			Find(&data)
-	} else if auth == 3 && tp == "ver" {
-		result = a.DB.
-			Model(&m.BphtbSptpd{}).
-			Where("\"Status\" IN ?", []string{"03", "06", "07", "08", "09"}).
-			Scopes(gh.Filter(input)).
-			Count(&count).
-			Scopes(gh.Paginate(input, &pagination)).
-			Find(&data)
-	} else if (auth == 0 || auth == 3 || auth == 2) && tp == "val" {
-		result = a.DB.
-			Model(&m.BphtbSptpd{}).
-			Where("\"Status\" IN ?", []string{"11", "14", "15"}).
-			Scopes(gh.Filter(input)).
-			Count(&count).
-			Scopes(gh.Paginate(input, &pagination)).
-			Find(&data)
-	} else if auth == 2 && tp == "ver" {
-		result = a.DB.
-			Model(&m.BphtbSptpd{}).
-			Where("\"Status\" IN ?", []string{"06", "08", "09"}).
-			Scopes(gh.Filter(input)).
-			Count(&count).
-			Scopes(gh.Paginate(input, &pagination)).
-			Find(&data)
-	}
-
-	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
-	}
-
-	return rp.OK{
-		Meta: t.IS{
-			"totalCount":   strconv.Itoa(int(count)),
-			"currentCount": strconv.Itoa(int(result.RowsAffected)),
-			"page":         strconv.Itoa(pagination.Page),
-			"pageSize":     strconv.Itoa(pagination.PageSize),
-		},
-		Data: data,
-	}, nil
-}
-
-func GetDetail(id int) (any, error) {
+func GetDetail(id uuid.UUID) (any, error) {
 	var (
-		model    *m.BphtbSptpd
-		lampiran *m.Lampiran
+		model *m.BphtbSptpd
 
 		provinsi  *area.Provinsi
 		kota      *area.Daerah
@@ -138,7 +159,7 @@ func GetDetail(id int) (any, error) {
 		// blok      *area.Blok
 	)
 
-	result := a.DB.First(&model, id)
+	result := a.DB.Preload(clause.Associations).First(&model, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -170,10 +191,6 @@ func GetDetail(id int) (any, error) {
 	data.Kecamatan_wp = &kecamatan.Nama
 	data.Kelurahan_wp = &kelurahan.Nama
 
-	_ = a.DB.Where("NoSspd", model.NoDokumen).First(&lampiran)
-
-	data.DataLampiran = lampiran
-
 	return rp.OKSimple{
 		Data: data,
 	}, nil
@@ -194,12 +211,12 @@ func GetDetailbyField(field string, value string) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.RequestSptpd, tx *gorm.DB) (any, error) {
+func Update(id uuid.UUID, input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data *m.BphtbSptpd
-	result := tx.First(&data, id)
+	result := tx.First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
@@ -228,12 +245,12 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func Approval(id int, kd string, auth int, input m.RequestApprovalSptpd, tx *gorm.DB) (any, error) {
+func Approval(id uuid.UUID, kd string, auth int, input m.RequestApprovalSptpd, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data *m.BphtbSptpd
-	result := tx.First(&data, id)
+	result := tx.First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
@@ -308,12 +325,12 @@ func Approval(id int, kd string, auth int, input m.RequestApprovalSptpd, tx *gor
 	}, nil
 }
 
-func Delete(id int, tx *gorm.DB) (any, error) {
+func Delete(id uuid.UUID, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data *m.BphtbSptpd
-	result := tx.First(&data, id)
+	result := tx.First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}

@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -157,6 +158,17 @@ func SaveFile(b64Raw, fileName, path, extFile string, errCh chan error) {
 		return
 	}
 
+	errCh <- nil
+}
+
+// save base64 to specific file with wait group wrapper
+func BulkSaveFile(wg *sync.WaitGroup, b64Raw, fileName, path, extFile string, errCh chan error) {
+	defer wg.Done()
+	saveErrCh := make(chan error)
+	go SaveFile(b64Raw, fileName, path, extFile, saveErrCh)
+	if err := <-saveErrCh; err != nil {
+		errCh <- err
+	}
 	errCh <- nil
 }
 
@@ -599,4 +611,37 @@ func NopParser(nop string) (result []string, area_kode string) {
 	result = strings.Split(nop, ".")
 	area_kode = result[0] + result[1] + result[2] + result[3]
 	return result, area_kode
+}
+
+// function wrapper to call all process before create file
+//
+// return filename, path, extensionFile, id, and error
+func FilePreProcess(b64String, docsname string, userId uint, oldId uuid.UUID) (fileName, path, extFile string, id uuid.UUID, err error) {
+	extFile, err = base64helper.GetExtensionBase64(b64String)
+	if err != nil {
+		return
+	}
+	path = GetResourcesPath()
+	switch extFile {
+	case "pdf":
+		path = GetPdfPath()
+	case "png", "jpeg":
+		path = GetImgPath()
+	case "xlsx", "xls":
+		path = GetExcelPath()
+	default:
+		err = errors.New("file tidak diketahui")
+		return
+	}
+	if oldId == uuid.Nil {
+		id, err = GetUuidv4()
+		if err != nil {
+			err = errors.New("gagal generate uuid")
+			return
+		}
+	} else {
+		id = oldId
+	}
+	fileName = GenerateFilename(docsname, id, userId, extFile)
+	return
 }

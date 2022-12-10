@@ -4,13 +4,14 @@ import (
 	"time"
 
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )
 
 type BphtbSptpd struct {
-	Id                        uint            `json:"id" gorm:"primarykey"`
-	Sptpd_Id                  *string         `json:"sptpd_Id" gorm:"type:varchar(50)"`
-	Ppat_Id                   *string         `json:"ppat_Id" gorm:"type:varchar(50)"`
+	Id                        uuid.UUID       `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	Sptpd_Id                  *string         `json:"sptpd_id" gorm:"type:varchar(50)"`
+	Ppat_Id                   *string         `json:"ppat_id" gorm:"type:varchar(50)"`
 	WajibPajak_NIK            *string         `json:"wajibPajak_NIK" gorm:"type:varchar(50)"`
 	PermohonanProvinsiID      *string         `json:"permohonanProvinsiID" gorm:"type:varchar(2)"`
 	PermohonanKotaID          *string         `json:"permohonanKotaID" gorm:"type:varchar(2)"`
@@ -60,7 +61,7 @@ type BphtbSptpd struct {
 	InpAphb2                  *string         `json:"inpAphb2" gorm:"type:varchar(50)"`
 	InpAphb3                  *string         `json:"inpAphb3" gorm:"type:varchar(50)"`
 	KodeValidasi              *string         `json:"kodeValidasi" gorm:"type:varchar(50)"`
-	GambarOp                  *string         `json:"GambarOp" gorm:"type:varchar(50)"`
+	GambarOp                  *string         `json:"gambarOp" gorm:"type:varchar(100)"`
 	IsLunas                   *string         `json:"isLunas" gorm:"type:varchar(50)"`
 	ValidasiDisependa         *string         `json:"validasiDisependa" gorm:"type:varchar(50)"`
 	ValidasiBank              *string         `json:"validasiBank" gorm:"type:varchar(50)"`
@@ -93,10 +94,10 @@ type BphtbSptpd struct {
 	Proses                    *string         `json:"proses" gorm:"type:varchar(2)"`
 	NamaWp                    *string         `json:"namaWp" gorm:"type:varchar(50)"`
 	Alamat                    *string         `json:"alamat" gorm:"type:varchar(50)"`
-	Provinsi_Id               *string         `json:"provinsi_Id" gorm:"type:varchar(2)"`
+	Provinsi_Id               *string         `json:"provinsi_id" gorm:"type:varchar(2)"`
 	Kabupaten_id              *string         `json:"kabupaten_id" gorm:"type:varchar(2)"`
-	Kecamatan_Id              *string         `json:"kecamatan_Id" gorm:"type:varchar(3)"`
-	Kelurahan_Id              *string         `json:"kelurahan_Id" gorm:"type:varchar(3)"`
+	Kecamatan_Id              *string         `json:"kecamatan_id" gorm:"type:varchar(3)"`
+	Kelurahan_Id              *string         `json:"kelurahan_id" gorm:"type:varchar(3)"`
 	KodePos                   *string         `json:"kodePos" gorm:"type:varchar(50)"`
 	RtRw                      *string         `json:"rtRw" gorm:"type:varchar(50)"`
 	WajibPajak_id             *uint64         `json:"wajibPajak_id" gorm:"type:int"`
@@ -122,249 +123,17 @@ type BphtbSptpd struct {
 	BlokKavNo                 *string         `json:"blokKavNo" gorm:"type:varchar(50)"`
 	RT                        *string         `json:"rT" gorm:"type:varchar(50)"`
 	Rw                        *string         `json:"rw" gorm:"type:varchar(50)"`
-	Status                    *string         `json:"status" gorm:"type:varchar(50)"`
+	Status                    string          `json:"status" gorm:"type:varchar(50)"`
 	gormhelper.DateModel
-}
-
-type RequestSptpd struct {
-	Sptpd_Id                  *string         `json:"sptpd_Id"`
-	Ppat_Id                   *string         `json:"ppat_Id"`
-	WajibPajak_NIK            *string         `json:"wajibPajak_NIK"`
-	PermohonanProvinsiID      *string         `json:"permohonanProvinsiID"`
-	PermohonanKotaID          *string         `json:"permohonanKotaID"`
-	PermohonanKecamatanID     *string         `json:"permohonanKecamatanID"`
-	PermohonanKelurahanID     *string         `json:"permohonanKelurahanID"`
-	PermohonanBlokID          *string         `json:"permohonanBlokID"`
-	NoUrutPemohon             *string         `json:"noUrutPemohon"`
-	PemohonJenisOPID          *string         `json:"pemohonJenisOPID"`
-	NOPAlamat                 *string         `json:"opAlamat"`
-	OPProvinsi                *string         `json:"opProvinsi"`
-	OPKota                    *string         `json:"opKota"`
-	OPKecamatan               *string         `json:"opKecamatan"`
-	OPKelurahan               *string         `json:"opKelurahan"`
-	OP_RtRW                   *string         `json:"op_RtRW"`
-	OPLuasTanah               *float64        `json:"opLuasTanah"`
-	OPLuasBangunan            *float64        `json:"opLuasBangunan"`
-	OPLuasTanahBersama        *float64        `json:"opLuasTanahBersama"`
-	OPLuasBangunanBersama     *float64        `json:"opLuasBangunanBersama"`
-	NjopLuasTanah             *float64        `json:"njopLuasTanah"`
-	NjopLuasBangunan          *float64        `json:"njopLuasBangunan"`
-	NjopTanahBersama          *float64        `json:"njopTanahBersama"`
-	NjopBangunanBersama       *float64        `json:"njopBangunanBersama"`
-	NilaiOp                   *float64        `json:"nilaiOp"`
-	JenisPerolehanOp          *string         `json:"jenisPerolehanOp"`
-	NoSertifikatOp            *string         `json:"noSertifikatOp"`
-	NjopPbbOp                 *float64        `json:"njopPbbOp"`
-	LokasiOp                  *string         `json:"lokasiOp"`
-	TahunPajakSppt            *string         `json:"tahunPajakSppt"`
-	Npop                      *float64        `json:"npop"`
-	Npoptkp                   *float64        `json:"npoptkp"`
-	JenisSetoran              *string         `json:"jenisSetoran"`
-	JenisSetoranNomor         *string         `json:"jenisSetoranNomor"`
-	JenisSetoranTanggal       *datatypes.Date `json:"jenisSetoranTanggal"`
-	JenisSetoranHitungSendiri *string         `json:"jenisSetoranHitungSendiri"`
-	JenisSetoranCustom        *string         `json:"jenisSetoranCustom"`
-	JumlahSetor               *float64        `json:"jumlahSetor"`
-	NominalSPT                *float64        `json:"nominalSPT"`
-	Tanggal                   *datatypes.Date `json:"tanggal"`
-	NoDokumen                 *string         `json:"noDokumen"`
-	NopPbbBaru                *string         `json:"nopPbbBaru"`
-	User_id                   *string         `json:"user_id"`
-	Id_pp                     *string         `json:"id_pp"`
-	JenisSetoranKeterangan    *string         `json:"jenisSetoranKeterangan"`
-	NilaiPasar                *float64        `json:"nilaiPasar"`
-	JenisPerolehan_id         *string         `json:"jenisPerolehan_id"`
-	InpAphb1                  *string         `json:"inpAphb1"`
-	InpAphb2                  *string         `json:"inpAphb2"`
-	InpAphb3                  *string         `json:"inpAphb3"`
-	KodeValidasi              *string         `json:"kodeValidasi"`
-	GambarOp                  *string         `json:"GambarOp"`
-	IsLunas                   *string         `json:"isLunas"`
-	ValidasiDisependa         *string         `json:"validasiDisependa"`
-	ValidasiBank              *string         `json:"validasiBank"`
-	TglValidasiDispenda       *datatypes.Date `json:"tglValidasiDispenda"`
-	TglValidasiBank           *datatypes.Date `json:"tglValidasiBank"`
-	Dispenda_User_id          *string         `json:"pegawai_User_id"`
-	AlasanReject              *string         `json:"alasanReject"`
-	Bank_Id                   *string         `json:"bank_Id"`
-	GambarInt                 *string         `json:"gambarInt"`
-	FlagDispenda              *int            `json:"flagDispenda"`
-	FlagPPAT                  *int            `json:"flagPPAT"`
-	TanahInpAphb1             *float64        `json:"tanahInpAphb1"`
-	TanahInpAphb2             *float64        `json:"tanahInpAphb2"`
-	TanahInpAphb3             *float64        `json:"tanahInpAphb3"`
-	BangunanInpAphb1          *float64        `json:"bangunanInpAphb1"`
-	BangunanInpAphb2          *float64        `json:"bangunanInpAphb2"`
-	BangunanInpAphb3          *float64        `json:"bangunanInpAphb3"`
-	TanahBersamaInpAphb1      *float64        `json:"tanahBersamaInpAphb1"`
-	TanahBersamaInpAphb2      *float64        `json:"tanahBersamaInpAphb2"`
-	TanahBersamaInpAphb3      *float64        `json:"tanahBersamaInpAphb3"`
-	BangunanBersamaInpAphb1   *float64        `json:"bangunanBersamaInpAphb1"`
-	BangunanBersamaInpAphb2   *float64        `json:"bangunanBersamaInpAphb2"`
-	BangunanBersamaInpAphb3   *float64        `json:"bangunanBersamaInpAphb3"`
-	IsKurangBayar             *string         `json:"isKurangBayar"`
-	KurangBayar               *float64        `json:"kurangBayar"`
-	SSPDLama                  *int            `json:"sspdLama"`
-	NoReff                    *string         `json:"noReff"`
-	IdBilling                 *string         `json:"idBilling"`
-	Proses                    *string         `json:"proses"`
-	NamaWp                    *string         `json:"namaWp"`
-	Alamat                    *string         `json:"alamat"`
-	Provinsi_Id               *string         `json:"provinsi_Id"`
-	Kabupaten_id              *string         `json:"kabupaten_id"`
-	Kecamatan_Id              *string         `json:"kecamatan_Id"`
-	Kelurahan_Id              *string         `json:"kelurahan_Id"`
-	KodePos                   *string         `json:"kodePos"`
-	RtRw                      *string         `json:"rtRw"`
-	WajibPajak_id             *uint64         `json:"wajibPajak_id"`
-	ApprovePPAT               *string         `json:"approvePPAT"`
-	NoPelayanan               *string         `json:"noPelayanan"`
-	NamaPetugasLapangan       *string         `json:"namaPetugasLapangan"`
-	NamaStaff                 *string         `json:"namaStaff"`
-	NoAkta                    *string         `json:"noAkta"`
-	TglAkta                   *datatypes.Date `json:"tglAkta"`
-	PihakMengalihkan          *string         `json:"pihakMengalihkan"`
-	Tgl                       *datatypes.Date `json:"tgl"`
-	Rp                        *float64        `json:"rp"`
-	Batas                     *int            `json:"batas"`
-	Pengurangan               *float64        `json:"pengurangan"`
-	SkPengurangan             *string         `json:"skPengurangan"`
-	TglSkPengurangan          *datatypes.Date `json:"tglSkPengurangan"`
-	WajibPajak                *string         `json:"wajibPajak"`
-	TglExpBilling             *datatypes.Date `json:"tglExpBilling"`
-	JenisTransaksiSpop        *int            `json:"jenisTransaksiSpop"`
-	Pekerjaan                 *int            `json:"pekerjaan"`
-	JenisTanah                *int            `json:"jenisTanah"`
-	JumlahBangunan            *int            `json:"jumlahBangunan"`
-	BlokKavNo                 *string         `json:"blokKavNo"`
-	RT                        *string         `json:"rT"`
-	Rw                        *string         `json:"rw"`
-	Page                      int             `json:"page"`
-	PageSize                  int             `json:"page_size"`
-	gormhelper.DateModel
+	Lampiran *Lampiran `json:"lampiran,omitempty" gorm:"foreignKey:BphtbSptpd_Id"`
 }
 
 type ResponseSptpd struct {
-	Id                        uint            `json:"id"`
-	Sptpd_Id                  *string         `json:"sptpd_Id"`
-	Ppat_Id                   *string         `json:"ppat_Id"`
-	WajibPajak_NIK            *string         `json:"wajibPajak_NIK"`
-	PermohonanProvinsiID      *string         `json:"permohonanProvinsiID"`
-	PermohonanKotaID          *string         `json:"permohonanKotaID"`
-	PermohonanKecamatanID     *string         `json:"permohonanKecamatanID"`
-	PermohonanKelurahanID     *string         `json:"permohonanKelurahanID"`
-	PermohonanBlokID          *string         `json:"permohonanBlokID"`
-	NoUrutPemohon             *string         `json:"noUrutPemohon"`
-	PemohonJenisOPID          *string         `json:"pemohonJenisOPID"`
-	NOPAlamat                 *string         `json:"opAlamat"`
-	OPProvinsi                *string         `json:"opProvinsi"`
-	OPKota                    *string         `json:"opKota"`
-	OPKecamatan               *string         `json:"opKecamatan"`
-	OPKelurahan               *string         `json:"opKelurahan"`
-	OP_RtRW                   *string         `json:"op_RtRW"`
-	OPLuasTanah               *float64        `json:"opLuasTanah"`
-	OPLuasBangunan            *float64        `json:"opLuasBangunan"`
-	OPLuasTanahBersama        *float64        `json:"opLuasTanahBersama"`
-	OPLuasBangunanBersama     *float64        `json:"opLuasBangunanBersama"`
-	NjopLuasTanah             *float64        `json:"njopLuasTanah"`
-	NjopLuasBangunan          *float64        `json:"njopLuasBangunan"`
-	NjopTanahBersama          *float64        `json:"njopTanahBersama"`
-	NjopBangunanBersama       *float64        `json:"njopBangunanBersama"`
-	NilaiOp                   *float64        `json:"nilaiOp"`
-	JenisPerolehanOp          *string         `json:"jenisPerolehanOp"`
-	NoSertifikatOp            *string         `json:"noSertifikatOp"`
-	NjopPbbOp                 *float64        `json:"njopPbbOp"`
-	LokasiOp                  *string         `json:"lokasiOp"`
-	TahunPajakSppt            *string         `json:"tahunPajakSppt"`
-	Npop                      *float64        `json:"npop"`
-	Npoptkp                   *float64        `json:"npoptkp"`
-	JenisSetoran              *string         `json:"jenisSetoran"`
-	JenisSetoranNomor         *string         `json:"jenisSetoranNomor"`
-	JenisSetoranTanggal       *datatypes.Date `json:"jenisSetoranTanggal"`
-	JenisSetoranHitungSendiri *string         `json:"jenisSetoranHitungSendiri"`
-	JenisSetoranCustom        *string         `json:"jenisSetoranCustom"`
-	JumlahSetor               *float64        `json:"jumlahSetor"`
-	NominalSPT                *float64        `json:"nominalSPT"`
-	Tanggal                   *datatypes.Date `json:"tanggal"`
-	NoDokumen                 *string         `json:"noDokumen"`
-	NopPbbBaru                *string         `json:"nopPbbBaru"`
-	User_id                   *string         `json:"user_id"`
-	Id_pp                     *string         `json:"id_pp"`
-	JenisSetoranKeterangan    *string         `json:"jenisSetoranKeterangan"`
-	NilaiPasar                *float64        `json:"nilaiPasar"`
-	JenisPerolehan_id         *string         `json:"jenisPerolehan_id"`
-	InpAphb1                  *string         `json:"inpAphb1"`
-	InpAphb2                  *string         `json:"inpAphb2"`
-	InpAphb3                  *string         `json:"inpAphb3"`
-	KodeValidasi              *string         `json:"kodeValidasi"`
-	GambarOp                  *string         `json:"GambarOp"`
-	IsLunas                   *string         `json:"isLunas"`
-	ValidasiDisependa         *string         `json:"validasiDisependa"`
-	ValidasiBank              *string         `json:"validasiBank"`
-	TglValidasiDispenda       *datatypes.Date `json:"tglValidasiDispenda"`
-	TglValidasiBank           *datatypes.Date `json:"tglValidasiBank"`
-	Dispenda_User_id          *string         `json:"pegawai_User_id"`
-	AlasanReject              *string         `json:"alasanReject"`
-	Bank_Id                   *string         `json:"bank_Id"`
-	GambarInt                 *string         `json:"gambarInt"`
-	FlagDispenda              *int            `json:"flagDispenda"`
-	FlagPPAT                  *int            `json:"flagPPAT"`
-	TanahInpAphb1             *float64        `json:"tanahInpAphb1"`
-	TanahInpAphb2             *float64        `json:"tanahInpAphb2"`
-	TanahInpAphb3             *float64        `json:"tanahInpAphb3"`
-	BangunanInpAphb1          *float64        `json:"bangunanInpAphb1"`
-	BangunanInpAphb2          *float64        `json:"bangunanInpAphb2"`
-	BangunanInpAphb3          *float64        `json:"bangunanInpAphb3"`
-	TanahBersamaInpAphb1      *float64        `json:"tanahBersamaInpAphb1"`
-	TanahBersamaInpAphb2      *float64        `json:"tanahBersamaInpAphb2"`
-	TanahBersamaInpAphb3      *float64        `json:"tanahBersamaInpAphb3"`
-	BangunanBersamaInpAphb1   *float64        `json:"bangunanBersamaInpAphb1"`
-	BangunanBersamaInpAphb2   *float64        `json:"bangunanBersamaInpAphb2"`
-	BangunanBersamaInpAphb3   *float64        `json:"bangunanBersamaInpAphb3"`
-	IsKurangBayar             *string         `json:"isKurangBayar"`
-	KurangBayar               *float64        `json:"kurangBayar"`
-	SSPDLama                  *int            `json:"sspdLama"`
-	NoReff                    *string         `json:"noReff"`
-	IdBilling                 *string         `json:"idBilling"`
-	Proses                    *string         `json:"proses"`
-	NamaWp                    *string         `json:"namaWp"`
-	Alamat                    *string         `json:"alamat"`
-	Provinsi_Id               *string         `json:"provinsi_Id"`
-	Provinsi_wp               *string         `json:"provinsi_wp"`
-	Kabupaten_id              *string         `json:"kabupaten_id"`
-	Kabupaten_wp              *string         `json:"kabupaten_wp"`
-	Kecamatan_Id              *string         `json:"kecamatan_Id"`
-	Kecamatan_wp              *string         `json:"kecamatan_wp"`
-	Kelurahan_Id              *string         `json:"kelurahan_Id"`
-	Kelurahan_wp              *string         `json:"kelurahan_wp"`
-	KodePos                   *string         `json:"kodePos"`
-	RtRw                      *string         `json:"rtRw"`
-	WajibPajak_id             *uint64         `json:"wajibPajak_id"`
-	ApprovePPAT               *string         `json:"approvePPAT"`
-	NoPelayanan               *string         `json:"noPelayanan"`
-	NamaPetugasLapangan       *string         `json:"namaPetugasLapangan"`
-	NamaStaff                 *string         `json:"namaStaff"`
-	NoAkta                    *string         `json:"noAkta"`
-	TglAkta                   *datatypes.Date `json:"tglAkta"`
-	PihakMengalihkan          *string         `json:"pihakMengalihkan"`
-	Tgl                       *datatypes.Date `json:"tgl"`
-	Rp                        *float64        `json:"rp"`
-	Batas                     *int            `json:"batas"`
-	Pengurangan               *float64        `json:"pengurangan"`
-	SkPengurangan             *string         `json:"skPengurangan"`
-	TglSkPengurangan          *datatypes.Date `json:"tglSkPengurangan"`
-	WajibPajak                *string         `json:"wajibPajak"`
-	TglExpBilling             *datatypes.Date `json:"tglExpBilling"`
-	JenisTransaksiSpop        *int            `json:"jenisTransaksiSpop"`
-	Pekerjaan                 *int            `json:"pekerjaan"`
-	JenisTanah                *int            `json:"jenisTanah"`
-	JumlahBangunan            *int            `json:"jumlahBangunan"`
-	BlokKavNo                 *string         `json:"blokKavNo"`
-	RT                        *string         `json:"rT"`
-	Rw                        *string         `json:"rw"`
-	Status                    *string         `json:"status"`
-
-	DataLampiran *Lampiran `json:"lampiran"`
+	BphtbSptpd
+	Provinsi_wp  *string `json:"provinsi_wp"`
+	Kabupaten_wp *string `json:"kabupaten_wp"`
+	Kecamatan_wp *string `json:"kecamatan_wp"`
+	Kelurahan_wp *string `json:"kelurahan_wp"`
 }
 
 type RequestApprovalSptpd struct {
@@ -454,6 +223,6 @@ func (req RequestApprovalSptpd) SetDataApproval(i *BphtbSptpd) *BphtbSptpd {
 	if req.NamaStaff != nil {
 		i.NamaStaff = req.NamaStaff
 	}
-	i.Status = req.Status
+	i.Status = *req.Status
 	return i
 }
