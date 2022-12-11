@@ -127,3 +127,28 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 		Data: data,
 	}, nil
 }
+
+func GetByNop(nop string, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+
+	resultNop, _ := sh.NopParser(nop)
+	condition := m.AnggotaObjekPajak{
+		Provinsi_Kode:  &resultNop[0],
+		Daerah_Kode:    &resultNop[1],
+		Kecamatan_Kode: &resultNop[2],
+		Kelurahan_Kode: &resultNop[3],
+		Blok_Kode:      &resultNop[4],
+		NoUrut:         &resultNop[5],
+		JenisOp:        &resultNop[6],
+	}
+
+	var data *m.AnggotaObjekPajak
+	result := tx.Where(condition).First(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data anggota objek pajak", data)
+	}
+
+	return rp.OKSimple{Data: data}, nil
+}
