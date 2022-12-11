@@ -8,7 +8,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nop"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
@@ -173,6 +176,20 @@ func SetRoutes() http.Handler {
 		r.Post("/", bphtbsptpdCrud.CreateMw(http.HandlerFunc(bphtbsptpdCrud.Create), "wp"))
 		r.Get("/", bphtbsptpdCrud.GetList)
 		r.Get("/{id}", bphtbsptpdCrud.GetDetail)
+	})
+
+	r.Route("/ppat", func(r chi.Router) {
+		r.Get("/", ppat.GetList)
+	})
+
+	r.Route("/njop", func(r chi.Router) {
+		r.Get("/", sppt.Crud{}.GetList)
+	})
+
+	r.Route("/nop", func(r chi.Router) {
+		nopCrud := nop.Crud{}
+		r.Get("/", nopCrud.GetList)
+		r.Get("/{id}", nopCrud.GetDetail)
 	})
 
 	return r
