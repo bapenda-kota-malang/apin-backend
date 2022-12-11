@@ -4,17 +4,20 @@ import (
 	"fmt"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sc "github.com/jinzhu/copier"
+	"gorm.io/gorm"
 )
 
-func jpbCopier(dto interface{}, resultNop []string, kode string) (any, error) {
+func jpbCopier(dto interface{}, resultNop []string, kode string, tx *gorm.DB) (any, error) {
 	switch v := dto.(type) {
 	case m.OpbJpb2CreateDto:
 		var data m.Jpb2
 		if err := sc.Copy(&data, &v); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb2", data)
 		}
+		fmt.Println("datajpb2: ", data.KelasBangunan2)
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
 		data.NopDetail.Daerah_Kode = &resultNop[1]
 		data.NopDetail.Kecamatan_Kode = &resultNop[2]
@@ -23,7 +26,12 @@ func jpbCopier(dto interface{}, resultNop []string, kode string) (any, error) {
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb2", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+		// return data, nil
 	case m.OpbJpb3CreateDto:
 		var data m.Jpb3
 		if err := sc.Copy(&data, &v); err != nil {

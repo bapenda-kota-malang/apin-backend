@@ -500,7 +500,7 @@ func SetRoutes() http.Handler {
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
 		r.Get("/", regobjekpajakpbb.GetList)
 		r.Get("/{id}", regobjekpajakpbb.GetDetail)
-		r.Patch("/{id}", regobjekpajakpbb.VerifySpop)
+		r.Patch("/verify/{id}", regobjekpajakpbb.VerifySpop)
 	})
 
 	r.Route("/objekpajakbangunan", func(r chi.Router) {

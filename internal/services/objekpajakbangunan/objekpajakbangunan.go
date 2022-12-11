@@ -21,11 +21,12 @@ import (
 
 const source = "objekpajakbangunan"
 
-func Create(input m.CreateDto) (any, error) {
+func Create(input m.OpbJpb2CreateDto) (any, error) {
 
 	var data m.ObjekPajakBangunan
 	var dataFasilitasBangunan mfb.CreateDto
 	var respDataFasilitasBangunan interface{}
+	var respDataJpb interface{}
 	var resp t.II
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
@@ -82,16 +83,11 @@ func Create(input m.CreateDto) (any, error) {
 		}
 
 		// copy data jpb
-		dataJpb, err := jpbCopier(input, resultNop, kode)
+		resultJpb, err := jpbCopier(input, resultNop, kode, tx)
 		if err != nil {
 			return err
 		}
-
-		// create data jpb
-		err = tx.Create(&dataJpb).Error
-		if err != nil {
-			return err
-		}
+		respDataJpb = resultJpb
 
 		if input.FasilitasBangunans != nil {
 			// create data fasilitas bangunan
@@ -108,9 +104,17 @@ func Create(input m.CreateDto) (any, error) {
 	if err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
 	}
-	resp = t.II{
-		"objekPajakBangunan": data,
-		"fasilitasBangunan":  respDataFasilitasBangunan.(rp.OKSimple).Data,
+	if input.FasilitasBangunans != nil {
+		resp = t.II{
+			"objekPajakBangunan": data,
+			"fasilitasBangunan":  respDataFasilitasBangunan.(rp.OKSimple).Data,
+			"jpb":                respDataJpb.(rp.OKSimple).Data,
+		}
+	} else {
+		resp = t.II{
+			"objekPajakBangunan": data,
+			"jpb":                respDataJpb.(rp.OKSimple).Data,
+		}
 	}
 
 	return rp.OKSimple{

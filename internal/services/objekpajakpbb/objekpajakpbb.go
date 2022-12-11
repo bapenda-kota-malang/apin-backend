@@ -258,6 +258,13 @@ func Create(input m.CreateDto) (any, error) {
 			"wajibPajakPbb":  respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"objekPajakBumi": dataOpb,
 		}
+	} else if input.NopBersama != nil && input.KunjunganKembalis == nil && input.NopAsal != nil {
+		resp = t.II{
+			"objekPajakPbb":     data,
+			"wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakBumi":    dataOpb,
+			"anggotaObjekPajak": respDataAnggotaObjekPajak.(rp.OKSimple).Data,
+		}
 	}
 
 	return rp.OKSimple{
