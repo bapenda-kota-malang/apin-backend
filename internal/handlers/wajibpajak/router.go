@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtbjenislaporan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
@@ -176,6 +177,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", bphtbsptpdCrud.CreateMw(http.HandlerFunc(bphtbsptpdCrud.Create), "wp"))
 		r.Get("/", bphtbsptpdCrud.GetList)
 		r.Get("/{id}", bphtbsptpdCrud.GetDetail)
+		r.Get("/jenislaporan", bphtbjenislaporan.Crud{}.GetList)
 	})
 
 	r.Route("/ppat", func(r chi.Router) {

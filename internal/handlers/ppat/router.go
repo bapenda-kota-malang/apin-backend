@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtbjenislaporan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -50,6 +51,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", bphtbsptpdCrud.GetList)
 		r.Get("/{id}", bphtbsptpdCrud.GetDetail)
 		r.Patch("/{id}/verify", bphtbsptpdCrud.VerifyPpat)
+		r.Get("/jenislaporan", bphtbjenislaporan.Crud{}.GetList)
 	})
 
 	return r
