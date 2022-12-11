@@ -43,21 +43,21 @@ type CreateLampiranDto struct {
 	NoFormulir                         *string         `json:"noFormulir"`
 	TanggalNoFormulir                  *datatypes.Date `json:"tanggalNoFormulir"`
 	LampiranSspd                       *string         `json:"lampiranSspd"`
-	LampiranSppt                       *string         `json:"lampiranSppt"`
-	LampiranFotocopiIdentitas          *string         `json:"lampiranFotocopiIdentitas"`
+	LampiranSppt                       string          `json:"lampiranSppt" validate:"required"`
+	LampiranFotocopiIdentitas          string          `json:"lampiranFotocopiIdentitas" validate:"required"`
 	LampiranSuratKuasaWp               *string         `json:"lampiranSuratKuasaWp"`
 	LampiranNamaKuasaWp                *string         `json:"lampiranNamaKuasaWp"`
 	LampiranAlamatKuasaWp              *string         `json:"lampiranAlamatKuasaWp"`
 	LampiranFotocopyIdentitasKwp       *string         `json:"lampiranFotocopyIdentitasKwp"`
 	LampiranFotocopyKartuNpwp          *string         `json:"lampiranFotocopyKartuNpwp"`
-	LampiranIdentitasLainya            *string         `json:"lampiranIdentitasLainya"`
-	LampiranIdentitasLainyaVal         *string         `json:"lampiranIdentitasLainyaVal"`
 	LampiranFotocopyAktaJb             *string         `json:"lampiranFotocopyAktaJb"`
-	LampiranSertifikatKepemilikanTanah *string         `json:"lampiranSertifikatKepemilikanTanah"`
+	LampiranSertifikatKepemilikanTanah string          `json:"lampiranSertifikatKepemilikanTanah" validate:"required"`
 	LampiranFotocopyKeteranganWaris    *string         `json:"lampiranFotocopyKeteranganWaris"`
 	LampiranFotocopySuratPernyataan    string          `json:"lampiranFotocopySuratPernyataan" validate:"required"`
 	LampiranSpoplspop                  *string         `json:"lampiranSpoplspop"`
 	LampiranLainnya                    *string         `json:"lampiranLainnya"`
+	LampiranIdentitasLainya            *string         `json:"lampiranIdentitasLainya"`
+	LampiranIdentitasLainyaVal         *string         `json:"lampiranIdentitasLainyaVal"`
 	PenelitianDataObjek                *string         `json:"penelitianDataObjek"`
 	PenelitianNilaiBphtb               *string         `json:"penelitianNilaiBphtb"`
 	PenelitianDokumen                  *string         `json:"penelitianDokumen"`

@@ -3,6 +3,7 @@ package wajibpajak
 import (
 	"net/http"
 
+	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
@@ -165,6 +166,13 @@ func SetRoutes() http.Handler {
 
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
 		r.Post("/", regobjekpajakpbb.Create)
+	})
+
+	r.Route("/bphtbsptpd", func(r chi.Router) {
+		bphtbsptpdCrud := bphtbsptpd.Crud{}
+		r.Post("/", bphtbsptpdCrud.CreateMw(http.HandlerFunc(bphtbsptpdCrud.Create), "wp"))
+		r.Get("/", bphtbsptpdCrud.GetList)
+		r.Get("/{id}", bphtbsptpdCrud.GetDetail)
 	})
 
 	return r

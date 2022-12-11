@@ -10,10 +10,13 @@ import (
 	"gorm.io/gorm/clause"
 
 	// "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
+	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
 	area "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
 	mppat "github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
+	msspt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
+	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	sppat "github.com/bapenda-kota-malang/apin-backend/internal/services/ppat"
 	ssspt "github.com/bapenda-kota-malang/apin-backend/internal/services/sppt"
@@ -70,7 +73,7 @@ func Create(input m.CreateDto, from string, authInfo *auth.AuthInfo) (any, error
 		data.Status = "00"
 
 		// process calculation
-		dataSppt, err := ssspt.GetFromNop(
+		respDataSppt, err := ssspt.GetByNop(
 			*data.PermohonanProvinsiID,
 			*data.PermohonanKotaID,
 			*data.PermohonanKecamatanID,
@@ -79,14 +82,30 @@ func Create(input m.CreateDto, from string, authInfo *auth.AuthInfo) (any, error
 			*data.NoUrutPemohon,
 			*data.PemohonJenisOPID)
 		if err != nil {
-			return fmt.Errorf("get data from nop: %w", err)
+			return fmt.Errorf("get data sppt from nop: %w", err)
 		}
+		dataSppt := respDataSppt.(rp.OKSimple).Data.(msspt.Sppt)
 		data.NjopLuasTanah = float64(*dataSppt.NJOPBumi_sppt)
 		data.NjopLuasBangunan = float64(*dataSppt.NJOPBangunan_sppt)
+		data.Npoptkp = float64(*dataSppt.NJOPTKP_sppt)
 		njopTanah := data.OPLuasTanah * data.NjopLuasTanah
 		njopBangunan := data.OPLuasBangunan * data.NjopLuasBangunan
 
 		// data dari anggota objek pajak
+		nopString := fmt.Sprintf("%s.%s.%s.%s.%s.%s.%s", *data.PermohonanProvinsiID,
+			*data.PermohonanKotaID,
+			*data.PermohonanKecamatanID,
+			*data.PermohonanKelurahanID,
+			*data.PermohonanBlokID,
+			*data.NoUrutPemohon,
+			*data.PemohonJenisOPID)
+		respAop, err := saop.GetByNop(nopString, tx)
+		if err != nil {
+			return fmt.Errorf("get data anggota objek pajak from nop: %w", err)
+		}
+		aopData := respAop.(rp.OKSimple).Data.(*maop.AnggotaObjekPajak)
+		data.NjopTanahBersama = float64(*aopData.LuasBumiBeban)
+		data.NjopBangunanBersama = float64(*aopData.LuasBangunanBeban)
 		njopTanahBersama := data.OPLuasTanahBersama * data.NjopTanahBersama
 		njopBangunanBersama := data.OPLuasBangunanBersama * data.NjopBangunanBersama
 		data.NjopPbbOp = njopTanah + njopBangunan + njopTanahBersama + njopBangunanBersama
@@ -99,7 +118,7 @@ func Create(input m.CreateDto, from string, authInfo *auth.AuthInfo) (any, error
 		data.NilaiOp = npop
 
 		// FROM NPOP IF >= NPOTKP -> CALCULATE TO GET NPOPKP THEN CALCULATE NOMINAL SPT OR JUMLAH SETOR
-		// TODO: WHY JUMLAH SETOR DAN NOMINAL SPT THERE'S SAME DATA OR DIFFERENT DATA FROM DATABASE EXISTING?, HOW TO CALCULATE THAT
+		// TODO: WHY JUMLAH SETOR DAN NOMINAL SPT THERE'S SAME DATA OR DIFFERENT DATA FROM DATABASE EXISTING?
 		if data.Npop >= data.Npoptkp {
 			npopkp := data.Npop - data.Npoptkp
 			total := 0.05 * npopkp
