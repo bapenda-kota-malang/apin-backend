@@ -1,6 +1,7 @@
 package anggotaobjekpajak
 
 import (
+	"fmt"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -148,6 +149,9 @@ func GetByNop(nop string, tx *gorm.DB) (any, error) {
 	result := tx.Where(condition).First(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data anggota objek pajak", data)
+	}
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("data dengan nop %s tidak ditemukan", nop), data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
