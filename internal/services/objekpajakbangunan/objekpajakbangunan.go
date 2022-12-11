@@ -5,35 +5,131 @@ import (
 
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 
+	mfb "github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+	sfb "github.com/bapenda-kota-malang/apin-backend/internal/services/fasilitasbangunan"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
 const source = "objekpajakbangunan"
 
-func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
-	if tx == nil {
-		tx = a.DB
-	}
-	var data m.ObjekPajakBangunan
+func Create(input m.Input) (any, error) {
 
+	var data m.ObjekPajakBangunan
+	var dataFasilitasBangunan mfb.CreateDto
+	var respDataFasilitasBangunan interface{}
+	var respDataJpb interface{}
+	var resp t.II
+
+	resultGetFasilitasBangunan := input.GetFasilitasBangunan()
+	resultGetNop := input.GetNop()
+	resultGetPemeriksaan := input.GetTanggalPemeriksaan()
+	resultGetPendataan := input.GetTanggalPendataan()
+	resultGetPerekaman := input.GetTanggalPerekaman()
+	resultGetObjekPajakBangun, errGet := input.GetObjekPajakBangunan()
+	if errGet != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+	}
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
-	if err := sc.Copy(&data, &input); err != nil {
+	if err := sc.Copy(&data, &resultGetObjekPajakBangun); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	// simpan data ke db satu if karena result dipakai sekali, +error
-	if result := tx.Create(&data); result.Error != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data objekpajakbangunan", data)
+	if resultGetFasilitasBangunan != nil {
+		// copy data fasilitas bangunan
+		if err := sc.Copy(&dataFasilitasBangunan, resultGetFasilitasBangunan); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload fasilitas bangunan", resultGetFasilitasBangunan)
+		}
+		resultNop, kode := sh.NopParser(*resultGetNop)
+		dataFasilitasBangunan.NopDetailCreateDto.Provinsi_Kode = &resultNop[0]
+		dataFasilitasBangunan.NopDetailCreateDto.Daerah_Kode = &resultNop[1]
+		dataFasilitasBangunan.NopDetailCreateDto.Kecamatan_Kode = &resultNop[2]
+		dataFasilitasBangunan.NopDetailCreateDto.Kelurahan_Kode = &resultNop[3]
+		dataFasilitasBangunan.NopDetailCreateDto.Blok_Kode = &resultNop[4]
+		dataFasilitasBangunan.NopDetailCreateDto.NoUrut = &resultNop[5]
+		dataFasilitasBangunan.NopDetailCreateDto.JenisOp = &resultNop[6]
+		dataFasilitasBangunan.NopDetailCreateDto.Area_Kode = &kode
+
 	}
 
-	return rp.OKSimple{Data: data}, nil
+	// add static field for objek pajak bangunan
+	resultNop, kode := sh.NopParser(*resultGetNop)
+	data.NopDetail.Provinsi_Kode = &resultNop[0]
+	data.NopDetail.Daerah_Kode = &resultNop[1]
+	data.NopDetail.Kecamatan_Kode = &resultNop[2]
+	data.NopDetail.Kelurahan_Kode = &resultNop[3]
+	data.NopDetail.Blok_Kode = &resultNop[4]
+	data.NopDetail.NoUrut = &resultNop[5]
+	data.NopDetail.JenisOp = &resultNop[6]
+	data.NopDetail.Area_Kode = &kode
+
+	if resultGetPemeriksaan != nil {
+
+		data.TanggalPemeriksaan = th.ParseTime(resultGetPemeriksaan)
+	}
+	if resultGetPendataan != nil {
+
+		data.TanggalPendataan = th.ParseTime(resultGetPendataan)
+	}
+	if resultGetPerekaman != nil {
+
+		data.TanggalPerekaman = th.ParseTime(resultGetPerekaman)
+	}
+
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		// create data objek pajak bangunan
+		err := tx.Create(&data).Error
+		if err != nil {
+			return err
+		}
+
+		// copy data jpb
+		resultJpb, err := jpbCopier(input, resultNop, kode, tx)
+		if err != nil {
+			return err
+		}
+		respDataJpb = resultJpb
+
+		if resultGetFasilitasBangunan != nil {
+			// create data fasilitas bangunan
+			resultFasilitasBangunan, err := sfb.Create(dataFasilitasBangunan, tx)
+			if err != nil {
+				return err
+			}
+			respDataFasilitasBangunan = resultFasilitasBangunan
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
+	}
+	if resultGetFasilitasBangunan != nil {
+		resp = t.II{
+			"objekPajakBangunan": data,
+			"fasilitasBangunan":  respDataFasilitasBangunan.(rp.OKSimple).Data,
+			"jpb":                respDataJpb.(rp.OKSimple).Data,
+		}
+	} else {
+		resp = t.II{
+			"objekPajakBangunan": data,
+			"jpb":                respDataJpb.(rp.OKSimple).Data,
+		}
+	}
+
+	return rp.OKSimple{
+		Data: resp,
+	}, nil
+
 }
 
 func GetList(input m.FilterDto) (any, error) {
@@ -43,6 +139,8 @@ func GetList(input m.FilterDto) (any, error) {
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&m.ObjekPajakBangunan{}).
+		Preload(clause.Associations).
+		Preload("Kelurahan.Kecamatan.Daerah.Provinsi").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -65,7 +163,11 @@ func GetList(input m.FilterDto) (any, error) {
 func GetDetail(id int) (any, error) {
 	var data *m.ObjekPajakBangunan
 
-	result := a.DB.First(&data, id)
+	result := a.DB.
+		Model(&m.ObjekPajakBangunan{}).
+		Preload(clause.Associations).
+		Preload("Kelurahan.Kecamatan.Daerah.Provinsi").
+		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {

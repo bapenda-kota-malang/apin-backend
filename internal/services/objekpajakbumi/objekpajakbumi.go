@@ -127,3 +127,7 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 		Data: data,
 	}, nil
 }
+
+// func PerubahanZnt(nop , kodeZnt string) (any, error) {
+
+// }

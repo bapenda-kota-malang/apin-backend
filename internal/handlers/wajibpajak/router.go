@@ -19,6 +19,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/static"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
@@ -161,5 +162,10 @@ func SetRoutes() http.Handler {
 
 	fs := http.FileServer(http.Dir(servicehelper.GetResourcesPath()))
 	r.Handle("/static/{filename}", http.StripPrefix("/static/", static.AuthFile(static.JoinPrefix(fs))))
+
+	r.Route("/regobjekpajakpbb", func(r chi.Router) {
+		r.Post("/", regobjekpajakpbb.Create)
+	})
+
 	return r
 }

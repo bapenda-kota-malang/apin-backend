@@ -1,4 +1,4 @@
-package jenisperolehan
+package regwajibpajakpbb
 
 import (
 	"strconv"

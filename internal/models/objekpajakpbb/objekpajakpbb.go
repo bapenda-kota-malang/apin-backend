@@ -4,7 +4,6 @@ import (
 	"time"
 
 	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
-	miop "github.com/bapenda-kota-malang/apin-backend/internal/models/indukobjekpajak"
 	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
@@ -17,7 +16,7 @@ import (
 // spop
 type ObjekPajakPbb struct {
 	nop.NopDetail
-	WajibPajakPbb_Id      *uint64            `json:"WajibPajakPbb_id"`
+	WajibPajakPbb_Id      *uint64            `json:"wajibPajakPbb_id"`
 	WajibPajakPbb         *mwp.WajibPajakPbb `json:"wajibPajakPbb,omitempty" gorm:"foreignKey:WajibPajakPbb_Id"`
 	NoFormulirSpop        *string            `json:"noFormulirSpop" gorm:"type:char(11)"`
 	NoPersil              *string            `json:"noPersil" gorm:"type:varchar(5)"`
@@ -48,7 +47,7 @@ type ObjekPajakPbb struct {
 
 type CreateDto struct {
 	nop.NopDetailCreateDto
-	WajibPajakPbb_Id      *uint64           `json:"WajibPajakPbb_id"`
+	WajibPajakPbb_Id      *uint64           `json:"wajibPajakPbb_id"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop"`
 	NoPersil              *string           `json:"noPersil"`
 	Jalan                 *string           `json:"jalan"`
@@ -73,13 +72,16 @@ type CreateDto struct {
 	WajibPajakPbbs     mwp.CreateDto   `json:"wajibPajakPbb"`
 	ObjekPajakBumis    mopb.CreateDto  `json:"objekPajakBumi"`
 	AnggotaObjekPajaks *maop.CreateDto `json:"anggotaObjekPajak"`
-	IndukObjekPajaks   *miop.CreateDto `json:"indukObjekPajak"`
 	KunjunganKembalis  *mkk.CreateDto  `json:"kunjunganKembali"`
+	//nop
+	Nop        *string `json:"nop"`
+	NopBersama *string `json:"nopBersama"`
+	NopAsal    *string `json:"nopAsal"`
 }
 
 type UpdateDto struct {
 	nop.NopDetailUpdateDto
-	WajibPajakPbb_Id      *uint64           `json:"WajibPajakPbb_id"`
+	WajibPajakPbb_Id      *uint64           `json:"wajibPajakPbb_id"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop"`
 	NoPersil              *string           `json:"noPersil"`
 	Jalan                 *string           `json:"jalan"`
@@ -106,13 +108,13 @@ type UpdateDto struct {
 
 type FilterDto struct {
 	Nop                   *string            `json:"nop"`
-	Provinsi_Kode         *string            `json:"provinsi_kode" gorm:"type:char(2)"`
-	Kota_Kode             *string            `json:"kota_kode" gorm:"type:char(2)"`
-	Kecamatan_Kode        *string            `json:"kecamatan_kode" gorm:"type:char(3)"`
-	Kelurahan_Kode        *string            `json:"kelurahan_kode" gorm:"type:char(3)"`
-	Blok_Id               *string            `json:"blok_id" gorm:"type:char(3)"`
-	NoUrut                *string            `json:"noUrut" gorm:"type:char(4)"`
-	JenisOp               *string            `json:"jenisOp" gorm:"type:char(1)"`
+	Provinsi_Kode         *string            `json:"provinsi_kode"`
+	Kota_Kode             *string            `json:"kota_kode"`
+	Kecamatan_Kode        *string            `json:"kecamatan_kode"`
+	Kelurahan_Kode        *string            `json:"kelurahan_kode"`
+	Blok_Id               *string            `json:"blok_id"`
+	NoUrut                *string            `json:"noUrut"`
+	JenisOp               *string            `json:"jenisOp"`
 	WajibPajakPbb_Id      *uint64            `json:"WajibPajakPbb_id"`
 	NoFormulirSpop        *string            `json:"noFormulirSpop"`
 	NoPersil              *string            `json:"noPersil"`

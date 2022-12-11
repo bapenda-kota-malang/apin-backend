@@ -1,11 +1,11 @@
-package indukobjekpajak
+package regindukobjekpajak
 
 import (
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
-type IndukObjekPajak struct {
+type RegIndukObjekPajak struct {
 	nop.NopDetail
 	gh.DateModel
 }

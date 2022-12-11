@@ -67,6 +67,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
@@ -79,6 +80,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/referensibank"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
@@ -495,5 +497,16 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", objekpajakpbb.GetDetail)
 	})
 
+	r.Route("/regobjekpajakpbb", func(r chi.Router) {
+		r.Get("/", regobjekpajakpbb.GetList)
+		r.Get("/{id}", regobjekpajakpbb.GetDetail)
+		r.Patch("/verify/{id}", regobjekpajakpbb.VerifySpop)
+	})
+
+	r.Route("/objekpajakbangunan", func(r chi.Router) {
+		r.Post("/", objekpajakbangunan.Create)
+		r.Get("/", objekpajakbangunan.GetList)
+		r.Get("/{id}", objekpajakbangunan.GetDetail)
+	})
 	return r
 }

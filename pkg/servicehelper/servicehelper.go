@@ -591,3 +591,12 @@ func FixedLengthString(length int, str string) string {
 	}
 	return verb
 }
+
+// splitting nop kode into []string to get areadivision kode etc with order provinces, districts, regencies, villages,
+// block_code, no_urut and jenis objek pajak
+// area_kode contains 10 digit code (combine of areadivision)/villages code for relation
+func NopParser(nop string) (result []string, area_kode string) {
+	result = strings.Split(nop, ".")
+	area_kode = result[0] + result[1] + result[2] + result[3]
+	return result, area_kode
+}

@@ -41,7 +41,6 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/indukobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenispajak"
@@ -77,7 +76,11 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibank"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/reganggotaobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regkunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
@@ -303,11 +306,18 @@ func init() {
 	listModelSpop := []interface{}{
 		&objekpajakpbb.ObjekPajakPbb{},
 		&objekpajakbumi.ObjekPajakBumi{},
-		&indukobjekpajak.IndukObjekPajak{},
 		&anggotaobjekpajak.AnggotaObjekPajak{},
 		&kunjungankembali.KunjunganKembali{},
 	}
 	a.AutoMigrate(listModelSpop...)
+
+	listModelRegSpop := []interface{}{
+		&regobjekpajakpbb.RegObjekPajakPbb{},
+		&regobjekpajakbumi.RegObjekPajakBumi{},
+		&reganggotaobjekpajak.RegAnggotaObjekPajak{},
+		&regkunjungankembali.RegKunjunganKembali{},
+	}
+	a.AutoMigrate(listModelRegSpop...)
 
 	listModelLspop := []interface{}{
 		&objekpajakbangunan.ObjekPajakBangunan{},
