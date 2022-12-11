@@ -5,6 +5,7 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"gorm.io/datatypes"
 )
 
@@ -26,36 +27,36 @@ type BphtbSptpd struct {
 	OPKecamatan               *string         `json:"opKecamatan" gorm:"type:varchar(50)"`
 	OPKelurahan               *string         `json:"opKelurahan" gorm:"type:varchar(50)"`
 	OP_RtRW                   *string         `json:"op_RtRW" gorm:"type:varchar(50)"`
-	OPLuasTanah               *float64        `json:"opLuasTanah" gorm:"type:decimal(10,2)"`
-	OPLuasBangunan            *float64        `json:"opLuasBangunan" gorm:"type:decimal(10,2)"`
-	OPLuasTanahBersama        *float64        `json:"opLuasTanahBersama" gorm:"type:decimal(10,2)"`
-	OPLuasBangunanBersama     *float64        `json:"opLuasBangunanBersama" gorm:"type:decimal(10,2)"`
-	NjopLuasTanah             *float64        `json:"njopLuasTanah" gorm:"type:decimal(10,2)"`
-	NjopLuasBangunan          *float64        `json:"njopLuasBangunan" gorm:"type:decimal(10,2)"`
-	NjopTanahBersama          *float64        `json:"njopTanahBersama" gorm:"type:decimal(20,2)"`
-	NjopBangunanBersama       *float64        `json:"njopBangunanBersama" gorm:"type:decimal(20,2)"`
-	NilaiOp                   *float64        `json:"nilaiOp" gorm:"type:decimal(20,2)"`
+	OPLuasTanah               float64         `json:"opLuasTanah" gorm:"type:decimal(10,2)"`
+	OPLuasBangunan            float64         `json:"opLuasBangunan" gorm:"type:decimal(10,2)"`
+	OPLuasTanahBersama        float64         `json:"opLuasTanahBersama" gorm:"type:decimal(10,2)"`
+	OPLuasBangunanBersama     float64         `json:"opLuasBangunanBersama" gorm:"type:decimal(10,2)"`
+	NjopLuasTanah             float64         `json:"njopLuasTanah" gorm:"type:decimal(10,2)"`
+	NjopLuasBangunan          float64         `json:"njopLuasBangunan" gorm:"type:decimal(10,2)"`
+	NjopTanahBersama          float64         `json:"njopTanahBersama" gorm:"type:decimal(20,2)"`
+	NjopBangunanBersama       float64         `json:"njopBangunanBersama" gorm:"type:decimal(20,2)"`
+	NilaiOp                   float64         `json:"nilaiOp" gorm:"type:decimal(20,2)"`
 	JenisPerolehanOp          *string         `json:"jenisPerolehanOp" gorm:"type:varchar(50)"`
 	NoSertifikatOp            *string         `json:"noSertifikatOp" gorm:"type:varchar(50)"`
-	NjopPbbOp                 *float64        `json:"njopPbbOp" gorm:"type:decimal(20,2)"`
+	NjopPbbOp                 float64         `json:"njopPbbOp" gorm:"type:decimal(20,2)"`
 	LokasiOp                  *string         `json:"lokasiOp" gorm:"type:varchar(50)"`
 	TahunPajakSppt            *string         `json:"tahunPajakSppt" gorm:"type:varchar(50)"`
-	Npop                      *float64        `json:"npop" gorm:"type:decimal(50,2)"`
-	Npoptkp                   *float64        `json:"npoptkp" gorm:"type:decimal(50,2)"`
+	Npop                      float64         `json:"npop" gorm:"type:decimal(50,2)"`
+	Npoptkp                   float64         `json:"npoptkp" gorm:"type:decimal(50,2)"`
 	JenisSetoran              *string         `json:"jenisSetoran" gorm:"type:varchar(50)"`
 	JenisSetoranNomor         *string         `json:"jenisSetoranNomor" gorm:"type:varchar(50)"`
 	JenisSetoranTanggal       *datatypes.Date `json:"jenisSetoranTanggal"`
 	JenisSetoranHitungSendiri *string         `json:"jenisSetoranHitungSendiri" gorm:"type:varchar(50)"`
 	JenisSetoranCustom        *string         `json:"jenisSetoranCustom" gorm:"type:varchar(50)"`
-	JumlahSetor               *float64        `json:"jumlahSetor" gorm:"type:decimal(50,2)"`
-	NominalSPT                *float64        `json:"nominalSPT" gorm:"type:decimal(50,2)"`
+	JumlahSetor               float64         `json:"jumlahSetor" gorm:"type:decimal(50,2)"`
+	NominalSPT                float64         `json:"nominalSPT" gorm:"type:decimal(50,2)"`
 	Tanggal                   *datatypes.Date `json:"tanggal"`
 	NoDokumen                 *string         `json:"noDokumen" gorm:"type:varchar(50)"`
 	NopPbbBaru                *string         `json:"nopPbbBaru" gorm:"type:varchar(50)"`
 	User_id                   *string         `json:"user_id" gorm:"type:varchar(50)"`
 	Id_pp                     *string         `json:"id_pp" gorm:"type:varchar(50)"`
 	JenisSetoranKeterangan    *string         `json:"jenisSetoranKeterangan" gorm:"type:varchar(50)"`
-	NilaiPasar                *float64        `json:"nilaiPasar" gorm:"type:decimal(50,2)"`
+	NilaiPasar                float64         `json:"nilaiPasar" gorm:"type:decimal(50,2)"`
 	JenisPerolehan_id         *string         `json:"jenisPerolehan_id" gorm:"type:varchar(50)"`
 	InpAphb1                  *string         `json:"inpAphb1" gorm:"type:varchar(50)"`
 	InpAphb2                  *string         `json:"inpAphb2" gorm:"type:varchar(50)"`
@@ -124,6 +125,10 @@ type BphtbSptpd struct {
 	RT                        *string         `json:"rT" gorm:"type:varchar(50)"`
 	Rw                        *string         `json:"rw" gorm:"type:varchar(50)"`
 	Status                    string          `json:"status" gorm:"type:varchar(50)"`
+	Cs_Nama                   *pq.StringArray `json:"cs_nama" gorm:"type:varchar[]"`
+	Cs_Nik                    *pq.StringArray `json:"cs_nik" gorm:"type:varchar[]"`
+	Qq_Nama                   *string         `json:"qq_nama"`
+	Qq_Nib                    *string         `json:"qq_nib"`
 	gormhelper.DateModel
 	Lampiran *Lampiran `json:"lampiran,omitempty" gorm:"foreignKey:BphtbSptpd_Id"`
 }

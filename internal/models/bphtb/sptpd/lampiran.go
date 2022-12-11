@@ -37,6 +37,7 @@ type Lampiran struct {
 }
 
 type CreateLampiranDto struct {
+	BphtbSptpd_Id                      uuid.UUID       `json:"-"`
 	NoSspd                             *string         `json:"noSspd"`
 	TanggalNoSspd                      *datatypes.Date `json:"tanggalNoSspd"`
 	NoFormulir                         *string         `json:"noFormulir"`

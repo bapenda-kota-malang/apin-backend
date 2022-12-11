@@ -102,7 +102,6 @@ func RemoveFile(path, filename string) error {
 
 // save base64 string to specific file
 func SaveFile(b64Raw, fileName, path, extFile string, errCh chan error) {
-	defer close(errCh)
 	coI := strings.Index(string(b64Raw), ",")
 	rawFiles := string(b64Raw)[coI+1:]
 	dec, err := base64.StdEncoding.DecodeString(rawFiles)
@@ -173,7 +172,6 @@ func BulkSaveFile(wg *sync.WaitGroup, b64Raw, fileName, path, extFile string, er
 }
 
 func ReplaceFile(oldFileName, b64Raw, newFileName, path, extFile string, errCh chan error) {
-	defer close(errCh)
 	saveErrCh := make(chan error)
 
 	oldFileNameSave := oldFileName

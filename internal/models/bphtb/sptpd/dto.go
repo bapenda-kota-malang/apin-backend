@@ -1,6 +1,7 @@
 package bphtb
 
 import (
+	"github.com/lib/pq"
 	"gorm.io/datatypes"
 )
 
@@ -123,6 +124,10 @@ type CreateDto struct {
 	BlokKavNo                 *string           `json:"blokKavNo"`
 	RT                        *string           `json:"rT"`
 	Rw                        *string           `json:"rw"`
+	Cs_Nama                   *pq.StringArray   `json:"cs_nama"`
+	Cs_Nik                    *pq.StringArray   `json:"cs_nik"`
+	Qq_Nama                   *string           `json:"qq_nama"`
+	Qq_Nib                    *string           `json:"qq_nib"`
 	Lampiran                  CreateLampiranDto `json:"lampiran" validate:"required"`
 }
 

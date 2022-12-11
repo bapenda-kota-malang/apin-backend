@@ -1,6 +1,7 @@
 package skpd
 
 import (
+	"errors"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -71,6 +72,24 @@ func GetDetail(id int) (any, error) {
 	return rp.OKSimple{
 		Data: data,
 	}, nil
+}
+
+func GetFromNop(provinsiKode, daerahKode, kecamatanKode, kelurahanKode, blokKode, noUrut, jenisOp string) (data m.Sppt, err error) {
+	result := a.DB.Where(&m.Sppt{
+		Propinsi_Id:   &provinsiKode,
+		Dati2_Id:      &daerahKode,
+		Kecamatan_Id:  &kecamatanKode,
+		Keluarahan_Id: &kelurahanKode,
+		Blok_Id:       &blokKode,
+		NoUrut:        &noUrut,
+		JenisOP_Id:    &jenisOp,
+	}).First(&data)
+	if result.RowsAffected == 0 {
+		err = errors.New("data not found")
+	} else if result.Error != nil {
+		err = result.Error
+	}
+	return
 }
 
 func Update(id int, input m.RequestDto) (any, error) {

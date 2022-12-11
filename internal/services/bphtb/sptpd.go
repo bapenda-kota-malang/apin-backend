@@ -1,6 +1,7 @@
 package sptpd
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -15,6 +16,7 @@ import (
 	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	sppat "github.com/bapenda-kota-malang/apin-backend/internal/services/ppat"
+	ssspt "github.com/bapenda-kota-malang/apin-backend/internal/services/sppt"
 	swp "github.com/bapenda-kota-malang/apin-backend/internal/services/wajibpajak"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -29,15 +31,25 @@ func Create(input m.CreateDto, from string, authInfo *auth.AuthInfo) (any, error
 	var data m.BphtbSptpd
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// bphtb section
-		if err := sc.Copy(&data, &input); err != nil {
-			return err
-		}
-		data.Lampiran = nil
-		// change data based from parameter and add static data
 		id, err := sh.GetUuidv4()
 		if err != nil {
 			return err
 		}
+		var errChan = make(chan error)
+		if input.GambarOp != nil {
+			fileName, path, extFile, _, err := sh.FilePreProcess(*input.GambarOp, "bphtbGambarOp", uint(authInfo.User_Id), id)
+			if err != nil {
+				return err
+			}
+			go sh.SaveFile(*input.GambarOp, fileName, path, extFile, errChan)
+			input.GambarOp = &fileName
+		}
+		if err := sc.Copy(&data, &input); err != nil {
+			return err
+		}
+
+		// change data based from parameter and add static data
+		data.Lampiran = nil
 		data.Id = id
 		switch from {
 		case "ppat":
@@ -55,51 +67,62 @@ func Create(input m.CreateDto, from string, authInfo *auth.AuthInfo) (any, error
 			wpNik := respWp.(rp.OKSimple).Data.(*mwp.WajibPajak).Nik
 			data.WajibPajak_NIK = &wpNik
 		}
-		if data.GambarOp != nil {
-			var errChan = make(chan error)
-			fileName, path, extFile, _, err := sh.FilePreProcess(*data.GambarOp, "bphtbGambarOp", uint(authInfo.User_Id), id)
-			if err != nil {
-				return err
-			}
-			go sh.SaveFile(*data.GambarOp, fileName, path, extFile, errChan)
-			if err := <-errChan; err != nil {
-				return err
-			}
-			data.GambarOp = &fileName
-		}
 		data.Status = "00"
 
+		// process calculation
+		dataSppt, err := ssspt.GetFromNop(
+			*data.PermohonanProvinsiID,
+			*data.PermohonanKotaID,
+			*data.PermohonanKecamatanID,
+			*data.PermohonanKelurahanID,
+			*data.PermohonanBlokID,
+			*data.NoUrutPemohon,
+			*data.PemohonJenisOPID)
+		if err != nil {
+			return fmt.Errorf("get data from nop: %w", err)
+		}
+		data.NjopLuasTanah = float64(*dataSppt.NJOPBumi_sppt)
+		data.NjopLuasBangunan = float64(*dataSppt.NJOPBangunan_sppt)
+		njopTanah := data.OPLuasTanah * data.NjopLuasTanah
+		njopBangunan := data.OPLuasBangunan * data.NjopLuasBangunan
+
+		// data dari anggota objek pajak
+		njopTanahBersama := data.OPLuasTanahBersama * data.NjopTanahBersama
+		njopBangunanBersama := data.OPLuasBangunanBersama * data.NjopBangunanBersama
+		data.NjopPbbOp = njopTanah + njopBangunan + njopTanahBersama + njopBangunanBersama
+
+		npop := data.NjopPbbOp
+		if npop < data.NilaiPasar {
+			npop = data.NilaiPasar
+		}
+		data.Npop = npop
+		data.NilaiOp = npop
+
+		// FROM NPOP IF >= NPOTKP -> CALCULATE TO GET NPOPKP THEN CALCULATE NOMINAL SPT OR JUMLAH SETOR
+		// TODO: WHY JUMLAH SETOR DAN NOMINAL SPT THERE'S SAME DATA OR DIFFERENT DATA FROM DATABASE EXISTING?, HOW TO CALCULATE THAT
+		if data.Npop >= data.Npoptkp {
+			npopkp := data.Npop - data.Npoptkp
+			total := 0.05 * npopkp
+			data.JumlahSetor = total
+			data.NominalSPT = total
+		} else {
+			data.JumlahSetor = 0
+			data.NominalSPT = 0
+		}
+
+		if err := <-errChan; err != nil {
+			return err
+		}
 		if result := tx.Create(&data); result.Error != nil {
 			return result.Error
 		}
 
-		// TODO: lampiran section
-		var lampiran m.Lampiran
-		if err := sc.Copy(&lampiran, &input.Lampiran); err != nil {
-			return err
-		}
-		id, err = sh.GetUuidv4()
+		input.Lampiran.BphtbSptpd_Id = data.Id
+		dataLampiran, err := CreateLampiran(input.Lampiran, uint(authInfo.User_Id), tx)
 		if err != nil {
 			return err
 		}
-		lampiran.BphtbSptpd_Id = data.Id
-
-		// save lampiran surat pernyataan
-		var errChan = make(chan error)
-		fileName, path, extFile, _, err := sh.FilePreProcess(lampiran.LampiranFotocopySuratPernyataan, "lampiranFcSuratPernyataan", uint(authInfo.User_Id), id)
-		if err != nil {
-			return err
-		}
-		go sh.SaveFile(lampiran.LampiranFotocopySuratPernyataan, fileName, path, extFile, errChan)
-		if err := <-errChan; err != nil {
-			return err
-		}
-		lampiran.LampiranFotocopySuratPernyataan = fileName
-
-		if result := tx.Create(&lampiran); result.Error != nil {
-			return result.Error
-		}
-		data.Lampiran = &lampiran
+		data.Lampiran = &dataLampiran
 
 		return nil
 	})
