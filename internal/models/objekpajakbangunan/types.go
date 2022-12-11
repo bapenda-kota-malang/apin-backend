@@ -93,5 +93,5 @@ type Input interface {
 	GetTanggalPendataan() *string
 	GetTanggalPemeriksaan() *string
 	GetTanggalPerekaman() *string
-	GetObjekPajakBangunan() (*CreateDto, error)
+	GetObjekPajakBangunan() (CreateDto, error)
 }

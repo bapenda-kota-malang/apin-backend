@@ -9,8 +9,8 @@ import (
 
 type Jpb6 struct {
 	nop.NopDetail
-	NoBangunan   *int          `json:"noBangunan"`
-	KelasBanguna KelasBangunan `json:"kelasBangunan6" gorm:"type:char(1)"`
+	NoBangunan     *int          `json:"noBangunan"`
+	KelasBangunan6 KelasBangunan `json:"kelasBangunan6" gorm:"type:char(1)"`
 	gh.DateModel
 }
 
@@ -53,10 +53,10 @@ func (input *OpbJpb6CreateDto) GetTanggalPerekaman() *string {
 	return input.TanggalPerekaman
 }
 
-func (input *OpbJpb6CreateDto) GetObjekPajakBangunan() (*CreateDto, error) {
+func (input *OpbJpb6CreateDto) GetObjekPajakBangunan() (CreateDto, error) {
 	var data CreateDto
 	if err := sc.Copy(&data, &input); err != nil {
-		return nil, err
+		return CreateDto{}, err
 	}
-	return &data, nil
+	return data, nil
 }

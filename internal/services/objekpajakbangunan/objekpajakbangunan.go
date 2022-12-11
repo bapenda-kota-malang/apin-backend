@@ -140,6 +140,7 @@ func GetList(input m.FilterDto) (any, error) {
 	result := a.DB.
 		Model(&m.ObjekPajakBangunan{}).
 		Preload(clause.Associations).
+		Preload("Kelurahan.Kecamatan.Daerah.Provinsi").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -165,6 +166,7 @@ func GetDetail(id int) (any, error) {
 	result := a.DB.
 		Model(&m.ObjekPajakBangunan{}).
 		Preload(clause.Associations).
+		Preload("Kelurahan.Kecamatan.Daerah.Provinsi").
 		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil

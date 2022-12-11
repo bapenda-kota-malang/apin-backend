@@ -10,14 +10,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, error) {
+func jpbCopier(dto interface{}, resultNop []string, kode string, tx *gorm.DB) (any, error) {
 	switch v := dto.(type) {
-	case m.OpbJpb2CreateDto:
+	case *m.OpbJpb2CreateDto:
 		var data m.Jpb2
 		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb2", data)
 		}
-		fmt.Println("datajpb2: ", data.KelasBangunan2)
+
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
 		data.NopDetail.Daerah_Kode = &resultNop[1]
 		data.NopDetail.Kecamatan_Kode = &resultNop[2]
@@ -31,10 +31,9 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		}
 
 		return rp.OKSimple{Data: data}, nil
-		// return data, nil
-	case m.OpbJpb3CreateDto:
+	case *m.OpbJpb3CreateDto:
 		var data m.Jpb3
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb3", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -45,10 +44,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb4CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb3", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb4CreateDto:
 		var data m.Jpb4
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb4", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -59,10 +62,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb5CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb4", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb5CreateDto:
 		var data m.Jpb5
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb5", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -73,10 +80,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb6CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb5", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb6CreateDto:
 		var data m.Jpb6
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb6", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -87,10 +98,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb7CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb6", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb7CreateDto:
 		var data m.Jpb7
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb7", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -101,10 +116,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb8CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb7", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb8CreateDto:
 		var data m.Jpb8
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb8", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -115,10 +134,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb9CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb8", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb9CreateDto:
 		var data m.Jpb9
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb9", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -129,10 +152,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb12CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb9", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb12CreateDto:
 		var data m.Jpb12
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb12", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -143,10 +170,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb13CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb12", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb13CreateDto:
 		var data m.Jpb13
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb13", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -157,10 +188,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb14CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb13", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb14CreateDto:
 		var data m.Jpb14
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb14", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -171,10 +206,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb15CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb14", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb15CreateDto:
 		var data m.Jpb15
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb15", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -185,10 +224,14 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
-	case m.OpbJpb16CreateDto:
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb15", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
+	case *m.OpbJpb16CreateDto:
 		var data m.Jpb16
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb16", data)
 		}
 		data.NopDetail.Provinsi_Kode = &resultNop[0]
@@ -199,7 +242,11 @@ func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, 
 		data.NopDetail.NoUrut = &resultNop[5]
 		data.NopDetail.JenisOp = &resultNop[6]
 		data.NopDetail.Area_Kode = &kode
-		return data, nil
+		if result := tx.Create(&data); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data jpb16", data)
+		}
+
+		return rp.OKSimple{Data: data}, nil
 	default:
 		return nil, fmt.Errorf("type of dto undefined")
 

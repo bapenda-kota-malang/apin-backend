@@ -74,10 +74,10 @@ func (input *OpbJpb8CreateDto) GetTanggalPerekaman() *string {
 	return input.TanggalPerekaman
 }
 
-func (input *OpbJpb8CreateDto) GetObjekPajakBangunan() (*CreateDto, error) {
+func (input *OpbJpb8CreateDto) GetObjekPajakBangunan() (CreateDto, error) {
 	var data CreateDto
 	if err := sc.Copy(&data, &input); err != nil {
-		return nil, err
+		return CreateDto{}, err
 	}
-	return &data, nil
+	return data, nil
 }
