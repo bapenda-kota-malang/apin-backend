@@ -21,7 +21,7 @@ import (
 
 const source = "objekpajakbangunan"
 
-func Create(input m.OpbJpb2CreateDto) (any, error) {
+func Create(input m.Input) (any, error) {
 
 	var data m.ObjekPajakBangunan
 	var dataFasilitasBangunan mfb.CreateDto
@@ -29,17 +29,26 @@ func Create(input m.OpbJpb2CreateDto) (any, error) {
 	var respDataJpb interface{}
 	var resp t.II
 
+	resultGetFasilitasBangunan := input.GetFasilitasBangunan()
+	resultGetNop := input.GetNop()
+	resultGetPemeriksaan := input.GetTanggalPemeriksaan()
+	resultGetPendataan := input.GetTanggalPendataan()
+	resultGetPerekaman := input.GetTanggalPerekaman()
+	resultGetObjekPajakBangun, errGet := input.GetObjekPajakBangunan()
+	if errGet != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+	}
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
-	if err := sc.Copy(&data, &input); err != nil {
+	if err := sc.Copy(&data, &resultGetObjekPajakBangun); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	if input.FasilitasBangunans != nil {
+	if resultGetFasilitasBangunan != nil {
 		// copy data fasilitas bangunan
-		if err := sc.Copy(&dataFasilitasBangunan, input.FasilitasBangunans); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload fasilitas bangunan", input.FasilitasBangunans)
+		if err := sc.Copy(&dataFasilitasBangunan, resultGetFasilitasBangunan); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload fasilitas bangunan", resultGetFasilitasBangunan)
 		}
-		resultNop, kode := sh.NopParser(*input.Nop)
+		resultNop, kode := sh.NopParser(*resultGetNop)
 		dataFasilitasBangunan.NopDetailCreateDto.Provinsi_Kode = &resultNop[0]
 		dataFasilitasBangunan.NopDetailCreateDto.Daerah_Kode = &resultNop[1]
 		dataFasilitasBangunan.NopDetailCreateDto.Kecamatan_Kode = &resultNop[2]
@@ -52,7 +61,7 @@ func Create(input m.OpbJpb2CreateDto) (any, error) {
 	}
 
 	// add static field for objek pajak bangunan
-	resultNop, kode := sh.NopParser(*input.Nop)
+	resultNop, kode := sh.NopParser(*resultGetNop)
 	data.NopDetail.Provinsi_Kode = &resultNop[0]
 	data.NopDetail.Daerah_Kode = &resultNop[1]
 	data.NopDetail.Kecamatan_Kode = &resultNop[2]
@@ -62,17 +71,17 @@ func Create(input m.OpbJpb2CreateDto) (any, error) {
 	data.NopDetail.JenisOp = &resultNop[6]
 	data.NopDetail.Area_Kode = &kode
 
-	if input.TanggalPemeriksaan != nil {
+	if resultGetPemeriksaan != nil {
 
-		data.TanggalPemeriksaan = th.ParseTime(input.TanggalPemeriksaan)
+		data.TanggalPemeriksaan = th.ParseTime(resultGetPemeriksaan)
 	}
-	if input.TanggalPendataan != nil {
+	if resultGetPendataan != nil {
 
-		data.TanggalPendataan = th.ParseTime(input.TanggalPendataan)
+		data.TanggalPendataan = th.ParseTime(resultGetPendataan)
 	}
-	if input.TanggalPerekaman != nil {
+	if resultGetPerekaman != nil {
 
-		data.TanggalPerekaman = th.ParseTime(input.TanggalPerekaman)
+		data.TanggalPerekaman = th.ParseTime(resultGetPerekaman)
 	}
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
@@ -89,7 +98,7 @@ func Create(input m.OpbJpb2CreateDto) (any, error) {
 		}
 		respDataJpb = resultJpb
 
-		if input.FasilitasBangunans != nil {
+		if resultGetFasilitasBangunan != nil {
 			// create data fasilitas bangunan
 			resultFasilitasBangunan, err := sfb.Create(dataFasilitasBangunan, tx)
 			if err != nil {
@@ -104,7 +113,7 @@ func Create(input m.OpbJpb2CreateDto) (any, error) {
 	if err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
 	}
-	if input.FasilitasBangunans != nil {
+	if resultGetFasilitasBangunan != nil {
 		resp = t.II{
 			"objekPajakBangunan": data,
 			"fasilitasBangunan":  respDataFasilitasBangunan.(rp.OKSimple).Data,

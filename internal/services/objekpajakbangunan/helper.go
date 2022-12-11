@@ -10,11 +10,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func jpbCopier(dto interface{}, resultNop []string, kode string, tx *gorm.DB) (any, error) {
+func jpbCopier(dto m.Input, resultNop []string, kode string, tx *gorm.DB) (any, error) {
 	switch v := dto.(type) {
 	case m.OpbJpb2CreateDto:
 		var data m.Jpb2
-		if err := sc.Copy(&data, &v); err != nil {
+		if err := sc.Copy(&data, &v.Jpbs); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload jpb2", data)
 		}
 		fmt.Println("datajpb2: ", data.KelasBangunan2)

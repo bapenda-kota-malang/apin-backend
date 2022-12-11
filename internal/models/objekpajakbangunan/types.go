@@ -1,5 +1,9 @@
 package objekpajakbangunan
 
+import (
+	mfb "github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
+)
+
 type Kondisi string
 type JenisKonstruksi string
 type JenisAtap string
@@ -82,3 +86,12 @@ const (
 	LetakTankiDiatasTanah  LetakTanki = "1" // di atas tanah
 	LetakTankiDibawahTanah LetakTanki = "2" // di bawah tanah
 )
+
+type Input interface {
+	GetFasilitasBangunan() *mfb.CreateDto
+	GetNop() *string
+	GetTanggalPendataan() *string
+	GetTanggalPemeriksaan() *string
+	GetTanggalPerekaman() *string
+	GetObjekPajakBangunan() (*CreateDto, error)
+}
