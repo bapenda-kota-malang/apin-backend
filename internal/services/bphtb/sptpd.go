@@ -62,6 +62,7 @@ func Create(input m.CreateDto, from string, authInfo *auth.AuthInfo) (any, error
 			}
 			ppatDataId := strconv.Itoa(respPpat.(rp.OKSimple).Data.(*mppat.Ppat).Id)
 			data.Ppat_Id = &ppatDataId
+			data.Status = "01"
 		case "wp":
 			respWp, err := swp.GetDetail(authInfo.Ref_Id)
 			if err != nil {
@@ -69,8 +70,10 @@ func Create(input m.CreateDto, from string, authInfo *auth.AuthInfo) (any, error
 			}
 			wpNik := respWp.(rp.OKSimple).Data.(*mwp.WajibPajak).Nik
 			data.WajibPajak_NIK = &wpNik
+			data.Status = "00"
+		default:
+			data.Status = "00"
 		}
-		data.Status = "00"
 
 		// process calculation
 		respDataSppt, err := ssspt.GetByNop(
@@ -92,30 +95,34 @@ func Create(input m.CreateDto, from string, authInfo *auth.AuthInfo) (any, error
 		njopBangunan := data.OPLuasBangunan * data.NjopLuasBangunan
 
 		// data dari anggota objek pajak
-		nopString := fmt.Sprintf("%s.%s.%s.%s.%s.%s.%s", *data.PermohonanProvinsiID,
-			*data.PermohonanKotaID,
-			*data.PermohonanKecamatanID,
-			*data.PermohonanKelurahanID,
-			*data.PermohonanBlokID,
-			*data.NoUrutPemohon,
-			*data.PemohonJenisOPID)
-		respAop, err := saop.GetByNop(nopString, tx)
-		if err != nil {
-			return fmt.Errorf("get data anggota objek pajak from nop: %w", err)
+		if data.OPLuasTanahBersama > 0 || data.OPLuasBangunanBersama > 0 {
+			nopString := fmt.Sprintf("%s.%s.%s.%s.%s.%s.%s", *data.PermohonanProvinsiID,
+				*data.PermohonanKotaID,
+				*data.PermohonanKecamatanID,
+				*data.PermohonanKelurahanID,
+				*data.PermohonanBlokID,
+				*data.NoUrutPemohon,
+				*data.PemohonJenisOPID)
+			respAop, err := saop.GetByNop(nopString, tx)
+			if err != nil {
+				return fmt.Errorf("get data anggota objek pajak from nop: %w", err)
+			}
+			aopData := respAop.(rp.OKSimple).Data.(*maop.AnggotaObjekPajak)
+			data.NjopTanahBersama = float64(*aopData.LuasBumiBeban)
+			data.NjopBangunanBersama = float64(*aopData.LuasBangunanBeban)
 		}
-		aopData := respAop.(rp.OKSimple).Data.(*maop.AnggotaObjekPajak)
-		data.NjopTanahBersama = float64(*aopData.LuasBumiBeban)
-		data.NjopBangunanBersama = float64(*aopData.LuasBangunanBeban)
 		njopTanahBersama := data.OPLuasTanahBersama * data.NjopTanahBersama
 		njopBangunanBersama := data.OPLuasBangunanBersama * data.NjopBangunanBersama
 		data.NjopPbbOp = njopTanah + njopBangunan + njopTanahBersama + njopBangunanBersama
 
-		npop := data.NjopPbbOp
-		if npop < data.NilaiPasar {
-			npop = data.NilaiPasar
+		// set npop value
+		if data.NjopPbbOp < data.NilaiPasar {
+			data.Npop = data.NilaiPasar
+			data.NilaiOp = data.NilaiPasar
+		} else {
+			data.Npop = data.NjopPbbOp
+			data.NilaiOp = data.NjopPbbOp
 		}
-		data.Npop = npop
-		data.NilaiOp = npop
 
 		// FROM NPOP IF >= NPOTKP -> CALCULATE TO GET NPOPKP THEN CALCULATE NOMINAL SPT OR JUMLAH SETOR
 		// TODO: WHY JUMLAH SETOR DAN NOMINAL SPT THERE'S SAME DATA OR DIFFERENT DATA FROM DATABASE EXISTING?
