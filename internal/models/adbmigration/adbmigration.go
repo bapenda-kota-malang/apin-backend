@@ -39,6 +39,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjnonpln"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjpln"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
@@ -77,8 +78,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibank"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reganggotaobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regkunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
@@ -334,8 +337,28 @@ func init() {
 		&objekpajakbangunan.Jpb14{},
 		&objekpajakbangunan.Jpb15{},
 		&objekpajakbangunan.Jpb16{},
+		&fasilitasbangunan.FasilitasBangunan{},
 	}
 	a.AutoMigrate(listModelLspop...)
+
+	listModelRegLspop := []interface{}{
+		&regobjekpajakbangunan.RegObjekPajakBangunan{},
+		&regobjekpajakbangunan.RegJpb2{},
+		&regobjekpajakbangunan.RegJpb3{},
+		&regobjekpajakbangunan.RegJpb4{},
+		&regobjekpajakbangunan.RegJpb5{},
+		&regobjekpajakbangunan.RegJpb6{},
+		&regobjekpajakbangunan.RegJpb7{},
+		&regobjekpajakbangunan.RegJpb8{},
+		&regobjekpajakbangunan.RegJpb9{},
+		&regobjekpajakbangunan.RegJpb12{},
+		&regobjekpajakbangunan.RegJpb13{},
+		&regobjekpajakbangunan.RegJpb14{},
+		&regobjekpajakbangunan.RegJpb15{},
+		&regobjekpajakbangunan.RegJpb16{},
+		&regfasilitasbangunan.RegFasilitasBangunan{},
+	}
+	a.AutoMigrate(listModelRegLspop...)
 
 	listModelBphtbSptpd := []interface{}{
 		&bphtb.BphtbSptpd{},
