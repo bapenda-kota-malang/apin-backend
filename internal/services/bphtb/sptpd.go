@@ -233,6 +233,11 @@ func GetDetail(id uuid.UUID) (any, error) {
 	data.Kecamatan_wp = &kecamatan.Nama
 	data.Kelurahan_wp = &kelurahan.Nama
 
+	if data.Lampiran == nil {
+		tempLampiran := new(m.Lampiran)
+		data.Lampiran = tempLampiran
+	}
+
 	return rp.OKSimple{
 		Data: data,
 	}, nil

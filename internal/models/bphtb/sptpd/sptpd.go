@@ -1,6 +1,7 @@
 package bphtb
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
@@ -142,28 +143,28 @@ type ResponseSptpd struct {
 }
 
 type RequestApprovalSptpd struct {
-	NoDokumen           *string  `json:"noDokumen"`
-	User_id             *string  `json:"user_id"`
-	Id_pp               *string  `json:"id_pp"`
-	KodeValidasi        *string  `json:"kodeValidasi"`
-	IsLunas             *string  `json:"isLunas"`
-	ValidasiDisependa   *string  `json:"validasiDisependa"`
-	ValidasiBank        *string  `json:"validasiBank"`
-	Dispenda_User_id    *string  `json:"pegawai_User_id"`
-	AlasanReject        *string  `json:"alasanReject"`
-	Bank_Id             *string  `json:"bank_Id"`
-	FlagDispenda        *int     `json:"flagDispenda"`
-	FlagPPAT            *int     `json:"flagPPAT"`
-	IsKurangBayar       *string  `json:"isKurangBayar"`
-	KurangBayar         *float64 `json:"kurangBayar"`
-	NoReff              *string  `json:"noReff"`
-	IdBilling           *string  `json:"idBilling"`
-	Proses              *string  `json:"proses"`
-	ApprovePPAT         *string  `json:"approvePPAT"`
-	NoPelayanan         *string  `json:"noPelayanan"`
-	NamaPetugasLapangan *string  `json:"namaPetugasLapangan"`
-	NamaStaff           *string  `json:"namaStaff"`
-	Status              *string  `json:"status"`
+	NoDokumen           *string `json:"noDokumen"`
+	User_id             *string `json:"user_id"`
+	Id_pp               *string `json:"id_pp"`
+	KodeValidasi        *string `json:"kodeValidasi"`
+	IsLunas             *string `json:"isLunas"`
+	ValidasiDisependa   *string `json:"validasiDisependa"`
+	ValidasiBank        *string `json:"validasiBank"`
+	Dispenda_User_id    *string `json:"pegawai_User_id"`
+	AlasanReject        *string `json:"alasanReject"`
+	Bank_Id             *string `json:"bank_Id"`
+	FlagDispenda        *int    `json:"flagDispenda"`
+	FlagPPAT            *int    `json:"flagPPAT"`
+	IsKurangBayar       *string `json:"isKurangBayar"`
+	KurangBayar         *string `json:"kurangBayar"`
+	NoReff              *string `json:"noReff"`
+	IdBilling           *string `json:"idBilling"`
+	Proses              *string `json:"proses"`
+	ApprovePPAT         *string `json:"approvePPAT"`
+	NoPelayanan         *string `json:"noPelayanan"`
+	NamaPetugasLapangan *string `json:"namaPetugasLapangan"`
+	NamaStaff           *string `json:"namaStaff"`
+	Status              *string `json:"status"`
 	gormhelper.DateModel
 }
 
@@ -205,7 +206,10 @@ func (req RequestApprovalSptpd) SetDataApproval(i *BphtbSptpd) *BphtbSptpd {
 		i.IsKurangBayar = req.IsKurangBayar
 	}
 	if req.KurangBayar != nil {
-		i.KurangBayar = req.KurangBayar
+		tempKurangBayar, errKB := strconv.ParseFloat(*req.KurangBayar, 64)
+		if errKB == nil {
+			i.KurangBayar = &tempKurangBayar
+		}
 	}
 	if req.NoReff != nil {
 		i.NoReff = req.NoReff
