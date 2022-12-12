@@ -73,6 +73,25 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
+func GetByNop(provinsiKode, daerahKode, kecamatanKode, kelurahanKode, blokKode, noUrut, jenisOp string) (any, error) {
+	var data m.Sppt
+	result := a.DB.Where(&m.Sppt{
+		Propinsi_Id:   &provinsiKode,
+		Dati2_Id:      &daerahKode,
+		Kecamatan_Id:  &kecamatanKode,
+		Keluarahan_Id: &kelurahanKode,
+		Blok_Id:       &blokKode,
+		NoUrut:        &noUrut,
+		JenisOP_Id:    &jenisOp,
+	}).First(&data)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "data tidak ada", data)
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "gagal mendapatkan data: "+result.Error.Error(), data)
+	}
+	return rp.OKSimple{Data: data}, nil
+}
+
 func Update(id int, input m.RequestDto) (any, error) {
 	var data *m.Sppt
 	result := a.DB.First(&data, id)

@@ -9,6 +9,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
 	bapenagihanpetugas "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/baplpengajuan"
+	bphtbjenislaporan "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/jenislaporan"
 	bphtb "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datanir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datapetablok"
@@ -153,6 +154,7 @@ func init() {
 		&tempatpembayaran.TempatPembayaran{},
 		&nop.Nop{},
 		&jpb.Jpb{},
+		&bphtbjenislaporan.BphtbJenisLaporan{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 

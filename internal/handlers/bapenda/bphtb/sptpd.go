@@ -1,9 +1,11 @@
 package bphtbsptpd
 
 import (
+	"context"
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
+	"github.com/go-chi/chi/v5"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
@@ -13,29 +15,53 @@ import (
 
 type Crud struct{}
 
+type ctxKey string
+
+const ctxKeyFrom ctxKey = "from"
+
+// middleware specific for create handler, this middleware will add from value to context request with key from
+func (c Crud) CreateMw(next http.Handler, from string) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), ctxKeyFrom, from)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
-	var data m.RequestSptpd
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	reqCtx := r.Context()
+	fromCtx := reqCtx.Value(ctxKeyFrom)
+	from := ""
+	if fromCtx != nil {
+		from = fromCtx.(string)
+	}
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	var data m.CreateDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
-	result, err := s.Create(data, nil)
+	result, err := s.Create(data, from, authInfo)
 	hh.DataResponse(w, result, err)
 }
 
 func (c Crud) GetList(w http.ResponseWriter, r *http.Request) {
-	var input m.RequestSptpd
-	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+	var input m.FilterDto
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
 		return
 	}
 
-	result, err := s.GetList(input)
+	result, err := s.GetList(input, -1, "")
 	hh.DataResponse(w, result, err)
 }
 
 func GetListVerifikasi(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	authInfo, ok := ctx.Value("authInfo").(*auth.AuthInfo)
+	var input m.FilterDto
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
+		return
+	}
+
+	authInfo, ok := r.Context().Value("authInfo").(*auth.AuthInfo)
 	if !ok {
 		hj.WriteJSON(w, http.StatusUnauthorized, nil, nil)
 		return
@@ -46,18 +72,13 @@ func GetListVerifikasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var input m.RequestSptpd
-	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
-		return
-	}
-
-	result, err := s.GetListApproval(input, authInfo.Jabatan_Id, tp)
+	result, err := s.GetList(input, authInfo.Jabatan_Id, tp)
 	hh.DataResponse(w, result, err)
 }
 
 func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
@@ -73,8 +94,8 @@ func Approval(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
@@ -84,7 +105,7 @@ func Approval(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var data m.RequestApprovalSptpd
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
@@ -93,13 +114,13 @@ func Approval(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
-	var data m.RequestSptpd
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	var data m.CreateDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
@@ -108,8 +129,8 @@ func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c Crud) VerifyPpat(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
@@ -125,8 +146,8 @@ func (c Crud) VerifyPpat(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
