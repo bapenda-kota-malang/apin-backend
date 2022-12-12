@@ -9,17 +9,18 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // this function change status to either 01 or 02 based from input, update ppat_id and verifikasiPpatAt
-func VerifyPpat(id int, input m.VerifyPpatDto, userId int, tx *gorm.DB) (any, error) {
+func VerifyPpat(id uuid.UUID, input m.VerifyPpatDto, userId int, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data m.BphtbSptpd
 
-	result := a.DB.Where("\"Status\" IN ?", []string{"00", "01", "02"}).First(&data, id)
+	result := a.DB.Where("\"Status\" IN ?", []string{"00", "01", "02"}).First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return sh.SetError("request", "update-data", source, "failed", "data tidak ditemukan", nil)
 	} else if result.Error != nil {
@@ -37,7 +38,7 @@ func VerifyPpat(id int, input m.VerifyPpatDto, userId int, tx *gorm.DB) (any, er
 	now := time.Now()
 
 	// change field
-	data.Status = &statusString
+	data.Status = statusString
 	data.VerifikasiPpatAt = &now
 	data.AlasanReject = input.AlasanReject
 

@@ -4,7 +4,11 @@ import (
 	"net/http"
 
 	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtbjenislaporan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nop"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sppt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
@@ -46,9 +50,25 @@ func SetRoutes() http.Handler {
 
 	r.Route("/bphtbsptpd", func(r chi.Router) {
 		bphtbsptpdCrud := bphtbsptpd.Crud{}
+		r.Post("/", bphtbsptpdCrud.CreateMw(http.HandlerFunc(bphtbsptpdCrud.Create), "ppat"))
 		r.Get("/", bphtbsptpdCrud.GetList)
 		r.Get("/{id}", bphtbsptpdCrud.GetDetail)
 		r.Patch("/{id}/verify", bphtbsptpdCrud.VerifyPpat)
+		r.Get("/jenislaporan", bphtbjenislaporan.Crud{}.GetList)
+	})
+
+	r.Route("/wajibpajak", func(r chi.Router) {
+		r.Get("/", wajibpajak.GetList)
+	})
+
+	r.Route("/njop", func(r chi.Router) {
+		r.Get("/", sppt.Crud{}.GetList)
+	})
+
+	r.Route("/nop", func(r chi.Router) {
+		nopCrud := nop.Crud{}
+		r.Get("/", nopCrud.GetList)
+		r.Get("/{id}", nopCrud.GetDetail)
 	})
 
 	return r
