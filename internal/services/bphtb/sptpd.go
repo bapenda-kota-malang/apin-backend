@@ -163,10 +163,14 @@ func GetList(input m.FilterDto, auth int, tp string) (any, error) {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"09", "10", "11", "12", "13"})
 	} else if auth == 3 && tp == "ver" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"03", "06", "07", "08", "09"})
-	} else if (auth == 0 || auth == 3 || auth == 2) && tp == "val" {
+	} else if (auth == 0 || auth == 3 || auth == 2 || auth == 4) && tp == "val" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"11", "14", "15"})
 	} else if auth == 2 && tp == "ver" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"06", "08", "09"})
+	} else if auth == 0 {
+
+	} else {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
 
 	var pagination gh.Pagination
