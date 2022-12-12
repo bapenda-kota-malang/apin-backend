@@ -1,5 +1,9 @@
 package regobjekpajakbangunan
 
+import (
+	mrfb "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
+)
+
 type Kondisi string
 type JenisKonstruksi string
 type JenisAtap string
@@ -12,6 +16,7 @@ type JenisHotel string
 type JumlahBintang string
 type TipeBangunan string
 type LetakTanki string
+type VerifyStatus int
 
 const (
 	// kondisi bangunan
@@ -81,4 +86,17 @@ const (
 
 	LetakTankiDiatasTanah  LetakTanki = "1" // di atas tanah
 	LetakTankiDibawahTanah LetakTanki = "2" // di bawah tanah
+
+	StatusBaru      VerifyStatus = 0
+	StatusDisetujui VerifyStatus = 1
+	StatusDitolak   VerifyStatus = 2
 )
+
+type RegInput interface {
+	GetFasilitasBangunan() *mrfb.CreateDto
+	GetNop() *string
+	GetTanggalPendataan() *string
+	GetTanggalPemeriksaan() *string
+	GetTanggalPerekaman() *string
+	GetObjekPajakBangunan() (CreateDto, error)
+}

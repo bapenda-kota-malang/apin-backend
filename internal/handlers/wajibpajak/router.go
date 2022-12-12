@@ -24,6 +24,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/static"
 
@@ -170,6 +171,10 @@ func SetRoutes() http.Handler {
 
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
 		r.Post("/", regobjekpajakpbb.Create)
+	})
+
+	r.Route("/regobjekpajakbangunan", func(r chi.Router) {
+		r.Post("/", regobjekpajakbangunan.Create)
 	})
 
 	r.Route("/bphtbsptpd", func(r chi.Router) {

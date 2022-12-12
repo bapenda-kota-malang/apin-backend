@@ -5,7 +5,7 @@ import (
 	mrf "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 )
 
-type OpbJpb2CreateDto struct {
+type RegOpbJpb2CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode"`
@@ -32,7 +32,7 @@ type OpbJpb2CreateDto struct {
 	RegJpbs               *RegJpb2CreateDto `json:"regJpb"`
 }
 
-type OpbJpb3CreateDto struct {
+type RegOpbJpb3CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode"`
@@ -59,7 +59,7 @@ type OpbJpb3CreateDto struct {
 	RegJpbs               *RegJpb3CreateDto `json:"regJpb"`
 }
 
-type OpbJpb4CreateDto struct {
+type RegOpbJpb4CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode"`
@@ -86,7 +86,7 @@ type OpbJpb4CreateDto struct {
 	RegJpbs               *RegJpb4CreateDto `json:"regJpb"`
 }
 
-type OpbJpb5CreateDto struct {
+type RegOpbJpb5CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode"`
@@ -113,7 +113,7 @@ type OpbJpb5CreateDto struct {
 	RegJpbs               *RegJpb5CreateDto `json:"regJpb"`
 }
 
-type OpbJpb6CreateDto struct {
+type RegOpbJpb6CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode"`
@@ -140,7 +140,7 @@ type OpbJpb6CreateDto struct {
 	RegJpbs               *RegJpb6CreateDto `json:"regJpb"`
 }
 
-type OpbJpb7CreateDto struct {
+type RegOpbJpb7CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode"`
@@ -167,7 +167,7 @@ type OpbJpb7CreateDto struct {
 	RegJpbs               *RegJpb7CreateDto `json:"regJpb"`
 }
 
-type OpbJpb8CreateDto struct {
+type RegOpbJpb8CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode"`
@@ -194,7 +194,7 @@ type OpbJpb8CreateDto struct {
 	RegJpbs               *RegJpb8CreateDto `json:"regJpb"`
 }
 
-type OpbJpb9CreateDto struct {
+type RegOpbJpb9CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode"`
@@ -221,7 +221,7 @@ type OpbJpb9CreateDto struct {
 	RegJpbs               *RegJpb9CreateDto `json:"regJpb"`
 }
 
-type OpbJpb12CreateDto struct {
+type RegOpbJpb12CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int               `json:"noBangunan"`
 	Jpb_Kode              string             `json:"jpb_kode"`
@@ -248,7 +248,7 @@ type OpbJpb12CreateDto struct {
 	RegJpbs               *RegJpb12CreateDto `json:"regJpb"`
 }
 
-type OpbJpb13CreateDto struct {
+type RegOpbJpb13CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int               `json:"noBangunan"`
 	Jpb_Kode              string             `json:"jpb_kode"`
@@ -275,7 +275,7 @@ type OpbJpb13CreateDto struct {
 	RegJpbs               *RegJpb13CreateDto `json:"regJpb"`
 }
 
-type OpbJpb14CreateDto struct {
+type RegOpbJpb14CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int               `json:"noBangunan"`
 	Jpb_Kode              string             `json:"jpb_kode"`
@@ -302,7 +302,7 @@ type OpbJpb14CreateDto struct {
 	RegJpbs               *RegJpb14CreateDto `json:"regJpb"`
 }
 
-type OpbJpb15CreateDto struct {
+type RegOpbJpb15CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int               `json:"noBangunan"`
 	Jpb_Kode              string             `json:"jpb_kode"`
@@ -329,7 +329,7 @@ type OpbJpb15CreateDto struct {
 	RegJpbs               *RegJpb15CreateDto `json:"regJpb"`
 }
 
-type OpbJpb16CreateDto struct {
+type RegOpbJpb16CreateDto struct {
 	nop.NopDetailCreateDto
 	NoBangunan            *int               `json:"noBangunan"`
 	Jpb_Kode              string             `json:"jpb_kode"`

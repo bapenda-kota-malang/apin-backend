@@ -28,6 +28,7 @@ type RegObjekPajakBangunan struct {
 	KodeLangitLangit      JenisLangitLangit `json:"kodeLangitLangit" gorm:"type:char(1)"`
 	NilaiSistem           *int              `json:"nilaiSistem"`
 	JenisTransaksi        JenisTransaksi    `json:"jenisTransaksi" gorm:"type:varchar(2)"`
+	Status                VerifyStatus      `json:"status"`
 	TanggalPendataan      *time.Time        `json:"tanggalPendataan"`
 	Pendata_Pegawai_Nip   *string           `json:"pendata_pegawai_nip" gorm:"type:char(9)"`
 	Pendata_Pegawai       *p.Pegawai        `json:"pendata_pegawai,omitempty" gorm:"foreignKey:Pendata_Pegawai_Nip;references:Nip"`
@@ -106,4 +107,8 @@ type FilterDto struct {
 	Perekam_Pegawai_Nip   *string `json:"perekam_pegawai_nip"`
 	Page                  int     `json:"page"`
 	PageSize              int     `json:"page_size"`
+}
+
+type VerifyDto struct {
+	Status VerifyStatus `json:"status" validate:"min=1;max=2"`
 }

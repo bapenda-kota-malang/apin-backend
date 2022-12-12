@@ -80,6 +80,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/referensibank"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regobjekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
@@ -507,6 +508,12 @@ func SetRoutes() http.Handler {
 		r.Post("/", objekpajakbangunan.Create)
 		r.Get("/", objekpajakbangunan.GetList)
 		r.Get("/{id}", objekpajakbangunan.GetDetail)
+	})
+
+	r.Route("/regobjekpajakbangunan", func(r chi.Router) {
+		r.Get("/", regobjekpajakbangunan.GetList)
+		r.Get("/{id}", regobjekpajakbangunan.GetDetail)
+		r.Patch("/verify/{id}", regobjekpajakbangunan.VerifyLspop)
 	})
 	return r
 }
