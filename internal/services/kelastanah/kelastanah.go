@@ -77,6 +77,20 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
+func GetDetailByCode(kd string) (interface{}, error) {
+	var data *m.KelasTanah
+	result := a.DB.Where("KdTanah", kd).First(&data)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
 func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
