@@ -515,5 +515,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", regobjekpajakbangunan.GetDetail)
 		r.Patch("/verify/{id}", regobjekpajakbangunan.VerifyLspop)
 	})
+	r.Patch("/sppt/penilaian", sppt.Penilaian)
+
 	return r
 }

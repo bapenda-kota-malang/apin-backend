@@ -13,6 +13,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
+	msppt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
@@ -154,5 +155,26 @@ func GetByNop(nop string, tx *gorm.DB) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("data dengan nop %s tidak ditemukan", nop), data)
 	}
 
+	return rp.OKSimple{Data: data}, nil
+}
+
+func PenilaianSppt(input []msppt.Sppt, tx *gorm.DB) (any, error) {
+	var data *m.AnggotaObjekPajak
+	for k, v := range input {
+		condition := nopSearcher(v)
+		result := tx.Where(condition).First(&data)
+		// if result.Error != nil {
+		// 	return sh.SetError("request", "penilaian-data", source, "failed", "gagal mengambil data", data)
+		// }
+		if result.RowsAffected != 0 {
+			// TODO: nilai sistem
+			data.NjopBangunanBeban = input[k].NJOPBangunan_sppt
+			data.NjopBumiBeban = input[k].NJOPBumi_sppt
+			if resultSave := tx.Save(&data); resultSave.Error != nil {
+				return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data objek pajak pbb", data)
+			}
+		}
+
+	}
 	return rp.OKSimple{Data: data}, nil
 }

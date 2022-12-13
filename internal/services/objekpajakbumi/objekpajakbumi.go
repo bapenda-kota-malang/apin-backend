@@ -12,6 +12,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	msppt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
@@ -131,3 +132,22 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 // func PerubahanZnt(nop , kodeZnt string) (any, error) {
 
 // }
+
+func PenilaianSppt(input []msppt.Sppt, tx *gorm.DB) (any, error) {
+	var data *m.ObjekPajakBumi
+	for _, v := range input {
+		condition := nopSearcher(v)
+		result := tx.Where(condition).First(&data)
+		// if result.Error != nil {
+		// 	return sh.SetError("request", "penilaian-data", source, "failed", "gagal mengambil data", data)
+		// }
+		if result.RowsAffected != 0 {
+			// TODO: nilai sistem
+			if resultSave := tx.Save(&data); resultSave.Error != nil {
+				return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data objek pajak pbb", data)
+			}
+		}
+
+	}
+	return rp.OKSimple{Data: data}, nil
+}
