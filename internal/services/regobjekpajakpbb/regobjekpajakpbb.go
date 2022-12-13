@@ -356,7 +356,7 @@ func VerifySpop(id int, input m.VerifyDto) (any, error) {
 	var dataKunjunganKembali mkk.CreateDto
 	var dataAnggotaObjekPajak maop.CreateDto
 	var dataOpb *mopb.ObjekPajakBumi
-	var respDataWajibPajakPbb interface{}
+	// var respDataWajibPajakPbb interface{}
 	var respDataKunjunganKembali interface{}
 	var respDataAnggotaObjekPajak interface{}
 	var respDataObjekPajakBumi interface{}
@@ -399,9 +399,14 @@ func VerifySpop(id int, input m.VerifyDto) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data reg wajib pajak pbb", dataRegWp)
 	}
 
-	// copy data reg wajib pajak
-	if err := sc.Copy(&dataWajibPajakPbb, &dataRegWp); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data reg wajib pajak pbb", dataRegWp)
+	// check wp pbb exist or not
+	var tmpWpPbb mwpp.WajibPajakPbb
+	resultWp := a.DB.Where(mwpp.WajibPajakPbb{Nik: dataRegWp.Nik}).First(&tmpWpPbb)
+	if resultWp.RowsAffected == 0 {
+		// copy data reg wajib pajak
+		if err := sc.Copy(&dataWajibPajakPbb, &dataRegWp); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data reg wajib pajak pbb", dataRegWp)
+		}
 	}
 
 	// reg objek pajak bumi condition for query
@@ -489,16 +494,19 @@ func VerifySpop(id int, input m.VerifyDto) (any, error) {
 				return result.Error
 			}
 		}
-		// create data wajibpajakpbb
-		// dataWajibPajakPbb.Id = 0
-		resultWajibPajakPbb, err := swp.Create(dataWajibPajakPbb, tx)
-		if err != nil {
-			return err
+		if tmpWpPbb.Id == 0 {
+			// create data wajibpajakpbb
+			resultWajibPajakPbb, err := swp.Create(dataWajibPajakPbb, tx)
+			if err != nil {
+				return err
+			}
+			// respDataWajibPajakPbb = resultWajibPajakPbb
+			resultCastWajibPajakPbb := resultWajibPajakPbb.(rp.OKSimple).Data.(mwpp.WajibPajakPbb)
+			// add static value
+			dataObjekPajakPbb.WajibPajakPbb_Id = &resultCastWajibPajakPbb.Id
+		} else {
+			dataObjekPajakPbb.WajibPajakPbb_Id = &tmpWpPbb.Id
 		}
-		respDataWajibPajakPbb = resultWajibPajakPbb
-		resultCastWajibPajakPbb := resultWajibPajakPbb.(rp.OKSimple).Data.(mwpp.WajibPajakPbb)
-		// add static value
-		dataObjekPajakPbb.WajibPajakPbb_Id = &resultCastWajibPajakPbb.Id
 
 		// create data objekpajakpbb
 		dataObjekPajakPbb.Id = 0
@@ -583,58 +591,58 @@ func VerifySpop(id int, input m.VerifyDto) (any, error) {
 
 	if resultKk.RowsAffected != 0 && resultAop.RowsAffected != 0 && data.NopAsal == nil {
 		resp = t.II{
-			"objekPajakPbb":     dataObjekPajakPbb,
-			"wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakPbb": dataObjekPajakPbb,
+			// "wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"objekPajakBumi":    respDataObjekPajakBumi.(rp.OKSimple).Data,
 			"kunjunganKembali":  respDataKunjunganKembali.(rp.OKSimple).Data,
 			"anggotaObjekPajak": respDataAnggotaObjekPajak.(rp.OKSimple).Data,
 		}
 	} else if resultKk.RowsAffected == 0 && resultAop.RowsAffected != 0 && data.NopAsal == nil {
 		resp = t.II{
-			"objekPajakPbb":     dataObjekPajakPbb,
-			"wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakPbb": dataObjekPajakPbb,
+			// "wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"objekPajakBumi":    respDataObjekPajakBumi.(rp.OKSimple).Data,
 			"anggotaObjekPajak": respDataAnggotaObjekPajak.(rp.OKSimple).Data,
 		}
 	} else if resultKk.RowsAffected != 0 && resultAop.RowsAffected == 0 && data.NopAsal == nil {
 		resp = t.II{
-			"objekPajakPbb":    dataObjekPajakPbb,
-			"wajibPajakPbb":    respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakPbb": dataObjekPajakPbb,
+			// "wajibPajakPbb":    respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"objekPajakBumi":   respDataObjekPajakBumi.(rp.OKSimple).Data,
 			"kunjunganKembali": respDataKunjunganKembali.(rp.OKSimple).Data,
 		}
 	} else if resultKk.RowsAffected == 0 && resultAop.RowsAffected == 0 && data.NopAsal == nil {
 		resp = t.II{
-			"objekPajakPbb":  dataObjekPajakPbb,
-			"wajibPajakPbb":  respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakPbb": dataObjekPajakPbb,
+			// "wajibPajakPbb":  respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"objekPajakBumi": respDataObjekPajakBumi.(rp.OKSimple).Data,
 		}
 	} else if resultKk.RowsAffected != 0 && resultAop.RowsAffected != 0 && data.NopAsal != nil {
 		resp = t.II{
-			"objekPajakPbb":     dataObjekPajakPbb,
-			"wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakPbb": dataObjekPajakPbb,
+			// "wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"objekPajakBumi":    dataOpb,
 			"kunjunganKembali":  respDataKunjunganKembali.(rp.OKSimple).Data,
 			"anggotaObjekPajak": respDataAnggotaObjekPajak.(rp.OKSimple).Data,
 		}
 	} else if resultKk.RowsAffected == 0 && resultAop.RowsAffected != 0 && data.NopAsal != nil {
 		resp = t.II{
-			"objekPajakPbb":     dataObjekPajakPbb,
-			"wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakPbb": dataObjekPajakPbb,
+			// "wajibPajakPbb":     respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"objekPajakBumi":    dataOpb,
 			"anggotaObjekPajak": respDataAnggotaObjekPajak.(rp.OKSimple).Data,
 		}
 	} else if resultKk.RowsAffected != 0 && resultAop.RowsAffected == 0 && data.NopAsal != nil {
 		resp = t.II{
-			"objekPajakPbb":    dataObjekPajakPbb,
-			"wajibPajakPbb":    respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakPbb": dataObjekPajakPbb,
+			// "wajibPajakPbb":    respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"objekPajakBumi":   dataOpb,
 			"kunjunganKembali": respDataKunjunganKembali.(rp.OKSimple).Data,
 		}
 	} else if resultKk.RowsAffected == 0 && resultAop.RowsAffected == 0 && data.NopAsal != nil {
 		resp = t.II{
-			"objekPajakPbb":  dataObjekPajakPbb,
-			"wajibPajakPbb":  respDataWajibPajakPbb.(rp.OKSimple).Data,
+			"objekPajakPbb": dataObjekPajakPbb,
+			// "wajibPajakPbb":  respDataWajibPajakPbb.(rp.OKSimple).Data,
 			"objekPajakBumi": dataOpb,
 		}
 	}

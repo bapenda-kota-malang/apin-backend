@@ -4,6 +4,7 @@ import gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 
 type KelasTanah struct {
 	Id                   uint64   `json:"id" gorm:"primaryKey"`
+	KdTanah              string   `json:"kdTanah" gorm:"type:varchar(3)"`
 	NilaiMaxTanah        *float64 `json:"nilaiMaxTanah" gorm:"type:decimal(8,2)"`
 	NilaiMinTanah        *float64 `json:"nilaiMinTanah" gorm:"type:decimal(8,2)"`
 	NilaiPerM2Tanah      *float64 `json:"nilaiPerM2Tanah" gorm:"type:decimal(8,2)"`
@@ -13,6 +14,7 @@ type KelasTanah struct {
 }
 
 type CreateDto struct {
+	KdTanah              string   `json:"kdTanah"`
 	NilaiMaxTanah        *float64 `json:"nilaiMaxTanah"`
 	NilaiMinTanah        *float64 `json:"nilaiMinTanah"`
 	NilaiPerM2Tanah      *float64 `json:"nilaiPerM2Tanah"`
@@ -21,6 +23,7 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
+	KdTanah              string   `json:"kdTanah"`
 	NilaiMaxTanah        *float64 `json:"nilaiMaxTanah"`
 	NilaiMinTanah        *float64 `json:"nilaiMinTanah"`
 	NilaiPerM2Tanah      *float64 `json:"nilaiPerM2Tanah"`
@@ -29,6 +32,7 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
+	KdTanah              string   `json:"kdTanah"`
 	NilaiMaxTanah        *float64 `json:"nilaiMaxTanah"`
 	NilaiMinTanah        *float64 `json:"nilaiMinTanah"`
 	NilaiPerM2Tanah      *float64 `json:"nilaiPerM2Tanah"`
