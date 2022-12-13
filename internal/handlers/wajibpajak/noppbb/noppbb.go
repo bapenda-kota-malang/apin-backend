@@ -1,4 +1,4 @@
-package objekpajakpbb
+package noppbb
 
 import (
 	"net/http"
@@ -6,26 +6,14 @@ import (
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 )
 
-func Create(w http.ResponseWriter, r *http.Request) {
-	var data m.CreateDto
-	if !hh.ValidateStructByIOR(w, r.Body, &data) {
-		return
-	}
-
-	result, err := s.Create(data)
-	hh.DataResponse(w, result, err)
-}
-
 func GetList(w http.ResponseWriter, r *http.Request) {
-	var input m.FilterDto
-	if !hh.ValidateStructByURL(w, *r.URL, &input) {
-		return
-	}
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 
-	result, err := s.GetList(input, 0)
+	result, err := s.GetList(m.FilterDto{NoPagination: true}, authInfo.Ref_Id)
 	hh.DataResponse(w, result, err)
 }
 
@@ -35,6 +23,8 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.GetDetail(id, 0)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	result, err := s.GetDetail(id, authInfo.Ref_Id)
 	hh.DataResponse(w, result, err)
 }
