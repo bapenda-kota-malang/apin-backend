@@ -14,7 +14,7 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "skpd"
+const source = "sppt"
 
 func Create(input m.RequestDto) (any, error) {
 	var data m.Sppt

@@ -244,6 +244,18 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
 	})
 
+	r.Route("/spptsimulasi-process", func(r chi.Router) {
+		r.Post("/{flag}", sppt.GetSimulasiByNop)
+	})
+
+	r.Route("/sppt-simulasi", func(r chi.Router) {
+		r.Post("/", sppt.CreateSimulasi)
+		r.Get("/", sppt.GetListSimulasi)
+		r.Get("/{id}", sppt.GetDetailSimulasi)
+		r.Patch("/{id}", sppt.UpdateSimulasi)
+		r.Delete("/{id}", sppt.DeleteSimulasi)
+	})
+
 	r.Route("/njoptkpflag", func(r chi.Router) {
 		r.Post("/", njoptkpflag.Create)
 		r.Get("/", njoptkpflag.GetList)
