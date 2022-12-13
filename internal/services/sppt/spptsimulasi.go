@@ -37,7 +37,7 @@ func GetListSimulasi(input m.FilterSimulasiDto) (any, error) {
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.Sppt{}).
+		Model(&m.SpptSimulasi{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
