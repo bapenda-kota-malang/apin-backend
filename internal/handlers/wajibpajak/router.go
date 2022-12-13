@@ -12,7 +12,6 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
@@ -21,11 +20,14 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/keberatan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/noppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakpbb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt/objekbersama"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/static"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
@@ -191,12 +193,18 @@ func SetRoutes() http.Handler {
 
 	r.Route("/njop", func(r chi.Router) {
 		r.Get("/", sppt.Crud{}.GetList)
+		r.Get("/objekbersama", objekbersama.Crud{}.GetList)
 	})
 
 	r.Route("/nop", func(r chi.Router) {
 		nopCrud := nop.Crud{}
 		r.Get("/", nopCrud.GetList)
 		r.Get("/{id}", nopCrud.GetDetail)
+	})
+
+	r.Route("/noppbb", func(r chi.Router) {
+		r.Get("/", noppbb.GetList)
+		r.Get("/{id}", noppbb.GetDetail)
 	})
 
 	return r

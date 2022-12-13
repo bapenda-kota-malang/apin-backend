@@ -16,6 +16,8 @@
 \i sqls/data-Provinsi.sql
 \i sqls/data-DbkbFasum.sql
 \i sqls/data-Jpb.sql
+\i sqls/data-KelasBangunan.sql
+\i sqls/data-KelasTanah.sql
 
 -- below for table have relation to parent
 \i sqls/data-SumberDana.sql

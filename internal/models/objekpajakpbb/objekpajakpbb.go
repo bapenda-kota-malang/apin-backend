@@ -134,6 +134,7 @@ type FilterDto struct {
 	Perekam_Pegawai_Nip   *string            `json:"perekam_pegawai_nip"`
 	Page                  int                `json:"page"`
 	PageSize              int                `json:"page_size"`
+	NoPagination          bool               `json:"no_pagination"`
 }
 
 type WpCreateDto struct {

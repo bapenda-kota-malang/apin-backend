@@ -282,17 +282,21 @@ func Create(input m.CreateDto) (any, error) {
 	}, nil
 }
 
-func GetList(input m.FilterDto) (any, error) {
+func GetList(input m.FilterDto, refId int) (any, error) {
 	var data []m.ObjekPajakPbb
 	var count int64
 
 	var pagination gh.Pagination
-	result := a.DB.
-		Model(&m.ObjekPajakPbb{}).
-		Preload(clause.Associations).
-		Preload("Kelurahan.Kecamatan.Daerah.Provinsi").
-		Preload("WajibPajakPbb.Kelurahan").
-		Preload("WajibPajakPbb.Daerah").
+	baseQuery := a.DB.Model(&m.ObjekPajakPbb{})
+
+	// if refId not 0 then this function called from handler wp that need data to be filtered based from auth login
+	if refId != 0 {
+		baseQuery = baseQuery.
+			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\"").
+			Joins("JOIN \"WajibPajak\" ON \"WajibPajakPbb\".\"Nik\" = \"WajibPajak\".\"Nik\" AND \"WajibPajak\".\"Id\" = ?", refId)
+	}
+
+	result := baseQuery.
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -312,16 +316,19 @@ func GetList(input m.FilterDto) (any, error) {
 	}, nil
 }
 
-func GetDetail(id int) (any, error) {
+func GetDetail(id int, refId int) (any, error) {
 	var data *m.ObjekPajakPbb
 
-	result := a.DB.
-		Model(&m.ObjekPajakPbb{}).
-		Preload(clause.Associations).
-		Preload("Kelurahan.Kecamatan.Daerah.Provinsi").
-		Preload("WajibPajakPbb.Kelurahan").
-		Preload("WajibPajakPbb.Daerah").
-		First(&data, id)
+	baseQuery := a.DB.Model(&m.ObjekPajakPbb{})
+
+	// if refId not 0 then this function called from handler wp that need data to be filtered based from auth login
+	if refId != 0 {
+		baseQuery = baseQuery.
+			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\"").
+			Joins("JOIN \"WajibPajak\" ON \"WajibPajakPbb\".\"Nik\" = \"WajibPajak\".\"Nik\" AND \"WajibPajak\".\"Id\" = ?", refId)
+	}
+
+	result := baseQuery.Preload(clause.Associations).First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {

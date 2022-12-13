@@ -1,24 +1,25 @@
-package jenislaporan
+package objekbersama
 
 import (
-	"errors"
 	"strconv"
+	"time"
 
 	sc "github.com/jinzhu/copier"
+	"gorm.io/datatypes"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/jenislaporan"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "bphtbjenislaporan"
+const source = "spptobjekbersama"
 
-func Create(input m.CreateDto) (any, error) {
-	var data m.BphtbJenisLaporan
+func Create(input m.RequestDto) (any, error) {
+	var data m.SpptObjekBersama
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -34,14 +35,14 @@ func Create(input m.CreateDto) (any, error) {
 }
 
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.BphtbJenisLaporan
+	var data []m.SpptObjekBersama
 	var count int64
-
-	input.NoPagination = true
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.BphtbJenisLaporan{}).
+		Model(&m.SpptObjekBersama{}).
+		Where("\"TahunPajakskp_sppt\" <= ?", datatypes.Date(time.Now())).
+		Order("\"TahunPajakskp_sppt\"").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -62,7 +63,7 @@ func GetList(input m.FilterDto) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.BphtbJenisLaporan
+	var data *m.SpptObjekBersama
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -76,11 +77,30 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.CreateDto) (any, error) {
-	var data *m.BphtbJenisLaporan
+func GetByNop(provinsiKode, daerahKode, kecamatanKode, kelurahanKode, blokKode, noUrut, jenisOp string) (any, error) {
+	var data m.SpptObjekBersama
+	result := a.DB.Where(&m.SpptObjekBersama{
+		Propinsi_Id:   &provinsiKode,
+		Dati2_Id:      &daerahKode,
+		Kecamatan_Id:  &kecamatanKode,
+		Keluarahan_Id: &kelurahanKode,
+		Blok_Id:       &blokKode,
+		NoUrut:        &noUrut,
+		JenisOP_Id:    &jenisOp,
+	}).First(&data)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "data tidak ada", data)
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "gagal mendapatkan data: "+result.Error.Error(), data)
+	}
+	return rp.OKSimple{Data: data}, nil
+}
+
+func Update(id int, input m.RequestDto) (any, error) {
+	var data *m.SpptObjekBersama
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return nil, nil
 	}
 
 	if err := sc.Copy(&data, &input); err != nil {
@@ -100,10 +120,10 @@ func Update(id int, input m.CreateDto) (any, error) {
 }
 
 func Delete(id int) (any, error) {
-	var data *m.BphtbJenisLaporan
+	var data *m.SpptObjekBersama
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
-		return nil, errors.New("data tidak dapat ditemukan")
+		return nil, nil
 	}
 
 	result = a.DB.Delete(&data, id)

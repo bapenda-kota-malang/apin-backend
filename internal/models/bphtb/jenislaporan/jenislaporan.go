@@ -12,6 +12,9 @@ type CreateDto struct {
 }
 
 type FilterDto struct {
-	Kode *string `json:"kode"`
-	Nama *string `json:"nama"`
+	Kode         *string `json:"kode"`
+	Nama         *string `json:"nama"`
+	Page         int     `json:"page"`
+	PageSize     int     `json:"page_size"`
+	NoPagination bool    `json:"no_pagination"`
 }
