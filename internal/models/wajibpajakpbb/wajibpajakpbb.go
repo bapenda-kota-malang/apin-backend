@@ -22,7 +22,7 @@ type WajibPajakPbb struct {
 	Telp           *string               `json:"telp" gorm:"type:varchar(20)"`
 	Npwp           *string               `json:"npwp" gorm:"type:varchar(20)"`
 	Pekerjaan      *string               `json:"pekerjaan" gorm:"type:varchar(100)"`
-	ObjekPajakPbbs *[]mopp.ObjekPajakPbb `json:"objekPajakPbb,omitempty"  gorm:"foreignKey:ObjekPajakPbb_Id;references:Id"`
+	ObjekPajakPbbs *[]mopp.ObjekPajakPbb `json:"objekPajakPbb,omitempty" gorm:"foreignKey:WajibPajakPbb_Id;references:Id"`
 	gh.DateModel
 }
 
