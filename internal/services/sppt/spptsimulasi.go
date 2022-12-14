@@ -1,4 +1,4 @@
-package skpd
+package sppt
 
 import (
 	"strconv"
