@@ -108,6 +108,7 @@ import (
 func SetRoutes() http.Handler {
 	// Config
 	auth.SkipAuhPaths = []string{
+		"/assets/*",
 		"/auth/login",
 		"/auth/logout",
 		"/account/reset-password",
@@ -128,6 +129,9 @@ func SetRoutes() http.Handler {
 
 	fs := http.FileServer(http.Dir(servicehelper.GetResourcesPath()))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+
+	fsAssets := http.FileServer(http.Dir(servicehelper.GetAssetsPath()))
+	r.Handle("/assets/*", http.StripPrefix("/assets/", fsAssets))
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", auth.Login)
@@ -457,6 +461,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", suratpemberitahuan.CreateSchedule)
 		r.Patch("/", suratpemberitahuan.UpdateBulk)
 		r.Patch("/{id}", suratpemberitahuan.UpdateSingle)
+		r.Patch("/{id}/cetak", suratpemberitahuan.Cetak)
 		r.Delete("/{id}", suratpemberitahuan.Delete)
 	})
 

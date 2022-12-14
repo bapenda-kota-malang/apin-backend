@@ -1,9 +1,13 @@
 package suratpemberitahuan
 
 import (
+	"fmt"
 	"net/http"
 
+	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
+	"github.com/go-chi/chi/v5"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/suratpemberitahuan"
@@ -25,8 +29,8 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetDetail(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
@@ -45,8 +49,8 @@ func UpdateBulk(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateSingle(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 
@@ -59,9 +63,31 @@ func UpdateSingle(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func Cetak(w http.ResponseWriter, r *http.Request) {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
+		return
+	}
+
+	var data m.UpdateDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+		return
+	}
+
+	result, err := s.Cetak(id, data)
+	if err != nil {
+		hj.WriteJSON(w, http.StatusUnprocessableEntity, rp.ErrSimple{Message: err.Error()}, nil)
+		return
+	}
+
+	dokumen := result.(rp.OK).Data.(m.SuratPemberitahuan).Dokumen
+
+	http.Redirect(w, r, fmt.Sprintf("http://%s/static/pdf/%s", r.Host, dokumen), http.StatusSeeOther)
+}
+
 func Delete(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
 		return
 	}
 	result, err := s.Delete(id, nil)
