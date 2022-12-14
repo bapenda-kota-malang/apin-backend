@@ -245,11 +245,11 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/kelastanah-kode", func(r chi.Router) {
-		r.Post("/{kd}", kelastanah.GetDetailByCode)
+		r.Get("/{kd}", kelastanah.GetDetailByCode)
 	})
 
 	r.Route("/kelasbangunan-kode", func(r chi.Router) {
-		r.Post("/{kd}", kelasbangunan.GetDetailByCode)
+		r.Get("/{kd}", kelasbangunan.GetDetailByCode)
 	})
 
 	r.Route("/spptsimulasi-process", func(r chi.Router) {
