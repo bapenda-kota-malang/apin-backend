@@ -7,22 +7,23 @@ import (
 
 type Sppt struct {
 	Id                     uint64          `json:"id" gorm:"primaryKey"`
+	Propinsi_Id            *string         `json:"propinsi_Id" gorm:"type:varchar(2)"`
+	Dati2_Id               *string         `json:"dati2_Id" gorm:"type:varchar(2)"`
+	Kecamatan_Id           *string         `json:"kecamatan_Id" gorm:"type:varchar(3)"`
+	Keluarahan_Id          *string         `json:"keluarahan_Id" gorm:"type:varchar(3)"`
+	Blok_Id                *string         `json:"blok_Id" gorm:"type:varchar(3)"`
+	NoUrut                 *string         `json:"noUrut" gorm:"type:varchar(4)"`
+	JenisOP_Id             *string         `json:"jenisOP_Id" gorm:"type:varchar(1)"`
 	BlokKavNoWP_sppt       *string         `json:"blokKavNoWP_sppt" gorm:"type:varchar(15)"`
 	Faktorpengurangan_sppt *int            `json:"faktorpengurangan_sppt"`
 	JalanWPskp_sppt        *string         `json:"jalanWPskp_sppt" gorm:"type:varchar(30)"`
 	BankPersepsi_Id        *string         `json:"bankPersepsi_Id" gorm:"type:varchar(2)"`
 	BankTunggal_Id         *string         `json:"bankTunggal_Id" gorm:"type:varchar(2)"`
-	Blok_Id                *string         `json:"blok_Id" gorm:"type:varchar(3)"`
-	Dati2_Id               *string         `json:"dati2_Id" gorm:"type:varchar(2)"`
-	JenisOP_Id             *string         `json:"jenisOP_Id" gorm:"type:varchar(1)"`
 	KanwilBank_Id          *string         `json:"kanwilBank_Id" gorm:"type:varchar(2)"`
-	Kecamatan_Id           *string         `json:"kecamatan_Id" gorm:"type:varchar(3)"`
-	Keluarahan_Id          *string         `json:"keluarahan_Id" gorm:"type:varchar(3)"`
 	KelasBangunan_Id       *string         `json:"kelasBangunan_Id" gorm:"type:varchar(3)"`
 	KelasTanah_Id          *string         `json:"kelasTanah_Id" gorm:"type:varchar(3)"`
 	KPPBBbank_Id           *string         `json:"kppbbBank_Id" gorm:"type:varchar(2)"`
 	PosWPsppt_Id           *string         `json:"posWPsppt_Id" gorm:"type:varchar(5)"`
-	Propinsi_Id            *string         `json:"propinsi_Id" gorm:"type:varchar(2)"`
 	TP_Id                  *string         `json:"tp_Id" gorm:"type:varchar(2)"`
 	KelurahanWP_sppt       *string         `json:"kelurahanWP_sppt" gorm:"type:varchar(30)"`
 	KotaWP_sppt            *string         `json:"kotaWP_sppt" gorm:"type:varchar(30)"`
@@ -36,7 +37,6 @@ type Sppt struct {
 	NJOP_sppt              *int            `json:"njop_sppt"`
 	NamaWP_sppt            *string         `json:"namaWP_sppt" gorm:"type:varchar(30)"`
 	NoPersil_sppt          *string         `json:"noPersil_sppt" gorm:"type:varchar(5)"`
-	NoUrut                 *string         `json:"noUrut" gorm:"type:varchar(4)"`
 	NoVirtualAccount       *string         `json:"noVirtualAccount" gorm:"type:varchar(20)"`
 	Npwp_sppt              *string         `json:"npwp_sppt" gorm:"type:varchar(15)"`
 	PBBterhutang_sppt      *int            `json:"pbbTerhutang_sppt"`
@@ -56,9 +56,9 @@ type Sppt struct {
 	TanggalCreateVA_Jatim  *datatypes.Date `json:"tanggalCreateVA_Jatim"`
 	TanggalJatuhTempo_sppt *datatypes.Date `json:"tanggalJatuhTempo_sppt"`
 	TanggalTerbit_sppt     *datatypes.Date `json:"tanggalTerbit_sppt"`
-	TahunAwalKelasBangunan *string         `json:"tahunAwalKelasBangunan" gorm:"type:varchar(30)"`
-	TahunAwalKelasTanah    *string         `json:"tahunAwalKelasTanah" gorm:"type:varchar(30)"`
-	TahunPajakskp_sppt     *string         `json:"tahunPajakskp_sppt" gorm:"type:varchar(30)"`
+	TahunAwalKelasBangunan *string         `json:"tahunAwalKelasBangunan" gorm:"type:varchar(4)"`
+	TahunAwalKelasTanah    *string         `json:"tahunAwalKelasTanah" gorm:"type:varchar(4)"`
+	TahunPajakskp_sppt     *string         `json:"tahunPajakskp_sppt" gorm:"type:varchar(4)"`
 	VirtualAccoountJatim   *int            `json:"virtualAccoountJatim" gorm:"type:varchar(30)"`
 	gormhelper.DateModel
 }
@@ -175,4 +175,12 @@ type FilterDto struct {
 	VirtualAccoountJatim   *int            `json:"virtualAccoountJatim"`
 	Page                   int             `json:"page"`
 	PageSize               int             `json:"page_size"`
+}
+
+type PenilaianDto struct {
+	Provinsi_Kode  *string `json:"provinsi_kode"`
+	Daerah_Kode    *string `json:"daerah_kode"`
+	Kecamatan_Kode *string `json:"kecamatan_kode"`
+	Kelurahan_Kode *string `json:"kelurahan_kode"`
+	Tahun          string  `json:"tahun"`
 }

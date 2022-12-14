@@ -65,3 +65,13 @@ func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Delete(id)
 	hh.DataResponse(w, result, err)
 }
+
+func Penilaian(w http.ResponseWriter, r *http.Request) {
+	var data m.PenilaianDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.Penilaian(data)
+	hh.DataResponse(w, result, err)
+}

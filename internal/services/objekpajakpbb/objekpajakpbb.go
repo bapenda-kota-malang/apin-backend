@@ -17,6 +17,7 @@ import (
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	msppt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
 	skk "github.com/bapenda-kota-malang/apin-backend/internal/services/kunjungankembali"
@@ -403,4 +404,24 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func PenilaianSppt(input []msppt.Sppt, tx *gorm.DB) (any, error) {
+	var data *m.ObjekPajakPbb
+	for k, v := range input {
+		condition := nopSearcher(v)
+		result := tx.Where(condition).First(&data)
+		// if result.Error != nil {
+		// 	return sh.SetError("request", "penilaian-data", source, "failed", "gagal mengambil data", data)
+		// }
+		if result.RowsAffected != 0 {
+			data.NjopBangunan = input[k].NJOPBangunan_sppt
+			data.NjopBumi = input[k].NJOPBumi_sppt
+			if resultSave := tx.Save(&data); resultSave.Error != nil {
+				return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data objek pajak pbb", data)
+			}
+		}
+
+	}
+	return rp.OKSimple{Data: data}, nil
 }

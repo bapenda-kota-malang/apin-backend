@@ -1,9 +1,12 @@
-package skpd
+package sppt
 
 import (
 	"strconv"
+	"time"
 
 	sc "github.com/jinzhu/copier"
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -11,10 +14,13 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
+	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
+	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
+	sopp "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "skpd"
+const source = "sppt"
 
 func Create(input m.RequestDto) (any, error) {
 	var data m.Sppt
@@ -39,6 +45,8 @@ func GetList(input m.FilterDto) (any, error) {
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&m.Sppt{}).
+		Where("\"TanggalTerbit_sppt\" <= ?", datatypes.Date(time.Now())).
+		Order("\"TanggalTerbit_sppt\" ").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -135,5 +143,56 @@ func Delete(id int) (any, error) {
 			"status": status,
 		},
 		Data: data,
+	}, nil
+}
+
+func Penilaian(input m.PenilaianDto) (any, error) {
+	var data []m.Sppt
+	var respOpp interface{}
+	var respAop interface{}
+	var respOpb interface{}
+	var resp t.II
+
+	condition, _ := nopCondition(input)
+	result := a.DB.Where(condition).Find(&data)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "penilaian-data", source, "failed", "gagal mengambil data", data)
+	}
+
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+
+		resultOpp, err := sopp.PenilaianSppt(data, tx)
+		if err != nil {
+			return err
+		}
+		respOpp = resultOpp
+
+		resultAop, err := saop.PenilaianSppt(data, tx)
+		if err != nil {
+			return err
+		}
+		respAop = resultAop
+
+		resultOpb, err := sopb.PenilaianSppt(data, tx)
+		if err != nil {
+			return err
+		}
+		respOpb = resultOpb
+
+		return nil
+	})
+
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
+	}
+
+	resp = t.II{
+		"objekPajakPbb":     respOpp.(rp.OKSimple).Data,
+		"anggotaObjekPajak": respAop.(rp.OKSimple).Data,
+		"objekPajakBumi":    respOpb.(rp.OKSimple).Data,
+	}
+
+	return rp.OKSimple{
+		Data: resp,
 	}, nil
 }
