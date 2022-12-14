@@ -41,6 +41,16 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func GetDetailByCode(w http.ResponseWriter, r *http.Request) {
+	kd := hh.ValidateString(w, r, "kd")
+	if kd != "" {
+		return
+	}
+
+	result, err := s.GetDetailByCode(kd)
+	hh.DataResponse(w, result, err)
+}
+
 func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {

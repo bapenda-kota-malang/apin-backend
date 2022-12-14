@@ -244,6 +244,14 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
 	})
 
+	r.Route("/kelastanah-kode", func(r chi.Router) {
+		r.Post("/{kd}", kelastanah.GetDetailByCode)
+	})
+
+	r.Route("/kelasbangunan-kode", func(r chi.Router) {
+		r.Post("/{kd}", kelasbangunan.GetDetailByCode)
+	})
+
 	r.Route("/spptsimulasi-process", func(r chi.Router) {
 		r.Post("/{flag}", sppt.GetSimulasiByNop)
 	})
