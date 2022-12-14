@@ -60,6 +60,20 @@ type SpptSimulasi struct {
 	gormhelper.DateModel
 }
 
+type SimulasiNOP struct {
+	ProvinsiID     string            `json:"provinsiID"`
+	KotaID         string            `json:"kotaID"`
+	KecamatanID    string            `json:"kecamatanID"`
+	KelurahanID    string            `json:"kelurahanID"`
+	BlokID         *string           `json:"blokID"`
+	NoUrut         *string           `json:"noUrut"`
+	NoUrutExt      *string           `json:"noUrutExt"`
+	JenisOpId      *string           `json:"jenisOpId"`
+	TahunPajak     *string           `json:"tahunPajak"`
+	BukuJatuhTempo []*datatypes.Date `json:"bukuJatuhTempo"`
+	BukuTerbit     []*datatypes.Date `json:"bukuTerbit"`
+}
+
 type RequestSimulasiDto struct {
 	BlokKavNoWP_sppt       *string         `json:"blokKavNoWP_sppt"`
 	Faktorpengurangan_sppt *int            `json:"faktorpengurangan_sppt"`
@@ -166,4 +180,105 @@ type FilterSimulasiDto struct {
 	VirtualAccoountJatim   *int            `json:"virtualAccoountJatim"`
 	Page                   int             `json:"page"`
 	PageSize               int             `json:"page_size"`
+}
+
+func (i SpptSimulasi) SetDataPermohonanTransformer(req Sppt) SpptSimulasi {
+	return SpptSimulasi{
+		Id:                     req.Id,
+		BlokKavNoWP_sppt:       req.BlokKavNoWP_sppt,
+		Faktorpengurangan_sppt: req.Faktorpengurangan_sppt,
+		JalanWPskp_sppt:        req.JalanWPskp_sppt,
+		BankPersepsi_Id:        req.BankPersepsi_Id,
+		BankTunggal_Id:         req.BankTunggal_Id,
+		Blok_Id:                req.Blok_Id,
+		Dati2_Id:               req.Dati2_Id,
+		JenisOP_Id:             req.JenisOP_Id,
+		KanwilBank_Id:          req.KanwilBank_Id,
+		Kecamatan_Id:           req.Kecamatan_Id,
+		Keluarahan_Id:          req.Keluarahan_Id,
+		KelasBangunan_Id:       req.KelasBangunan_Id,
+		KelasTanah_Id:          req.KelasTanah_Id,
+		KPPBBbank_Id:           req.KPPBBbank_Id,
+		PosWPsppt_Id:           req.PosWPsppt_Id,
+		Propinsi_Id:            req.Propinsi_Id,
+		TP_Id:                  req.TP_Id,
+		KelurahanWP_sppt:       req.KelurahanWP_sppt,
+		KotaWP_sppt:            req.KotaWP_sppt,
+		LuasBangunan_sppt:      req.LuasBangunan_sppt,
+		LuasBumi_sppt:          req.LuasBumi_sppt,
+		NIPPencetakan_sppt:     req.NIPPencetakan_sppt,
+		NJKPskp_sppt:           req.NJKPskp_sppt,
+		NJOPTKP_sppt:           req.NJOPTKP_sppt,
+		NJOPBangunan_sppt:      req.NJOPBangunan_sppt,
+		NJOPBumi_sppt:          req.NJOPBumi_sppt,
+		NJOP_sppt:              req.NJOP_sppt,
+		NamaWP_sppt:            req.NamaWP_sppt,
+		NoPersil_sppt:          req.NoPersil_sppt,
+		NoUrut:                 req.NoUrut,
+		NoVirtualAccount:       req.NoVirtualAccount,
+		Npwp_sppt:              req.Npwp_sppt,
+		PBBterhutang_sppt:      req.PBBterhutang_sppt,
+		PBBygHarusDibayar_sppt: req.PBBterhutang_sppt,
+		Pemutihan:              req.Pemutihan,
+		QRCode:                 req.QRCode,
+		QRInvoiceNumber:        req.QRInvoiceNumber,
+		RtWP_sppt:              req.RtWP_sppt,
+		RwWP_sppt:              req.RwWP_sppt,
+		Siklus_sppt:            req.Siklus_sppt,
+		StatusCetak_sppt:       req.StatusCetak_sppt,
+		StatusPembayaran_sppt:  req.StatusPembayaran_sppt,
+		StatusTagihan_sppt:     req.StatusTagihan_sppt,
+		TanggalCetak_sppt:      req.TanggalCetak_sppt,
+		TanggalJatuhTempo_sppt: req.TanggalJatuhTempo_sppt,
+		TanggalTerbit_sppt:     req.TanggalTerbit_sppt,
+		TahunAwalKelasBangunan: req.TahunAwalKelasBangunan,
+		TahunAwalKelasTanah:    req.TahunAwalKelasTanah,
+		TahunPajakskp_sppt:     req.TahunPajakskp_sppt,
+		VirtualAccoountJatim:   req.VirtualAccoountJatim,
+	}
+}
+
+type Buku struct {
+	Id  int
+	Min float64
+	Max float64
+}
+
+func (i Buku) GetBukus() []Buku {
+	var Bukus []Buku
+	tempBuku := Buku{
+		Id:  1,
+		Min: 0,
+		Max: 100000,
+	}
+	Bukus = append(Bukus, tempBuku)
+
+	tempBuku = Buku{
+		Id:  2,
+		Min: 100001,
+		Max: 500000,
+	}
+	Bukus = append(Bukus, tempBuku)
+
+	tempBuku = Buku{
+		Id:  3,
+		Min: 500001,
+		Max: 2000000,
+	}
+	Bukus = append(Bukus, tempBuku)
+
+	tempBuku = Buku{
+		Id:  4,
+		Min: 2000001,
+		Max: 5000000,
+	}
+	Bukus = append(Bukus, tempBuku)
+
+	tempBuku = Buku{
+		Id:  5,
+		Min: 5000001,
+		Max: 999999999999999,
+	}
+	Bukus = append(Bukus, tempBuku)
+	return Bukus
 }
