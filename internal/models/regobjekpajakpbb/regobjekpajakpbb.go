@@ -61,8 +61,6 @@ type CreateDto struct {
 	StatusWp              ot.StatusWp       `json:"statusWp"`
 	TotalLuasBumi         *int              `json:"totalLuasBumi"`
 	TotalLuasBangunan     *int              `json:"totalLuasBangunan"`
-	NjopBumi              *int              `json:"njopBumi"`
-	NjopBangunan          *int              `json:"njopBangunan"`
 	StatusPeta            *int              `json:"statusPeta"`
 	JenisTransaksi        ot.JenisTransaksi `json:"jenisTransaksi"`
 	TanggalPendataan      *string           `json:"tanggalPendataan"`
