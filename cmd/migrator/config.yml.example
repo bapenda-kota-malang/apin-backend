@@ -1,0 +1,6 @@
+name: Migrator
+version: 0.1
+
+
+dsn: host=127.0.0.1 port=5432 user=dwiatmoko password=password dbname=test sslmode=disable TimeZone=Asia/Jakarta
+dialect: postgres
