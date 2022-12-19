@@ -43,7 +43,7 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 
 func GetDetailByCode(w http.ResponseWriter, r *http.Request) {
 	kd := hh.ValidateString(w, r, "kd")
-	if kd != "" {
+	if kd == "" {
 		return
 	}
 
