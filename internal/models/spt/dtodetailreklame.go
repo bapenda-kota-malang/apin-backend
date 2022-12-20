@@ -4,17 +4,31 @@ import (
 	"math"
 
 	mespt "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar"
 	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
+	"gorm.io/datatypes"
 )
 
 // TODO: REKLAME GES
+type CreateJambongDto struct {
+	Spt_Id             uuid.UUID       `json:"-"`
+	Nomor              string          `json:"nomor"`
+	Tanggal            *datatypes.Date `json:"tanggal"`
+	JenisReklame       uint8           `json:"jenisReklame" validate:"required;min=1;max=2"`
+	TipeReklame        *uint8          `json:"tipeReklame"`
+	TarifJambong_Id    *uint64         `json:"tarifJambong_Id" validate:"required"`
+	TarifJambongRek_Id *uint64         `json:"tarifJambongRek_Id" validate:"required"`
+	Nominal            *float64        `json:"nominal"`
+	TanggalBatas       *datatypes.Date `json:"TanggalBatas"`
+	BiayaPemutusan     *float64        `json:"biayaPemutusan"`
+}
+
 type CreateDetailReklameDto struct {
 	CreateDetailBaseDto
-	DataDetails    []mdsrek.CreateDto       `json:"dataDetails" validate:"required"`
-	JaminanBongkar jaminanbongkar.CreateDto `json:"jaminanBongkar"`
+	DataDetails    []mdsrek.CreateDto `json:"dataDetails" validate:"required"`
+	JaminanBongkar *CreateJambongDto  `json:"jaminanBongkar"`
 }
 
 func (input *CreateDetailReklameDto) GetDetails() interface{} {
@@ -54,16 +68,16 @@ func (input *CreateDetailReklameDto) CalculateTax(taxPercentage *float64) {
 		}
 		// calculate base on jenis masa pajak
 		switch input.DataDetails[v].TarifReklame.JenisMasa {
-		case 1:
+		case tarifreklame.MasaPajakTahun:
 			input.DataDetails[v].TarifTahun = tahun * *input.DataDetails[v].TarifReklame.Tarif
 			input.DataDetails[v].TarifBulan = bulan * (*input.DataDetails[v].TarifReklame.Tarif / 12)
-		case 2:
+		case tarifreklame.MasaPajakBulan:
 			input.DataDetails[v].TarifBulan = bulan * *input.DataDetails[v].TarifReklame.Tarif
-		case 3:
+		case tarifreklame.MasaPajakHari:
 			input.DataDetails[v].TarifBulan *= bulan
 			input.DataDetails[v].TarifMinggu *= minggu
 			input.DataDetails[v].TarifHari *= hari
-		case 4:
+		case tarifreklame.MasaPajakPenyelenggara:
 			input.DataDetails[v].TarifHari = *input.DataDetails[v].TarifReklame.Tarif
 		}
 		// basic calculate tax

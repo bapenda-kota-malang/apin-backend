@@ -11,7 +11,9 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/google/uuid"
+	sc "github.com/jinzhu/copier"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	mdhiburan "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -29,6 +31,7 @@ import (
 	mtarifreklame "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
+	sjambong "github.com/bapenda-kota-malang/apin-backend/internal/services/jaminanbongkar"
 	sdair "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptair"
 	sdhiburan "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailspthiburan"
 	sdhotel "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailspthotel"
@@ -278,6 +281,18 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 			}
 		default:
 			return fmt.Errorf("data details unknown")
+		}
+
+		if reklameDto, ok := input.(*m.CreateDetailReklameDto); ok && reklameDto.JaminanBongkar != nil {
+			var jambongDto jaminanbongkar.CreateDto
+			if err := sc.Copy(&jambongDto, &reklameDto.JaminanBongkar); err != nil {
+				return err
+			}
+			jambongDto.Spt_Id = data.Id
+			_, err := sjambong.Create(jambongDto, opts["userId"].(uint), tx)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
