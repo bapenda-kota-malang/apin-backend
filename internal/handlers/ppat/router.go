@@ -3,19 +3,73 @@ package ppat
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
-
+	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtbjenislaporan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/home"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nop"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sppt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/wajibpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
-func SetRoutes() *httprouter.Router {
-	router := httprouter.New()
-	router.NotFound = http.HandlerFunc(er.NotFoundResponse)
-	router.MethodNotAllowed = http.HandlerFunc(er.MethodNotAllowedResponse)
+func SetRoutes() http.Handler {
+	// Config
+	auth.SkipAuhPaths = []string{
+		"/auth/login",
+		"/auth/logout",
+	}
+	auth.Position = 2
 
-	// TODO: Use group for routing
+	// Start routing
+	r := chi.NewRouter()
 
-	// router.HandlerFunc(http.MethodGet, "/auth/login", auth.Login)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
+	r.Use(auth.GuardMW)
 
-	return router
+	r.NotFound(er.NotFoundResponse)
+	r.MethodNotAllowed(er.MethodNotAllowedResponse)
+
+	r.Get("/", home.Index)
+
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/login", auth.Login)
+	})
+
+	r.Route("/account", func(r chi.Router) {
+		// r.Post("/register", account.Create) // replaced withr register
+		r.Get("/check", account.Check)
+		r.Patch("/reset-password", account.ResetPassword)
+		r.Patch("/change-password", account.ChangePassword)
+	})
+
+	r.Route("/bphtbsptpd", func(r chi.Router) {
+		bphtbsptpdCrud := bphtbsptpd.Crud{}
+		r.Post("/", bphtbsptpdCrud.CreateMw(http.HandlerFunc(bphtbsptpdCrud.Create), "ppat"))
+		r.Get("/", bphtbsptpdCrud.GetList)
+		r.Get("/{id}", bphtbsptpdCrud.GetDetail)
+		r.Patch("/{id}/verify", bphtbsptpdCrud.VerifyPpat)
+		r.Get("/jenislaporan", bphtbjenislaporan.Crud{}.GetList)
+	})
+
+	r.Route("/wajibpajak", func(r chi.Router) {
+		r.Get("/", wajibpajak.GetList)
+	})
+
+	r.Route("/njop", func(r chi.Router) {
+		r.Get("/", sppt.Crud{}.GetList)
+	})
+
+	r.Route("/nop", func(r chi.Router) {
+		nopCrud := nop.Crud{}
+		r.Get("/", nopCrud.GetList)
+		r.Get("/{id}", nopCrud.GetDetail)
+	})
+
+	return r
 }

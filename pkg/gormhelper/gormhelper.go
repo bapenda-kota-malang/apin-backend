@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	// gi "github.com/juliangruber/go-intersect"
 
@@ -124,4 +125,13 @@ func Paginate(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 		offset := (p.Page - 1) * p.PageSize
 		return db.Offset(offset).Limit(p.PageSize)
 	}
+}
+
+func StringToDate(str string) *time.Time {
+	layoutISO := "2006-01-02"
+	t, err := time.Parse(layoutISO, str)
+	if err != nil {
+		return nil
+	}
+	return &t
 }

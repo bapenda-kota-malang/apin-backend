@@ -17,7 +17,7 @@ type Nik struct {
 	Kelurahan_Id *uint64       `json:"kelurahan_id"`
 	RtRw         *string       `json:"rtRw"`
 	KodePos      *string       `json:"kodePos"`
-	Privinsi_Id  *ad.Provinsi  `json:"provinsi,omitempty" gorm:"foreignKey:Provinsi_Id"`
+	Provinsi     *ad.Provinsi  `json:"provinsi,omitempty" gorm:"foreignKey:Provinsi_Id"`
 	Daerah       *ad.Daerah    `json:"daerah,omitempty" gorm:"foreignKey:Daerah_Id"`
 	Kecamatan    *ad.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_Id"`
 	Kelurahan    *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Id"`

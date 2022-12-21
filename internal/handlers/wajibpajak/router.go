@@ -3,10 +3,14 @@ package wajibpajak
 import (
 	"net/http"
 
+	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtbjenislaporan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nop"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
@@ -15,9 +19,15 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/home"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/jenisppj"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/keberatan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/noppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakpbb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt/objekbersama"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/static"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
@@ -150,11 +160,52 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", spt.GetDetail)
 	})
 
-	r.Route("/pengajuan", func(r chi.Router) {
-		r.Post("/{category}", pengurangan.Create)
+	r.Route("/pengurangan", func(r chi.Router) {
+		r.Post("/", pengurangan.Create)
+	})
+
+	r.Route("/keberatan", func(r chi.Router) {
+		r.Post("/", keberatan.Create)
 	})
 
 	fs := http.FileServer(http.Dir(servicehelper.GetResourcesPath()))
 	r.Handle("/static/{filename}", http.StripPrefix("/static/", static.AuthFile(static.JoinPrefix(fs))))
+
+	r.Route("/regobjekpajakpbb", func(r chi.Router) {
+		r.Post("/", regobjekpajakpbb.Create)
+	})
+
+	r.Route("/regobjekpajakbangunan", func(r chi.Router) {
+		r.Post("/", regobjekpajakbangunan.Create)
+	})
+
+	r.Route("/bphtbsptpd", func(r chi.Router) {
+		bphtbsptpdCrud := bphtbsptpd.Crud{}
+		r.Post("/", bphtbsptpdCrud.CreateMw(http.HandlerFunc(bphtbsptpdCrud.Create), "wp"))
+		r.Get("/", bphtbsptpdCrud.GetList)
+		r.Get("/{id}", bphtbsptpdCrud.GetDetail)
+		r.Get("/jenislaporan", bphtbjenislaporan.Crud{}.GetList)
+	})
+
+	r.Route("/ppat", func(r chi.Router) {
+		r.Get("/", ppat.GetList)
+	})
+
+	r.Route("/njop", func(r chi.Router) {
+		r.Get("/", sppt.Crud{}.GetList)
+		r.Get("/objekbersama", objekbersama.Crud{}.GetList)
+	})
+
+	r.Route("/nop", func(r chi.Router) {
+		nopCrud := nop.Crud{}
+		r.Get("/", nopCrud.GetList)
+		r.Get("/{id}", nopCrud.GetDetail)
+	})
+
+	r.Route("/noppbb", func(r chi.Router) {
+		r.Get("/", noppbb.GetList)
+		r.Get("/{id}", noppbb.GetDetail)
+	})
+
 	return r
 }

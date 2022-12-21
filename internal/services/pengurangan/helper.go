@@ -2,6 +2,7 @@ package pengurangan
 
 import (
 	"errors"
+	"time"
 
 	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
@@ -27,4 +28,9 @@ func FilePreProcess(b64String string, userId uint, docsName string) (fileName, p
 	}
 	fileName = sh.GenerateFilename(docsName, id, userId, extFile)
 	return
+}
+
+func parseTimeNowToPointer() *time.Time {
+	t := time.Now()
+	return &t
 }

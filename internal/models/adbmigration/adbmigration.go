@@ -4,7 +4,34 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
+	bapenagihanpetugas "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/baplpengajuan"
+	bphtbjenislaporan "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/jenislaporan"
+	bphtb "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/datanir"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/datapetablok"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/datapetaznt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum/depjpbklsbintang"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum/depminmax"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum/nondep"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb12"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb13"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb14"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb15"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb16"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb2"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb3"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb4"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb5"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb6"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb7"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb8"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb9"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbmezanin"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthiburan"
@@ -13,6 +40,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjnonpln"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjpln"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
@@ -20,17 +48,27 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenispajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisusaha"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jpb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelasbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/konfigurasipajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	pstpermohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/bapl"
@@ -40,9 +78,16 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibank"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/reganggotaobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regkunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -55,6 +100,9 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/sptnomertracker"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan"
+	suratdpemberitahuanetail "github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan/detail"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
@@ -71,6 +119,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 )
 
 func init() {
@@ -106,6 +155,9 @@ func init() {
 		&jenisusaha.JenisUsaha{},
 		&jenisusaha.JenisUsahaDetail{},
 		&tempatpembayaran.TempatPembayaran{},
+		&nop.Nop{},
+		&jpb.Jpb{},
+		&bphtbjenislaporan.BphtbJenisLaporan{},
 	}
 	a.AutoMigrate(listModelConfigurationReference...)
 
@@ -165,6 +217,29 @@ func init() {
 		&reklas.Reklas{},
 		&njoptkpflag.NjoptkpFlag{},
 		&njoptkpflag.NjoptkpFlagDetail{},
+		&kelasbangunan.KelasBangunan{},
+		&kelastanah.KelasTanah{},
+		&dbkbjpb2.DbkbJpb2{},
+		&dbkbjpb3.DbkbJpb3{},
+		&dbkbjpb4.DbkbJpb4{},
+		&dbkbjpb5.DbkbJpb5{},
+		&dbkbjpb6.DbkbJpb6{},
+		&dbkbjpb7.DbkbJpb7{},
+		&dbkbjpb8.DbkbJpb8{},
+		&dbkbjpb9.DbkbJpb9{},
+		&dbkbjpb12.DbkbJpb12{},
+		&dbkbjpb13.DbkbJpb13{},
+		&dbkbjpb14.DbkbJpb14{},
+		&dbkbjpb15.DbkbJpb15{},
+		&dbkbjpb16.DbkbJpb16{},
+		&dbkbmezanin.DbkbMezanin{},
+		&datapetablok.DataPetaBlok{},
+		&datanir.DataNir{},
+		&datapetaznt.DataPetaZnt{},
+		&dbkbfasum.DbkbFasum{},
+		&nondep.DbkbFasumNonDep{},
+		&depminmax.DbkbFasumDepMinMax{},
+		&depjpbklsbintang.DbkbFasumDepJpbKlsBintang{},
 	}
 	a.AutoMigrate(listModelPendataan...)
 
@@ -196,8 +271,9 @@ func init() {
 
 	listModelPengajuan := []interface{}{
 		&pengurangan.Pengurangan{},
-		&pengurangan.Keberatan{},
-		&pengurangan.BapLapangan{},
+		&keberatan.Keberatan{},
+		&baplpengajuan.PengajuanBapl{},
+		&keberatan.PembetulanKeberatan{},
 	}
 	a.AutoMigrate(listModelPengajuan...)
 
@@ -210,6 +286,94 @@ func init() {
 		&sts.StsDetail{},
 		&sts.SumberDanaSts{},
 	}
-
 	a.AutoMigrate(listModelPembayaran...)
+
+	listModelSppt := []interface{}{
+		&sppt.Sppt{},
+		&sppt.SpptObjekBersama{},
+		&sppt.SpptSimulasi{},
+	}
+	a.AutoMigrate(listModelSppt...)
+
+	listModelPelayanan := []interface{}{
+		&pstpermohonan.PstPermohonan{},
+		&pstpermohonan.PstDetail{},
+		&pstpermohonan.PstDataOPBaru{},
+		&pstpermohonan.PstPermohonanPengurangan{},
+	}
+	a.AutoMigrate(listModelPelayanan...)
+
+	listModelWajibPajakPBB := []interface{}{
+		&wajibpajakpbb.WajibPajakPbb{},
+	}
+	a.AutoMigrate(listModelWajibPajakPBB...)
+
+	listModelSpop := []interface{}{
+		&objekpajakpbb.ObjekPajakPbb{},
+		&objekpajakbumi.ObjekPajakBumi{},
+		&anggotaobjekpajak.AnggotaObjekPajak{},
+		&kunjungankembali.KunjunganKembali{},
+	}
+	a.AutoMigrate(listModelSpop...)
+
+	listModelRegSpop := []interface{}{
+		&regobjekpajakpbb.RegObjekPajakPbb{},
+		&regobjekpajakbumi.RegObjekPajakBumi{},
+		&reganggotaobjekpajak.RegAnggotaObjekPajak{},
+		&regkunjungankembali.RegKunjunganKembali{},
+	}
+	a.AutoMigrate(listModelRegSpop...)
+
+	listModelLspop := []interface{}{
+		&objekpajakbangunan.ObjekPajakBangunan{},
+		&objekpajakbangunan.Jpb2{},
+		&objekpajakbangunan.Jpb3{},
+		&objekpajakbangunan.Jpb4{},
+		&objekpajakbangunan.Jpb5{},
+		&objekpajakbangunan.Jpb6{},
+		&objekpajakbangunan.Jpb7{},
+		&objekpajakbangunan.Jpb8{},
+		&objekpajakbangunan.Jpb9{},
+		&objekpajakbangunan.Jpb12{},
+		&objekpajakbangunan.Jpb13{},
+		&objekpajakbangunan.Jpb14{},
+		&objekpajakbangunan.Jpb15{},
+		&objekpajakbangunan.Jpb16{},
+		&fasilitasbangunan.FasilitasBangunan{},
+	}
+	a.AutoMigrate(listModelLspop...)
+
+	listModelRegLspop := []interface{}{
+		&regobjekpajakbangunan.RegObjekPajakBangunan{},
+		&regobjekpajakbangunan.RegJpb2{},
+		&regobjekpajakbangunan.RegJpb3{},
+		&regobjekpajakbangunan.RegJpb4{},
+		&regobjekpajakbangunan.RegJpb5{},
+		&regobjekpajakbangunan.RegJpb6{},
+		&regobjekpajakbangunan.RegJpb7{},
+		&regobjekpajakbangunan.RegJpb8{},
+		&regobjekpajakbangunan.RegJpb9{},
+		&regobjekpajakbangunan.RegJpb12{},
+		&regobjekpajakbangunan.RegJpb13{},
+		&regobjekpajakbangunan.RegJpb14{},
+		&regobjekpajakbangunan.RegJpb15{},
+		&regobjekpajakbangunan.RegJpb16{},
+		&regfasilitasbangunan.RegFasilitasBangunan{},
+	}
+	a.AutoMigrate(listModelRegLspop...)
+
+	listModelBphtbSptpd := []interface{}{
+		&bphtb.BphtbSptpd{},
+		&bphtb.Lampiran{},
+	}
+	a.AutoMigrate(listModelBphtbSptpd...)
+
+	listModelPenagihan := []interface{}{
+		&suratpemberitahuan.SuratPemberitahuan{},
+		&suratdpemberitahuanetail.SuratPemberitahuanDetail{},
+		&bapenagihan.BaPenagihan{},
+		&bapenagihanpetugas.BaPenagihanPetugas{},
+		&undanganpemeriksaan.UndanganPemeriksaan{},
+	}
+	a.AutoMigrate(listModelPenagihan...)
 }

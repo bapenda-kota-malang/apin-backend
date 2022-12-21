@@ -12,6 +12,13 @@
             "program": "${workspaceRoot}/cmd/apin-bapenda/apin-bapenda.go"
         },
         {
+            "name": "Launch file PPAT",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceRoot}/cmd/apin-ppat/apin-ppat.go"
+        },
+        {
             "name": "Launch file Wajib Pajak",
             "type": "go",
             "request": "launch",

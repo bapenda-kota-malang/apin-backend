@@ -27,7 +27,7 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 
-	result, err := s.GetList(input, uint(authInfo.User_Id), "wp")
+	result, err := s.GetList(input, uint(authInfo.User_Id), "wp", nil)
 	hh.DataResponse(w, result, err)
 }
 

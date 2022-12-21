@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -101,7 +102,6 @@ func RemoveFile(path, filename string) error {
 
 // save base64 string to specific file
 func SaveFile(b64Raw, fileName, path, extFile string, errCh chan error) {
-	defer close(errCh)
 	coI := strings.Index(string(b64Raw), ",")
 	rawFiles := string(b64Raw)[coI+1:]
 	dec, err := base64.StdEncoding.DecodeString(rawFiles)
@@ -160,8 +160,18 @@ func SaveFile(b64Raw, fileName, path, extFile string, errCh chan error) {
 	errCh <- nil
 }
 
+// save base64 to specific file with wait group wrapper
+func BulkSaveFile(wg *sync.WaitGroup, b64Raw, fileName, path, extFile string, errCh chan error) {
+	defer wg.Done()
+	saveErrCh := make(chan error)
+	go SaveFile(b64Raw, fileName, path, extFile, saveErrCh)
+	if err := <-saveErrCh; err != nil {
+		errCh <- err
+	}
+	errCh <- nil
+}
+
 func ReplaceFile(oldFileName, b64Raw, newFileName, path, extFile string, errCh chan error) {
-	defer close(errCh)
 	saveErrCh := make(chan error)
 
 	oldFileNameSave := oldFileName
@@ -578,5 +588,58 @@ func GetPdfOrImageFile(input string, docsName string, userId uint) (resultString
 	if err == nil {
 		resultString = result
 	}
+	return
+}
+
+func FixedLengthString(length int, str string) string {
+	var verb string = str
+	if len(str) < length {
+		tempL := length - len(str)
+		for i := 0; i < tempL; i++ {
+			verb = "0" + verb
+		}
+	}
+	return verb
+}
+
+// splitting nop kode into []string to get areadivision kode etc with order provinces, districts, regencies, villages,
+// block_code, no_urut and jenis objek pajak
+// area_kode contains 10 digit code (combine of areadivision)/villages code for relation
+func NopParser(nop string) (result []string, area_kode string) {
+	result = strings.Split(nop, ".")
+	area_kode = result[0] + result[1] + result[2] + result[3]
+	return result, area_kode
+}
+
+// function wrapper to call all process before create file
+//
+// return filename, path, extensionFile, id, and error
+func FilePreProcess(b64String, docsname string, userId uint, oldId uuid.UUID) (fileName, path, extFile string, id uuid.UUID, err error) {
+	extFile, err = base64helper.GetExtensionBase64(b64String)
+	if err != nil {
+		return
+	}
+	path = GetResourcesPath()
+	switch extFile {
+	case "pdf":
+		path = GetPdfPath()
+	case "png", "jpeg":
+		path = GetImgPath()
+	case "xlsx", "xls":
+		path = GetExcelPath()
+	default:
+		err = errors.New("file tidak diketahui")
+		return
+	}
+	if oldId == uuid.Nil {
+		id, err = GetUuidv4()
+		if err != nil {
+			err = errors.New("gagal generate uuid")
+			return
+		}
+	} else {
+		id = oldId
+	}
+	fileName = GenerateFilename(docsname, id, userId, extFile)
 	return
 }
