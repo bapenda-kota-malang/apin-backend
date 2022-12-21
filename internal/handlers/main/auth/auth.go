@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -54,7 +53,6 @@ func GuardMW(next http.Handler) http.Handler {
 			return
 		}
 		accessDetail, err := as.ExtractToken(r, as.AccessToken)
-		fmt.Println(accessDetail)
 		if err != nil {
 			http.Error(w, "user tidak memiliki akses untuk data terkait.", 403)
 			return
