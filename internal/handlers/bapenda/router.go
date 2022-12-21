@@ -273,6 +273,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pegawai.GetList)
 		r.Get("/{id}", pegawai.GetDetail)
 		r.Patch("/{id}", pegawai.Update)
+		r.Patch("/{id}/updatenew", pegawai.UpdateNew)
 		r.Delete("/{id}", pegawai.Delete)
 	})
 
