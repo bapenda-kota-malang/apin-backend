@@ -10,6 +10,7 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -60,6 +61,17 @@ func GetPathByFilename(filename string) (filePath string) {
 		filePath = GetExcelPath()
 	}
 	return
+}
+
+// get path for assets root folder
+func GetAssetsPath() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	basePath := filepath.Join(wd, "../../", "assets")
+	os.MkdirAll(basePath, os.ModePerm)
+	return basePath
 }
 
 // get path for resource root folder
@@ -642,4 +654,38 @@ func FilePreProcess(b64String, docsname string, userId uint, oldId uuid.UUID) (f
 	}
 	fileName = GenerateFilename(docsname, id, userId, extFile)
 	return
+}
+
+// format value to currency string with precision 2, thousand delimiter ",", decimal delimiter ","
+func FormatCurrency(value float64) string {
+	// value round to precision 2
+	x := fmt.Sprintf("%.2f", value)
+	beforeDotIdx := len(x) - 4
+
+	var buffer []byte
+	j := 0
+	for i := beforeDotIdx; i >= 0; i-- {
+		j++
+		buffer = append(buffer, x[i])
+
+		if j == 3 && i > 0 && !(i == 1 && x[0] == '-') {
+			buffer = append(buffer, ',')
+			j = 0
+		}
+	}
+
+	var strBuffer bytes.Buffer
+	for i := len(buffer) - 1; i >= 0; i-- {
+		strBuffer.WriteByte(buffer[i])
+	}
+
+	result := strBuffer.String()
+	extra := x[beforeDotIdx+1:]
+	return result + extra
+}
+
+// Parse value string currency to value float
+func ParseCurrency(value string) (float64, error) {
+	value = strings.ReplaceAll(value, ",", "")
+	return strconv.ParseFloat(value, 64)
 }

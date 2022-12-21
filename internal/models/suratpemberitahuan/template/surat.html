@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <style>
+      @font-face {
+        font-family: "Times New Roman";
+        font-style: normal;
+        src: local("Times New Roman"),
+          url(http://localhost:8080/assets/fonts/times.woff) format("woff");
+      }
+
+      @font-face {
+        font-family: "Times New Roman";
+        src: url(http://localhost:8080/assets/fonts/times.ttf)
+          format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: "Times New Roman";
+        src: url(http://localhost:8080/assets/fonts/timesBold.ttf)
+          format("truetype");
+        font-weight: bold;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Times New Roman";
+        src: url(http://localhost:8080/assets/fonts/timesItalic.ttf)
+          format("truetype");
+        font-weight: normal;
+        font-style: italic;
+      }
+
+      @font-face {
+        font-family: "Times New Roman";
+        src: url(http://localhost:8080/assets/fonts/timesBoldItalic.ttf)
+          format("truetype");
+        font-weight: bold;
+        font-style: italic;
+      }
+
+      html * {
+        font-family: "Times New Roman";
+        box-sizing: border-box;
+        font-size: 18px;
+      }
+
+      .container {
+        margin: 16px;
+      }
+
+      p {
+        margin-top: 0;
+      }
+
+      .row {
+        margin-left: -5px;
+        margin-right: -5px;
+      }
+
+      .column {
+        float: left;
+        padding: 5px;
+      }
+
+      .w-10 {
+        width: 10%;
+      }
+
+      .w-20 {
+        width: 20%;
+      }
+
+      .w-40 {
+        width: 45%;
+      }
+
+      .w-50 {
+        width: 50%;
+      }
+
+      .w-80 {
+        width: 80%;
+      }
+
+      .w-90 {
+        width: 90%;
+      }
+
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+      }
+
+      #contentTunggakan {
+        margin-top: 16px;
+        text-align: center;
+      }
+
+      th {
+        padding: 8px;
+      }
+
+      .bg {
+        background-color: rgb(175, 175, 175);
+      }
+
+      .bdr {
+        border: 1px solid black;
+      }
+    </style>
+
+    <title>{{.Title}}</title>
+  </head>
+
+  <body>
+    <!-- #header first page -->
+    <div>
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <img
+                src="http://localhost:8080/assets/images/logoMalangBw.png"
+                alt=""
+                width="150"
+              />
+            </td>
+            <td>
+              <center>
+                <p
+                  style="margin-bottom: 0px; font-weight: bold; font-size: 24px"
+                >
+                  PEMERINTAH KOTA MALANG
+                </p>
+                <p
+                  style="margin-bottom: 0px; font-weight: bold; font-size: 26px"
+                >
+                  BADAN PENDAPATAN DAERAH
+                </p>
+                <p style="margin-bottom: 0px; font-weight: bold">
+                  Perkantoran Terpadu Pemerintah Kota Malang
+                </p>
+                <p style="margin-bottom: 0px; font-size: 16px">
+                  Jl. Mayjend. Sungkono Gedung B Lantai 1 Telp. (0341) 751532
+                  Kel. Arjowinangun
+                </p>
+                <div class="row">
+                  <div class="col"></div>
+                </div>
+                <p style="margin-bottom: 0px">
+                  <a href="http://www.bapenda.malangkota.go.id"
+                    >www.bapenda.malangkota.go.id</a
+                  >
+                  | email:
+                  <a href="mailto: bapenda@malangkota.go.id"
+                    >bapenda@malangkota.go.id</a
+                  >
+                </p>
+                <p
+                  style="
+                    margin-bottom: 0px;
+                    font-weight: bold;
+                    font-style: italic;
+                  "
+                >
+                  Malang 65132
+                </p>
+              </center>
+            </td>
+            <td>
+              <img
+                src="http://localhost:8080/assets/images/logoKAN.png"
+                alt=""
+                width="200"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <hr
+        style="
+          height: 2px;
+          border-width: 200;
+          color: black;
+          background-color: black;
+        "
+      />
+    </div>
+    <!-- #end header first page -->
+    <div class="container">
+      <!-- #head content surat-->
+      <div class="row">
+        <div class="column w-50">
+          <table>
+            <tbody>
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <td style="width: 10%"></td>
+                <td style="width: 20%">Nomor</td>
+                <td style="width: 5%">:&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td style="width: 55%">{{.Nomor}}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>Sifat</td>
+                <td>:&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td>{{.Sifat}}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>Lampiran</td>
+                <td>:&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td>{{.Lampiran}}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>Perihal</td>
+                <td>:&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td>{{.Perihal}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="column w-50">
+          <table>
+            <tbody>
+              <tr>
+                <td style="width: 40%"></td>
+                <td style="width: 60%">Malang,</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>Kepada</td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    text-align: center;
+                    padding-left: 40px;
+                    vertical-align: text-top;
+                  "
+                >
+                  Yth.
+                </td>
+                <td>Sdr. Pengelola {{.Pengelola}}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>NPWPD {{.Npwpd}}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>{{.Alamat}}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>di</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>M a l a n g</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- #end head content surat -->
+
+      <!-- #start main content surat -->
+      <div class="row">
+        <div class="column w-10"></div>
+        <div class="column w-90">
+          <table id="pembuka">
+            <tr>
+              <td
+                style="
+                  padding-top: 24px;
+                  text-align: justify;
+                  text-indent: 50px;
+                "
+              >
+                Memperhatikan Undang-undang No. 28 Tahun 2009 Tentang Pajak
+                Daerah dan Retribusi Daerah, Undang-undang No. 19 Tahun 1997
+                sebagaimana telah diubah dengan Undang-undang No. 19 Tahun 2000
+                Tentang Penagihan Pajak Dengan Surat Paksa, Peraturan Daerah
+                Kota Malang No. 9 Tahun 2005 Penagihan Pajak Dengan Surat Paksa,
+                Peraturan Daerah Kota Malang No. 16 Tahun 2010 sebagaimana telah
+                diubah menjadi Peraturan Daerah Kota Malang No 2 Tahun 2015
+                Tentang Pajak Daerah, maka bersama ini kami beritahukan bahwa,
+                Saudara masih memiliki tunggakan {{.JenisPajak}} dengan rincian
+                sebagai berikut:
+              </td>
+            </tr>
+          </table>
+          <table id="contentTunggakan">
+            <thead>
+              <tr class="bg">
+                <th class="bdr">NO</th>
+                <th class="bdr">MASA PAJAK</th>
+                <th class="bdr">JATUH TEMPO</th>
+                <th class="bdr" style="padding-left: 25px; padding-right: 25px">
+                  SKPD
+                </th>
+                <th class="bdr">KETETAPAN</th>
+                <th class="bdr">DENDA</th>
+                <th class="bdr">TELAH DIBAYAR</th>
+                <th class="bdr">SISA PAJAK TERHUTANG</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range .DataTable }}
+              <tr>
+                <td class="bdr" style="padding: 8px">{{.No}}</td>
+                <td class="bdr" style="padding: 8px">{{.MasaPajak}}</td>
+                <td class="bdr" style="padding: 8px">{{.JatuhTempo}}</td>
+                <td class="bdr" style="padding: 8px">{{.Skpd}}</td>
+                <td class="bdr" style="padding: 8px">{{.Ketetapan}}</td>
+                <td class="bdr" style="padding: 8px">{{.Denda}}</td>
+                <td class="bdr" style="padding: 8px">{{.TelahDibayar}}</td>
+                <td class="bdr" style="padding: 8px">{{.SisaPajak}}</td>
+              </tr>
+              {{ end}}
+              <tr class="bg">
+                <td
+                  class="bdr"
+                  colspan="4"
+                  style="font-weight: bold; padding: 8px"
+                >
+                  JUMLAH
+                </td>
+                <td class="bdr" style="font-weight: bold; padding: 8px">
+                  {{.TotalKetetapan}}
+                </td>
+                <td class="bdr" style="font-weight: bold; padding: 8px">
+                  {{.TotalDenda}}
+                </td>
+                <td class="bdr" style="font-weight: bold; padding: 8px">
+                  {{.TotalTelahDibayar}}
+                </td>
+                <td class="bdr" style="font-weight: bold; padding: 8px">
+                  {{.TotalSisaPajak}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table id="penutup">
+            <tr>
+              <td
+                style="
+                  padding-top: 24px;
+                  text-align: justify;
+                  text-indent: 50px;
+                "
+              >
+                Berdasarkan data tersebut, kami harapkan Saudara segera melunasi
+                pajak yang terutang sebagai wujud partisipasi aktif saudara
+                dalam pembangunan serta peningkatan kesejahteraan masyarakat
+                Kota Malang.
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="
+                  padding-top: 16px;
+                  text-align: justify;
+                  text-indent: 50px;
+                "
+              >
+                Demikian untuk diketahui dan atas perhatiannya disampaikan
+                terima kasih.
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <!-- #end main content surat -->
+
+      <!-- #start KeteranganSurat-->
+      <div class="row">
+        <div class="column w-40" style="padding-top: 16px; margin-left: 10px">
+          <table class="bdr">
+            <tbody>
+              <tr>
+                <td
+                  style="
+                    text-align: center;
+                    padding-top: 8px;
+                    text-decoration: underline;
+                  "
+                >
+                  KETERANGAN :
+                </td>
+              </tr>
+              <tr>
+                <td style="text-align: justify; padding: 16px">
+                  Apabila Saudara telah
+                  <b> melunasi/membayar, Pajak Terutang</b>
+                  Sebagaimana Tersebut dalam Surat Ini agar segera menghubungi
+                  Bidang Pengendalian Pajak Daerah
+                  <b>Badan Pendapatan Daerah Kota Malang</b>. Di Alamat
+                  Perkantoran Terpadu, Jl. Mayjend Sungkono , Gedung B Lantai 1,
+                  Telp 08113135585, Dengan menunjukkan Bukti Pelunasan /
+                  Pembayaran yang sah
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="w-50" style="padding-top: 16px; margin-left: 10px">
+        <table>
+          <tbody>
+            <tr>
+              <td style="padding-top: 8px; padding-left: 16px">Tembusan :</td>
+            </tr>
+            <tr>
+              <td style="padding-left: 16px">
+                Yth. Bapak Walikota Malang ( Sebagai Laporan )
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- #end KeteranganSurat -->
+    </div>
+  </body>
+</html>
