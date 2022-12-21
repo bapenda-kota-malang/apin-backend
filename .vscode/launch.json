@@ -24,6 +24,13 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceRoot}/cmd/apin-wajibPajak/apin-wajibPajak.go"
+        },
+        {
+            "name": "Launch file Migrator",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceRoot}/cmd/migrator/migrator.go"
         }
 
     ]
