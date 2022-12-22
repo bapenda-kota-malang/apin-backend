@@ -1,19 +1,19 @@
-package datanir
+package objekpajakbumi
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/datanir"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/datanir"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
 )
 
 type Crud struct{}
 
 func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 	var data m.CreateDto
-	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
 
@@ -21,19 +21,9 @@ func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func CreateBulk(w http.ResponseWriter, r *http.Request) {
-	var data m.CreateBulkDto
-	if !hh.ValidateStructByIOR(w, r.Body, &data) {
-		return
-	}
-
-	result, err := s.CreateBulk(data)
-	hh.DataResponse(w, result, err)
-}
-
 func (c Crud) GetList(w http.ResponseWriter, r *http.Request) {
 	var input m.FilterDto
-	if !hh.ValidateStructByURL(w, *r.URL, &input) {
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
 		return
 	}
 
@@ -51,28 +41,28 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func GetDokByNoDok(w http.ResponseWriter, r *http.Request) {
-	no := hh.ValidateString(w, r, "no")
-	if no == "" {
-		return
-	}
-
-	result, err := s.GetDokByNoDok(no)
-	hh.DataResponse(w, result, err)
-}
-
 func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
 		return
 	}
 
-	var data m.CreateDto
-	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+	var data m.UpdateDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
 
 	result, err := s.Update(id, data, nil)
+	hh.DataResponse(w, result, err)
+}
+
+func UpdateBulk(w http.ResponseWriter, r *http.Request) {
+	var data m.UpdateBulkDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+		return
+	}
+
+	result, err := s.UpdateBulk(data)
 	hh.DataResponse(w, result, err)
 }
 
