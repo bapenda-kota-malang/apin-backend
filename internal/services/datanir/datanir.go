@@ -88,10 +88,6 @@ func CreateBulk(input m.CreateBulkDto) (any, error) {
 		}
 
 		for _, v := range input.Datas {
-			if v.Znt_Kode == "XX" {
-				s := "XS"
-				v.Znt_Kode = s
-			}
 			var data = new(m.DataNir)
 			checkExist := tx.First(&data, v.Id)
 			if checkExist.Error != nil || checkExist.RowsAffected == 0 {

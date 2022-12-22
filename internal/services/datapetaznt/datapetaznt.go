@@ -69,7 +69,7 @@ func CreateBulk(input m.CreateBulkDto) (any, error) {
 				checkExist := tx.
 					Where("Id", v.Id).
 					First(&data)
-				if checkExist.Error != nil || checkExist.RowsAffected == 0 {
+				if checkExist.RowsAffected > 0 {
 					respData, err := Update(*v.Id, m.CreateDto{
 						Provinsi_Kode:  input.Provinsi_Kode,
 						Daerah_Kode:    input.Daerah_Kode,

@@ -69,6 +69,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajakbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajakbumi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/objekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
@@ -519,6 +520,9 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/dbkbfasum/nondep", nondep.Crud{})
 	rh.RegCrud(r, "/dbkbfasum/depminmax", depminmax.Crud{})
 	rh.RegCrud(r, "/dbkbfasum/depjpbklsbintang", depjpbklsbintang.Crud{})
+
+	r.Post("/objekpajakbumi/bulk", objekpajakbumi.UpdateBulk)
+	rh.RegCrud(r, "/objekpajakbumi", objekpajakbumi.Crud{})
 
 	r.Route("/objekpajakpbb", func(r chi.Router) {
 		r.Post("/", objekpajakpbb.Create)

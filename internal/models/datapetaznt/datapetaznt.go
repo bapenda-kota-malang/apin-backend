@@ -45,5 +45,5 @@ type FilterDto struct {
 	Znt_Kode       *string `json:"znt_kode"`
 	Page           int     `json:"page"`
 	PageSize       int     `json:"page_size"`
-	// NoPagination   bool    `json:"no_pagination"`
+	NoPagination   bool    `json:"no_pagination"`
 }
