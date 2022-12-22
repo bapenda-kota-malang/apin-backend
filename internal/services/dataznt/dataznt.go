@@ -1,4 +1,4 @@
-package datapetablok
+package dataznt
 
 import (
 	"strconv"
@@ -12,24 +12,23 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/datapetablok"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/dataznt"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "datapetablok"
+const source = "dataznt"
 
 func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.DataPetaBlok
+	var data m.DataZnt
 
-	condition := m.DataPetaBlok{
+	condition := m.DataZnt{
 		Provinsi_Kode:  input.Provinsi_Kode,
 		Daerah_Kode:    input.Daerah_Kode,
 		Kecamatan_Kode: input.Kecamatan_Kode,
 		Kelurahan_Kode: input.Kelurahan_Kode,
-		Blok_Kode:      input.Blok_Kode,
 	}
 
 	if err := tx.Where(condition).First(&data).Error; err != nil && err != gorm.ErrRecordNotFound {
@@ -53,81 +52,53 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 		err = tx.Save(&data).Error
 	}
 	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data datapetablok: "+err.Error(), data)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data DataZnt: "+err.Error(), data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
 }
 
 func CreateBulk(input m.CreateBulkDto) (any, error) {
-	var (
-		datas []m.DataPetaBlok
-	)
+	var data []m.DataZnt
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		for _, v := range input.Datas {
-			var data = new(m.DataPetaBlok)
-			checkExist := tx.
-				Where("Provinsi_Kode", input.Provinsi_Kode).
-				Where("Daerah_Kode", input.Daerah_Kode).
-				Where("Kecamatan_Kode", input.Kecamatan_Kode).
-				Where("Kelurahan_Kode", input.Kelurahan_Kode).
-				Where("Blok_Kode", v.Blok_Kode).
-				First(&data)
-			if checkExist.Error != nil || checkExist.RowsAffected == 0 {
-				respData, err := Create(m.CreateDto{
-					Provinsi_Kode:  input.Provinsi_Kode,
-					Daerah_Kode:    input.Daerah_Kode,
-					Kecamatan_Kode: input.Kecamatan_Kode,
-					Kelurahan_Kode: input.Kelurahan_Kode,
-					Blok_Kode:      v.Blok_Kode,
-					StatusPetaBlok: v.StatusPetaBlok,
-				}, tx)
-				if err != nil {
-					return err
-				}
-				datas = append(datas, respData.(rp.OKSimple).Data.(m.DataPetaBlok))
-			} else {
-				s := strconv.FormatUint(data.Id, 10)
-				id, _ := strconv.Atoi(s)
-				respData, err := Update(id, m.CreateDto{
-					Provinsi_Kode:  input.Provinsi_Kode,
-					Daerah_Kode:    input.Daerah_Kode,
-					Kecamatan_Kode: input.Kecamatan_Kode,
-					Kelurahan_Kode: input.Kelurahan_Kode,
-					Blok_Kode:      v.Blok_Kode,
-					StatusPetaBlok: v.StatusPetaBlok,
-				}, tx)
-				if err != nil {
-					return err
-				}
-				datas = append(datas, respData.(rp.OK).Data.(m.DataPetaBlok))
+			respData, err := Create(m.CreateDto{
+				Provinsi_Kode:  input.Provinsi_Kode,
+				Daerah_Kode:    input.Daerah_Kode,
+				Kecamatan_Kode: input.Kecamatan_Kode,
+				Kelurahan_Kode: input.Kelurahan_Kode,
+				Blok_Kode:      v.No_Urut,
+				Znt_Kode:       v.Jns_OP,
+			}, tx)
+			if err != nil {
+				return err
 			}
+			data = append(data, respData.(rp.OKSimple).Data.(m.DataZnt))
 		}
 		return nil
 	})
 
 	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal create bulk: "+err.Error(), datas)
+		return sh.SetError("request", "create-data", source, "failed", "gagal create bulk: "+err.Error(), data)
 	}
 
-	return rp.OKSimple{Data: datas}, nil
+	return rp.OKSimple{Data: data}, nil
 }
 
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.DataPetaBlok
+	var data []m.DataZnt
 	var count int64
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.DataPetaBlok{}).
-		Order("\"Blok_Kode\"").
+		Model(&m.DataZnt{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
 	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data datapetablok", data)
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data DataZnt", data)
 	}
 
 	return rp.OK{
@@ -142,13 +113,13 @@ func GetList(input m.FilterDto) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.DataPetaBlok
+	var data *m.DataZnt
 
 	result := a.DB.Preload(clause.Associations).First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
-		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data datapetablok", data)
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data DataZnt", data)
 	}
 
 	return rp.OKSimple{
@@ -160,7 +131,7 @@ func Update(id int, input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.DataPetaBlok
+	var data *m.DataZnt
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -170,7 +141,7 @@ func Update(id int, input m.CreateDto, tx *gorm.DB) (any, error) {
 	}
 
 	if result := tx.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data datapetablok", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data DataZnt", data)
 	}
 
 	return rp.OK{
@@ -185,7 +156,7 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.DataPetaBlok
+	var data *m.DataZnt
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil

@@ -75,10 +75,7 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 
 	// if kodeJenisPajak nil then search data rekening from parent id
 	kodeJenisPajak := dataRekening.KodeJenisPajak
-	for kodeJenisPajak == nil {
-		if dataRekening.Parent_Id == nil {
-			return nil, errors.New("unknown kode jenis pajak")
-		}
+	if kodeJenisPajak == nil {
 		parentId, err := strconv.Atoi(*dataRekening.Parent_Id)
 		if err != nil {
 			return nil, err
@@ -133,7 +130,7 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 	if err != nil {
 		return nil, err
 	}
-	kode := strings.ToUpper(*kodeJenisPajak)
+	kode := *kodeJenisPajak
 	yearTwoDigit := yearNow % 1e2
 	nomerSpt := fmt.Sprintf("%d%s", yearTwoDigit, nomerUrut)
 	data.NomorSpt = fmt.Sprintf("%c-%s", kode[0], nomerSpt)

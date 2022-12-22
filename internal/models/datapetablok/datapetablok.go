@@ -46,5 +46,5 @@ type FilterDto struct {
 	StatusPetaBlok *int8   `json:"statusPetaBlok"`
 	Page           int     `json:"page"`
 	PageSize       int     `json:"page_size"`
-	// NoPagination   bool    `json:"no_pagination"`
+	NoPagination   bool    `json:"no_pagination"`
 }

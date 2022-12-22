@@ -3,7 +3,6 @@ package pegawai
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -136,56 +135,6 @@ func Update(id int, input m.Update) (interface{}, error) {
 		if result.RowsAffected > 0 {
 			rowsAffected++
 		}
-		if result := a.DB.Save(&dataU); result.Error != nil {
-			return errors.New("gagal menyimpan data user")
-		}
-		if result.RowsAffected > 0 {
-			rowsAffected++
-		}
-		return nil
-	})
-	if err != nil {
-		return sh.SetError("request", "update-data", source, "failed", err.Error(), input)
-	}
-
-	dataU.Password = nil
-
-	return rp.OK{
-		Meta: t.IS{
-			"affected": strconv.Itoa(rowsAffected),
-		},
-		Data: t.II{
-			"pegawai": data,
-			"user":    dataU,
-		},
-	}, nil
-}
-
-func UpdateNew(id int, input m.Update) (interface{}, error) {
-	var data *m.Pegawai = &m.Pegawai{}
-	var dataU *mu.User
-
-	result := a.DB.Where(mu.User{Id: id, Position: 1}).First(&dataU)
-	if result.RowsAffected == 0 {
-		return sh.SetError("request", "update-data", source, "failed", "data user tidak dapat ditemukan", input)
-	}
-	if err := sc.Copy(&data, &input); err != nil {
-		fmt.Println(err)
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload untuk pegawai", input)
-	}
-	if err := sc.Copy(&dataU, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload untuk user", input)
-	}
-
-	rowsAffected := 0
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		if result := a.DB.Save(&data); result.Error != nil {
-			return errors.New("gagal menyimpan data pegawai")
-		}
-		if result.RowsAffected > 0 {
-			rowsAffected++
-		}
-		dataU.Ref_Id = data.Id
 		if result := a.DB.Save(&dataU); result.Error != nil {
 			return errors.New("gagal menyimpan data user")
 		}
