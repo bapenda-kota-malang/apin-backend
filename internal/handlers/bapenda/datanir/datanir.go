@@ -51,6 +51,16 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func GetDokByNoDok(w http.ResponseWriter, r *http.Request) {
+	no := hh.ValidateString(w, r, "no")
+	if no == "" {
+		return
+	}
+
+	result, err := s.GetDokByNoDok(no)
+	hh.DataResponse(w, result, err)
+}
+
 func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {

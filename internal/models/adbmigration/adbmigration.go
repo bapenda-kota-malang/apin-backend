@@ -31,6 +31,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb8"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbjpb9"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbmezanin"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dokument"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailespthiburan"
@@ -236,6 +237,7 @@ func GetModelList() (data []interface{}) {
 		&datanir.DataNir{},
 		&datapetaznt.DataPetaZnt{},
 		&dataznt.DataZnt{},
+		&dokument.Dokument{},
 		&dbkbfasum.DbkbFasum{},
 		&nondep.DbkbFasumNonDep{},
 		&depminmax.DbkbFasumDepMinMax{},

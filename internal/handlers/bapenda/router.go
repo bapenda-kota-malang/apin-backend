@@ -506,6 +506,7 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/datapetablok", datapetablok.Crud{})
 
 	r.Post("/datanir/bulk", datanir.CreateBulk)
+	r.Get("/datanir-dokument/{no}", datanir.GetDokByNoDok)
 	rh.RegCrud(r, "/datanir", datanir.Crud{})
 
 	r.Post("/datapetaznt/bulk", datapetaznt.CreateBulk)
