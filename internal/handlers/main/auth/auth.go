@@ -2,8 +2,8 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
@@ -43,12 +43,16 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 func GuardMW(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if sh.StringInSlice(r.URL.Path, SkipAuhPaths) {
+		url := r.URL.Path
+		re := regexp.MustCompile(`^\/assets\/`)
+		if str := re.FindString(url); str != "" {
+			url = str + "*"
+		}
+		if sh.StringInSlice(url, SkipAuhPaths) {
 			next.ServeHTTP(w, r)
 			return
 		}
 		accessDetail, err := as.ExtractToken(r, as.AccessToken)
-		fmt.Println(accessDetail)
 		if err != nil {
 			http.Error(w, "user tidak memiliki akses untuk data terkait.", 403)
 			return

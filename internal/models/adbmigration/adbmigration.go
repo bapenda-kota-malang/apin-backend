@@ -1,8 +1,6 @@
 package adbmigration
 
 import (
-	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
-
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
@@ -122,7 +120,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 )
 
-func init() {
+func GetModelList() (data []interface{}) {
 	listModelConfigurationReference := []interface{}{
 		&skpd.Skpd{},
 		&jabatan.Jabatan{},
@@ -159,7 +157,7 @@ func init() {
 		&jpb.Jpb{},
 		&bphtbjenislaporan.BphtbJenisLaporan{},
 	}
-	a.AutoMigrate(listModelConfigurationReference...)
+	data = append(data, listModelConfigurationReference...)
 
 	listModelManagementUser := []interface{}{
 		&mu.User{},
@@ -169,7 +167,7 @@ func init() {
 		&ppat.Ppat{},
 		&wajibpajak.WajibPajak{},
 	}
-	a.AutoMigrate(listModelManagementUser...)
+	data = append(data, listModelManagementUser...)
 
 	listModelRegNpwpd := []interface{}{
 		&regobjekpajak.RegObjekPajak{},
@@ -184,7 +182,7 @@ func init() {
 		&rn.RegNarahubung{},
 		&rn.RegPemilikWp{},
 	}
-	a.AutoMigrate(listModelRegNpwpd...)
+	data = append(data, listModelRegNpwpd...)
 
 	listModelNpwpd := []interface{}{
 		&objekpajak.ObjekPajak{},
@@ -199,7 +197,7 @@ func init() {
 		&npwpd.DetailObjekPajakHiburan{},
 		&npwpd.DetailObjekPajakResto{},
 	}
-	a.AutoMigrate(listModelNpwpd...)
+	data = append(data, listModelNpwpd...)
 
 	listModelPendataan := []interface{}{
 		&potensiopwp.PotensiOp{},
@@ -241,7 +239,7 @@ func init() {
 		&depminmax.DbkbFasumDepMinMax{},
 		&depjpbklsbintang.DbkbFasumDepJpbKlsBintang{},
 	}
-	a.AutoMigrate(listModelPendataan...)
+	data = append(data, listModelPendataan...)
 
 	listModelPenetapan := []interface{}{
 		// esptpd
@@ -267,7 +265,7 @@ func init() {
 		&detailsptresto.DetailSptResto{},
 	}
 
-	a.AutoMigrate(listModelPenetapan...)
+	data = append(data, listModelPenetapan...)
 
 	listModelPengajuan := []interface{}{
 		&pengurangan.Pengurangan{},
@@ -275,7 +273,7 @@ func init() {
 		&baplpengajuan.PengajuanBapl{},
 		&keberatan.PembetulanKeberatan{},
 	}
-	a.AutoMigrate(listModelPengajuan...)
+	data = append(data, listModelPengajuan...)
 
 	listModelPembayaran := []interface{}{
 		&sts.Sts{},
@@ -286,14 +284,14 @@ func init() {
 		&sts.StsDetail{},
 		&sts.SumberDanaSts{},
 	}
-	a.AutoMigrate(listModelPembayaran...)
+	data = append(data, listModelPembayaran...)
 
 	listModelSppt := []interface{}{
 		&sppt.Sppt{},
 		&sppt.SpptObjekBersama{},
 		&sppt.SpptSimulasi{},
 	}
-	a.AutoMigrate(listModelSppt...)
+	data = append(data, listModelSppt...)
 
 	listModelPelayanan := []interface{}{
 		&pstpermohonan.PstPermohonan{},
@@ -301,12 +299,12 @@ func init() {
 		&pstpermohonan.PstDataOPBaru{},
 		&pstpermohonan.PstPermohonanPengurangan{},
 	}
-	a.AutoMigrate(listModelPelayanan...)
+	data = append(data, listModelPelayanan...)
 
 	listModelWajibPajakPBB := []interface{}{
 		&wajibpajakpbb.WajibPajakPbb{},
 	}
-	a.AutoMigrate(listModelWajibPajakPBB...)
+	data = append(data, listModelWajibPajakPBB...)
 
 	listModelSpop := []interface{}{
 		&objekpajakpbb.ObjekPajakPbb{},
@@ -314,7 +312,7 @@ func init() {
 		&anggotaobjekpajak.AnggotaObjekPajak{},
 		&kunjungankembali.KunjunganKembali{},
 	}
-	a.AutoMigrate(listModelSpop...)
+	data = append(data, listModelSpop...)
 
 	listModelRegSpop := []interface{}{
 		&regobjekpajakpbb.RegObjekPajakPbb{},
@@ -322,7 +320,7 @@ func init() {
 		&reganggotaobjekpajak.RegAnggotaObjekPajak{},
 		&regkunjungankembali.RegKunjunganKembali{},
 	}
-	a.AutoMigrate(listModelRegSpop...)
+	data = append(data, listModelRegSpop...)
 
 	listModelLspop := []interface{}{
 		&objekpajakbangunan.ObjekPajakBangunan{},
@@ -341,7 +339,7 @@ func init() {
 		&objekpajakbangunan.Jpb16{},
 		&fasilitasbangunan.FasilitasBangunan{},
 	}
-	a.AutoMigrate(listModelLspop...)
+	data = append(data, listModelLspop...)
 
 	listModelRegLspop := []interface{}{
 		&regobjekpajakbangunan.RegObjekPajakBangunan{},
@@ -360,13 +358,13 @@ func init() {
 		&regobjekpajakbangunan.RegJpb16{},
 		&regfasilitasbangunan.RegFasilitasBangunan{},
 	}
-	a.AutoMigrate(listModelRegLspop...)
+	data = append(data, listModelRegLspop...)
 
 	listModelBphtbSptpd := []interface{}{
 		&bphtb.BphtbSptpd{},
 		&bphtb.Lampiran{},
 	}
-	a.AutoMigrate(listModelBphtbSptpd...)
+	data = append(data, listModelBphtbSptpd...)
 
 	listModelPenagihan := []interface{}{
 		&suratpemberitahuan.SuratPemberitahuan{},
@@ -375,5 +373,7 @@ func init() {
 		&bapenagihanpetugas.BaPenagihanPetugas{},
 		&undanganpemeriksaan.UndanganPemeriksaan{},
 	}
-	a.AutoMigrate(listModelPenagihan...)
+	data = append(data, listModelPenagihan...)
+
+	return data
 }

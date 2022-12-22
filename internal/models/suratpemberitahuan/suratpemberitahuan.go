@@ -4,6 +4,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan/detail"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )
 
@@ -17,7 +18,7 @@ Jatuh Tempo : SPT sudah Jatuh Tempo"
 */
 
 type SuratPemberitahuan struct {
-	Id           uint64          `json:"id" gorm:"primaryKey"`
+	Id           uuid.UUID       `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	NoSurat      string          `json:"noSurat"`
 	Tanggal      datatypes.Date  `json:"tanggal"`
 	Npwpd_Id     uint64          `json:"npwpd_id"`
@@ -25,12 +26,14 @@ type SuratPemberitahuan struct {
 	Nominal      float64         `json:"nominal"`
 	TanggalLunas *datatypes.Date `json:"tanggalLunas"`
 	Status       uint8           `json:"status"`
+	Dokumen      string          `json:"dokumen"`
 	gormhelper.DateModel
 	Npwpd                    *npwpd.Npwpd                      `json:"npwpd" gorm:"foreignKey:Npwpd_Id"`
 	SuratPemberitahuanDetail []detail.SuratPemberitahuanDetail `json:"suratPemberitahuanDetail" gorm:"foreignKey:SuratPemberitahuan_Id"`
 }
 
 type CreateDto struct {
+	Id           uuid.UUID       `json:"id"`
 	NoSurat      string          `json:"noSurat"`
 	Tanggal      datatypes.Date  `json:"tanggal"`
 	Npwpd_Id     uint64          `json:"npwpd_id"`
@@ -38,10 +41,11 @@ type CreateDto struct {
 	Nominal      float64         `json:"-"`
 	TanggalLunas *datatypes.Date `json:"tanggalLunas"`
 	Status       uint8           `json:"-"`
+	Dokumen      string          `json:"-"`
 }
 
 type UpdateBulk struct {
-	Id      *uint64         `json:"id" validate:"required;min=1"`
+	Id      *uuid.UUID      `json:"id" validate:"required"`
 	Tanggal *datatypes.Date `json:"tanggal"`
 	Status  *uint8          `json:"status" validate:"min=1;max=2"`
 }
@@ -60,4 +64,20 @@ type FilterDto struct {
 	JatuhTempo datatypes.Date `json:"jatuhTempo"`
 	Page       int            `json:"page"`
 	PageSize   int            `json:"page_size"`
+}
+
+type DataTableSurat struct {
+	No           uint16
+	MasaPajak    string
+	JatuhTempo   string
+	Skpd         string
+	Ketetapan    string
+	Denda        string
+	TelahDibayar string
+	SisaPajak    string
+}
+type Pdf interface {
+	GeneratePdf(outFile string) error
+	AppendContent(DataTableSurat)
+	SetTotal(map[string]float64)
 }

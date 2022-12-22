@@ -185,7 +185,7 @@ func Create(r *http.Request, input npwpd.CreateDto) (interface{}, error) {
 	}, nil
 }
 
-func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
+func Update(id int, input npwpd.UpdateDto, user_id uint) (any, error) {
 	var data *npwpd.Npwpd
 	var dataObjekPajak op.ObjekPajakUpdateDto
 	var dataNarahubung []npwpd.NarahubungUpdateDto
@@ -203,9 +203,11 @@ func Update(id int, input npwpd.UpdateDto, user_Id uint) (any, error) {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
 
-	userIdConv := uint64(user_Id)
-	if *data.User_Id != userIdConv {
-		return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
+	if data.User_Id != nil && user_id > 0 {
+		userIdConv := uint64(user_id)
+		if *data.User_Id != userIdConv {
+			return nil, errors.New("tidak dapat merubah data yang bukan milik anda")
+		}
 	}
 
 	//cek rekening objek, dgn mengambil data rekening menggunakan rekening id

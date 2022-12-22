@@ -97,7 +97,6 @@ func Checker(w http.ResponseWriter, r *http.Request) {
 		}
 		result, err = s.CheckerPFour(data)
 	default:
-		result = nil
 		err = errors.New("unknown id page check")
 		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
 		return

@@ -55,6 +55,20 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Update(id, data)
 	hh.DataResponse(w, result, err)
 }
+func UpdateNew(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	var data m.Update
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.UpdateNew(id, data)
+	hh.DataResponse(w, result, err)
+}
 
 func Delete(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
