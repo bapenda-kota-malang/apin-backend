@@ -12,6 +12,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datanir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datapetablok"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/datapetaznt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/dataznt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/dbkbfasum/depminmax"
@@ -234,6 +235,7 @@ func GetModelList() (data []interface{}) {
 		&datapetablok.DataPetaBlok{},
 		&datanir.DataNir{},
 		&datapetaznt.DataPetaZnt{},
+		&dataznt.DataZnt{},
 		&dbkbfasum.DbkbFasum{},
 		&nondep.DbkbFasumNonDep{},
 		&depminmax.DbkbFasumDepMinMax{},
