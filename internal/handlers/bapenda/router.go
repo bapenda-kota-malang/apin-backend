@@ -13,6 +13,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datanir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetablok"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetaznt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dataznt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
@@ -132,7 +133,6 @@ func SetRoutes() http.Handler {
 
 	fsAssets := http.FileServer(http.Dir(servicehelper.GetAssetsPath()))
 	r.Handle("/assets/*", http.StripPrefix("/assets/", fsAssets))
-
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", auth.Login)
 	})
@@ -248,6 +248,14 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
 	})
 
+	r.Route("/kelastanah-kode", func(r chi.Router) {
+		r.Get("/{kd}", kelastanah.GetDetailByCode)
+	})
+
+	r.Route("/kelasbangunan-kode", func(r chi.Router) {
+		r.Get("/{kd}", kelasbangunan.GetDetailByCode)
+	})
+
 	r.Route("/spptsimulasi-process", func(r chi.Router) {
 		r.Post("/{flag}", sppt.GetSimulasiByNop)
 	})
@@ -273,7 +281,6 @@ func SetRoutes() http.Handler {
 		r.Get("/", pegawai.GetList)
 		r.Get("/{id}", pegawai.GetDetail)
 		r.Patch("/{id}", pegawai.Update)
-		r.Patch("/{id}/updatenew", pegawai.UpdateNew)
 		r.Delete("/{id}", pegawai.Delete)
 	})
 
@@ -462,7 +469,6 @@ func SetRoutes() http.Handler {
 		r.Post("/", suratpemberitahuan.CreateSchedule)
 		r.Patch("/", suratpemberitahuan.UpdateBulk)
 		r.Patch("/{id}", suratpemberitahuan.UpdateSingle)
-		r.Patch("/{id}/cetak", suratpemberitahuan.Cetak)
 		r.Delete("/{id}", suratpemberitahuan.Delete)
 	})
 
@@ -496,14 +502,17 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", baplpengajuan.Delete)
 	})
 
-	rh.RegCrud(r, "/datapetablok", datapetablok.Crud{})
 	r.Post("/datapetablok/bulk", datapetablok.CreateBulk)
+	rh.RegCrud(r, "/datapetablok", datapetablok.Crud{})
 
-	rh.RegCrud(r, "/datanir", datanir.Crud{})
 	r.Post("/datanir/bulk", datanir.CreateBulk)
+	rh.RegCrud(r, "/datanir", datanir.Crud{})
 
-	rh.RegCrud(r, "/datapetaznt", datapetaznt.Crud{})
 	r.Post("/datapetaznt/bulk", datapetaznt.CreateBulk)
+	rh.RegCrud(r, "/datapetaznt", datapetaznt.Crud{})
+
+	r.Post("/dataznt/bulk", dataznt.CreateBulk)
+	rh.RegCrud(r, "/dataznt", dataznt.Crud{})
 
 	rh.RegCrud(r, "/dbkbfasum", dbkbfasum.Crud{})
 	rh.RegCrud(r, "/dbkbfasum/nondep", nondep.Crud{})

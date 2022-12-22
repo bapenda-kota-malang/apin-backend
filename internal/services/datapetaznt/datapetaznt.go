@@ -60,31 +60,52 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 }
 
 func CreateBulk(input m.CreateBulkDto) (any, error) {
-	var data []m.DataPetaZnt
+	var datas []m.DataPetaZnt
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		for _, v := range input.Datas {
-			respData, err := Create(m.CreateDto{
-				Provinsi_Kode:  input.Provinsi_Kode,
-				Daerah_Kode:    input.Daerah_Kode,
-				Kecamatan_Kode: input.Kecamatan_Kode,
-				Kelurahan_Kode: input.Kelurahan_Kode,
-				Blok_Kode:      v.Blok_Kode,
-				Znt_Kode:       v.Znt_Kode,
-			}, tx)
-			if err != nil {
-				return err
+			if v.Id != nil {
+				var data = new(m.DataPetaZnt)
+				checkExist := tx.
+					Where("Id", v.Id).
+					First(&data)
+				if checkExist.Error != nil || checkExist.RowsAffected == 0 {
+					respData, err := Update(*v.Id, m.CreateDto{
+						Provinsi_Kode:  input.Provinsi_Kode,
+						Daerah_Kode:    input.Daerah_Kode,
+						Kecamatan_Kode: input.Kecamatan_Kode,
+						Kelurahan_Kode: input.Kelurahan_Kode,
+						Blok_Kode:      v.Blok_Kode,
+						Znt_Kode:       v.Znt_Kode,
+					}, tx)
+					if err != nil {
+						return err
+					}
+					datas = append(datas, respData.(rp.OK).Data.(m.DataPetaZnt))
+				}
+			} else {
+				respData, err := Create(m.CreateDto{
+					Provinsi_Kode:  input.Provinsi_Kode,
+					Daerah_Kode:    input.Daerah_Kode,
+					Kecamatan_Kode: input.Kecamatan_Kode,
+					Kelurahan_Kode: input.Kelurahan_Kode,
+					Blok_Kode:      v.Blok_Kode,
+					Znt_Kode:       v.Znt_Kode,
+				}, tx)
+				if err != nil {
+					return err
+				}
+				datas = append(datas, respData.(rp.OKSimple).Data.(m.DataPetaZnt))
 			}
-			data = append(data, respData.(rp.OKSimple).Data.(m.DataPetaZnt))
 		}
 		return nil
 	})
 
 	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal create bulk: "+err.Error(), data)
+		return sh.SetError("request", "create-data", source, "failed", "gagal create bulk: "+err.Error(), datas)
 	}
 
-	return rp.OKSimple{Data: data}, nil
+	return rp.OKSimple{Data: datas}, nil
 }
 
 func GetList(input m.FilterDto) (any, error) {
@@ -132,7 +153,7 @@ func Update(id int, input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.DataPetaZnt
+	var data m.DataPetaZnt
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil

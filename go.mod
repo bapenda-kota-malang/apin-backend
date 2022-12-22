@@ -5,7 +5,7 @@ go 1.18
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
-	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.8.1
+	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.8.2
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible

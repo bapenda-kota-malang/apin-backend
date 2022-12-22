@@ -1,19 +1,19 @@
-package kelastanah
+package dataznt
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/kelastanah"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/dataznt"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/dataznt"
 )
 
 type Crud struct{}
 
 func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 	var data m.CreateDto
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
@@ -21,9 +21,19 @@ func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func CreateBulk(w http.ResponseWriter, r *http.Request) {
+	var data m.CreateBulkDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+		return
+	}
+
+	result, err := s.CreateBulk(data)
+	hh.DataResponse(w, result, err)
+}
+
 func (c Crud) GetList(w http.ResponseWriter, r *http.Request) {
 	var input m.FilterDto
-	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
 		return
 	}
 
@@ -41,24 +51,14 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func GetDetailByCode(w http.ResponseWriter, r *http.Request) {
-	kd := hh.ValidateString(w, r, "kd")
-	if kd == "" {
-		return
-	}
-
-	result, err := s.GetDetailByCode(kd)
-	hh.DataResponse(w, result, err)
-}
-
 func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
 		return
 	}
 
-	var data m.UpdateDto
-	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+	var data m.CreateDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
