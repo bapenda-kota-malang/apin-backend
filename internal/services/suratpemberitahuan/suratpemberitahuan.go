@@ -3,6 +3,7 @@ package suratpemberitahuan
 import (
 	"strconv"
 
+	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -72,7 +73,7 @@ func GetList(input m.FilterDto, tx *gorm.DB) (any, error) {
 	}, nil
 }
 
-func GetDetail(id int, tx *gorm.DB) (any, error) {
+func GetDetail(id uuid.UUID, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -83,7 +84,7 @@ func GetDetail(id int, tx *gorm.DB) (any, error) {
 		Preload("SuratPemberitahuanDetail.Spt").
 		Preload("Npwpd.ObjekPajak.Kelurahan").
 		Preload("Npwpd.ObjekPajak.Kecamatan").
-		First(&data, id)
+		First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -112,7 +113,7 @@ func UpdateBulk(input m.UpdateBulkDto, tx *gorm.DB) (any, error) {
 	var datas []m.SuratPemberitahuan
 	resultRow := 0
 	for _, v := range input.Datas {
-		respUpdateSingle, err := Update(int(*v.Id), m.UpdateDto{Tanggal: v.Tanggal, Status: v.Status}, tx)
+		respUpdateSingle, err := Update(*v.Id, m.UpdateDto{Tanggal: v.Tanggal, Status: v.Status}, tx)
 		if err != nil {
 			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", datas)
 		}
@@ -132,12 +133,12 @@ func UpdateBulk(input m.UpdateBulkDto, tx *gorm.DB) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
+func Update(id uuid.UUID, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	data := m.SuratPemberitahuan{}
-	result := tx.First(&data, id)
+	result := tx.First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
@@ -157,12 +158,35 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	}, nil
 }
 
-func Delete(id int, tx *gorm.DB) (any, error) {
+func Cetak(id uuid.UUID, input m.UpdateDto) (any, error) {
+	data := m.SuratPemberitahuan{}
+	result := a.DB.First(&data, "\"Id\" = ?", id.String())
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "update-data", source, "failed", "tidak ada data", data)
+	}
+
+	if err := sc.CopyWithOption(&data, &input, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func Delete(id uuid.UUID, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data *m.SuratPemberitahuan
-	result := tx.First(&data, id)
+	result := tx.First(&data, "\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
