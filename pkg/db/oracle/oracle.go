@@ -12,7 +12,7 @@ import (
 // example:
 //
 //	dataSourceName := `user="scott" password="tiger" connectString="dbhost:1521/orclpdb1"`
-//	odb, err := db.oracle.NewConn(dataSourceName)
+//	odb, err := oracle.NewConn(dataSourceName)
 //
 // The connectString can be ANYTHING that SQL*Plus or Oracle Call Interface (OCI) accepts:
 //
