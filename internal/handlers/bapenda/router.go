@@ -206,6 +206,8 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/tempatpembayaran", tempatpembayaran.Crud{})
 
+	r.Patch("/sppt/cetakdaftartagihan", sppt.CetakDaftarTagihan)
+	r.Patch("/sppt/penilaian", sppt.Penilaian)
 	rh.RegCrud(r, "/sppt", sppt.Crud{})
 
 	rh.RegCrud(r, "/bphtbsptpd", bphtbsptpd.Crud{})
@@ -547,7 +549,6 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", regobjekpajakbangunan.GetDetail)
 		r.Patch("/verify/{id}", regobjekpajakbangunan.VerifyLspop)
 	})
-	r.Patch("/sppt/penilaian", sppt.Penilaian)
 
 	return r
 }

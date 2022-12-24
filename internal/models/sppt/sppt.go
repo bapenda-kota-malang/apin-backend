@@ -184,3 +184,16 @@ type PenilaianDto struct {
 	Kelurahan_Kode *string `json:"kelurahan_kode"`
 	Tahun          string  `json:"tahun"`
 }
+
+type GetDaftarTagihan struct {
+	Provinsi_Kode     string  `json:"provinsi_kode" validate:"required;minLength=2;maxLength=2"`
+	Daerah_Kode       string  `json:"daerah_kode" validate:"required;minLength=2;maxLength=2"`
+	Kecamatan_Kode    string  `json:"kecamatan_kode" validate:"required;minLength=3;maxLength=3"`
+	NamaPropinsi      *string `json:"namaPropinsi"`
+	NamaDati2         *string `json:"namaDati2"`
+	NamaKecamatan     *string `json:"namaKecamatan"`
+	TahunPajakAwal    *string `json:"tahunPajakAwal"`
+	TahunPajakAkhir   *string `json:"tahunPajakAkhir"`
+	KetetapanPBBAwal  *string `json:"ketetapanPBBAwal"`
+	KetetapanPBBAkhir *string `json:"ketetapanPBBAkhir"`
+}
