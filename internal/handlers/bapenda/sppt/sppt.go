@@ -75,3 +75,13 @@ func Penilaian(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Penilaian(data)
 	hh.DataResponse(w, result, err)
 }
+
+func CetakDaftarTagihan(w http.ResponseWriter, r *http.Request) {
+	var data m.GetDaftarTagihan
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.CetakDaftarTagihan(data)
+	hh.DataResponse(w, result, err)
+}

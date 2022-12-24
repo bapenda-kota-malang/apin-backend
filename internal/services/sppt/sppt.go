@@ -1,9 +1,11 @@
 package sppt
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
+	"github.com/360EntSecGroup-Skylar/excelize"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -194,5 +196,83 @@ func Penilaian(input m.PenilaianDto) (any, error) {
 
 	return rp.OKSimple{
 		Data: resp,
+	}, nil
+}
+
+func CetakDaftarTagihan(req m.GetDaftarTagihan) (any, error) {
+	var list []m.Sppt
+	xlsx := excelize.NewFile()
+
+	transactionReport := "Daftar Tagihan OP"
+	xlsx.SetSheetName(xlsx.GetSheetName(1), transactionReport)
+
+	xlsx.SetCellValue(transactionReport, "A1", "Daftar PBB Belum Dibayar")
+	xlsx.SetCellValue(transactionReport, "A2", "Wilayah Kotamadya Malang Kecamatan "+*req.NamaKecamatan)
+	xlsx.SetCellValue(transactionReport, "A3", "Tahun "+*req.TahunPajakAwal+" s/d "+*req.TahunPajakAkhir+" ketetapan PBB "+*req.KetetapanPBBAwal+" s/d "+*req.KetetapanPBBAkhir)
+	xlsx.MergeCell(transactionReport, "A1", "F1")
+	xlsx.MergeCell(transactionReport, "A2", "F2")
+	xlsx.MergeCell(transactionReport, "A3", "F3")
+
+	result := a.DB.Where("", req.Provinsi_Kode).
+		Where("Propinsi_Id", req.Provinsi_Kode).
+		Where("Dati2_Id", req.Daerah_Kode).
+		Where("Kecamatan_Id", req.Kecamatan_Kode).
+		Where("\"TahunPajakskp_sppt\" >= '" + *req.TahunPajakAwal + "'").
+		Where("\"TahunPajakskp_sppt\" <= '" + *req.TahunPajakAkhir + "'").
+		Where("\"PBBygHarusDibayar_sppt\" >= " + *req.KetetapanPBBAwal).
+		Where("\"PBBygHarusDibayar_sppt\" <= " + *req.KetetapanPBBAkhir).
+		Where("\"StatusPembayaran_sppt\" == '0'").
+		Find(&list).
+		Order("\"Propinsi_Id\", \"Dati2_Id\", \"Kecamatan_Id\", \"Keluarahan_Id\"")
+
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menemukan data: "+result.Error.Error(), list)
+	}
+
+	tempKel := ""
+	isSet := false
+	totalPerKel := 0
+	skipRow := 4
+	tempPBB := 0
+
+	for i, data := range list {
+		if &tempKel != data.Keluarahan_Id {
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("A%d", i+skipRow), req.Provinsi_Kode+"."+req.Daerah_Kode+"."+req.Kecamatan_Kode+"."+*data.Keluarahan_Id+" "+*data.Keluarahan_Id)
+			xlsx.MergeCell(transactionReport, fmt.Sprintf("A%d", i+skipRow), fmt.Sprintf("F%d", i+skipRow))
+			skipRow = skipRow + 1
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("A%d", i+skipRow), "No")
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("B%d", i+skipRow), "NOP")
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("C%d", i+skipRow), "Tahun")
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("D%d", i+skipRow), "Nama WP")
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("E%d", i+skipRow), "Alamat WP/Alamat OP")
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("F%d", i+skipRow), "PBB yang harus dibayar (Rp.)")
+			skipRow = skipRow + 1
+			tempKel = *data.Keluarahan_Id
+			totalPerKel = 0
+			isSet = true
+		}
+
+		// insert data from transaction stores
+		xlsx.SetCellValue(transactionReport, fmt.Sprintf("A%d", i+skipRow), i)
+		xlsx.SetCellValue(transactionReport, fmt.Sprintf("B%d", i+skipRow), *data.NoUrut+"."+*data.JenisOP_Id)
+		xlsx.SetCellValue(transactionReport, fmt.Sprintf("C%d", i+skipRow), data.TahunPajakskp_sppt)
+		xlsx.SetCellValue(transactionReport, fmt.Sprintf("D%d", i+skipRow), data.NamaWP_sppt)
+		xlsx.SetCellValue(transactionReport, fmt.Sprintf("E%d", i+skipRow), data.JalanWPskp_sppt)
+		tempPBB = *data.PBBygHarusDibayar_sppt - *data.Faktorpengurangan_sppt
+		xlsx.SetCellValue(transactionReport, fmt.Sprintf("F%d", i+skipRow), tempPBB)
+		totalPerKel = totalPerKel + tempPBB
+		if isSet {
+			skipRow = skipRow + 1
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("A%d", i+skipRow), "")
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("B%d", i+skipRow), "")
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("C%d", i+skipRow), "")
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("D%d", i+skipRow), "")
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("E%d", i+skipRow), "")
+			xlsx.SetCellValue(transactionReport, fmt.Sprintf("F%d", i+skipRow), totalPerKel)
+		}
+	}
+
+	return rp.OKSimple{
+		Data: xlsx,
 	}, nil
 }
