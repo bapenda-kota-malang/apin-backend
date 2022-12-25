@@ -1,4 +1,4 @@
-package skpd
+package satuankerja
 
 import (
 	"net/http"
