@@ -109,8 +109,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	skpd "github.com/bapenda-kota-malang/apin-backend/internal/models/satuankerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sektor"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sumberdana"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambongrek"
@@ -124,7 +124,7 @@ import (
 
 func GetModelList() (data []interface{}) {
 	listModelConfigurationReference := []interface{}{
-		&skpd.Skpd{},
+		&skpd.Satuankerja{},
 		&jabatan.Jabatan{},
 		&pangkat.Pangkat{},
 		&adm.Provinsi{},

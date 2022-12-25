@@ -10,14 +10,14 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/satuankerja"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
 const source = "skpd"
 
 func Create(input m.CreateDto) (any, error) {
-	var data m.Skpd
+	var data m.Satuankerja
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -33,12 +33,12 @@ func Create(input m.CreateDto) (any, error) {
 }
 
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.Skpd
+	var data []m.Satuankerja
 	var count int64
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.Skpd{}).
+		Model(&m.Satuankerja{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -59,7 +59,7 @@ func GetList(input m.FilterDto) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.Skpd
+	var data *m.Satuankerja
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -74,7 +74,7 @@ func GetDetail(id int) (any, error) {
 }
 
 func Update(id int, input m.UpdateDto) (any, error) {
-	var data *m.Skpd
+	var data *m.Satuankerja
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -97,7 +97,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 }
 
 func Delete(id int) (any, error) {
-	var data *m.Skpd
+	var data *m.Satuankerja
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
