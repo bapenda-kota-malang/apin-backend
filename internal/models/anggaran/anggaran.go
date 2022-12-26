@@ -2,13 +2,13 @@ package anggaran
 
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
+	skpd "github.com/bapenda-kota-malang/apin-backend/internal/models/satuankerja"
 )
 
 type Anggaran struct {
 	Id          uint64             `json:"id" gorm:"primaryKey"`
 	Skpd_Id     *uint64            `json:"skpd_id"`
-	Skpd        *skpd.Skpd         `json:"skpd,omitempty" gorm:"foreignKey:Skpd_Id"`
+	Skpd        *skpd.Satuankerja  `json:"skpd,omitempty" gorm:"foreignKey:Skpd_Id"`
 	Tahun       *uint64            `json:"tahun" gorm:"type:integer"`
 	Rekening_Id *uint64            `json:"rekening_id"`
 	Rekening    *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`

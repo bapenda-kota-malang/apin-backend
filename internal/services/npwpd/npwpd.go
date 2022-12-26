@@ -98,7 +98,7 @@ func Create(r *http.Request, input npwpd.CreateDto) (interface{}, error) {
 	// data rekening
 	err := a.DB.Model(&rm.Rekening{}).First(&rekening, input.Rekening_Id).Error
 	if err != nil {
-		return nil, err
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data rekening objek pajak", input.ObjekPajak)
 	}
 
 	// copy data objek pajak

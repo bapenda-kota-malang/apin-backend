@@ -86,9 +86,9 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regobjekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/reklas"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/satuankerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
-	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/skpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
@@ -148,7 +148,7 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/menu", menu.Crud{})
 
-	rh.RegCrud(r, "/satuankerja", skpd.Crud{})
+	rh.RegCrud(r, "/satuankerja", satuankerja.Crud{})
 
 	rh.RegCrud(r, "/jabatan", jabatan.Crud{})
 
