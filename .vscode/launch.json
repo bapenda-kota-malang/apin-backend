@@ -26,12 +26,18 @@
             "program": "${workspaceRoot}/cmd/apin-wajibPajak/apin-wajibPajak.go"
         },
         {
-            "name": "Launch file Migrator",
+            "name": "Launch file Gorm Migrator",
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "program": "${workspaceRoot}/cmd/migrator/migrator.go"
+            "program": "${workspaceRoot}/cmd/gormmigrator/migrator.go"
+        },
+        {
+            "name": "Launch file DB Migrator",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceRoot}/cmd/dbmigrator/dbmigrator.go"
         }
-
     ]
 }

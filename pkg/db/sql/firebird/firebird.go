@@ -2,8 +2,8 @@ package firebird
 
 import (
 	"database/sql"
-	"fmt"
 
+	dbsql "github.com/bapenda-kota-malang/apin-backend/pkg/db/sql"
 	_ "github.com/nakagami/firebirdsql"
 )
 
@@ -14,9 +14,5 @@ import (
 //	connString := "user:password@servername/foo/bar.fdb"
 //	fdb, err := firebird.NewConn(connString)
 func NewConn(connString string) (conn *sql.DB, err error) {
-	conn, err = sql.Open("firebirdsql", connString)
-	if err != nil {
-		return nil, fmt.Errorf("new firebird conn: %w", err)
-	}
-	return
+	return dbsql.NewGenericCon("firebirdsql", connString)
 }

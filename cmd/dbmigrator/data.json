@@ -1,0 +1,50 @@
+[
+    {
+        "src": {
+            "dialect": "firebird",
+            "table": {
+                "name": "GROUPS",
+                "column": [
+                    "ID",
+                    "NAME",
+                    "DESCRIPTION",
+                    "STATUS"
+                ]
+            }
+        },
+        "dst": {
+            "dialect": "postgresql",
+            "table": {
+                "name": "Group",
+                "column": [
+                    "Id",
+                    "Name",
+                    "Description",
+                    "Status"
+                ]
+            }
+        }
+    },
+    {
+        "src": {
+            "dialect": "oracle",
+            "table": {
+                "name": "JPB_JPT",
+                "column": [
+                    "KD_JPB_JPT",
+                    "NM_JPB_JPT"
+                ]
+            }
+        },
+        "dst": {
+            "dialect": "postgresql",
+            "table": {
+                "name": "Jpb",
+                "column": [
+                    "Kode",
+                    "Nama"
+                ]
+            }
+        }
+    }
+]

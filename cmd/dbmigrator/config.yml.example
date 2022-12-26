@@ -1,0 +1,6 @@
+name: DB-Migrator
+version: 0.1
+
+postgres: postgres://username:password@localhost:5432/database_name
+firebird: user:password@servername/foo/bar.fdb
+oracle: user="scott" password="tiger" connectString="dbhost:1521/orclpdb1"

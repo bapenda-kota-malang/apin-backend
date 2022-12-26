@@ -2,12 +2,16 @@ package oracle
 
 import (
 	"database/sql"
-	"fmt"
 
+	dbsql "github.com/bapenda-kota-malang/apin-backend/pkg/db/sql"
 	_ "github.com/godror/godror"
 )
 
 // create new connection to oracle database
+//
+// Requirements:
+//
+// - Oracle Client libraries
 //
 // example:
 //
@@ -23,10 +27,8 @@ import (
 // You can specify connection timeout seconds with "?connect_timeout=15" - Ping uses this timeout, NOT the Deadline in Context! Note that connect_timeout requires at least 19c client.
 //
 // For more connection options, see https://godror.github.io/godror/doc/connection.html.
+//
+// TODO: research about warning godror WARNING: discrepancy between DBTIMEZONE ("+00:00"=0) and SYSTIMESTAMP ("-08:00"=-800) - set connection timezone, see https://github.com/godror/godror/blob/master/doc/timezone.md
 func NewConn(dataSourceName string) (conn *sql.DB, err error) {
-	conn, err = sql.Open("godror", dataSourceName)
-	if err != nil {
-		return nil, fmt.Errorf("new oracle conn: %w", err)
-	}
-	return
+	return dbsql.NewGenericCon("godror", dataSourceName)
 }
