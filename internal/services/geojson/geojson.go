@@ -63,7 +63,7 @@ func GetList(input m.FilterDto) (any, error) {
 func GetListGeoJson(input m.FilterDto) (any, error) {
 	var datas []m.GeoJson
 	var count int64
-	var lists [][]byte
+	var lists []string
 
 	var pagination gh.Pagination
 	result := a.DB.
@@ -76,7 +76,7 @@ func GetListGeoJson(input m.FilterDto) (any, error) {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", datas)
 	}
 
-	var list []byte
+	var list string
 	for _, data := range datas {
 		list = setGeoJson(data)
 		lists = append(lists, list)
@@ -108,11 +108,12 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func setGeoJson(data m.GeoJson) []byte {
+func setGeoJson(data m.GeoJson) string {
 
 	featureCollection := gj.NewFeatureCollection()
-	feature := gj.NewMultiPolygonFeature(data.GeoJsonPosition())
+	feature := gj.NewPolygonFeature(data.GeoJsonPosition())
 
+	feature.SetProperty("Id", data.Id)
 	feature.SetProperty("FID_", data.FID_)
 	feature.SetProperty("Entity", data.Entity)
 	feature.SetProperty("Layer", data.Layer)
@@ -136,22 +137,27 @@ func setGeoJson(data m.GeoJson) []byte {
 	feature.SetProperty("JNIS_TANAH", data.Jnis_Tanah)
 	feature.SetProperty("J_BANGUNAN", data.J_Bangunan)
 	feature.SetProperty("L_BANGUN", data.L_Bangun)
+	feature.SetProperty("NAMA_BGN", data.Nama_Bgn)
+	feature.SetProperty("FUNGSI_BGN", data.Fungsi_Bgn)
 	feature.SetProperty("NJOP_BUMI", data.Njop_Bumi)
 	feature.SetProperty("NJOP_BGN", data.Njop_Bgn)
 	feature.SetProperty("NJOP_TOTAL", data.Njop_Total)
 	feature.SetProperty("PENDATAAN", data.Pendataan)
+	feature.SetProperty("DONE", data.Done)
 	feature.SetProperty("KETERANGAN", data.Keterangan)
 	feature.SetProperty("EDIT_KAV", data.Edit_Kav)
 	feature.SetProperty("FUNGSI", data.Fungsi)
 	feature.SetProperty("JNIS_PAJAK", data.Jnis_Pajak)
+	feature.SetProperty("JNIS_PAJA", data.Jnis_Pajak)
 
 	featureCollection.AddFeature(feature)
 	result, err := featureCollection.MarshalJSON()
 	if err != nil {
-		return nil
+		return ""
 	}
 
-	return result
+	tempResult := string(result)
+	return tempResult
 }
 
 func GetDetailGeoJson(id int) (any, error) {
