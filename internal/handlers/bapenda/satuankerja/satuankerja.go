@@ -1,12 +1,12 @@
-package skpd
+package satuankerja
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/skpd"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/skpd"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/satuankerja"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/satuankerja"
 )
 
 type Crud struct{}
