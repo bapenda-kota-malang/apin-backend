@@ -85,6 +85,63 @@ func TestDbMigratorService_ParseJson(t *testing.T) {
 	jsonEmpty := `[]`
 	jsonNotArray := `{}`
 	jsonDataNotObject := `["data", "failed"]`
+	jsonSrcDstDialectFailed := `[{
+        "src": {
+            "dialect": {"must string": "string"}
+        },
+        "dst": {
+            "dialect": {"must string": "string"}
+        }
+    }]`
+	jsonSrcDstTableFailed := `[{
+        "src": {
+            "table": "must object"
+        },
+        "dst": {
+            "table": "must object"
+        }
+    }]`
+	jsonSrcDstTableNameFailed := `[{
+        "src": {
+            "table": {
+                "name": {"must string": "string"}
+            }
+        },
+        "dst": {
+            "table": {
+                "name": {"must string": "string"}
+            }
+        }
+    }]`
+	jsonSrcDstTableColumnFailed := `[{
+        "src": {
+            "table": {
+                "column": "must array string"
+            }
+        },
+        "dst": {
+            "table": {
+                "column": ["string only", false, 0]
+            }
+        }
+    }]`
+	jsonSrcDstValid := `[{
+        "src": {
+            "dialect": "firebird",
+            "table": {
+                "name": "test",
+                "column": ["ID", "NAME"]
+            }
+        },
+        "dst": {
+            "dialect": "postgresql",
+            "table": {
+                "name": "test",
+                "column": ["Id", "Name"]
+            }
+        }
+    }]`
+
 	type args struct {
 		b []byte
 	}
@@ -99,6 +156,20 @@ func TestDbMigratorService_ParseJson(t *testing.T) {
 		{name: "success but json empty", args: args{b: []byte(jsonEmpty)}, wantErr: false, wantDbMigrator: []dbmigrator.Migrator{}},
 		{name: "error parse json not array", args: args{b: []byte(jsonNotArray)}, wantErr: true, wantErrMessage: "cannot unmarshal"},
 		{name: "error parse json data not object", args: args{b: []byte(jsonDataNotObject)}, wantErr: true, wantErrMessage: "cannot unmarshal"},
+		{name: "error parse json data object, dialect not string", args: args{b: []byte(jsonSrcDstDialectFailed)}, wantErr: true, wantErrMessage: "cannot unmarshal"},
+		{name: "error parse json data object, table not object", args: args{b: []byte(jsonSrcDstTableFailed)}, wantErr: true, wantErrMessage: "cannot unmarshal"},
+		{name: "error parse json data object, table name not string", args: args{b: []byte(jsonSrcDstTableNameFailed)}, wantErr: true, wantErrMessage: "cannot unmarshal"},
+		{name: "error parse json data object, table column not string array", args: args{b: []byte(jsonSrcDstTableColumnFailed)}, wantErr: true, wantErrMessage: "cannot unmarshal"},
+		{name: "success parse json", args: args{b: []byte(jsonSrcDstValid)}, wantErr: false, wantDbMigrator: []dbmigrator.Migrator{{
+			Src: dbmigrator.Db{
+				Dialect: "firebird",
+				Table:   dbmigrator.Table{Name: "test", Column: []string{"ID", "NAME"}},
+			},
+			Dst: dbmigrator.Db{
+				Dialect: "postgresql",
+				Table:   dbmigrator.Table{Name: "test", Column: []string{"Id", "Name"}},
+			},
+		}}},
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
@@ -106,7 +177,7 @@ func TestDbMigratorService_ParseJson(t *testing.T) {
 			s := &DbMigratorService{}
 			err := s.ParseJson(tt.args.b)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DbMigratorService.ParseJson() error = %v, wantErr %v, wantErrMessage %v", err, tt.wantErr, tt.wantErrMessage)
+				t.Errorf("DbMigratorService.ParseJson() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if err != nil && !strings.Contains(err.Error(), tt.wantErrMessage) {
