@@ -41,6 +41,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjpln"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/geojson"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
@@ -378,6 +379,11 @@ func GetModelList() (data []interface{}) {
 		&undanganpemeriksaan.UndanganPemeriksaan{},
 	}
 	data = append(data, listModelPenagihan...)
+
+	listModelGeoJson := []interface{}{
+		&geojson.GeoJson{},
+	}
+	data = append(data, listModelGeoJson...)
 
 	return data
 }

@@ -43,6 +43,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb9"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbmezanin"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/geojson"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargareferensi"
@@ -245,6 +246,13 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/dbkbjpb16", dbkbjpb16.Crud{})
 
 	rh.RegCrud(r, "/dbkbmezanin", dbkbmezanin.Crud{})
+
+	rh.RegCrud(r, "/geojson-data", geojson.Crud{})
+
+	r.Route("/geojson", func(r chi.Router) {
+		r.Get("/", geojson.GetListGeoJson)
+		r.Get("/{id}", geojson.GetDetailGeoJson)
+	})
 
 	r.Route("/bphtbsptpd-approval", func(r chi.Router) {
 		r.Get("/{tp}", bphtbsptpd.GetListVerifikasi)
