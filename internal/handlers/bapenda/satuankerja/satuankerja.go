@@ -6,7 +6,7 @@ import (
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/satuankerja"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/skpd"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/satuankerja"
 )
 
 type Crud struct{}
