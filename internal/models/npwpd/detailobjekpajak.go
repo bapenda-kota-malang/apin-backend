@@ -49,6 +49,7 @@ type DetailObjekPajakCreateDto struct {
 
 type DetailObjekPajakUpdateDto struct {
 	Id        uint64  `json:"id" gorm:"primaryKey"`
+	JenisOp   *string `json:"jenisOp" gorm:"size:200"`
 	JumlahOp  *string `json:"jumlahOp" gorm:"size:200"`
 	TarifOp   *string `json:"tarifOp" gorm:"size:200"`
 	UnitOp    *string `json:"unitOp" gorm:"size:50"`
