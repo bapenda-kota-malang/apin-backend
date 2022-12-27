@@ -80,7 +80,7 @@ type FilterDto struct {
 	PageSize          int             `json:"page_size"`
 }
 
-type permohonanNOP struct {
+type PermohonanNOP struct {
 	PermohonanProvinsiID  string
 	PermohonanKotaID      string
 	PermohonanKecamatanID string
@@ -126,11 +126,11 @@ type PstPermohonanResponse struct {
 	PstPermohonanPengurangan *PstPermohonanPengurangan `json:"pstPengurangan"`
 }
 
-func DecodeNOPPermohonan(nop *string) *permohonanNOP {
+func DecodeNOPPermohonan(nop *string) *PermohonanNOP {
 	if nop != nil {
 		var tempNOP string
 		tempNOP = *nop
-		result := permohonanNOP{
+		result := PermohonanNOP{
 			PermohonanProvinsiID:  tempNOP[0:2],
 			PermohonanKotaID:      tempNOP[2:4],
 			PermohonanKecamatanID: tempNOP[4:7],

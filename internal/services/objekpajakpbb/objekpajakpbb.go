@@ -17,6 +17,7 @@ import (
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	pmh "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	msppt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
@@ -344,6 +345,29 @@ func GetDetailbyField(field string, value string) (any, error) {
 	var data *m.ObjekPajakPbb
 
 	result := a.DB.Where(field, value).First(&data)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
+func GetDetailbyNop(nop pmh.PermohonanNOP) (any, error) {
+	var data *m.ObjekPajakPbb
+
+	result := a.DB.
+		Where("Provinsi_Kode", nop.PermohonanProvinsiID).
+		Where("Daerah_Kode", nop.PermohonanKotaID).
+		Where("Kecamatan_Kode", nop.PermohonanKecamatanID).
+		Where("Kelurahan_Kode", nop.PermohonanKelurahanID).
+		Where("Blok_Kode", nop.PermohonanBlokID).
+		Where("NoUrut", nop.NoUrutPemohon).
+		Where("JenisOp", nop.PemohonJenisOPID).
+		First(&data)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {

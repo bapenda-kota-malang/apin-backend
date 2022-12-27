@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"crypto/rand"
+
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
@@ -171,7 +173,7 @@ func GetList(input m.FilterDto, auth int, tp string) (any, error) {
 	} else if auth == 3 && tp == "ver" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"03", "06", "07", "08", "09"})
 	} else if (auth == 0 || auth == 3 || auth == 2 || auth == 4) && tp == "val" {
-		queryBase = queryBase.Where("\"Status\" IN ?", []string{"11", "14", "15"})
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"11", "15"})
 	} else if auth == 2 && tp == "ver" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"06", "08", "09"})
 	}
@@ -299,6 +301,31 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+func LogApproval(id uuid.UUID, input m.RequestApprovalSptpd, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data m.LogApproval
+
+	data = m.LogApproval{
+		Sptpd_Id: id,
+		User_id:  *input.User_id,
+		Status:   *input.Status,
+	}
+
+	var err error
+	if data.Id == 0 {
+		err = tx.Create(&data).Error
+	} else {
+		err = tx.Save(&data).Error
+	}
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data datanir: "+err.Error(), data)
+	}
+
+	return rp.OKSimple{Data: data}, nil
+}
+
 func Approval(id uuid.UUID, kd string, auth int, input m.RequestApprovalSptpd, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
@@ -310,6 +337,10 @@ func Approval(id uuid.UUID, kd string, auth int, input m.RequestApprovalSptpd, t
 	}
 
 	data = input.SetDataApproval(data)
+	_, errLog := LogApproval(id, input, tx)
+	if errLog != nil {
+		return sh.SetError("request", "approval-data", source, "failed", "gagal loging approval data", errLog)
+	}
 
 	tempVal := []string{"10", "11", "12", "13"}
 	if kd == "03" && auth == 4 {
@@ -343,6 +374,9 @@ func Approval(id uuid.UUID, kd string, auth int, input m.RequestApprovalSptpd, t
 		//tolak kabid
 		// tempVal := "2"
 		// data.Proses = &tempVal
+		p, _ := rand.Prime(rand.Reader, 32)
+		tempNumber := p.String()
+		data.IdBilling = &tempNumber
 	} else if kd == "09" && auth == 2 {
 		//tolak kabid
 		// tempVal := "2"

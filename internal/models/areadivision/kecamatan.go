@@ -5,6 +5,7 @@ type Kecamatan struct {
 	Daerah_Kode string       `json:"daerah_kode" gorm:"size:4"`
 	Daerah      *Daerah      `json:"daerah,omitempty" gorm:"foreignKey:Daerah_Kode;references:Kode"`
 	Kode        string       `json:"kode" gorm:"unique;size:7"`
+	Nop         string       `json:"nop" gorm:"unique;size:7"`
 	Nama        string       `json:"nama" gorm:"size:100"`
 	Kelurahan   []*Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kecamatan_Kode;references:Kode"`
 }
