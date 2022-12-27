@@ -64,6 +64,7 @@ require (
 require (
 	github.com/jackc/pgtype v1.11.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/paulmach/go.geojson v1.4.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 )
