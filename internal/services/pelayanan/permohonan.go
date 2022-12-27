@@ -131,7 +131,8 @@ func GetNoUrut(input m.PermohonanRequestDto) string {
 }
 
 func GetStatusNOP(nop *string) (interface{}, error) {
-	result, err := oppbb.GetDetailbyField("Nop", *nop)
+	permohonannop := m.DecodeNOPPermohonan(nop)
+	result, err := oppbb.GetDetailbyNop(*permohonannop)
 
 	return result, err
 }

@@ -84,9 +84,15 @@ func GetDetail(id int) (interface{}, error) {
 
 func GetDetailByCode(id int) (interface{}, error) {
 	var data *m.Kelurahan
-	result := a.DB.Where("Kode", fmt.Sprint(id)).First(&data)
+
+	result := a.DB.Where("Nop", fmt.Sprint(id)).First(&data)
 	if result.RowsAffected == 0 {
-		return nil, nil
+		result := a.DB.Where("Kode", fmt.Sprint(id)).First(&data)
+		if result.RowsAffected == 0 {
+			return nil, nil
+		} else if result.Error != nil {
+			return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+		}
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
