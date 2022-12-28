@@ -166,7 +166,7 @@ func updateDetailObjekPajak(input []m.DetailObjekPajakUpdateDto, npwpd_id uint64
 			}
 			// set directur value to null if golongan orang pribadi
 			dataDetailUpdate.Npwpd_Id = npwpd_id
-			dataDetailUpdate.JenisOp = &rekeningNama
+			// dataDetailUpdate.JenisOp = &rekeningNama
 			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
 				return errors.New("gagal menyimpan data detail objek pajak hotel: " + result.Error.Error())
 			}
@@ -220,7 +220,7 @@ func updateDetailObjekPajak(input []m.DetailObjekPajakUpdateDto, npwpd_id uint64
 			}
 			// set directur value to null if golongan orang pribadi
 			dataDetailUpdate.Npwpd_Id = npwpd_id
-			dataDetailUpdate.JenisOp = &rekeningNama
+			// dataDetailUpdate.JenisOp = &rekeningNama
 			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
 				return errors.New("gagal menyimpan data detail objek pajak resto: " + result.Error.Error())
 			}
@@ -274,7 +274,7 @@ func updateDetailObjekPajak(input []m.DetailObjekPajakUpdateDto, npwpd_id uint64
 			}
 			// set directur value to null if golongan orang pribadi
 			dataDetailUpdate.Npwpd_Id = npwpd_id
-			dataDetailUpdate.JenisOp = &rekeningNama
+			// dataDetailUpdate.JenisOp = &rekeningNama
 			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
 				return errors.New("gagal menyimpan data detail objek pajak hiburan: " + result.Error.Error())
 			}
@@ -328,7 +328,7 @@ func updateDetailObjekPajak(input []m.DetailObjekPajakUpdateDto, npwpd_id uint64
 			}
 			// set directur value to null if golongan orang pribadi
 			dataDetailUpdate.Npwpd_Id = npwpd_id
-			dataDetailUpdate.JenisOp = &rekeningNama
+			// dataDetailUpdate.JenisOp = &rekeningNama
 			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
 				return errors.New("gagal menyimpan data detail objek pajak reklame: " + result.Error.Error())
 			}
@@ -382,7 +382,7 @@ func updateDetailObjekPajak(input []m.DetailObjekPajakUpdateDto, npwpd_id uint64
 			}
 			// set directur value to null if golongan orang pribadi
 			dataDetailUpdate.Npwpd_Id = npwpd_id
-			dataDetailUpdate.JenisOp = &rekeningNama
+			// dataDetailUpdate.JenisOp = &rekeningNama
 			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
 				return errors.New("gagal menyimpan data detail objek pajak ppj: " + result.Error.Error())
 			}
@@ -436,7 +436,7 @@ func updateDetailObjekPajak(input []m.DetailObjekPajakUpdateDto, npwpd_id uint64
 			}
 			// set directur value to null if golongan orang pribadi
 			dataDetailUpdate.Npwpd_Id = npwpd_id
-			dataDetailUpdate.JenisOp = &rekeningNama
+			// dataDetailUpdate.JenisOp = &rekeningNama
 			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
 				return errors.New("gagal menyimpan data detail objek pajak parkir: " + result.Error.Error())
 			}
@@ -490,7 +490,7 @@ func updateDetailObjekPajak(input []m.DetailObjekPajakUpdateDto, npwpd_id uint64
 			}
 			// set directur value to null if golongan orang pribadi
 			dataDetailUpdate.Npwpd_Id = npwpd_id
-			dataDetailUpdate.JenisOp = &rekeningNama
+			// dataDetailUpdate.JenisOp = &rekeningNama
 			if result := tx.Save(&dataDetailUpdate); result.Error != nil {
 				return errors.New("gagal menyimpan data detail objek pajak air tanah: " + result.Error.Error())
 			}
