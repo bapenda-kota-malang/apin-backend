@@ -31,15 +31,15 @@ func Create(input m.CreateDto, userId uint, tx *gorm.DB) (any, error) {
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload bapl", data)
 	}
 
-	data.CreateBy_User_Id = userId
+	data.CreateBy_Pegawai_Id = userId
 	data.Status = mtypes.StatusVerifikasiBaru
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Save(&data); result.Error != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data bapl", data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
@@ -69,10 +69,10 @@ func Verify(potensiOp_Id uuid.UUID, userId uint, input m.VerifyDto) (any, error)
 	jabatan := strings.ToUpper(resp.(string))
 	userRole := ""
 	if kasubid := strings.Contains(jabatan, "KEPALA SUB BIDANG"); kasubid {
-		data.Kasubid_User_Id = &userId
+		data.Kasubid_Pegawai_Id = &userId
 		userRole = "kasubid"
 	} else if kabid := strings.Contains(jabatan, "KEPALA BIDANG"); kabid {
-		data.Kabid_User_Id = &userId
+		data.Kabid_Pegawai_Id = &userId
 		userRole = "kabid"
 	}
 	if userRole == "" {
