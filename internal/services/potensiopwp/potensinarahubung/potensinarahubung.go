@@ -25,26 +25,29 @@ func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 		tx = a.DB
 	}
 	var data []m.PotensiNarahubung
+	if len(input) == 0 {
+		return nil, nil
+	}
 
 	for i := range input {
 		var tmp m.PotensiNarahubung
 		if input[i].Kelurahan_Id != nil {
 			_, err := skelurahan.CrossCheckDaerah(input[i].Daerah_Id, *input[i].Kelurahan_Id)
 			if err != nil {
-				return sh.SetError("request", "create-data", source, "failed", "data kelurahan bukan di kota terkait", data)
+				return sh.SetError("request", "create-data", source, "failed", "data kelurahan narahubung bukan di kota terkait", data)
 			}
 		}
 		tx.Where(m.PotensiNarahubung{Potensiop_Id: input[i].Potensiop_Id, Nik: input[i].Nik}).First(&tmp)
 		// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 		if err := sc.Copy(&tmp, &input[i]); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload narahubung", data)
 		}
 		data = append(data, tmp)
 	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Save(&data); result.Error != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data narahubung", data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
