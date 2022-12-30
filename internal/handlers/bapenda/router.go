@@ -63,6 +63,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/konfigurasipajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nik"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/njoptkpflag"
@@ -249,6 +250,12 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/dbkbmezanin", dbkbmezanin.Crud{})
 
 	rh.RegCrud(r, "/geojson-data", geojson.Crud{})
+
+	rh.RegCrud(r, "/kunjungan", kunjungan.Crud{})
+
+	// r.Route("/kunjungan-detail", func(r chi.Router) {
+	// 	// r.Delete(r, "/{id}", kunjungan.DeleteDetail)
+	// })
 
 	r.Route("/geojson", func(r chi.Router) {
 		r.Get("/", geojson.GetListGeoJson)
