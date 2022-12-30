@@ -303,6 +303,11 @@ func GetModelList() (data []interface{}) {
 		&pstpermohonan.PstDetail{},
 		&pstpermohonan.PstDataOPBaru{},
 		&pstpermohonan.PstPermohonanPengurangan{},
+		&pstpermohonan.KeputusanKeberatanPbb{},
+		&pstpermohonan.PembatalanSppt{},
+		&pstpermohonan.PembetulanSpptSKPSTP{},
+		&pstpermohonan.SPMKP{},
+		&pstpermohonan.SkSk{},
 	}
 	data = append(data, listModelPelayanan...)
 
