@@ -28,6 +28,15 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func GetDetailByNoNPWPD(w http.ResponseWriter, r *http.Request) {
+	no := hh.ValidateString(w, r, "no")
+	if no == "" {
+		return
+	}
+	result, err := s.GetDetailByNoNPWPD(r, no)
+	hh.DataResponse(w, result, err)
+}
+
 func Create(w http.ResponseWriter, r *http.Request) {
 	var input m.CreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {

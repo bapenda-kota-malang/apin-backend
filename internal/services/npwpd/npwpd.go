@@ -83,6 +83,31 @@ func GetDetail(r *http.Request, regID int) (interface{}, error) {
 	}, err
 }
 
+func GetDetailByNoNPWPD(r *http.Request, regNo string) (interface{}, error) {
+	var register *npwpd.Npwpd
+	err := a.DB.Model(&npwpd.Npwpd{}).
+		Where("Npwpd", regNo).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
+		Preload("PemilikWps.Daerah").
+		Preload("PemilikWps.Kelurahan").
+		Preload("Narahubungs.Daerah").
+		Preload("Narahubungs.Kelurahan").
+		First(&register).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return rp.OKSimple{
+		Data: register,
+	}, err
+}
+
 func Create(r *http.Request, input npwpd.CreateDto) (interface{}, error) {
 	// objekpajak
 	var dataObjekPajak op.ObjekPajakCreateDto

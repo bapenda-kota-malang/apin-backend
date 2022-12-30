@@ -217,6 +217,7 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/kelasbangunan", kelasbangunan.Crud{})
 
+	r.Get("/nop-bynopstr/{nop}", nop.GetDetailByNopString)
 	rh.RegCrud(r, "/nop", nop.Crud{})
 
 	rh.RegCrud(r, "/dbkbjpb2", dbkbjpb2.Crud{})
@@ -333,13 +334,13 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", group.Delete)
 	})
 
+	r.Get("/npwpd-byno/{no}", npwpd.GetDetailByNoNPWPD)
 	r.Route("/npwpd", func(r chi.Router) {
 		r.Get("/", npwpd.GetList)
 		r.Get("/{id}", npwpd.GetDetail)
 		r.Post("/", npwpd.Create)
 		r.Patch("/{id}", npwpd.Update)
 		r.Delete("/{id}", npwpd.Delete)
-
 	})
 
 	r.Route("/regnpwpd", func(r chi.Router) {

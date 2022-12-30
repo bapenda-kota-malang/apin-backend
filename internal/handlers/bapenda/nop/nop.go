@@ -41,6 +41,16 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func GetDetailByNopString(w http.ResponseWriter, r *http.Request) {
+	nop := hh.ValidateString(w, r, "nop")
+	if nop == "" {
+		return
+	}
+
+	result, err := s.GetDetailByNop(nop)
+	hh.DataResponse(w, result, err)
+}
+
 func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
