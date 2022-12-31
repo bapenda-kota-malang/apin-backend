@@ -251,12 +251,6 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/geojson-data", geojson.Crud{})
 
-	rh.RegCrud(r, "/kunjungan", kunjungan.Crud{})
-
-	// r.Route("/kunjungan-detail", func(r chi.Router) {
-	// 	// r.Delete(r, "/{id}", kunjungan.DeleteDetail)
-	// })
-
 	r.Route("/geojson", func(r chi.Router) {
 		r.Get("/", geojson.GetListGeoJson)
 		r.Get("/{id}", geojson.GetDetailGeoJson)
@@ -278,6 +272,9 @@ func SetRoutes() http.Handler {
 	r.Route("/spptsimulasi-process", func(r chi.Router) {
 		r.Post("/{flag}", sppt.GetSimulasiByNop)
 	})
+
+	r.Delete("/kunjungan-detail/{id}", kunjungan.DeleteDetail)
+	rh.RegCrud(r, "/kunjungan", kunjungan.Crud{})
 
 	r.Route("/sppt-simulasi", func(r chi.Router) {
 		r.Post("/", sppt.CreateSimulasi)
