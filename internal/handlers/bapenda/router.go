@@ -18,6 +18,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
@@ -449,6 +450,15 @@ func SetRoutes() http.Handler {
 	r.Route("/skpdkb", func(r chi.Router) {
 		r.Post("/existing/{type}", spt.SkpdkbExisting)
 		r.Post("/new/{type}", spt.SkpdNew)
+	})
+
+	r.Route("/jambong", func(r chi.Router) {
+		r.Post("/existing/{type}", spt.SkpdkbExisting)
+		r.Post("/new/{type}", spt.SkpdNew)
+	})
+
+	r.Route("/prosesjambong", func(r chi.Router) {
+		r.Post("/", prosesjambong.Create)
 	})
 
 	// route for espt list data, verify espt, and get detail data for espt before verify
