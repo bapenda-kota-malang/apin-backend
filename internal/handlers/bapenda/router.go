@@ -63,6 +63,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/konfigurasipajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nik"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/njoptkpflag"
@@ -217,6 +218,7 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/kelasbangunan", kelasbangunan.Crud{})
 
+	r.Get("/nop-bynopstr/{nop}", nop.GetDetailByNopString)
 	rh.RegCrud(r, "/nop", nop.Crud{})
 
 	rh.RegCrud(r, "/dbkbjpb2", dbkbjpb2.Crud{})
@@ -270,6 +272,9 @@ func SetRoutes() http.Handler {
 	r.Route("/spptsimulasi-process", func(r chi.Router) {
 		r.Post("/{flag}", sppt.GetSimulasiByNop)
 	})
+
+	r.Delete("/kunjungan-detail/{id}", kunjungan.DeleteDetail)
+	rh.RegCrud(r, "/kunjungan", kunjungan.Crud{})
 
 	r.Route("/sppt-simulasi", func(r chi.Router) {
 		r.Post("/", sppt.CreateSimulasi)
@@ -333,13 +338,13 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", group.Delete)
 	})
 
+	r.Get("/npwpd-byno/{no}", npwpd.GetDetailByNoNPWPD)
 	r.Route("/npwpd", func(r chi.Router) {
 		r.Get("/", npwpd.GetList)
 		r.Get("/{id}", npwpd.GetDetail)
 		r.Post("/", npwpd.Create)
 		r.Patch("/{id}", npwpd.Update)
 		r.Delete("/{id}", npwpd.Delete)
-
 	})
 
 	r.Route("/regnpwpd", func(r chi.Router) {

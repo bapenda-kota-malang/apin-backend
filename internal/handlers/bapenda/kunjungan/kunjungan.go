@@ -1,12 +1,12 @@
-package nop
+package kunjungan
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/nop"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungan"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/kunjungan"
 )
 
 type Crud struct{}
@@ -17,7 +17,7 @@ func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Create(data, nil)
+	result, err := s.Create(data)
 	hh.DataResponse(w, result, err)
 }
 
@@ -41,16 +41,6 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func GetDetailByNopString(w http.ResponseWriter, r *http.Request) {
-	nop := hh.ValidateString(w, r, "nop")
-	if nop == "" {
-		return
-	}
-
-	result, err := s.GetDetailByNop(nop)
-	hh.DataResponse(w, result, err)
-}
-
 func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
@@ -62,7 +52,7 @@ func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Update(id, data, nil)
+	result, err := s.Update(id, data)
 	hh.DataResponse(w, result, err)
 }
 
@@ -72,6 +62,16 @@ func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Delete(id, nil)
+	result, err := s.Delete(id)
+	hh.DataResponse(w, result, err)
+}
+
+func DeleteDetail(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	result, err := s.DeleteDetail(id, nil)
 	hh.DataResponse(w, result, err)
 }

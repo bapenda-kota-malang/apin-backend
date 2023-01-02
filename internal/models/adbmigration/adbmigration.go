@@ -56,6 +56,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/konfigurasipajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
@@ -389,6 +390,12 @@ func GetModelList() (data []interface{}) {
 		&geojson.GeoJson{},
 	}
 	data = append(data, listModelGeoJson...)
+
+	listModelKunjungan := []interface{}{
+		&kunjungan.Kunjungan{},
+		&kunjungan.KunjunganDetail{},
+	}
+	data = append(data, listModelKunjungan...)
 
 	return data
 }
