@@ -20,7 +20,7 @@ SET row_security = off;
 -- Data for Name: Skpd; Type: TABLE DATA; Schema: public; Owner: dexwip
 --
 
-COPY public."Skpd" ("Id", "Kode", "Nama", "Alamat", "Telp") FROM stdin;
+COPY public."Satuankerja" ("Id", "Kode", "Nama", "Alamat", "Telp") FROM stdin;
 112	1.20.08	Badan Pelayanan Pajak Daerah	Malang	\N
 \.
 
@@ -29,7 +29,7 @@ COPY public."Skpd" ("Id", "Kode", "Nama", "Alamat", "Telp") FROM stdin;
 -- Name: Skpd_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: dexwip
 --
 
-SELECT pg_catalog.setval('public."Skpd_Id_seq"', 112, false);
+SELECT pg_catalog.setval('public."SatuanKerja_Id_seq"', 112, false);
 
 
 --

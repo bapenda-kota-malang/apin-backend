@@ -1,6 +1,6 @@
 package skpd
 
-type Satuankerja struct {
+type SatuanKerja struct {
 	Id     uint64  `json:"id" gorm:"primaryKey"`
 	Kode   *string `json:"kode" gorm:"type:varchar(30)"`
 	Nama   *string `json:"nama" gorm:"type:varchar(100)"`
