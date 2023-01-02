@@ -125,7 +125,7 @@ import (
 
 func GetModelList() (data []interface{}) {
 	listModelConfigurationReference := []interface{}{
-		&skpd.Satuankerja{},
+		&skpd.SatuanKerja{},
 		&jabatan.Jabatan{},
 		&pangkat.Pangkat{},
 		&adm.Provinsi{},

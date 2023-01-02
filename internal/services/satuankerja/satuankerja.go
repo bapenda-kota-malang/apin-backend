@@ -17,7 +17,7 @@ import (
 const source = "skpd"
 
 func Create(input m.CreateDto) (any, error) {
-	var data m.Satuankerja
+	var data m.SatuanKerja
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -33,12 +33,12 @@ func Create(input m.CreateDto) (any, error) {
 }
 
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.Satuankerja
+	var data []m.SatuanKerja
 	var count int64
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.Satuankerja{}).
+		Model(&m.SatuanKerja{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -59,7 +59,7 @@ func GetList(input m.FilterDto) (any, error) {
 }
 
 func GetDetail(id int) (any, error) {
-	var data *m.Satuankerja
+	var data *m.SatuanKerja
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -74,7 +74,7 @@ func GetDetail(id int) (any, error) {
 }
 
 func Update(id int, input m.UpdateDto) (any, error) {
-	var data *m.Satuankerja
+	var data *m.SatuanKerja
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -97,7 +97,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 }
 
 func Delete(id int) (any, error) {
-	var data *m.Satuankerja
+	var data *m.SatuanKerja
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
