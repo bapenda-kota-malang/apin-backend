@@ -5,6 +5,13 @@
 *.so
 *.dylib
 
+cmd/apin-bapenda/apin-bapenda
+cmd/apin-ppat/apin-ppat
+cmd/apin-wajibPajak/apin-wajibPajak
+cmd/excelmigrator/excelmigrator
+cmd/migrator/migrator
+cmd/seeder/seeder
+
 # Test binary, built with `go test -c`
 *.test
 
