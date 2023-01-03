@@ -187,7 +187,7 @@ func GetJabatanPegawai(userId uint) (any, error) {
 
 func ChangePass(id int, input m.ChangePassDto) (any, error) {
 	// TODO: PINDAH KE VALIDATOR
-	if *input.OldPassword != *input.RePassword {
+	if *input.NewPassword != *input.RePassword {
 		return nil, errors.New("password baru dan konfirmasi tidak sama")
 	}
 
