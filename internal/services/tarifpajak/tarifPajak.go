@@ -2,6 +2,7 @@ package tarifpajak
 
 import (
 	"strconv"
+	"strings"
 
 	sc "github.com/jinzhu/copier"
 
@@ -36,9 +37,19 @@ func GetList(input m.FilterDto) (any, error) {
 	var data []m.TarifPajak
 	var count int64
 
+	baseQuery := a.DB.Model(&m.TarifPajak{})
+
+	if input.Tahun_Opt != nil && strings.Contains(*input.Tahun_Opt, "order") {
+		strOrder := "\"Tahun\""
+		if strings.Contains(*input.Tahun_Opt, "desc") {
+			strOrder += " desc"
+		}
+		baseQuery.Order(strOrder)
+		input.Tahun_Opt = nil
+	}
+
 	var pagination gh.Pagination
-	result := a.DB.
-		Model(&m.TarifPajak{}).
+	result := baseQuery.
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
