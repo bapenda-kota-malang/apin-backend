@@ -184,3 +184,34 @@ func GetJabatanPegawai(userId uint) (any, error) {
 	}
 	return data, nil
 }
+
+func ChangePass(id int, input m.ChangePassDto) (any, error) {
+	// TODO: PINDAH KE VALIDATOR
+	if *input.OldPassword != *input.RePassword {
+		return nil, errors.New("password baru dan konfirmasi tidak sama")
+	}
+
+	var data *m.User
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+	} else if !p.Check(*input.OldPassword, *data.Password) {
+		return nil, errors.New("password lama tidak sesuai")
+	}
+
+	password, err := p.Hash(*input.NewPassword)
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal membuat password", data)
+	} else {
+		data.Password = &password
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data: "+result.Error.Error(), data)
+	}
+	data.Password = nil
+
+	return data, nil
+}

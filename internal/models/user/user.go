@@ -84,3 +84,9 @@ type CheckerPThreeDto struct {
 	Email      string  `json:"email" validate:"validemail"`
 	RePassword *string `json:"rePassword,omitempty" validate:"minLength=6"`
 }
+
+type ChangePassDto struct {
+	OldPassword *string `json:"oldPassword,omitempty" validate:"minLength=6"`
+	RePassword  *string `json:"rePassword,omitempty" validate:"minLength=6"`
+	NewPassword *string `json:"newPassword,omitempty" validate:"minLength=6"`
+}
