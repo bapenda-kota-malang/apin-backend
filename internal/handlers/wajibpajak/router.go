@@ -47,7 +47,6 @@ func SetRoutes() http.Handler {
 		"/register",
 		"/account/register",
 		"/account/reset-password",
-		"/account/change-password",
 		"/provinsi",
 		"/daerah",
 		"/kecamatan",
