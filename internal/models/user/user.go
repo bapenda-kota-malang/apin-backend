@@ -84,3 +84,23 @@ type CheckerPThreeDto struct {
 	Email      string  `json:"email" validate:"validemail"`
 	RePassword *string `json:"rePassword,omitempty" validate:"minLength=6"`
 }
+
+type ChangePassDto struct {
+	OldPassword *string `json:"oldPassword,omitempty" validate:"required;minLength=6"`
+	RePassword  *string `json:"rePassword,omitempty" validate:"required;minLength=6"`
+	NewPassword *string `json:"newPassword,omitempty" validate:"required;minLength=6"`
+}
+
+type RequestResetPassDto struct {
+	Email string `json:"email" validate:"required;validemail"`
+}
+
+type CheckResetPassDto struct {
+	Email string `json:"email" validate:"required;validemail"`
+	Token string `json:"token" validate:"required"`
+}
+
+type ResetPassDto struct {
+	NewPassword *string `json:"newPassword,omitempty" validate:"required;minLength=6"`
+	RePassword  *string `json:"rePassword,omitempty" validate:"required;minLength=6"`
+}
