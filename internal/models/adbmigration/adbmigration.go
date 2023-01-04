@@ -120,6 +120,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
+	mut "github.com/bapenda-kota-malang/apin-backend/internal/models/usertoken"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 )
@@ -165,6 +166,7 @@ func GetModelList() (data []interface{}) {
 
 	listModelManagementUser := []interface{}{
 		&mu.User{},
+		&mut.UserToken{},
 		&group.Group{},
 		&menu.Menu{},
 		&pegawai.Pegawai{},
