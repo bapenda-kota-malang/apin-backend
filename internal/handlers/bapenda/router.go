@@ -90,6 +90,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/satuankerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
@@ -211,6 +212,9 @@ func SetRoutes() http.Handler {
 	r.Patch("/sppt/cetakdaftartagihan", sppt.CetakDaftarTagihan)
 	r.Patch("/sppt/penilaian", sppt.Penilaian)
 	rh.RegCrud(r, "/sppt", sppt.Crud{})
+
+	r.Post("/sksk/cetak", sksk.Cetak)
+	rh.RegCrud(r, "/sksk", sksk.Crud{})
 
 	rh.RegCrud(r, "/bphtbsptpd", bphtbsptpd.Crud{})
 

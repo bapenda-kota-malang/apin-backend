@@ -89,6 +89,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
@@ -308,7 +309,6 @@ func GetModelList() (data []interface{}) {
 		&pstpermohonan.PembatalanSppt{},
 		&pstpermohonan.PembetulanSpptSKPSTP{},
 		&pstpermohonan.SPMKP{},
-		&pstpermohonan.SkSk{},
 	}
 	data = append(data, listModelPelayanan...)
 
@@ -397,5 +397,9 @@ func GetModelList() (data []interface{}) {
 	}
 	data = append(data, listModelKunjungan...)
 
+	listModelSkSk := []interface{}{
+		&sksk.SkSk{},
+	}
+	data = append(data, listModelSkSk...)
 	return data
 }
