@@ -81,7 +81,9 @@ func SetRoutes() http.Handler {
 		r.Get("/confirm-by-email", account.ConfirmByEmail)
 		r.Get("/resend-confirmation", account.ResendConfirmation)
 		r.Patch("/change-pass", account.ChangePassword)
-		r.Patch("/reset-pass", account.ResetPassword)
+		r.Post("/reset-password", account.RequestResetPassword)
+		r.Get("/reset-password", account.CheckResetPassword)
+		r.Patch("/reset-password", account.ResetPassword)
 	})
 
 	r.Route("/profile", func(r chi.Router) {
