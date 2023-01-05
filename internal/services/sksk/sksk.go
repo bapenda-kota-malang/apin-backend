@@ -9,6 +9,7 @@ import (
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm/clause"
 
+	ni "github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
 	opbangunan "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	opbumi "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	op "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
@@ -180,6 +181,7 @@ func generatePenilaianToXLSX(input m.CetakDto) (*excelize.File, error) {
 		dataWp *[]wp.WajibPajakPbb
 		dataBm *[]opbumi.ObjekPajakBumi
 		dataBn *[]opbangunan.ObjekPajakBangunan
+		dataNi *[]ni.NilaiIndividu
 	)
 
 	resultOP := a.DB.
@@ -213,6 +215,17 @@ func generatePenilaianToXLSX(input m.CetakDto) (*excelize.File, error) {
 
 	if resultBn.Error != nil || resultBn.RowsAffected == 0 {
 		return nil, resultBn.Error
+	}
+
+	resultNi := a.DB.
+		Where("Provinsi_Kode", input.Provinsi_Kode).
+		Where("Daerah_Kode", input.Daerah_Kode).
+		Where("Kecamatan_Kode", input.Kecamatan_Kode).
+		Where("Kelurahan_Kode", input.Kelurahan_Kode).
+		Find(&dataNi)
+
+	if resultNi.Error != nil || resultNi.RowsAffected == 0 {
+		return nil, resultNi.Error
 	}
 
 	// datas := nil
