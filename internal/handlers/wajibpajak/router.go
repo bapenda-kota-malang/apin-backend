@@ -80,7 +80,7 @@ func SetRoutes() http.Handler {
 		r.Get("/check", account.Check)
 		r.Get("/confirm-by-email", account.ConfirmByEmail)
 		r.Get("/resend-confirmation", account.ResendConfirmation)
-		r.Patch("/change-pass", account.ChangePassword)
+		r.Patch("/change-password", account.ChangePassword)
 		r.Patch("/reset-pass", account.ResetPassword)
 	})
 
