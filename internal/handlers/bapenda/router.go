@@ -18,6 +18,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
@@ -252,6 +253,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/dbkbjpb16", dbkbjpb16.Crud{})
 
 	rh.RegCrud(r, "/dbkbmezanin", dbkbmezanin.Crud{})
+
+	rh.RegCrud(r, "/nilaiindividu", nilaiindividu.Crud{})
 
 	rh.RegCrud(r, "/geojson-data", geojson.Crud{})
 

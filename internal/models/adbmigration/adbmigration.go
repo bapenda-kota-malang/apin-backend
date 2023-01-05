@@ -59,6 +59,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
@@ -403,5 +404,11 @@ func GetModelList() (data []interface{}) {
 		&sksk.SkSk{},
 	}
 	data = append(data, listModelSkSk...)
+
+	listModelNilaiIndividu := []interface{}{
+		&nilaiindividu.NilaiIndividu{},
+	}
+	data = append(data, listModelNilaiIndividu...)
+
 	return data
 }
