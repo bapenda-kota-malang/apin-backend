@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	mn "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	ssd "github.com/bapenda-kota-malang/apin-backend/internal/services/sspd/sspddetail"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -12,6 +13,7 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/slicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
@@ -128,31 +130,109 @@ func GetList(input m.FilterDto, tx *gorm.DB) (any, error) {
 }
 
 func GetListWp(userId int, npwpd string, input m.FilterWpDto) (any, error) {
-	var data []m.Sspd
+	var data []m.ListLogPayment
 	var count int64
 
+	// load spt data
+	var sptData []spt.Spt
 	var pagination gh.Pagination
+	sptBase := a.DB.
+		Model(&spt.Spt{}).
+		Joins("JOIN \"Npwpd\" ON \"Npwpd\".\"Id\" = \"Spt\".\"Npwpd_Id\" AND \"Npwpd\".\"Npwpd\" = ? AND \"Npwpd\".\"User_Id\" = ?", npwpd, userId)
+	if input.PeriodeAwal != nil {
+		sptBase = sptBase.Where("\"Spt\".\"PeriodeAwal\" >= ?", input.PeriodeAwal)
+	}
+	if input.PeriodeAkhir != nil {
+		sptBase = sptBase.Where("\"Spt\".\"PeriodeAkhir\" <= ?", input.PeriodeAkhir)
+	}
+	sptBase = sptBase.Scopes(gh.Paginate(input, &pagination)).Order("\"PeriodeAkhir\" DESC")
+
+	if sptBase.Find(&sptData).Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", sptData)
+	}
+
+	if len(sptData) == 0 {
+		return rp.OK{
+			Meta: t.IS{
+				"totalCount":   strconv.Itoa(0),
+				"currentCount": strconv.Itoa(0),
+				"page":         strconv.Itoa(pagination.Page),
+				"pageSize":     strconv.Itoa(pagination.PageSize),
+			},
+			Data: sptData,
+		}, nil
+	}
+
+	ids := make(map[string][]string)
+	ids["spt"] = []string{}
+	for _, v := range sptData {
+		ids["spt"] = append(ids["spt"], v.Id.String())
+	}
+
+	// load sspd detail bridging data
+	var sspdDetailData []m.SspdDetail
+	querySspdDetail := a.DB.
+		Model(&m.SspdDetail{}).
+		Where("\"Spt_Id\" IN ?", ids["spt"])
+
+	if querySspdDetail.Find(&sspdDetailData).Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", sptData)
+	}
+
+	if len(sspdDetailData) == 0 {
+		return rp.OK{
+			Meta: t.IS{
+				"totalCount":   strconv.Itoa(0),
+				"currentCount": strconv.Itoa(0),
+				"page":         strconv.Itoa(pagination.Page),
+				"pageSize":     strconv.Itoa(pagination.PageSize),
+			},
+			Data: sspdDetailData,
+		}, nil
+	}
+
+	ids["sspdDetail"] = []string{}
+	for _, v := range sspdDetailData {
+		str := strconv.Itoa(int(*v.Sspd_Id))
+		if !slicehelper.StringInSlice(str, ids["sspdDetail"]) {
+			ids["sspdDetail"] = append(ids["sspdDetail"], str)
+		}
+	}
+
+	// load sspd data
+	var sspdData []m.Sspd
 	result := a.DB.
 		Model(&m.Sspd{}).
 		Joins("JOIN \"Npwpd\" ON \"Npwpd\".\"Npwpd\" = ? AND \"Npwpd\".\"User_Id\" = ?", npwpd, userId).
-		Joins("JOIN \"SspdDetail\" ON \"SspdDetail\".\"Sspd_Id\" = \"Sspd\".\"Id\"").
-		// Joins("Spt", a.DB.Where("\"Id\" = \"SspdDetails\".\"Spt_Id\"")).
-		// Preload("SspdDetails.Spt", func(db *gorm.DB) *gorm.DB {
-		// 	query := db
-		// 	if input.PeriodeAwal != nil {
-		// 		query.Where("\"Spt\".\"PeriodeAwal\" >= ?", input.PeriodeAwal)
-		// 	}
-		// 	if input.PeriodeAkhir != nil {
-		// 		query.Where("\"Spt\".\"PeriodeAkhir\" <= ?", input.PeriodeAkhir)
-		// 	}
-		// 	return query.Order("\"Spt\".\"PeriodeAkhir\" DESC")
-		// }).
+		Where("\"Sspd\".\"Id\" IN ?", ids["sspdDetail"]).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
-		Find(&data)
+		Find(&sspdData)
 	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", sspdData)
 	}
+
+	// append to list data
+	for _, vSpt := range sptData {
+		tmp := m.ListLogPayment{}
+		for _, vSspdDetail := range sspdDetailData {
+			if *vSspdDetail.Spt_Id != vSpt.Id {
+				continue
+			}
+			for _, vSspd := range sspdData {
+				if vSspd.Id != *vSspdDetail.Sspd_Id {
+					continue
+				}
+				if err := sc.Copy(&tmp, &vSspd); err != nil {
+					return sh.SetError("request", "get-list-log-payment", source, "failed", "gagal menambahkan list data", data)
+				}
+			}
+		}
+
+		tmp.Spt = vSpt
+		data = append(data, tmp)
+	}
+
 	return rp.OK{
 		Meta: t.IS{
 			"totalCount":   strconv.Itoa(int(count)),
