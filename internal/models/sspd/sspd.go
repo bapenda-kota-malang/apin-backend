@@ -153,7 +153,7 @@ type FilterWpDto struct {
 }
 
 type ListLogPayment struct {
-	Sspd
+	*Sspd
 	Spt spt.Spt `json:"spt"`
 }
 

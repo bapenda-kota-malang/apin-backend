@@ -136,18 +136,17 @@ func GetListWp(userId int, npwpd string, input m.FilterWpDto) (any, error) {
 	// load spt data
 	var sptData []spt.Spt
 	var pagination gh.Pagination
-	sptBase := a.DB.
+	sptQuery := a.DB.
 		Model(&spt.Spt{}).
 		Joins("JOIN \"Npwpd\" ON \"Npwpd\".\"Id\" = \"Spt\".\"Npwpd_Id\" AND \"Npwpd\".\"Npwpd\" = ? AND \"Npwpd\".\"User_Id\" = ?", npwpd, userId)
 	if input.PeriodeAwal != nil {
-		sptBase = sptBase.Where("\"Spt\".\"PeriodeAwal\" >= ?", input.PeriodeAwal)
+		sptQuery = sptQuery.Where("\"Spt\".\"PeriodeAwal\" >= ?", input.PeriodeAwal)
 	}
 	if input.PeriodeAkhir != nil {
-		sptBase = sptBase.Where("\"Spt\".\"PeriodeAkhir\" <= ?", input.PeriodeAkhir)
+		sptQuery = sptQuery.Where("\"Spt\".\"PeriodeAkhir\" <= ?", input.PeriodeAkhir)
 	}
-	sptBase = sptBase.Scopes(gh.Paginate(input, &pagination)).Order("\"PeriodeAkhir\" DESC")
 
-	if sptBase.Find(&sptData).Error != nil {
+	if sptQuery.Scopes(gh.Paginate(input, &pagination)).Order("\"PeriodeAkhir\" DESC").Find(&sptData).Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", sptData)
 	}
 
@@ -171,11 +170,7 @@ func GetListWp(userId int, npwpd string, input m.FilterWpDto) (any, error) {
 
 	// load sspd detail bridging data
 	var sspdDetailData []m.SspdDetail
-	querySspdDetail := a.DB.
-		Model(&m.SspdDetail{}).
-		Where("\"Spt_Id\" IN ?", ids["spt"])
-
-	if querySspdDetail.Find(&sspdDetailData).Error != nil {
+	if a.DB.Model(&m.SspdDetail{}).Where("\"Spt_Id\" IN ?", ids["spt"]).Find(&sspdDetailData).Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", sptData)
 	}
 
@@ -223,10 +218,12 @@ func GetListWp(userId int, npwpd string, input m.FilterWpDto) (any, error) {
 				if vSspd.Id != *vSspdDetail.Sspd_Id {
 					continue
 				}
-				if err := sc.Copy(&tmp, &vSspd); err != nil {
-					return sh.SetError("request", "get-list-log-payment", source, "failed", "gagal menambahkan list data", data)
-				}
+				tmp.Sspd = &vSspd
 			}
+		}
+
+		if tmp.Sspd == nil {
+			continue
 		}
 
 		tmp.Spt = vSpt
