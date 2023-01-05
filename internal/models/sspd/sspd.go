@@ -11,6 +11,7 @@ import (
 	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"gorm.io/datatypes"
 )
 
 type Sspd struct {
@@ -137,6 +138,14 @@ type FilterDto struct {
 	IsCancelled                   *bool      `json:"isCancelled"`
 	CancelledDate                 *time.Time `json:"cancelledDate"`
 	TanggalBayar_Opt              *string    `json:"tanggalBayar_opt"`
+	// fixed
+	Page     int   `json:"page"`
+	PageSize int64 `json:"page_size"`
+}
+
+type FilterWpDto struct {
+	PeriodeAwal  *datatypes.Date `json:"periodeAwal"`
+	PeriodeAkhir *datatypes.Date `json:"periodeAkhir"`
 	// fixed
 	Page     int   `json:"page"`
 	PageSize int64 `json:"page_size"`

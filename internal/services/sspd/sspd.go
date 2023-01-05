@@ -127,6 +127,43 @@ func GetList(input m.FilterDto, tx *gorm.DB) (any, error) {
 	}, nil
 }
 
+func GetListWp(userId int, npwpd string, input m.FilterWpDto) (any, error) {
+	var data []m.Sspd
+	var count int64
+
+	var pagination gh.Pagination
+	result := a.DB.
+		Model(&m.Sspd{}).
+		Joins("JOIN \"Npwpd\" ON \"Npwpd\".\"Npwpd\" = ? AND \"Npwpd\".\"User_Id\" = ?", npwpd, userId).
+		Joins("JOIN \"SspdDetail\" ON \"SspdDetail\".\"Sspd_Id\" = \"Sspd\".\"Id\"").
+		// Joins("Spt", a.DB.Where("\"Id\" = \"SspdDetails\".\"Spt_Id\"")).
+		// Preload("SspdDetails.Spt", func(db *gorm.DB) *gorm.DB {
+		// 	query := db
+		// 	if input.PeriodeAwal != nil {
+		// 		query.Where("\"Spt\".\"PeriodeAwal\" >= ?", input.PeriodeAwal)
+		// 	}
+		// 	if input.PeriodeAkhir != nil {
+		// 		query.Where("\"Spt\".\"PeriodeAkhir\" <= ?", input.PeriodeAkhir)
+		// 	}
+		// 	return query.Order("\"Spt\".\"PeriodeAkhir\" DESC")
+		// }).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
+}
+
 func GetDetail(sspd_id int) (any, error) {
 	var data *m.Sspd
 	err := a.DB.
