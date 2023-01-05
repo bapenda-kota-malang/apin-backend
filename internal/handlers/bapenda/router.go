@@ -18,6 +18,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
@@ -116,7 +117,6 @@ func SetRoutes() http.Handler {
 		"/auth/login",
 		"/auth/logout",
 		"/account/reset-password",
-		"/account/change-password",
 	}
 	auth.Position = 1
 
@@ -143,9 +143,11 @@ func SetRoutes() http.Handler {
 	r.Route("/account", func(r chi.Router) {
 		// r.Post("/register", account.Create) // replaced withr register
 		r.Get("/check", account.Check)
-		r.Patch("/reset-password", account.ResetPassword)
 		r.Patch("/change-password", account.ChangePassword)
+		r.Patch("/reset-password", account.ResetPassword)
 	})
+
+	r.Get("/profile", profile.GetDetail)
 
 	rh.RegCrud(r, "/menu", menu.Crud{})
 
