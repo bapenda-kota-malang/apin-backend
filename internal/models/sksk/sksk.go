@@ -81,6 +81,7 @@ type CetakDto struct {
 	NamaPropinsi   *string         `json:"namaPropinsi"`
 	NamaDati2      *string         `json:"namaDati2"`
 	NamaKecamatan  *string         `json:"namaKecamatan"`
+	NamaKelurahan  *string         `json:"namaKelurahan"`
 	KanwilId       *string         `json:"kanwilId"`
 	KppbbId        *string         `json:"kppbbId"`
 	Tahun          *string         `json:"tahun"`
