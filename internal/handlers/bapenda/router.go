@@ -18,6 +18,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
@@ -90,6 +91,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/satuankerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
@@ -212,6 +214,9 @@ func SetRoutes() http.Handler {
 	r.Patch("/sppt/penilaian", sppt.Penilaian)
 	rh.RegCrud(r, "/sppt", sppt.Crud{})
 
+	r.Post("/sksk/cetak", sksk.Cetak)
+	rh.RegCrud(r, "/sksk", sksk.Crud{})
+
 	rh.RegCrud(r, "/bphtbsptpd", bphtbsptpd.Crud{})
 
 	rh.RegCrud(r, "/kelastanah", kelastanah.Crud{})
@@ -248,6 +253,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/dbkbjpb16", dbkbjpb16.Crud{})
 
 	rh.RegCrud(r, "/dbkbmezanin", dbkbmezanin.Crud{})
+
+	rh.RegCrud(r, "/nilaiindividu", nilaiindividu.Crud{})
 
 	rh.RegCrud(r, "/geojson-data", geojson.Crud{})
 
