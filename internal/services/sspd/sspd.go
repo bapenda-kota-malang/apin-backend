@@ -15,6 +15,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/slicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
+	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -187,11 +188,13 @@ func GetListWp(userId int, npwpd string, input m.FilterWpDto) (any, error) {
 	}
 
 	ids["sspdDetail"] = []string{}
+	sspdDetailMap := make(map[uuid.UUID]uint64)
 	for _, v := range sspdDetailData {
 		str := strconv.Itoa(int(*v.Sspd_Id))
 		if !slicehelper.StringInSlice(str, ids["sspdDetail"]) {
 			ids["sspdDetail"] = append(ids["sspdDetail"], str)
 		}
+		sspdDetailMap[*v.Spt_Id] = *v.Sspd_Id
 	}
 
 	// load sspd data
@@ -207,20 +210,24 @@ func GetListWp(userId int, npwpd string, input m.FilterWpDto) (any, error) {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", sspdData)
 	}
 
+	sspdDataMap := map[uint64]int{}
+	for i, v := range sspdData {
+		sspdDataMap[v.Id] = i
+	}
+
 	// append to list data
 	for _, vSpt := range sptData {
 		tmp := m.ListLogPayment{}
-		for _, vSspdDetail := range sspdDetailData {
-			if *vSspdDetail.Spt_Id != vSpt.Id {
-				continue
-			}
-			for _, vSspd := range sspdData {
-				if vSspd.Id != *vSspdDetail.Sspd_Id {
-					continue
-				}
-				tmp.Sspd = &vSspd
-			}
+		sspdId, ok := sspdDetailMap[vSpt.Id]
+		if !ok {
+			continue
 		}
+
+		sspdIdx, ok := sspdDataMap[sspdId]
+		if !ok {
+			continue
+		}
+		tmp.Sspd = &sspdData[sspdIdx]
 
 		if tmp.Sspd == nil {
 			continue
@@ -233,7 +240,7 @@ func GetListWp(userId int, npwpd string, input m.FilterWpDto) (any, error) {
 	return rp.OK{
 		Meta: t.IS{
 			"totalCount":   strconv.Itoa(int(count)),
-			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"currentCount": strconv.Itoa(len(data)),
 			"page":         strconv.Itoa(pagination.Page),
 			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
