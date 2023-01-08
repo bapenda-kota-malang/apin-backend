@@ -10,6 +10,6 @@ func checkExpiration(input time.Time) error {
 	if now.Before(input) {
 		return nil
 	} else {
-		return errors.New("request tidak telah expired")
+		return errors.New("token request telah expired")
 	}
 }
