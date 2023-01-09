@@ -26,6 +26,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakpbb"
+	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regpelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt/objekbersama"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/static"
@@ -206,6 +207,15 @@ func SetRoutes() http.Handler {
 	r.Route("/noppbb", func(r chi.Router) {
 		r.Get("/", noppbb.GetList)
 		r.Get("/{id}", noppbb.GetDetail)
+	})
+
+	r.Route("/permohonan", func(r chi.Router) {
+		r.Patch("/{id}/status", permohonan.UpdateStatus)
+		r.Post("/", permohonan.Create)
+		r.Get("/", permohonan.GetList)
+		r.Get("/{id}", permohonan.GetDetail)
+		r.Patch("/{id}", permohonan.Update)
+		r.Delete("/{id}", permohonan.Delete)
 	})
 
 	return r
