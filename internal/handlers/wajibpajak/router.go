@@ -29,6 +29,7 @@ import (
 	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regpelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt/objekbersama"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/static"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
@@ -216,6 +217,10 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", permohonan.GetDetail)
 		r.Patch("/{id}", permohonan.Update)
 		r.Delete("/{id}", permohonan.Delete)
+	})
+
+	r.Route("/logpayment", func(r chi.Router) {
+		r.Get("/{npwpd}", sspd.GetList)
 	})
 
 	return r

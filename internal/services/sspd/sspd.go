@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	mn "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	ssd "github.com/bapenda-kota-malang/apin-backend/internal/services/sspd/sspddetail"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -12,7 +13,9 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/slicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
+	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -120,6 +123,124 @@ func GetList(input m.FilterDto, tx *gorm.DB) (any, error) {
 		Meta: t.IS{
 			"totalCount":   strconv.Itoa(int(count)),
 			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
+}
+
+func GetListWp(userId int, npwpd string, input m.FilterWpDto) (any, error) {
+	var data []m.ListLogPayment
+	var count int64
+
+	// load spt data
+	var sptData []spt.Spt
+	var pagination gh.Pagination
+	sptQuery := a.DB.
+		Model(&spt.Spt{}).
+		Joins("JOIN \"Npwpd\" ON \"Npwpd\".\"Id\" = \"Spt\".\"Npwpd_Id\" AND \"Npwpd\".\"Npwpd\" = ? AND \"Npwpd\".\"User_Id\" = ?", npwpd, userId)
+	if input.PeriodeAwal != nil {
+		sptQuery = sptQuery.Where("\"Spt\".\"PeriodeAwal\" >= ?", input.PeriodeAwal)
+	}
+	if input.PeriodeAkhir != nil {
+		sptQuery = sptQuery.Where("\"Spt\".\"PeriodeAkhir\" <= ?", input.PeriodeAkhir)
+	}
+
+	if sptQuery.Scopes(gh.Paginate(input, &pagination)).Order("\"PeriodeAkhir\" DESC").Find(&sptData).Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", sptData)
+	}
+
+	if len(sptData) == 0 {
+		return rp.OK{
+			Meta: t.IS{
+				"totalCount":   strconv.Itoa(0),
+				"currentCount": strconv.Itoa(0),
+				"page":         strconv.Itoa(pagination.Page),
+				"pageSize":     strconv.Itoa(pagination.PageSize),
+			},
+			Data: sptData,
+		}, nil
+	}
+
+	ids := make(map[string][]string)
+	ids["spt"] = []string{}
+	for _, v := range sptData {
+		ids["spt"] = append(ids["spt"], v.Id.String())
+	}
+
+	// load sspd detail bridging data
+	var sspdDetailData []m.SspdDetail
+	if a.DB.Model(&m.SspdDetail{}).Where("\"Spt_Id\" IN ?", ids["spt"]).Find(&sspdDetailData).Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", sptData)
+	}
+
+	if len(sspdDetailData) == 0 {
+		return rp.OK{
+			Meta: t.IS{
+				"totalCount":   strconv.Itoa(0),
+				"currentCount": strconv.Itoa(0),
+				"page":         strconv.Itoa(pagination.Page),
+				"pageSize":     strconv.Itoa(pagination.PageSize),
+			},
+			Data: sspdDetailData,
+		}, nil
+	}
+
+	ids["sspdDetail"] = []string{}
+	sspdDetailMap := make(map[uuid.UUID]uint64)
+	for _, v := range sspdDetailData {
+		str := strconv.Itoa(int(*v.Sspd_Id))
+		if !slicehelper.StringInSlice(str, ids["sspdDetail"]) {
+			ids["sspdDetail"] = append(ids["sspdDetail"], str)
+		}
+		sspdDetailMap[*v.Spt_Id] = *v.Sspd_Id
+	}
+
+	// load sspd data
+	var sspdData []m.Sspd
+	result := a.DB.
+		Model(&m.Sspd{}).
+		Joins("JOIN \"Npwpd\" ON \"Npwpd\".\"Npwpd\" = ? AND \"Npwpd\".\"User_Id\" = ?", npwpd, userId).
+		Where("\"Sspd\".\"Id\" IN ?", ids["sspdDetail"]).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&sspdData)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", sspdData)
+	}
+
+	sspdDataMap := map[uint64]int{}
+	for i, v := range sspdData {
+		sspdDataMap[v.Id] = i
+	}
+
+	// append to list data
+	for _, vSpt := range sptData {
+		tmp := m.ListLogPayment{}
+		sspdId, ok := sspdDetailMap[vSpt.Id]
+		if !ok {
+			continue
+		}
+
+		sspdIdx, ok := sspdDataMap[sspdId]
+		if !ok {
+			continue
+		}
+		tmp.Sspd = &sspdData[sspdIdx]
+
+		if tmp.Sspd == nil {
+			continue
+		}
+
+		tmp.Spt = vSpt
+		data = append(data, tmp)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(len(data)),
 			"page":         strconv.Itoa(pagination.Page),
 			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},

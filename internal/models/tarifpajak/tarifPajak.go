@@ -36,6 +36,7 @@ type UpdateDto struct {
 type FilterDto struct {
 	Rekening_Id    *uint64  `json:"rekening_id"`
 	Tahun          *uint64  `json:"tahun"`
+	Tahun_Opt      *string  `json:"tahun_Opt"`
 	TarifRp        *float64 `json:"tarifRp"`
 	TarifPersen    *float64 `json:"tarifPersen"`
 	OmsetAwal      *float64 `json:"omsetAwal"`
