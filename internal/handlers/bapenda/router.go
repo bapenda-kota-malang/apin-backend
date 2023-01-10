@@ -97,6 +97,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sts"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/targetrealisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambongrek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifpajak"
@@ -158,6 +159,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/jabatan", jabatan.Crud{})
 
 	rh.RegCrud(r, "/pangkat", pangkat.Crud{})
+
+	rh.RegCrud(r, "/target-realisasi", targetrealisasi.Crud{})
 
 	rh.RegCrud(r, "/sektor", sektor.Crud{})
 
