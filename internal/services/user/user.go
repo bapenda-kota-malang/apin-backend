@@ -266,10 +266,10 @@ func CheckResetPass(input m.CheckResetPassDto) (any, error) {
 	result := a.DB.Where(&mt.UserToken{User_Email: input.Email, Jenis: mt.JenisResetPass}).First(&data)
 	if result.RowsAffected == 0 {
 		return nil, errors.New("data request resest password tidak dapat ditemukan")
-	} else if err := checkExpiration(*data.ExpiredAt); err != nil {
-		return nil, err
 	} else if data.Token.String() != input.Token {
 		return nil, errors.New("token tidak valid")
+	} else if err := checkExpiration(*data.ExpiredAt); err != nil {
+		return nil, err
 	}
 
 	return data, nil
