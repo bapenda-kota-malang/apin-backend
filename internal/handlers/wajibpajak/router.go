@@ -87,7 +87,7 @@ func SetRoutes() http.Handler {
 
 	r.Route("/profile", func(r chi.Router) {
 		r.Get("/", profile.GetDetail) // EXECUTE
-		r.Patch("/{id}", profile.Update)
+		r.Patch("/", profile.Update)
 	})
 
 	r.Route("/provinsi", func(r chi.Router) {
