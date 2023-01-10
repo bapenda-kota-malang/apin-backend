@@ -44,17 +44,19 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
-		return
-	}
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	// id := hh.ValidateAutoInc(w, r, "id")
+	// if id < 1 {
+	// 	return
+	// }
 
 	var data m.UpdateDto
 	if !hh.ValidateStructByIOR(w, r.Body, &data) {
 		return
 	}
 
-	result, err := s.Update(id, data)
+	result, err := s.Update(authInfo.Ref_Id, data)
 	hh.DataResponse(w, result, err)
 }
 
