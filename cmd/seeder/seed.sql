@@ -30,6 +30,7 @@
 \i sqls/data-DbkbFasumDepJpbKlsBintang.sql
 \i sqls/data-DbkbFasumDepMinMax.sql
 \i sqls/data-DbkbFasumNonDep.sql
+\i sqls/data-JenisPajak.sql
 
 -- below for table have relation to child
 
