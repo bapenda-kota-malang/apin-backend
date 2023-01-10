@@ -28,6 +28,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt/objekbersama"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/static"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
@@ -81,7 +82,9 @@ func SetRoutes() http.Handler {
 		r.Get("/confirm-by-email", account.ConfirmByEmail)
 		r.Get("/resend-confirmation", account.ResendConfirmation)
 		r.Patch("/change-password", account.ChangePassword)
-		r.Patch("/reset-pass", account.ResetPassword)
+		r.Post("/reset-password", account.RequestResetPassword)
+		r.Get("/reset-password", account.CheckResetPassword)
+		r.Patch("/reset-password", account.ResetPassword)
 	})
 
 	r.Route("/profile", func(r chi.Router) {
@@ -204,6 +207,10 @@ func SetRoutes() http.Handler {
 	r.Route("/noppbb", func(r chi.Router) {
 		r.Get("/", noppbb.GetList)
 		r.Get("/{id}", noppbb.GetDetail)
+	})
+
+	r.Route("/logpayment", func(r chi.Router) {
+		r.Get("/{npwpd}", sspd.GetList)
 	})
 
 	return r

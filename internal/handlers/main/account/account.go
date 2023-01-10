@@ -34,6 +34,20 @@ func ConfirmByEmail(w http.ResponseWriter, r *http.Request) {
 	hj.WriteJSON(w, http.StatusOK, data, nil)
 }
 
+func Check(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	authInfo, ok := ctx.Value("authInfo").(*auth.AuthInfo)
+	if !ok {
+		hj.WriteJSON(w, http.StatusUnauthorized, nil, nil)
+		return
+	}
+
+	data := t.II{
+		"data": authInfo,
+	}
+	hj.WriteJSON(w, http.StatusOK, data, nil)
+}
+
 func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	var input m.ChangePassDto
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
@@ -51,23 +65,36 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func ResetPassword(w http.ResponseWriter, r *http.Request) {
-	data := t.II{
-		"message": "You are getting your account data in app: " + ac.Self.Name,
-	}
-	hj.WriteJSON(w, http.StatusOK, data, nil)
-}
-
-func Check(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	authInfo, ok := ctx.Value("authInfo").(*auth.AuthInfo)
-	if !ok {
-		hj.WriteJSON(w, http.StatusUnauthorized, nil, nil)
+func RequestResetPassword(w http.ResponseWriter, r *http.Request) {
+	var input m.RequestResetPassDto
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
 
-	data := t.II{
-		"data": authInfo,
+	result, err := s.RequestResetPass(input)
+	hh.DataResponse(w, result, err)
+}
+
+func CheckResetPassword(w http.ResponseWriter, r *http.Request) {
+	var input m.CheckResetPassDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
 	}
-	hj.WriteJSON(w, http.StatusOK, data, nil)
+
+	result, err := s.CheckResetPass(input)
+	hh.DataResponse(w, result, err)
+}
+
+func ResetPassword(w http.ResponseWriter, r *http.Request) {
+	var input1 m.CheckResetPassDto
+	if hh.ValidateStructByURL(w, *r.URL, &input1) == false {
+		return
+	}
+	var input2 m.ResetPassDto
+	if hh.ValidateStructByIOR(w, r.Body, &input2) == false {
+		return
+	}
+
+	result, err := s.ResetPass(input1, input2)
+	hh.DataResponse(w, result, err)
 }

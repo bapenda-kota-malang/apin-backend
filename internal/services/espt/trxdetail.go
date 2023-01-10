@@ -2,7 +2,6 @@ package espt
 
 import (
 	"fmt"
-	"time"
 
 	"gorm.io/gorm"
 
@@ -39,7 +38,6 @@ import (
 
 // Process calculate tax
 func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
-	yearNow := uint64(time.Now().Year())
 	omsetOpt := "lte"
 
 	// change detail for detail spt air & ppj pln before calculate tax
@@ -82,9 +80,10 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 	}
 
 	// get tarif pajak data for calculate tax
+	yearOrder := "order desc"
 	rspTp, err := stp.GetList(mtp.FilterDto{
 		Rekening_Id:   &rekeningId,
-		Tahun:         &yearNow,
+		Tahun_Opt:     &yearOrder,
 		OmsetAwal:     &omset,
 		OmsetAwal_Opt: &omsetOpt,
 	})
@@ -96,7 +95,7 @@ func taxProcess(rekeningId uint64, omset float64, input m.Input) error {
 	if len(tarifPajaks) == 0 {
 		return fmt.Errorf("tarif pajak not found")
 	}
-	tarifPajak := tarifPajaks[len(tarifPajaks)-1]
+	tarifPajak := tarifPajaks[0]
 
 	input.ReplaceTarifPajakId(uint(tarifPajak.Id))
 	input.CalculateTax(tarifPajak.TarifPersen)

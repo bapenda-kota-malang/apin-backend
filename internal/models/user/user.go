@@ -90,3 +90,17 @@ type ChangePassDto struct {
 	RePassword  *string `json:"rePassword,omitempty" validate:"required;minLength=6"`
 	NewPassword *string `json:"newPassword,omitempty" validate:"required;minLength=6"`
 }
+
+type RequestResetPassDto struct {
+	Email string `json:"email" validate:"required;validemail"`
+}
+
+type CheckResetPassDto struct {
+	Email string `json:"email" validate:"required;validemail"`
+	Token string `json:"token" validate:"required"`
+}
+
+type ResetPassDto struct {
+	NewPassword *string `json:"newPassword,omitempty" validate:"required;minLength=6"`
+	RePassword  *string `json:"rePassword,omitempty" validate:"required;minLength=6"`
+}

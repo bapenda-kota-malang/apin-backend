@@ -59,6 +59,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
@@ -89,6 +90,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
@@ -104,6 +106,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan"
 	suratdpemberitahuanetail "github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan/detail"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/targetrealisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
@@ -120,6 +123,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
+	mut "github.com/bapenda-kota-malang/apin-backend/internal/models/usertoken"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 )
@@ -165,6 +169,7 @@ func GetModelList() (data []interface{}) {
 
 	listModelManagementUser := []interface{}{
 		&mu.User{},
+		&mut.UserToken{},
 		&group.Group{},
 		&menu.Menu{},
 		&pegawai.Pegawai{},
@@ -289,6 +294,7 @@ func GetModelList() (data []interface{}) {
 		&sinkronisasi.SinkronisasiDetail{},
 		&sts.StsDetail{},
 		&sts.SumberDanaSts{},
+		&targetrealisasi.TargetRealisasi{},
 	}
 	data = append(data, listModelPembayaran...)
 
@@ -308,7 +314,6 @@ func GetModelList() (data []interface{}) {
 		&pstpermohonan.PembatalanSppt{},
 		&pstpermohonan.PembetulanSpptSKPSTP{},
 		&pstpermohonan.SPMKP{},
-		&pstpermohonan.SkSk{},
 	}
 	data = append(data, listModelPelayanan...)
 
@@ -396,6 +401,16 @@ func GetModelList() (data []interface{}) {
 		&kunjungan.KunjunganDetail{},
 	}
 	data = append(data, listModelKunjungan...)
+
+	listModelSkSk := []interface{}{
+		&sksk.SkSk{},
+	}
+	data = append(data, listModelSkSk...)
+
+	listModelNilaiIndividu := []interface{}{
+		&nilaiindividu.NilaiIndividu{},
+	}
+	data = append(data, listModelNilaiIndividu...)
 
 	return data
 }

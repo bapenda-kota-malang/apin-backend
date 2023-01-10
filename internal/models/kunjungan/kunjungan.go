@@ -18,7 +18,7 @@ type Kunjungan struct {
 	TanggalKunjungan *datatypes.Date `json:"tanggalKunjungan"`
 	gh.DateModel
 
-	Pegawais *[]KunjunganDetail `json:"pegawais,omitempty" gorm:"foreignKey:Id;references:Kunjungan_Id"`
+	// Pegawais *[]KunjunganDetail `json:"pegawais,omitempty" gorm:"foreignKey:Id;references:Kunjungan_Id"`
 }
 
 type CreateDto struct {

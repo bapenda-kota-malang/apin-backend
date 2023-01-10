@@ -19,6 +19,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
+	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	// oppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	// wppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
@@ -41,7 +42,7 @@ func Create(input m.PermohonanRequestDto) (any, error) {
 		pembatalanSppt        *m.PembatalanSppt
 		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
 		SPMKP                 *m.SPMKP
-		SkSk                  *m.SkSk
+		SkSk                  *sksk.SkSk
 	)
 
 	noUrut := GetNoUrut(input)
@@ -78,7 +79,7 @@ func Create(input m.PermohonanRequestDto) (any, error) {
 			if result := tx.Where("PermohonanId", data.Id).Create(&pembatalanSppt); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pembatalan SPPT gagal")
 			}
-			SkSk = data.SetSkSk()
+			SkSk = sksk.SetSkSk(data)
 			if result := tx.Where("PermohonanId", data.Id).Create(&SkSk); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pembatalan SKP gagal")
 			}
@@ -176,7 +177,7 @@ func GetDetail(id int) (interface{}, error) {
 		// pembatalanSppt        *m.PembatalanSppt
 		// keputusanKeberatanPbb *m.KeputusanKeberatanPbb
 		// SPMKP                 *m.SPMKP
-		// SkSk                  *m.SkSk
+		// SkSk                  *sksk.SkSk
 	)
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -238,7 +239,7 @@ func Update(id int, input m.PermohonanRequestDto) (interface{}, error) {
 		pembatalanSppt        *m.PembatalanSppt
 		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
 		SPMKP                 *m.SPMKP
-		SkSk                  *m.SkSk
+		SkSk                  *sksk.SkSk
 	)
 
 	result := a.DB.First(&data, id)
@@ -283,7 +284,7 @@ func Update(id int, input m.PermohonanRequestDto) (interface{}, error) {
 			if result := tx.Where("PermohonanId", data.Id).Updates(&pembatalanSppt); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pembatalan SPPT gagal")
 			}
-			SkSk = data.SetSkSk()
+			SkSk = sksk.SetSkSk(*data)
 			if result := tx.Where("PermohonanId", data.Id).Updates(&SkSk); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pembatalan SKP gagal")
 			}
@@ -373,7 +374,7 @@ func Delete(id int) (interface{}, error) {
 		pembatalanSppt        *m.PembatalanSppt
 		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
 		SPMKP                 *m.SPMKP
-		SkSk                  *m.SkSk
+		SkSk                  *sksk.SkSk
 	)
 
 	result := a.DB.First(&data, id)
