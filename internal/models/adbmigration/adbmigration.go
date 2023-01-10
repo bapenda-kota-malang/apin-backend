@@ -104,6 +104,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan"
 	suratdpemberitahuanetail "github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan/detail"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/targetrealisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
@@ -289,6 +290,7 @@ func GetModelList() (data []interface{}) {
 		&sinkronisasi.SinkronisasiDetail{},
 		&sts.StsDetail{},
 		&sts.SumberDanaSts{},
+		&targetrealisasi.TargetRealisasi{},
 	}
 	data = append(data, listModelPembayaran...)
 
