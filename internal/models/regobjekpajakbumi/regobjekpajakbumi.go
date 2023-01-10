@@ -12,6 +12,7 @@ type RegObjekPajakBumi struct {
 	LuasBumi        int       `json:"luasBumi"`
 	JenisBumi       JenisBumi `json:"jenisBumi" gorm:"type:char(1)"`
 	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
+	// jumlah bangunan // di bapenda tidak di save
 	gh.DateModel
 }
 

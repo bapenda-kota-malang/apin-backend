@@ -23,6 +23,7 @@ type WajibPajakPbb struct {
 	Npwp           *string               `json:"npwp" gorm:"type:varchar(20)"`
 	Pekerjaan      *string               `json:"pekerjaan" gorm:"type:varchar(100)"`
 	ObjekPajakPbbs *[]mopp.ObjekPajakPbb `json:"objekPajakPbb,omitempty" gorm:"foreignKey:WajibPajakPbb_Id;references:Id"`
+	//status kepemilikan
 	gh.DateModel
 }
 
