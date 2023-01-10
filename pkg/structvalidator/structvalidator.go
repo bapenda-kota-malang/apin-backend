@@ -100,7 +100,14 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 		if tag != "" {
 			parsedTag := parseTag(tag)
 			key := fieldT.Tag.Get("json")
-			if key == "" {
+			if key != "" {
+				keys := strings.Split(key, ",")
+				if keys[0] != "" {
+					key = keys[0]
+				} else {
+					key = fieldT.Name
+				}
+			} else {
 				key = fieldT.Name
 			}
 			// based on slice or not

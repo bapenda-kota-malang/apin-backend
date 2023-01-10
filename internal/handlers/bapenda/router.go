@@ -19,6 +19,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
@@ -97,6 +98,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sts"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/targetrealisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambongrek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifpajak"
@@ -118,7 +120,6 @@ func SetRoutes() http.Handler {
 		"/auth/login",
 		"/auth/logout",
 		"/account/reset-password",
-		"/account/change-password",
 	}
 	auth.Position = 1
 
@@ -145,9 +146,13 @@ func SetRoutes() http.Handler {
 	r.Route("/account", func(r chi.Router) {
 		// r.Post("/register", account.Create) // replaced withr register
 		r.Get("/check", account.Check)
-		r.Patch("/reset-password", account.ResetPassword)
 		r.Patch("/change-password", account.ChangePassword)
+		r.Post("/reset-password", account.RequestResetPassword)
+		r.Get("/reset-password", account.CheckResetPassword)
+		r.Patch("/reset-password", account.ResetPassword)
 	})
+
+	r.Get("/profile", profile.GetDetail)
 
 	rh.RegCrud(r, "/menu", menu.Crud{})
 
@@ -156,6 +161,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/jabatan", jabatan.Crud{})
 
 	rh.RegCrud(r, "/pangkat", pangkat.Crud{})
+
+	rh.RegCrud(r, "/target-realisasi", targetrealisasi.Crud{})
 
 	rh.RegCrud(r, "/sektor", sektor.Crud{})
 
