@@ -88,6 +88,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
+	regpstpermohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
@@ -311,9 +312,23 @@ func GetModelList() (data []interface{}) {
 		&pstpermohonan.KeputusanKeberatanPbb{},
 		&pstpermohonan.PembatalanSppt{},
 		&pstpermohonan.PembetulanSpptSKPSTP{},
+		&pstpermohonan.PstLampiran{},
 		&pstpermohonan.SPMKP{},
 	}
 	data = append(data, listModelPelayanan...)
+
+	listModelRegPelayanan := []interface{}{
+		&regpstpermohonan.RegPstPermohonan{},
+		&regpstpermohonan.RegPstDetail{},
+		&regpstpermohonan.RegPstDataOPBaru{},
+		&regpstpermohonan.RegPstPermohonanPengurangan{},
+		&regpstpermohonan.RegKeputusanKeberatanPbb{},
+		&regpstpermohonan.RegPembatalanSppt{},
+		&regpstpermohonan.RegPembetulanSpptSKPSTP{},
+		&regpstpermohonan.RegPstLampiran{},
+		&regpstpermohonan.RegSPMKP{},
+	}
+	data = append(data, listModelRegPelayanan...)
 
 	listModelWajibPajakPBB := []interface{}{
 		&wajibpajakpbb.WajibPajakPbb{},

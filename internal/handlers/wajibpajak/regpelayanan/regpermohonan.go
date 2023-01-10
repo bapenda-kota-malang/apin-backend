@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
@@ -18,6 +19,19 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("reached 1")
 
 	result, err := s.Create(input)
+	hh.DataResponse(w, result, err)
+}
+
+func UploadLampiran(w http.ResponseWriter, r *http.Request) {
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	var input m.RegPstLampiranCreateDTO
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
+		return
+	}
+	fmt.Println("reached 1")
+
+	result, err := s.UploadLampiran(input, uint(authInfo.User_Id), nil)
 	hh.DataResponse(w, result, err)
 }
 

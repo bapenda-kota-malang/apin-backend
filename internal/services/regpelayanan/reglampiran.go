@@ -4,18 +4,20 @@ import (
 	"sync"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
+	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
-func CreateLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (data m.RegPstLampiran, err error) {
+func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (data m.RegPstLampiran, err error) {
 	// TODO: lampiran section
 	id, err := sh.GetUuidv4()
 	if err != nil {
 		return
 	}
 
+	result := a.DB.Where("PermohonanId", input.PermohonanId).First(&data)
 	data.PermohonanId = input.PermohonanId
 
 	var errChan = make(chan error, 16)
@@ -202,8 +204,15 @@ func CreateLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 			return
 		}
 	}
-	if result := tx.Create(&data); result.Error != nil {
-		err = result.Error
+
+	if result.RowsAffected > 0 {
+		if result := a.DB.Where("PermohonanId", input.PermohonanId).Save(&data); result.Error != nil {
+			err = result.Error
+		}
+	} else {
+		if result := a.DB.Create(&data); result.Error != nil {
+			err = result.Error
+		}
 	}
 	return
 }
