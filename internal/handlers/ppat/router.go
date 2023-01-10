@@ -44,8 +44,10 @@ func SetRoutes() http.Handler {
 	r.Route("/account", func(r chi.Router) {
 		// r.Post("/register", account.Create) // replaced withr register
 		r.Get("/check", account.Check)
-		r.Patch("/reset-password", account.ResetPassword)
 		r.Patch("/change-password", account.ChangePassword)
+		r.Post("/reset-password", account.RequestResetPassword)
+		r.Get("/reset-password", account.CheckResetPassword)
+		r.Patch("/reset-password", account.ResetPassword)
 	})
 
 	r.Route("/bphtbsptpd", func(r chi.Router) {

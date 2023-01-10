@@ -79,9 +79,7 @@ func SetRoutes() http.Handler {
 	r.Route("/account", func(r chi.Router) {
 		// r.Post("/register", account.Create) // replaced withr register
 		r.Get("/check", account.Check)
-		r.Get("/confirm-by-email", account.ConfirmByEmail)
-		r.Get("/resend-confirmation", account.ResendConfirmation)
-		r.Patch("/change-pass", account.ChangePassword)
+		r.Patch("/change-password", account.ChangePassword)
 		r.Post("/reset-password", account.RequestResetPassword)
 		r.Get("/reset-password", account.CheckResetPassword)
 		r.Patch("/reset-password", account.ResetPassword)

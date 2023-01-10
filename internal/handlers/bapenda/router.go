@@ -19,6 +19,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
@@ -119,7 +120,6 @@ func SetRoutes() http.Handler {
 		"/auth/login",
 		"/auth/logout",
 		"/account/reset-password",
-		"/account/change-password",
 	}
 	auth.Position = 1
 
@@ -151,6 +151,8 @@ func SetRoutes() http.Handler {
 		r.Get("/reset-password", account.CheckResetPassword)
 		r.Patch("/reset-password", account.ResetPassword)
 	})
+
+	r.Get("/profile", profile.GetDetail)
 
 	rh.RegCrud(r, "/menu", menu.Crud{})
 
