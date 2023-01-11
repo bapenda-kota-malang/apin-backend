@@ -2,6 +2,7 @@ package regobjekpajakpbb
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -50,7 +51,7 @@ func Create(input m.CreateDto) (any, error) {
 	var respDataObjekPajakBumi interface{}
 	var respDataKunjunganKembali interface{}
 	var resp t.II
-	var dataFasBangunans []fasbng.CreateDto
+	// var dataFasBangunans []fasbng.CreateDto
 	var dataFasBangunan fasbng.CreateDto
 
 	// parsing nop
@@ -192,176 +193,238 @@ func Create(input m.CreateDto) (any, error) {
 			respDataKunjunganKembali = resultKunjunganKembali
 		}
 
+		nobangunan := 0
 		if input.RegFasBangunan != nil {
 			tempRegFasBng := *input.RegFasBangunan
 			if len(tempRegFasBng) > 0 {
-				for i, val := range tempRegFasBng {
+				dataFasBangunan.Provinsi_Kode = input.Provinsi_Kode
+				dataFasBangunan.Daerah_Kode = input.Daerah_Kode
+				dataFasBangunan.Kecamatan_Kode = input.Kecamatan_Kode
+				dataFasBangunan.Kelurahan_Kode = input.Kelurahan_Kode
+				dataFasBangunan.NoUrut = input.NoUrut
+				dataFasBangunan.JenisOp = input.JenisOp
+				dataFasBangunan.NoBangunan = &nobangunan
+				for _, val := range tempRegFasBng {
 					if val.FBJumlahACSplit != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
+						*dataFasBangunan.KodeFasilitas = "01"
 						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBJumlahACWindow != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "02"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACWindow
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBIsACCentral != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
-					}
-					if val.FBLuasKolamRenang != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "??"
+						dataFasBangunan.JumlahSatuan = val.FBIsACCentral
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBTipeLapisanKolam != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = fmt.Sprint(val.FBTipeLapisanKolam)
+						if val.FBLuasKolamRenang != nil {
+							dataFasBangunan.JumlahSatuan = val.FBLuasKolamRenang
+						}
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBHalamanBerat != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "16"
+						dataFasBangunan.JumlahSatuan = val.FBHalamanBerat
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBHalamanSendang != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "15"
+						dataFasBangunan.JumlahSatuan = val.FBHalamanSendang
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBHalamanRingan != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
+						*dataFasBangunan.KodeFasilitas = "14"
 						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBHalamanLantai != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "17"
+						dataFasBangunan.JumlahSatuan = val.FBHalamanLantai
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBTenisLampuBeton != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "18"
+						dataFasBangunan.JumlahSatuan = val.FBTenisLampuBeton
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBTenisTanpaLampuBeton != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "21"
+						dataFasBangunan.JumlahSatuan = val.FBTenisTanpaLampuBeton
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBTenisAspal1 != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "19"
+						dataFasBangunan.JumlahSatuan = val.FBTenisAspal1
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBTenisAspal2 != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "22"
+						dataFasBangunan.JumlahSatuan = val.FBTenisAspal2
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBTenisLiatRumput1 != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "20"
+						dataFasBangunan.JumlahSatuan = val.FBTenisLiatRumput1
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBTenisLiatRumput2 != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "23"
+						dataFasBangunan.JumlahSatuan = val.FBTenisLiatRumput2
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBLiftPenumpang != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "30"
+						dataFasBangunan.JumlahSatuan = val.FBLiftPenumpang
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBLiftKapsul != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "31"
+						dataFasBangunan.JumlahSatuan = val.FBLiftKapsul
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBLiftBarang != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "32"
+						dataFasBangunan.JumlahSatuan = val.FBLiftBarang
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBTangga80 != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "33"
+						dataFasBangunan.JumlahSatuan = val.FBTangga80
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBTangga81 != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
-					}
-					if val.FBPagarPanjang != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "34"
+						dataFasBangunan.JumlahSatuan = val.FBTangga81
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBPagarBahan != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = fmt.Sprint(val.FBPagarBahan)
+						if val.FBPagarPanjang != nil {
+							dataFasBangunan.JumlahSatuan = val.FBPagarPanjang
+						}
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBPKHydrant != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "37"
+						dataFasBangunan.JumlahSatuan = val.FBPKHydrant
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBPKSplinkler != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "39"
+						dataFasBangunan.JumlahSatuan = val.FBPKSplinkler
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBPKFireAI != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "38"
+						dataFasBangunan.JumlahSatuan = val.FBPKFireAI
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBPABX != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "41"
+						dataFasBangunan.JumlahSatuan = val.FBPABX
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.FBSumur != nil {
-						dataFasBangunan.NoBangunan = &i
-						*dataFasBangunan.KodeFasilitas = "xx"
-						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
-						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+						*dataFasBangunan.KodeFasilitas = "42"
+						dataFasBangunan.JumlahSatuan = val.FBSumur
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 
 					if val.JpbKlinikACCentralKamar != nil {
+						*dataFasBangunan.KodeFasilitas = "07"
+						dataFasBangunan.JumlahSatuan = val.JpbKlinikACCentralKamar
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.JpbKlinikACCentralRuang != nil {
+						*dataFasBangunan.KodeFasilitas = "08"
+						dataFasBangunan.JumlahSatuan = val.JpbKlinikACCentralRuang
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.JpbHotelJenis != nil {
 					}
@@ -370,14 +433,38 @@ func Create(input m.CreateDto) (any, error) {
 					if val.JpbHotelJmlKamar != nil {
 					}
 					if val.JpbHotelACCentralKamar != nil {
+						*dataFasBangunan.KodeFasilitas = "04"
+						dataFasBangunan.JumlahSatuan = val.JpbHotelACCentralKamar
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.JpbHotelACCentralRuang != nil {
+						*dataFasBangunan.KodeFasilitas = "05"
+						dataFasBangunan.JumlahSatuan = val.JpbHotelACCentralRuang
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.JpbApartemenJumlah != nil {
 					}
 					if val.JpbApartemenACCentralKamar != nil {
+						*dataFasBangunan.KodeFasilitas = "09"
+						dataFasBangunan.JumlahSatuan = val.JpbApartemenACCentralKamar
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.JpbApartemenACCentralLain != nil {
+						*dataFasBangunan.KodeFasilitas = "10"
+						dataFasBangunan.JumlahSatuan = val.JpbApartemenACCentralLain
+						err = tx.Create(&dataFasBangunan).Error
+						if err != nil {
+							return err
+						}
 					}
 					if val.JpbTankiKapasitas != nil {
 					}
