@@ -19,6 +19,7 @@ import (
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	mopp "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	mraop "github.com/bapenda-kota-malang/apin-backend/internal/models/reganggotaobjekpajak"
+	fasbng "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	mrkk "github.com/bapenda-kota-malang/apin-backend/internal/models/regkunjungankembali"
 	mropb "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
@@ -49,6 +50,8 @@ func Create(input m.CreateDto) (any, error) {
 	var respDataObjekPajakBumi interface{}
 	var respDataKunjunganKembali interface{}
 	var resp t.II
+	var dataFasBangunans []fasbng.CreateDto
+	var dataFasBangunan fasbng.CreateDto
 
 	// parsing nop
 	resultNop, kode := sh.NopParser(*input.Nop)
@@ -144,6 +147,9 @@ func Create(input m.CreateDto) (any, error) {
 		data.TanggalPerekaman = th.ParseTime(input.TanggalPerekaman)
 	}
 
+	if input.RegObjekPajakBangunans != nil {
+	}
+
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// create data wajibpajakpbb
 		resultWajibPajakPbb, err := srwp.Create(dataWajibPajakPbb, tx)
@@ -185,6 +191,212 @@ func Create(input m.CreateDto) (any, error) {
 			}
 			respDataKunjunganKembali = resultKunjunganKembali
 		}
+
+		if input.RegFasBangunan != nil {
+			tempRegFasBng := *input.RegFasBangunan
+			if len(tempRegFasBng) > 0 {
+				for i, val := range tempRegFasBng {
+					if val.FBJumlahACSplit != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBJumlahACWindow != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBIsACCentral != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBLuasKolamRenang != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBTipeLapisanKolam != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBHalamanBerat != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBHalamanSendang != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBHalamanRingan != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBHalamanLantai != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBTenisLampuBeton != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBTenisTanpaLampuBeton != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBTenisAspal1 != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBTenisAspal2 != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBTenisLiatRumput1 != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBTenisLiatRumput2 != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBLiftPenumpang != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBLiftKapsul != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBLiftBarang != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBTangga80 != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBTangga81 != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBPagarPanjang != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBPagarBahan != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBPKHydrant != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBPKSplinkler != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBPKFireAI != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBPABX != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+					if val.FBSumur != nil {
+						dataFasBangunan.NoBangunan = &i
+						*dataFasBangunan.KodeFasilitas = "xx"
+						dataFasBangunan.JumlahSatuan = val.FBJumlahACSplit
+						dataFasBangunans = append(dataFasBangunans, dataFasBangunan)
+					}
+
+					if val.JpbKlinikACCentralKamar != nil {
+					}
+					if val.JpbKlinikACCentralRuang != nil {
+					}
+					if val.JpbHotelJenis != nil {
+					}
+					if val.JpbHotelBintang != nil {
+					}
+					if val.JpbHotelJmlKamar != nil {
+					}
+					if val.JpbHotelACCentralKamar != nil {
+					}
+					if val.JpbHotelACCentralRuang != nil {
+					}
+					if val.JpbApartemenJumlah != nil {
+					}
+					if val.JpbApartemenACCentralKamar != nil {
+					}
+					if val.JpbApartemenACCentralLain != nil {
+					}
+					if val.JpbTankiKapasitas != nil {
+					}
+					if val.JpbTankiLetak != nil {
+					}
+					if val.JpbProdTinggi != nil {
+					}
+					if val.JpbProdLebar != nil {
+					}
+					if val.JpbProdDaya != nil {
+					}
+					if val.JpbProdKeliling != nil {
+					}
+					if val.JpbProdLuas != nil {
+					}
+				}
+			}
+		}
+
 		return nil
 	})
 
