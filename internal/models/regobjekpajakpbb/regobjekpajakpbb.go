@@ -8,7 +8,6 @@ import (
 	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/reganggotaobjekpajak"
 	miop "github.com/bapenda-kota-malang/apin-backend/internal/models/regindukobjekpajak"
 	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/regkunjungankembali"
-	mopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
 	ot "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb/types"
 	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/regwajibpajakpbb"
@@ -76,9 +75,6 @@ type CreateDto struct {
 	RegAnggotaObjekPajaks *maop.CreateDto `json:"regAnggotaObjekPajak"`
 	RegIndukObjekPajaks   *miop.CreateDto `json:"regIndukObjekPajak"`
 	RegKunjunganKembalis  *mkk.CreateDto  `json:"regKunjunganKembali"`
-
-	RegObjekPajakBangunans *[]mkk.CreateDto                 `json:"regObjekPajakBng"`
-	RegFasBangunan         *[]mopbng.OPBngFasilitasBangunan `json:"regFasBangunan"`
 
 	//nop
 	Nop        *string `json:"nop"`

@@ -37,6 +37,7 @@ type ObjekPajakBangunan struct {
 	TanggalPerekaman      *time.Time        `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip" gorm:"type:char(9)"`
 	Perekam_Pegawai       *p.Pegawai        `json:"perekam_pegawai,omitempty" gorm:"foreignKey:Perekam_Pegawai_Nip;references:Nip"`
+	JmlLantaiBng          *int              `json:"jmlLantaiBng"`
 	gh.DateModel
 }
 

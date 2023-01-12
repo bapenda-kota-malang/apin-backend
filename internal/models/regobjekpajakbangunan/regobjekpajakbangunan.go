@@ -65,7 +65,10 @@ type CreateDto struct {
 	TanggalPerekaman      *string           `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip"`
 	Nop                   *string           `json:"nop"`
+	JmlLantaiBng          *int              `json:"jmlLantaiBng"`
 	RegFasilitasBangunans *mf.CreateDto     `json:"fasilitasBangunan"`
+
+	RegFasBangunan *OPBngFasilitasBangunan `json:"regFasBangunan"`
 }
 
 type UpdateDto struct {
