@@ -20,38 +20,38 @@ SET row_security = off;
 -- Data for Name: Group; Type: TABLE DATA; Schema: public; Owner: dexwip
 --
 
-COPY public."Group" ("Id", "Name", "Description", "Position", "Status") FROM stdin;
-1	Administrator	admin full akses menu	\N	1
-3	Pendaftaran		\N	1
-4	Pendataan		\N	1
-5	Penetapan	penetapan 	\N	1
-6	Bendahara		\N	1
-38	Loket AT Hiburan	Pajak Air Tanah dan Hiburan	\N	1
-68	Penagihan	penagihan	\N	1
-40	Loket Hotel Parkir	Pajak Hotel dan Parkir	\N	1
-41	Loket Resto PPJ	Pajak Restoran dan PPJ	\N	1
-69	UPT	UPT KECAMATAN	\N	1
-43	Reklame	Pajak Reklame	\N	1
-44	Kasir	SSPD Jambong	\N	1
-106	Revoked	Ex Pemegang Acc Simpatda	\N	1
-46	Pendataan2	Kepala Seksi Pendataan	\N	1
-123	ReklameHotel	ReklameHotel	\N	1
-126	read only reklame	read only reklame	\N	1
-142	Resto	Resto	\N	1
-155	SKPDKB	SKPDKB	\N	1
-170	KPK	KPK	\N	1
-175	Pembukuan	Pembukuan	\N	1
-178	ReklameBendahara	ReklameBendahara	\N	1
-179	daftarbenda	Pendaftaranbendahara	\N	1
-180	Stafpenetapan	Stafpenetapan	\N	1
-184	kabidp3	kabidp3	\N	1
-189	RO_Tax	ReadOnly SPTSKPSSPD	\N	1
-194	ReklameRead	ReklameRead	\N	1
-195	PPJ_Parkir_Readonly	PPJ_Parkir_Readonly	\N	1
-196	KASUBIDPD2	KASUBIDPD2	\N	1
-200	PendaftaranRO		\N	1
-204	LoketFull	LoketFull	\N	1
-213	Inspektorat	Inspektorat Readonly	\N	1
+COPY public."Group" ("Id", "Name", "Description", "Status") FROM stdin;
+1	Administrator	admin full akses menu	1
+3	Pendaftaran		1
+4	Pendataan		1
+5	Penetapan	penetapan 	1
+6	Bendahara		1
+38	Loket AT Hiburan	Pajak Air Tanah dan Hiburan	1
+68	Penagihan	penagihan	1
+40	Loket Hotel Parkir	Pajak Hotel dan Parkir	1
+41	Loket Resto PPJ	Pajak Restoran dan PPJ	1
+69	UPT	UPT KECAMATAN	1
+43	Reklame	Pajak Reklame	1
+44	Kasir	SSPD Jambong	1
+106	Revoked	Ex Pemegang Acc Simpatda	1
+46	Pendataan2	Kepala Seksi Pendataan	1
+123	ReklameHotel	ReklameHotel	1
+126	read only reklame	read only reklame	1
+142	Resto	Resto	1
+155	SKPDKB	SKPDKB	1
+170	KPK	KPK	1
+175	Pembukuan	Pembukuan	1
+178	ReklameBendahara	ReklameBendahara	1
+179	daftarbenda	Pendaftaranbendahargita	1
+180	Stafpenetapan	Stafpenetapan	1
+184	kabidp3	kabidp3	1
+189	RO_Tax	ReadOnly SPTSKPSSPD	1
+194	ReklameRead	ReklameRead	1
+195	PPJ_Parkir_Readonly	PPJ_Parkir_Readonly	1
+196	KASUBIDPD2	KASUBIDPD2	1
+200	PendaftaranRO		1
+204	LoketFull	LoketFull	1
+213	Inspektorat	Inspektorat Readonly	1
 \.
 
 
