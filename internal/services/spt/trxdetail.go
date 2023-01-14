@@ -288,7 +288,7 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 			if err := sc.Copy(&jambongDto, &reklameDto.JaminanBongkar); err != nil {
 				return err
 			}
-			jambongDto.Spt_Id = data.Id
+			jambongDto.Spt_Id = &data.Id
 			_, err := sjambong.Create(jambongDto, opts["userId"].(uint), tx)
 			if err != nil {
 				return err

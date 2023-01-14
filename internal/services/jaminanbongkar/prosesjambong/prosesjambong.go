@@ -8,6 +8,7 @@ import (
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar/prosesjambong"
@@ -20,7 +21,7 @@ func Create(input m.CreateDto, userId uint, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data m.Prosesjambong
+	var data m.ProsesJambong
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -35,8 +36,34 @@ func Create(input m.CreateDto, userId uint, tx *gorm.DB) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
+func GetList(input m.FilterDto) (any, error) {
+	var data []m.ProsesJambong
+	var count int64
+
+	var pagination gh.Pagination
+	result := a.DB.
+		Model(&m.ProsesJambong{}).
+		Scopes(gh.Filter(input)).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data jenis pajak", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
+}
+
 func GetDetail(id int) (any, error) {
-	var data *m.Prosesjambong
+	var data *m.ProsesJambong
 
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -54,7 +81,7 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.Prosesjambong
+	var data *m.ProsesJambong
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -77,7 +104,7 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 }
 
 func Delete(id int) (any, error) {
-	var data *m.Prosesjambong
+	var data *m.ProsesJambong
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil

@@ -18,6 +18,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
@@ -457,9 +458,7 @@ func SetRoutes() http.Handler {
 		r.Post("/new/{type}", spt.SkpdNew)
 	})
 
-	r.Route("/prosesjambong", func(r chi.Router) {
-		r.Post("/", prosesjambong.Create)
-	})
+	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
 
 	// route for espt list data, verify espt, and get detail data for espt before verify
 	r.Route("/espt", func(r chi.Router) {
@@ -586,6 +585,8 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", regobjekpajakbangunan.GetDetail)
 		r.Patch("/verify/{id}", regobjekpajakbangunan.VerifyLspop)
 	})
+
+	rh.RegCrud(r, "/jaminanbongkar", jaminanbongkar.Crud{})
 
 	return r
 }

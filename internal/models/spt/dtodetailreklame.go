@@ -13,16 +13,13 @@ import (
 
 // TODO: REKLAME GES
 type CreateJambongDto struct {
-	Spt_Id             uuid.UUID       `json:"-"`
-	Nomor              string          `json:"nomor"`
-	Tanggal            *datatypes.Date `json:"tanggal"`
-	JenisReklame       uint8           `json:"jenisReklame" validate:"required;min=1;max=2"`
-	TipeReklame        *uint8          `json:"tipeReklame"`
-	TarifJambong_Id    *uint64         `json:"tarifJambong_Id" validate:"required"`
-	TarifJambongRek_Id *uint64         `json:"tarifJambongRek_Id" validate:"required"`
-	Nominal            *float64        `json:"nominal"`
-	TanggalBatas       *datatypes.Date `json:"TanggalBatas"`
-	BiayaPemutusan     *float64        `json:"biayaPemutusan"`
+	Spt_Id         uuid.UUID       `json:"-"`
+	Tanggal        *datatypes.Date `json:"tanggal" validate:"required"`
+	JenisReklame   uint8           `json:"jenisReklame" validate:"required;min=1;max=2"`
+	TipeReklame    *uint8          `json:"tipeReklame"`
+	Nominal        *float64        `json:"nominal"`
+	TanggalBatas   *datatypes.Date `json:"TanggalBatas"`
+	BiayaPemutusan *float64        `json:"biayaPemutusan"`
 }
 
 type CreateDetailReklameDto struct {
