@@ -18,6 +18,7 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	ori "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
 	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/regsksk"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
@@ -142,21 +143,41 @@ func GetList(input m.FilterDto) (any, error) {
 
 func GetNoUrut(input m.PermohonanRequestDto) string {
 	var (
-		checkdata *m.RegPstPermohonan
-		noUrut    string = "001"
+		checkdataori  *ori.PstPermohonan
+		checkdata     *m.RegPstPermohonan
+		tempNoUrutOri int    = 0
+		tempNoUrutReg int    = 0
+		tempNoUrut    int    = 0
+		noUrut        string = "001"
 	)
 
 	year := strconv.Itoa(time.Now().Year())
+
+	_ = a.DB.Where("TahunPelayanan", year).
+		Where("BundelPelayanan", input.JenisPelayanan).
+		Order("\"NoUrutPelayanan\" desc").
+		First(&checkdataori)
+	if checkdataori.Id != 0 {
+		tempNoUrutOri, _ = strconv.Atoi(*checkdata.NoUrutPelayanan)
+		tempNoUrutOri = tempNoUrutOri + 1
+	}
+
 	_ = a.DB.Where("TahunPelayanan", year).
 		Where("BundelPelayanan", input.JenisPelayanan).
 		Order("\"NoUrutPelayanan\" desc").
 		First(&checkdata)
 	if checkdata.Id != 0 {
-		tempNoUrut, _ := strconv.Atoi(*checkdata.NoUrutPelayanan)
-		tempNoUrut = tempNoUrut + 1
-		noUrut = sh.FixedLengthString(3, fmt.Sprint(tempNoUrut))
+		tempNoUrutReg, _ = strconv.Atoi(*checkdata.NoUrutPelayanan)
+		tempNoUrutReg = tempNoUrut + 1
 	}
 
+	if tempNoUrutOri > tempNoUrutReg {
+		tempNoUrut = tempNoUrutOri
+	} else {
+		tempNoUrut = tempNoUrutReg
+	}
+
+	noUrut = sh.FixedLengthString(3, fmt.Sprint(tempNoUrut))
 	return noUrut
 }
 

@@ -1,4 +1,4 @@
-package wajibpajakpbb
+package regwajibpajakpbb
 
 import (
 	"net/http"
