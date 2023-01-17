@@ -24,6 +24,7 @@ const source = "regobjekpajakbumi"
 func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	var dataFasBangunan fasbng.CreateDto
 	var dataBng bng.CreateDto
+	var dataBangunan bng.RegObjekPajakBangunan
 	if tx == nil {
 		tx = a.DB
 	}
@@ -49,6 +50,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 			for _, opb := range tempRegOpBng {
 				nobangunan = sropbng.GetLast() + 1
 
+				dataBng.RegFasilitasBangunans = nil
 				dataBng.Provinsi_Kode = input.Provinsi_Kode
 				dataBng.Daerah_Kode = input.Daerah_Kode
 				dataBng.Kecamatan_Kode = input.Kecamatan_Kode
@@ -76,8 +78,12 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 				dataBng.TahunDibangun = opb.TahunDibangun
 				dataBng.TahunRenovasi = opb.TahunRenovasi
 
+				if err := sc.Copy(&dataBangunan, &dataBng); err != nil {
+					return err
+				}
+
 				//create data bangunan
-				if result := tx.Create(&dataBng); result.Error != nil {
+				if result := tx.Create(&dataBangunan); result.Error != nil {
 					return result.Error
 				}
 
