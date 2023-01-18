@@ -56,6 +56,11 @@ func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func UpdateBySchedule(w http.ResponseWriter, r *http.Request) {
+	result, err := s.UpdateBySchedule()
+	hh.DataResponse(w, result, err)
+}
+
 func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
