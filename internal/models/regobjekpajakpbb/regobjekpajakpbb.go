@@ -16,7 +16,8 @@ import (
 
 // spop
 type RegObjekPajakPbb struct {
-	nop.NopDetail
+	Id                    uint64                `json:"id" gorm:"primarykey"`
+	PstPermohonan_id      *uint64               `json:"pstPermohonan_id"`
 	RegWajibPajakPbb_Id   *uint64               `json:"regWajibPajakPbb_id"`
 	RegWajibPajakPbb      *mwp.RegWajibPajakPbb `json:"regWajibPajakPbb,omitempty" gorm:"foreignKey:RegWajibPajakPbb_Id"`
 	NoFormulirSpop        *string               `json:"noFormulirSpop" gorm:"type:char(11)"`
@@ -50,6 +51,7 @@ type RegObjekPajakPbb struct {
 
 type CreateDto struct {
 	nop.NopDetailCreateDto
+	PstPermohonan_id      *uint64           `json:"pstPermohonan_id"`
 	RegWajibPajakPbb_Id   *uint64           `json:"regWajibPajakPbb_id"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop"`
 	NoPersil              *string           `json:"noPersil"`
@@ -84,6 +86,7 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	nop.NopDetailUpdateDto
+	PstPermohonan_id      *uint64           `json:"pstPermohonan_id"`
 	RegWajibPajakPbb_Id   *uint64           `json:"regWajibPajakPbb_id"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop"`
 	NoPersil              *string           `json:"noPersil"`

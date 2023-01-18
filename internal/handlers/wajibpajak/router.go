@@ -174,7 +174,7 @@ func SetRoutes() http.Handler {
 	r.Handle("/static/{filename}", http.StripPrefix("/static/", static.AuthFile(static.JoinPrefix(fs))))
 
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
-		r.Post("/", regobjekpajakpbb.Create)
+		r.Post("/", regobjekpajakpbb.CreateMw(http.HandlerFunc(regobjekpajakpbb.Create), "wp"))
 		r.Get("/{id}", regobjekpajakpbb.GetDetail)
 	})
 

@@ -21,6 +21,8 @@ type RegWajibPajakPbb struct {
 	Telp           *string       `json:"telp" gorm:"type:varchar(20)"`
 	Npwp           *string       `json:"npwp" gorm:"type:varchar(20)"`
 	Pekerjaan      *string       `json:"pekerjaan" gorm:"type:varchar(100)"`
+	User_ID        *uint64       `json:"user_ID"`
+
 	gh.DateModel
 }
 
@@ -37,6 +39,7 @@ type CreateDto struct {
 	Telp           *string `json:"telp"`
 	Npwp           *string `json:"npwp"`
 	Pekerjaan      *string `json:"pekerjaan"`
+	User_ID        *uint64 `json:"user_ID"`
 }
 
 type UpdateDto struct {
@@ -52,6 +55,7 @@ type UpdateDto struct {
 	Telp           *string `json:"telp"`
 	Npwp           *string `json:"npwp"`
 	Pekerjaan      *string `json:"pekerjaan"`
+	User_ID        *uint64 `json:"user_ID"`
 }
 
 type FilterDto struct {
@@ -69,4 +73,5 @@ type FilterDto struct {
 	Pekerjaan      *string `json:"pekerjaan"`
 	Page           int     `json:"page"`
 	PageSize       int     `json:"page_size"`
+	User_ID        *uint64 `json:"user_ID"`
 }
