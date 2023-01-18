@@ -200,6 +200,11 @@ func SetRoutes() http.Handler {
 		r.Get("/", ppat.GetList)
 	})
 
+	rh.RegCrud(r, "/sppt", sppt.Crud{})
+	r.Route("/sppt-nop", func(r chi.Router) {
+		r.Get("/", sppt.GetListNop)
+	})
+
 	r.Route("/njop", func(r chi.Router) {
 		r.Get("/", sppt.Crud{}.GetList)
 		r.Get("/objekbersama", objekbersama.Crud{}.GetList)

@@ -60,6 +60,7 @@ type Sppt struct {
 	TahunAwalKelasTanah    *string         `json:"tahunAwalKelasTanah" gorm:"type:varchar(4)"`
 	TahunPajakskp_sppt     *string         `json:"tahunPajakskp_sppt" gorm:"type:varchar(4)"`
 	VirtualAccoountJatim   *int            `json:"virtualAccoountJatim" gorm:"type:varchar(30)"`
+	User_ID                *uint64         `json:"user_id"`
 	gormhelper.DateModel
 }
 
@@ -116,6 +117,7 @@ type RequestDto struct {
 	TahunAwalKelasBangunan *string         `json:"tahunAwalKelasBangunan"`
 	TahunAwalKelasTanah    *string         `json:"tahunAwalKelasTanah"`
 	TahunPajakskp_sppt     *string         `json:"tahunPajakskp_sppt"`
+	User_ID                *uint64         `json:"user_id"`
 	VirtualAccoountJatim   *int            `json:"virtualAccoountJatim"`
 }
 

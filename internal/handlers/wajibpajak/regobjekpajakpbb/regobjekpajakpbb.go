@@ -60,3 +60,12 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	result, err := s.GetDetail(id)
 	hh.DataResponse(w, result, err)
 }
+
+func GetListNop(w http.ResponseWriter, r *http.Request) {
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	id := authInfo.User_Id
+
+	result, err := s.GetListNop(id)
+	hh.DataResponse(w, result, err)
+}
