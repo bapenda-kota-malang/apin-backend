@@ -269,9 +269,6 @@ func GetDetail(id int) (any, error) {
 	result := a.DB.
 		Model(&m.RegObjekPajakPbb{}).
 		Preload(clause.Associations).
-		Preload("Kelurahan.Kecamatan.Daerah.Provinsi").
-		Preload("RegWajibPajakPbb.Kelurahan").
-		Preload("RegWajibPajakPbb.Daerah").
 		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
