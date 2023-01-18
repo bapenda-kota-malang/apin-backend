@@ -163,6 +163,7 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/pangkat", pangkat.Crud{})
 
 	rh.RegCrud(r, "/target-realisasi", targetrealisasi.Crud{})
+	r.Patch("/target-realisasi/schedule", targetrealisasi.UpdateBySchedule)
 
 	rh.RegCrud(r, "/sektor", sektor.Crud{})
 
