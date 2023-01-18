@@ -4,7 +4,7 @@ import "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 
 type JenisPajak struct {
 	Id          uint64             `json:"id" gorm:"primaryKey"`
-	Kode        *string            `json:"kode" gorm:"type:varchar(5)"`
+	Kode        *string            `json:"kode" gorm:"type:varchar(5);unique"`
 	Uraian      *string            `json:"uraian" gorm:"type:varchar(100)"`
 	Rekening_Id *uint64            `json:"rekening_id"`
 	Rekening    *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
