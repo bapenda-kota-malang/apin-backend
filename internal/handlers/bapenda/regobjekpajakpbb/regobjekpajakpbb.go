@@ -28,18 +28,3 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	result, err := s.GetDetail(id)
 	hh.DataResponse(w, result, err)
 }
-
-func VerifySpop(w http.ResponseWriter, r *http.Request) {
-	id := hh.ValidateAutoInc(w, r, "id")
-	if id < 1 {
-		return
-	}
-
-	var input m.VerifyDto
-	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		return
-	}
-
-	result, err := s.VerifySpop(id, input)
-	hh.DataResponse(w, result, err)
-}

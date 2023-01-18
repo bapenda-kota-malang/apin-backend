@@ -89,6 +89,11 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 
 				if opb.RegFasBangunan != nil {
 					val := opb.RegFasBangunan
+					var fas fasbng.RegFasilitasBangunan
+					_ = a.DB.Order("\"Id\" DESC").First(&fas)
+					if fas.Id != 0 {
+						dataFasBangunan.Id = fas.Id + 1
+					}
 					dataFasBangunan.Provinsi_Kode = input.Provinsi_Kode
 					dataFasBangunan.Daerah_Kode = input.Daerah_Kode
 					dataFasBangunan.Kecamatan_Kode = input.Kecamatan_Kode
