@@ -583,7 +583,86 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 							}
 						}
 					}
-					if opb.Jpb_Kode == "00" || opb.Jpb_Kode == "01" {
+
+					if opb.Jpb_Kode == "00" || opb.Jpb_Kode == "01" || opb.Jpb_Kode == "10" || opb.Jpb_Kode == "11" {
+					}
+
+					if opb.Jpb_Kode == "02" {
+						var dataRJpb bng.RegJpb2
+
+						dataRJpb.NoBangunan = &nobangunan
+						dataRJpb.KelasBangunan2 = "2" // gak jelas dapat dari mana
+
+						errTemp = tx.Create(&dataRJpb).Error
+						if errTemp != nil {
+							return errTemp
+						}
+					}
+					if opb.Jpb_Kode == "04" {
+						var dataRJpb bng.RegJpb4
+
+						dataRJpb.NoBangunan = &nobangunan
+						dataRJpb.KelasBangunan4 = "4" // gak jelas dapat dari mana
+
+						errTemp = tx.Create(&dataRJpb).Error
+						if errTemp != nil {
+							return errTemp
+						}
+					}
+					if opb.Jpb_Kode == "06" {
+						var dataRJpb bng.RegJpb6
+
+						dataRJpb.NoBangunan = &nobangunan
+						dataRJpb.KelasBanguna = "1" // gak jelas dapat dari mana
+
+						errTemp = tx.Create(&dataRJpb).Error
+						if errTemp != nil {
+							return errTemp
+						}
+					}
+					if opb.Jpb_Kode == "09" {
+						var dataRJpb bng.RegJpb9
+
+						dataRJpb.NoBangunan = &nobangunan
+						dataRJpb.KelasBangunan9 = "1" // gak jelas dapat dari mana
+
+						errTemp = tx.Create(&dataRJpb).Error
+						if errTemp != nil {
+							return errTemp
+						}
+					}
+					if opb.Jpb_Kode == "12" {
+						var dataRJpb bng.RegJpb12
+
+						dataRJpb.NoBangunan = nobangunan
+						dataRJpb.TipeBangunan = "1" // 1-4 gak jelas dapat dari mana
+
+						errTemp = tx.Create(&dataRJpb).Error
+						if errTemp != nil {
+							return errTemp
+						}
+					}
+					if opb.Jpb_Kode == "14" {
+						var dataRJpb bng.RegJpb14
+
+						dataRJpb.NoBangunan = &nobangunan
+						dataRJpb.LuasKanopi = nil // gak jelas dapat dari mana
+
+						errTemp = tx.Create(&dataRJpb).Error
+						if errTemp != nil {
+							return errTemp
+						}
+					}
+					if opb.Jpb_Kode == "16" {
+						var dataRJpb bng.RegJpb16
+
+						dataRJpb.NoBangunan = &nobangunan
+						dataRJpb.KelasBangunan16 = "1" // gak jelas dapat dari mana
+
+						errTemp = tx.Create(&dataRJpb).Error
+						if errTemp != nil {
+							return errTemp
+						}
 					}
 				}
 			}
