@@ -176,6 +176,7 @@ func SetRoutes() http.Handler {
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
 		r.Post("/", regobjekpajakpbb.CreateMw(http.HandlerFunc(regobjekpajakpbb.Create), "wp"))
 		r.Get("/{id}", regobjekpajakpbb.GetDetail)
+		r.Get("/", regobjekpajakpbb.GetListNop)
 	})
 
 	r.Route("/regwajibpajakpbb", func(r chi.Router) {
