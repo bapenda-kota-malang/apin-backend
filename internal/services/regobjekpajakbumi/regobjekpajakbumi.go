@@ -50,6 +50,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 			for _, opb := range tempRegOpBng {
 				nobangunan = sropbng.GetLast() + 1
 
+				dataBng.PstPermohonan_id = opb.PstPermohonan_id
 				dataBng.RegFasilitasBangunans = nil
 				dataBng.Provinsi_Kode = input.Provinsi_Kode
 				dataBng.Daerah_Kode = input.Daerah_Kode
