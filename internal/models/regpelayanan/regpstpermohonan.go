@@ -33,6 +33,8 @@ type RegPstPermohonan struct {
 	TanggalTerima          *datatypes.Date `json:"tanggalTerima"`
 	NIP                    *string         `json:"nip" gorm:"type:varchar(9)"`
 	PenerimaanBerkas       *string         `json:"penerimaanBerkas" gorm:"type:varchar(50)"`
+	Status                 *string         `json:"status"`
+	User_ID                *uint64         `json:"user_ID"`
 	gormhelper.DateModel
 }
 
@@ -61,6 +63,8 @@ type PermohonanRequestDto struct {
 	NamaPenerima          *string `json:"namaPenerima"`
 	NIPPenyerah           *string `json:"nipPenyerah"`
 	StatusSelesai         *int    `json:"statusSelesai"`
+	Status                *string `json:"status"`
+	User_ID               *uint64 `json:"user_ID"`
 	TanggalPenyerahan     *string `json:"tanggalPenyerahan"`
 }
 

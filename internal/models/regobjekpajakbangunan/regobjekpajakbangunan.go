@@ -12,7 +12,8 @@ import (
 
 // lspop
 type RegObjekPajakBangunan struct {
-	nop.NopDetail
+	Id                    uint64            `json:"id" gorm:"primarykey"`
+	PstPermohonan_id      *uint64           `json:"pstPermohonan_id"`
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode" gorm:"type:char(2)"`
 	Jpb                   *j.Jpb            `json:"jpb,omitempty" gorm:"foreignKey:Jpb_Kode;references:Kode"`
@@ -44,6 +45,7 @@ type RegObjekPajakBangunan struct {
 
 type CreateDto struct {
 	nop.NopDetailCreateDto
+	PstPermohonan_id      *uint64           `json:"pstPermohonan_id"`
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop"`
@@ -73,6 +75,7 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	nop.NopDetailUpdateDto
+	PstPermohonan_id      *uint64           `json:"pstPermohonan_id"`
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              *string           `json:"jpb_kode"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop"`

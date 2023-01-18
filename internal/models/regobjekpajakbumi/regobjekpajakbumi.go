@@ -7,7 +7,7 @@ import (
 )
 
 type RegObjekPajakBumi struct {
-	nop.NopDetail
+	Id              uint64    `json:"id" gorm:"primarykey"`
 	NoBumi          *int      `json:"noBumi"`
 	KodeZNT         *string   `json:"kodeZnt" gorm:"type:char(2)"`
 	LuasBumi        int       `json:"luasBumi"`
