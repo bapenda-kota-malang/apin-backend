@@ -22,7 +22,7 @@ import (
 const source = "regobjekpajakbumi"
 
 func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
-	var dataFasBangunan fasbng.CreateDto
+	var dataFasBangunan fasbng.RegFasilitasBangunan
 	var dataBng bng.CreateDto
 	var dataBangunan bng.RegObjekPajakBangunan
 	if tx == nil {
@@ -105,6 +105,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBJumlahACWindow != nil {
 						tempKodeFas = "02"
@@ -114,6 +115,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBIsACCentral != nil {
 						tempKodeFas = "11"
@@ -123,6 +125,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBTipeLapisanKolam != nil {
 						tempKodeFas = fmt.Sprint(val.FBTipeLapisanKolam)
@@ -134,6 +137,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBHalamanBerat != nil {
 						tempKodeFas = "16"
@@ -143,6 +147,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBHalamanSendang != nil {
 						tempKodeFas = "15"
@@ -152,6 +157,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBHalamanRingan != nil {
 						tempKodeFas = "14"
@@ -161,6 +167,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBHalamanLantai != nil {
 						tempKodeFas = "17"
@@ -170,6 +177,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBTenisLampuBeton != nil {
 						tempKodeFas = "18"
@@ -179,6 +187,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBTenisTanpaLampuBeton != nil {
 						tempKodeFas = "21"
@@ -188,6 +197,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBTenisAspal1 != nil {
 						tempKodeFas = "19"
@@ -197,6 +207,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBTenisAspal2 != nil {
 						tempKodeFas = "22"
@@ -206,6 +217,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBTenisLiatRumput1 != nil {
 						tempKodeFas = "20"
@@ -215,6 +227,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBTenisLiatRumput2 != nil {
 						tempKodeFas = "23"
@@ -224,6 +237,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBLiftPenumpang != nil {
 						tempKodeFas = "30"
@@ -233,6 +247,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBLiftKapsul != nil {
 						tempKodeFas = "31"
@@ -242,6 +257,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBLiftBarang != nil {
 						tempKodeFas = "32"
@@ -251,6 +267,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBTangga80 != nil {
 						tempKodeFas = "33"
@@ -260,6 +277,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBTangga81 != nil {
 						tempKodeFas = "34"
@@ -269,6 +287,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBPagarBahan != nil {
 						tempKodeFas = fmt.Sprint(val.FBPagarBahan)
@@ -280,6 +299,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBPKHydrant != nil {
 						tempKodeFas = "37"
@@ -289,6 +309,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBPKSplinkler != nil {
 						tempKodeFas = "39"
@@ -298,6 +319,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBPKFireAI != nil {
 						tempKodeFas = "38"
@@ -307,6 +329,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBPABX != nil {
 						tempKodeFas = "41"
@@ -316,6 +339,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBSumur != nil {
 						tempKodeFas = "42"
@@ -325,6 +349,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 
 					if val.JpbKlinikACCentralKamar != nil {
@@ -358,6 +383,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 							if errTemp != nil {
 								return errTemp
 							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
 
 							dataRJpb.LuasRuangLainAcCentral = val.JpbKlinikACCentralRuang
 						}
@@ -395,6 +421,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 							if errTemp != nil {
 								return errTemp
 							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
 
 							dataRJpb.LuasKamarAcCentral = val.JpbHotelACCentralKamar
 						}
@@ -406,6 +433,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 							if errTemp != nil {
 								return errTemp
 							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
 
 							dataRJpb.LuasRuangLainAcCentral = val.JpbHotelACCentralRuang
 						}
@@ -439,6 +467,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 							if errTemp != nil {
 								return errTemp
 							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
 
 							dataRJpb.LuasApartAcCentral = val.JpbHotelACCentralRuang
 						}
@@ -450,6 +479,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 							if errTemp != nil {
 								return errTemp
 							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
 
 							dataRJpb.LuasRuangLainAcCentral = val.JpbHotelACCentralRuang
 						}
@@ -483,7 +513,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						}
 					}
 					if val.JpbProdTinggi != nil {
-						if opb.Jpb_Kode == "3" {
+						if opb.Jpb_Kode == "03" {
 							var dataRJpb bng.RegJpb3
 
 							dataRJpb.NopDetail.Provinsi_Kode = input.Provinsi_Kode
@@ -514,7 +544,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 							if errTemp != nil {
 								return errTemp
 							}
-						} else if opb.Jpb_Kode == "8" {
+						} else if opb.Jpb_Kode == "08" {
 							var dataRJpb bng.RegJpb8
 
 							dataRJpb.NopDetail.Provinsi_Kode = input.Provinsi_Kode
@@ -546,6 +576,8 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 								return errTemp
 							}
 						}
+					}
+					if opb.Jpb_Kode == "00" || opb.Jpb_Kode == "01" {
 					}
 				}
 			}
