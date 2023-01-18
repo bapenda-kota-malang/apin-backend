@@ -29,12 +29,12 @@ func Create(w http.ResponseWriter, r *http.Request) {
 // 	hh.DataResponse(w, result, err)
 // }
 
-// func GetDetail(w http.ResponseWriter, r *http.Request) {
-// 	id := hh.ValidateAutoInc(w, r, "id")
-// 	if id < 1 {
-// 		return
-// 	}
+func GetDetail(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
 
-// 	result, err := s.GetDetail(id)
-// 	hh.DataResponse(w, result, err)
-// }
+	result, err := s.GetDetail(id)
+	hh.DataResponse(w, result, err)
+}

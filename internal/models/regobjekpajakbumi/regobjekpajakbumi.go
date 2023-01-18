@@ -2,6 +2,7 @@ package regobjekpajakbumi
 
 import (
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
+	mopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
@@ -23,6 +24,8 @@ type CreateDto struct {
 	LuasBumi        int       `json:"luasBumi"`
 	JenisBumi       JenisBumi `json:"jenisBumi"`
 	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
+
+	RegObjekPajakBangunans *[]mopbng.CreateDto `json:"regObjekPajakBng"`
 }
 
 type UpdateDto struct {

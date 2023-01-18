@@ -1,5 +1,5 @@
 // service
-package permohonan
+package regpermohonan
 
 import (
 	"errors"
@@ -18,9 +18,9 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
-	reg "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
-	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
+	ori "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
+	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/regsksk"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	// oppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	// wppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
@@ -34,16 +34,16 @@ const source = "permohonan"
 func Create(input m.PermohonanRequestDto) (any, error) {
 	var (
 		err                   error
-		permohonanDetail      *m.PstDetail
-		permohonanBaru        *m.PstDataOPBaru
-		permohonanDetailInput *m.PstDetailInput
-		permohonanPengurangan *m.PstPermohonanPengurangan
+		permohonanDetail      *m.RegPstDetail
+		permohonanBaru        *m.RegPstDataOPBaru
+		permohonanDetailInput *m.RegPstDetailInput
+		permohonanPengurangan *m.RegPstPermohonanPengurangan
 		nop                   *m.PermohonanNOP
-		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
-		pembatalanSppt        *m.PembatalanSppt
-		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
-		SPMKP                 *m.SPMKP
-		SkSk                  *sksk.SkSk
+		pembetulanSpptSKPSTP  *m.RegPembetulanSpptSKPSTP
+		pembatalanSppt        *m.RegPembatalanSppt
+		keputusanKeberatanPbb *m.RegKeputusanKeberatanPbb
+		SPMKP                 *m.RegSPMKP
+		SkSk                  *sksk.RegSkSk
 	)
 
 	noUrut := GetNoUrut(input)
@@ -58,7 +58,7 @@ func Create(input m.PermohonanRequestDto) (any, error) {
 		}
 
 		permohonanBaru, permohonanDetailInput, permohonanPengurangan, nop = data.SetDataPermohonanTransformer(input)
-		permohonanDetail = new(m.PstDetail)
+		permohonanDetail = new(m.RegPstDetail)
 		if err := sc.Copy(&permohonanDetail, &permohonanDetailInput); err != nil {
 			return errors.New("set data permohonan detail gagal")
 		}
@@ -116,12 +116,12 @@ func Create(input m.PermohonanRequestDto) (any, error) {
 }
 
 func GetList(input m.FilterDto) (any, error) {
-	var data []m.PstPermohonan
+	var data []m.RegPstPermohonan
 	var count int64
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.PstPermohonan{}).
+		Model(&m.RegPstPermohonan{}).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -143,8 +143,8 @@ func GetList(input m.FilterDto) (any, error) {
 
 func GetNoUrut(input m.PermohonanRequestDto) string {
 	var (
-		checkdataori  *m.PstPermohonan
-		checkdata     *reg.RegPstPermohonan
+		checkdataori  *ori.PstPermohonan
+		checkdata     *m.RegPstPermohonan
 		tempNoUrutOri int    = 0
 		tempNoUrutReg int    = 0
 		tempNoUrut    int    = 0
@@ -183,22 +183,17 @@ func GetNoUrut(input m.PermohonanRequestDto) string {
 
 func GetStatusNOP(nop *string) (interface{}, error) {
 	permohonannop := m.DecodeNOPPermohonan(nop)
-	result, err := oppbb.GetDetailbyNop(*permohonannop)
+	result, err := oppbb.GetRegDetailbyNop(*permohonannop)
 
 	return result, err
 }
 
 func GetDetail(id int) (interface{}, error) {
 	var (
-		data                  *m.PstPermohonan
-		permohonanBaru        *m.PstDataOPBaru
-		permohonanDetail      *m.PstDetail
-		permohonanPengurangan *m.PstPermohonanPengurangan
-		// pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
-		// pembatalanSppt        *m.PembatalanSppt
-		// keputusanKeberatanPbb *m.KeputusanKeberatanPbb
-		// SPMKP                 *m.SPMKP
-		// SkSk                  *sksk.SkSk
+		data                  *m.RegPstPermohonan
+		permohonanBaru        *m.RegPstDataOPBaru
+		permohonanDetail      *m.RegPstDetail
+		permohonanPengurangan *m.RegPstPermohonanPengurangan
 	)
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -219,26 +214,6 @@ func GetDetail(id int) (interface{}, error) {
 			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
 		}
 	}
-	// else if *data.BundelPelayanan == m.JenisPelayanan[2] {
-	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&pembetulanSpptSKPSTP); result.Error != nil {
-	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembetulan", pembetulanSpptSKPSTP)
-	// 	}
-	// } else if *data.BundelPelayanan == m.JenisPelayanan[3] {
-	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&pembatalanSppt); result.Error != nil {
-	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembatalan SPPT", pembatalanSppt)
-	// 	}
-	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&SkSk); result.Error != nil {
-	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembatalan SKP", SkSk)
-	// 	}
-	// } else if *data.BundelPelayanan == m.JenisPelayanan[8] {
-	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&SPMKP); result.Error != nil {
-	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data restitusi dan kompensasi", SPMKP)
-	// 	}
-	// } else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
-	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&keputusanKeberatanPbb); result.Error != nil {
-	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data keberatan", keputusanKeberatanPbb)
-	// 	}
-	// }
 
 	finalresult := data.SetPstPermohonanResponse()
 	finalresult.PstDataOPBaru = permohonanBaru
@@ -250,17 +225,17 @@ func GetDetail(id int) (interface{}, error) {
 
 func Update(id int, input m.PermohonanRequestDto) (interface{}, error) {
 	var (
-		data                  *m.PstPermohonan
-		permohonanBaru        *m.PstDataOPBaru
-		permohonanDetail      *m.PstDetail
-		permohonanDetailInput *m.PstDetailInput
-		permohonanPengurangan *m.PstPermohonanPengurangan
+		data                  *m.RegPstPermohonan
+		permohonanBaru        *m.RegPstDataOPBaru
+		permohonanDetail      *m.RegPstDetail
+		permohonanDetailInput *m.RegPstDetailInput
+		permohonanPengurangan *m.RegPstPermohonanPengurangan
 		nop                   *m.PermohonanNOP
-		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
-		pembatalanSppt        *m.PembatalanSppt
-		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
-		SPMKP                 *m.SPMKP
-		SkSk                  *sksk.SkSk
+		pembetulanSpptSKPSTP  *m.RegPembetulanSpptSKPSTP
+		pembatalanSppt        *m.RegPembatalanSppt
+		keputusanKeberatanPbb *m.RegKeputusanKeberatanPbb
+		SPMKP                 *m.RegSPMKP
+		SkSk                  *sksk.RegSkSk
 	)
 
 	result := a.DB.First(&data, id)
@@ -346,8 +321,8 @@ func Update(id int, input m.PermohonanRequestDto) (interface{}, error) {
 
 func UpdateStatus(id int, input m.PermohonanRequestDto) (interface{}, error) {
 	var (
-		data             *m.PstPermohonan
-		permohonanDetail *m.PstDetail
+		data             *m.RegPstPermohonan
+		permohonanDetail *m.RegPstDetail
 	)
 
 	_ = a.DB.First(&data, id)
@@ -387,15 +362,15 @@ func UpdateStatus(id int, input m.PermohonanRequestDto) (interface{}, error) {
 
 func Delete(id int) (interface{}, error) {
 	var (
-		data                  *m.PstPermohonan
-		permohonanBaru        *m.PstDataOPBaru
-		permohonanDetail      *m.PstDetail
-		permohonanPengurangan *m.PstPermohonanPengurangan
-		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
-		pembatalanSppt        *m.PembatalanSppt
-		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
-		SPMKP                 *m.SPMKP
-		SkSk                  *sksk.SkSk
+		data                  *m.RegPstPermohonan
+		permohonanBaru        *m.RegPstDataOPBaru
+		permohonanDetail      *m.RegPstDetail
+		permohonanPengurangan *m.RegPstPermohonanPengurangan
+		pembetulanSpptSKPSTP  *m.RegPembetulanSpptSKPSTP
+		pembatalanSppt        *m.RegPembatalanSppt
+		keputusanKeberatanPbb *m.RegKeputusanKeberatanPbb
+		SPMKP                 *m.RegSPMKP
+		SkSk                  *sksk.RegSkSk
 	)
 
 	result := a.DB.First(&data, id)

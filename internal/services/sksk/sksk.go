@@ -330,15 +330,15 @@ func generatePenilaianToXLSX(input m.CetakDto) (any, error) {
 
 		for i, itemWp := range *dataWp {
 
-			tempOP := *itemWp.ObjekPajakPbbs
+			tempOP := *itemWp.ObjekPajakPbbs // main dari nilai individu
 			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("A%d", i+start), i)
-			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("B%d", i+start), tempOP[0].NoPersil) // ??? what the ??? [0] => harus nya di total but how with the number...
-			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("C%d", i+start), itemWp.Nama)
-			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("D%d", i+start), fmt.Sprintf("%d/%d", itemWp.Rt, itemWp.Rw))
-			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("E%d", i+start), len(tempOP))
-			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("F%d", i+start), tempOP[0].TotalLuasBumi)
-			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("G%d", i+start), tempOP[0].TotalLuasBangunan)
-			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("H%d", i+start), tempOP[0].Area_Kode) // ??? harusnya kode znt tapi ntah dapat nya darimana ???
+			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("B%d", i+start), tempOP[0].NoPersil)                         // NOP DARI NILAI INDIVIDU ??? what the ??? [0] => harus nya di total but how with the number...
+			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("C%d", i+start), itemWp.Nama)                                // +objek pajak pbb
+			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("D%d", i+start), fmt.Sprintf("%d/%d", itemWp.Rt, itemWp.Rw)) //ambil dari op pbb
+			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("E%d", i+start), len(tempOP))                                // count op bangunan yang nop nya sama
+			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("F%d", i+start), tempOP[0].TotalLuasBumi)                    // dari bumi
+			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("G%d", i+start), tempOP[0].TotalLuasBangunan)                // dari bangunan
+			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("H%d", i+start), tempOP[0].Area_Kode)                        // bumi znt ??? harusnya kode znt tapi ntah dapat nya darimana ???
 			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("I%d", i+start), "kelas tanah")
 			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("J%d", i+start), "kelas bangunan")
 			xlsx.SetCellValue(laporanPenilaian, fmt.Sprintf("K%d", i+start), tempOP[0].NjopBumi)

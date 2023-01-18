@@ -75,6 +75,7 @@ type CreateDto struct {
 	RegAnggotaObjekPajaks *maop.CreateDto `json:"regAnggotaObjekPajak"`
 	RegIndukObjekPajaks   *miop.CreateDto `json:"regIndukObjekPajak"`
 	RegKunjunganKembalis  *mkk.CreateDto  `json:"regKunjunganKembali"`
+
 	//nop
 	Nop        *string `json:"nop"`
 	NopBersama *string `json:"nopBersama"`

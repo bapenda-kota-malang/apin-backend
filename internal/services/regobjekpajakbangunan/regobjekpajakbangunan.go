@@ -184,6 +184,22 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
+func GetLast() int {
+	var data *m.RegObjekPajakBangunan
+
+	result := a.DB.
+		Model(&m.RegObjekPajakBangunan{}).
+		Order("NoBangunan desc").
+		First(&data)
+	if result.RowsAffected == 0 {
+		return 0
+	} else if result.Error != nil {
+		return 0
+	}
+
+	return *data.NoBangunan
+}
+
 func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
