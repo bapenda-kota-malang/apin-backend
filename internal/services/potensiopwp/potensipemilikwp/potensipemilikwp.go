@@ -34,8 +34,10 @@ func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 				return sh.SetError("request", "create-data", source, "failed", "data kelurahan pemilik bukan di kota terkait", data)
 			}
 		}
-		tx.Where(m.PotensiPemilikWp{Potensiop_Id: input[i].Potensiop_Id, Nik: *input[i].Nik}).First(&tmp)
-		// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
+		if input[i].Nik != nil {
+			tx.Where(m.PotensiPemilikWp{Potensiop_Id: input[i].Potensiop_Id, Nik: *input[i].Nik}).First(&tmp)
+			// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
+		}
 		if err := sc.Copy(&tmp, &input[i]); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload pemilik", data)
 		}
