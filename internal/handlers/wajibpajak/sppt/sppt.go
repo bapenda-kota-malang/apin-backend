@@ -3,6 +3,7 @@ package sppt
 import (
 	"net/http"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
@@ -37,6 +38,15 @@ func (c Crud) GetList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := s.GetList(input)
+	hh.DataResponse(w, result, err)
+}
+
+func GetListNop(w http.ResponseWriter, r *http.Request) {
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	id := authInfo.User_Id
+
+	result, err := s.GetListNop(id)
 	hh.DataResponse(w, result, err)
 }
 

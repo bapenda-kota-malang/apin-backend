@@ -17,6 +17,7 @@ import (
 	mropb "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 	mrwp "github.com/bapenda-kota-malang/apin-backend/internal/models/regwajibpajakpbb"
+	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	sraop "github.com/bapenda-kota-malang/apin-backend/internal/services/reganggotaobjekpajak"
 	srkk "github.com/bapenda-kota-malang/apin-backend/internal/services/regkunjungankembali"
@@ -263,15 +264,28 @@ func GetList(input m.FilterDto) (any, error) {
 	}, nil
 }
 
+func GetListNop(user_id int) (any, error) {
+	var data []mwp.WajibPajakPbb
+	result := a.DB.
+		Model(&mwp.WajibPajakPbb{}).
+		Preload(clause.Associations).
+		Where("User_ID", user_id).
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
 func GetDetail(id int) (any, error) {
 	var data *m.RegObjekPajakPbb
 
 	result := a.DB.
 		Model(&m.RegObjekPajakPbb{}).
 		Preload(clause.Associations).
-		Preload("Kelurahan.Kecamatan.Daerah.Provinsi").
-		Preload("RegWajibPajakPbb.Kelurahan").
-		Preload("RegWajibPajakPbb.Daerah").
 		First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
