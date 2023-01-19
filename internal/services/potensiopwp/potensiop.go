@@ -17,6 +17,7 @@ import (
 	sc "github.com/jinzhu/copier"
 	"github.com/lib/pq"
 
+	mpegawai "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -187,6 +188,7 @@ func GetDetail(id uuid.UUID) (any, error) {
 		Preload("PotensiPemilikWp.Kelurahan").
 		Preload("PotensiNarahubung.Daerah").
 		Preload("PotensiNarahubung.Kelurahan").
+		Preload("Bapl.Koordinator").
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).First(&data, "\"Id\" = ?", id.String())
@@ -195,6 +197,22 @@ func GetDetail(id uuid.UUID) (any, error) {
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
+
+	dataBapl := *data.Bapl
+	for i := 0; i < len(dataBapl); i++ {
+		if dataBapl[i].Petugas_Pegawai_Id == nil {
+			continue
+		}
+		var dataPetugas *[]mpegawai.Pegawai
+		petugasArr := []int64(*dataBapl[i].Petugas_Pegawai_Id)
+		if res := a.DB.Find(&dataPetugas, petugasArr); res.Error != nil {
+			return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+		} else if res.RowsAffected == 0 {
+			return nil, nil
+		}
+		dataBapl[i].Petugas = dataPetugas
+	}
+	data.Bapl = &dataBapl
 
 	return rp.OKSimple{
 		Data: data,
