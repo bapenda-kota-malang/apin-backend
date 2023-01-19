@@ -588,5 +588,7 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/jaminanbongkar", jaminanbongkar.Crud{})
 
+	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
+
 	return r
 }

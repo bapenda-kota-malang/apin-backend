@@ -67,6 +67,11 @@ func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJamb
 	if typeProcess != "update" {
 		data.CreateBy_User_Id = userId
 		data.Nomor = fmt.Sprintf("JB-0000%s", dataSpt.NomorSpt[len(dataSpt.NomorSpt)-5:])
+		// perAk, _ := dataSpt.PeriodeAkhir.Value()
+		// // add 7 days
+		// perAk = datatypes.Date(perAk.(time.Time).AddDate(0, 0, 7))
+		// perAkDate := perAk.(datatypes.Date)
+		// data.TanggalBatas = &perAkDate
 	}
 	data.Nominal = data.BiayaPemutusan
 
@@ -80,78 +85,112 @@ func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJamb
 		data.TarifJambongRek_Id = &dataTjrek.Id
 	}
 
-	// calc every detail spt reklame and append to detail jambong
+	// create map for faster search
+	dataDetailsMap := make(map[uint64]struct{})
+	for _, v := range dataDetails {
+		dataDetailsMap[v.DetailSptReklame_id] = struct{}{}
+	}
+
+	detailSptReklameMap := make(map[uint64]mdsrek.DetailSptReklame)
 	for _, v := range *dataSpt.DetailSptReklame {
-		dataDetail := m.DetailJambong{DetailSptReklame_id: v.Id}
+		if _, ok := dataDetailsMap[v.Id]; !ok {
+			dataDetails = append(dataDetails, m.DetailJambong{DetailSptReklame_id: v.Id})
+		}
+		detailSptReklameMap[v.Id] = v
+	}
 
+	for i := 0; i < len(dataDetails); i++ {
+		if _, ok := detailSptReklameMap[dataDetails[i].DetailSptReklame_id]; !ok {
+			return fmt.Errorf("invalid id spt reklame")
+		}
+		sptReklame := detailSptReklameMap[dataDetails[i].DetailSptReklame_id]
+
+		// Insidentil
 		if data.JenisReklame == m.ReklameInsidentil {
-			data.Nominal += (v.JumlahRp * (*dataTjrek.Nominal / float64(100)))
-		} else {
-			switch *v.TarifReklame.JenisReklame {
-			// tarif jambong rek
-			case "Billboard Disinari", "Billboard, Tembok/Tugu, Shop Panel, Letter, Neon Sign, Prismatek", "Neon Box":
-				tipe := "RB"
-				if *v.TarifReklame.JenisReklame == "Neon Box" {
-					tipe = "RNB"
-				}
-
-				if *v.TarifReklame.DasarPengenaan != "Luas" {
-					return fmt.Errorf("hanya bisa tarif reklame dasar pengenaan luas")
-				}
-
-				luas := calcLuas(v)
-
-				var err error
-				dataTjrek, err = getTjRek(tx, tipe, &luas)
-				if err != nil {
-					return fmt.Errorf("gagal mengambil data tarif jambong rekening: %w", err)
-				}
-				data.Nominal += luas * *dataTjrek.Nominal
-			// tarif jambong
-			case "Megatron, TV Media", "Rombong", "Bando Jalan, JPO, Taman Gantung":
-				jenisRekStr := *v.TarifReklame.JenisReklame
-				switch jenisRekStr {
-				case "Megatron, TV Media":
-					jenisRekStr = "Megatron"
-				}
-
-				if *v.TarifReklame.DasarPengenaan != "Luas" {
-					return fmt.Errorf("hanya bisa tarif reklame dasar pengenaan luas")
-				}
-
-				luas := calcLuas(v)
-
-				var dataTj tarifjambong.TarifJambong
-				res := tx.Model(&tarifjambong.TarifJambong{}).Where("\"JenisReklame\" LIKE ?", fmt.Sprintf("%%%s%%", jenisRekStr)).First(&dataTj)
-				if res.Error != nil {
-					return fmt.Errorf("gagal mengambil data tarif jambong: %w", res.Error)
-				} else if res.RowsAffected == 0 {
-					return fmt.Errorf("data tarif jambong kosong")
-				}
-				dataDetail.TarifJambong_Id = &dataTj.Id
-				data.Nominal += luas * *dataTj.Nominal
-			// insidentil, tarif jambong rek
-			default:
-				if dataTjrek == nil || (dataTjrek != nil && *dataTjrek.Tipe != "Insidentil") {
-					var err error
-					dataTjrek, err = getTjRek(tx, "Insidentil", nil)
-					if err != nil {
-						return fmt.Errorf("gagal mengambil data tarif jambong: %w", err)
-					}
-					data.TarifJambongRek_Id = &dataTjrek.Id
-				}
-				data.Nominal += (v.JumlahRp * (*dataTjrek.Nominal / float64(100)))
-			}
+			data.Nominal += (sptReklame.JumlahRp * (*dataTjrek.Nominal / float64(100)))
+			continue
 		}
 
-		// TODO: change this when update replace slice data details, should be not append
-		if typeProcess != "update" {
-			dataDetails = append(dataDetails, dataDetail)
+		// get tarif jambong then calculate
+		if dataDetails[i].TarifJambong_Id != nil {
+			// prevent calc when data given below min id relation :)
+			if *dataDetails[i].TarifJambong_Id < 1 {
+				continue
+			}
+			var dataTj tarifjambong.TarifJambong
+			res := tx.Model(&tarifjambong.TarifJambong{}).First(&dataTj, dataDetails[i].TarifJambong_Id)
+			if res.Error != nil {
+				return fmt.Errorf("gagal mengambil data tarif jambong: %w", res.Error)
+			} else if res.RowsAffected == 0 {
+				return fmt.Errorf("data tarif jambong kosong")
+			}
+			luas := calcLuas(sptReklame)
+			data.Nominal += luas * *dataTj.Nominal
+			continue
+		}
+
+		// search tarif by jenis reklame
+		switch *sptReklame.TarifReklame.JenisReklame {
+		// tarif jambong rek
+		case "Billboard Disinari", "Billboard, Tembok/Tugu, Shop Panel, Letter, Neon Sign, Prismatek", "Neon Box":
+			tipe := "RB"
+			if *sptReklame.TarifReklame.JenisReklame == "Neon Box" {
+				tipe = "RNB"
+			}
+
+			if *sptReklame.TarifReklame.DasarPengenaan != "Luas" {
+				return fmt.Errorf("hanya bisa tarif reklame dasar pengenaan luas")
+			}
+
+			luas := calcLuas(sptReklame)
+
+			var err error
+			dataTjrek, err = getTjRek(tx, tipe, &luas)
+			if err != nil {
+				return fmt.Errorf("gagal mengambil data tarif jambong rekening: %w", err)
+			}
+			data.Nominal += luas * *dataTjrek.Nominal
+		// tarif jambong
+		case "Megatron, TV Media", "Rombong", "Bando Jalan, JPO, Taman Gantung":
+			jenisRekStr := *sptReklame.TarifReklame.JenisReklame
+			switch jenisRekStr {
+			case "Megatron, TV Media":
+				jenisRekStr = "Megatron"
+			}
+
+			if *sptReklame.TarifReklame.DasarPengenaan != "Luas" {
+				return fmt.Errorf("hanya bisa tarif reklame dasar pengenaan luas")
+			}
+
+			luas := calcLuas(sptReklame)
+
+			var dataTj tarifjambong.TarifJambong
+			res := tx.Model(&tarifjambong.TarifJambong{}).Where("\"JenisReklame\" LIKE ?", fmt.Sprintf("%%%s%%", jenisRekStr)).First(&dataTj)
+			if res.Error != nil {
+				return fmt.Errorf("gagal mengambil data tarif jambong: %w", res.Error)
+			} else if res.RowsAffected == 0 {
+				return fmt.Errorf("data tarif jambong kosong")
+			}
+			tjId := int64(dataTj.Id)
+			dataDetails[i].TarifJambong_Id = &tjId
+			data.Nominal += luas * *dataTj.Nominal
+		// insidentil, tarif jambong rek
+		default:
+			if dataTjrek == nil || (dataTjrek != nil && *dataTjrek.Tipe != "Insidentil") {
+				var err error
+				dataTjrek, err = getTjRek(tx, "Insidentil", nil)
+				if err != nil {
+					return fmt.Errorf("gagal mengambil data tarif jambong: %w", err)
+				}
+				data.TarifJambongRek_Id = &dataTjrek.Id
+			}
+			data.Nominal += (sptReklame.JumlahRp * (*dataTjrek.Nominal / float64(100)))
 		}
 	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	err := tx.Transaction(func(tx2 *gorm.DB) error {
+		// update
 		if typeProcess == "update" {
 			if result := tx2.Save(&data); result.Error != nil {
 				return result.Error
@@ -162,21 +201,41 @@ func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJamb
 			return nil
 		}
 
+		// create
 		if result := tx2.Create(&data); result.Error != nil {
 			return result.Error
 		}
-
 		for i := range dataDetails {
 			dataDetails[i].JaminanBongkar_Id = data.Id
 		}
-
 		if result := tx2.Create(&dataDetails); result.Error != nil {
 			return result.Error
 		}
-
 		return nil
 	})
+	data.DetailJambong = dataDetails
 	return err
+}
+
+func transformUpdate(data *m.JaminanBongkar, detailsJambong []m.DetailJambongCreateDto) (dataDetails []m.DetailJambong, typeData string, err error) {
+	if err = sc.CopyWithOption(&dataDetails, &data.DetailJambong, sc.Option{IgnoreEmpty: true}); err != nil {
+		return
+	}
+	detailMap := make(map[uint64]int)
+	for i, v := range dataDetails {
+		detailMap[v.DetailSptReklame_id] = i
+	}
+
+	for _, v := range detailsJambong {
+		if idx, ok := detailMap[v.DetailSptReklame_id]; ok {
+			dataDetails[idx].TarifJambong_Id = v.TarifJambong_Id
+			continue
+		}
+		dataDetails = append(dataDetails, m.DetailJambong{DetailSptReklame_id: v.DetailSptReklame_id, TarifJambong_Id: v.TarifJambong_Id})
+	}
+	data.DetailJambong = []m.DetailJambong{}
+	typeData = "update"
+	return
 }
 
 func Create(input m.CreateDto, userId uint, tx *gorm.DB) (any, error) {
@@ -196,15 +255,18 @@ func Create(input m.CreateDto, userId uint, tx *gorm.DB) (any, error) {
 		if err := sc.Copy(&data, &input); err != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 		}
+		if err := sc.Copy(&dataDetails, &input.DetailsJambong); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+		}
 	} else {
 		if err := sc.CopyWithOption(&data, &input, sc.Option{IgnoreEmpty: true}); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+			sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 		}
-		if err := sc.CopyWithOption(&dataDetails, &data.DetailJambong, sc.Option{IgnoreEmpty: true}); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+		var err error
+		dataDetails, typeData, err = transformUpdate(&data, input.DetailsJambong)
+		if err != nil {
+			return sh.SetError("request", "update-data", source, "failed", fmt.Sprintf("failed transform data: %s", err), data)
 		}
-		data.DetailJambong = []m.DetailJambong{}
-		typeData = "update"
 	}
 
 	if err := processData(tx, &data, dataDetails, typeData, userId); err != nil {
@@ -258,22 +320,29 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
+func Update(id int, input m.UpdateDto, userId uint, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 	var data *m.JaminanBongkar
-	result := tx.First(&data, id)
+	result := tx.Preload("DetailJambong").First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
 
-	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	if err := sc.CopyWithOption(&data, &input, sc.Option{IgnoreEmpty: true}); err != nil {
+		sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
+	}
+	var dataDetails []m.DetailJambong
+	typeData := ""
+	var err error
+	dataDetails, typeData, err = transformUpdate(data, input.DetailsJambong)
+	if err != nil {
+		return sh.SetError("request", "update-data", source, "failed", fmt.Sprintf("failed transform data: %s", err), data)
 	}
 
-	if result := tx.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	if err := processData(tx, data, dataDetails, typeData, userId); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", fmt.Sprintf("gagal menyimpan data: %s", err), data)
 	}
 
 	return rp.OK{

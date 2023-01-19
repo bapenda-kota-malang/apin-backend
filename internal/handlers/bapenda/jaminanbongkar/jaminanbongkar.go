@@ -55,7 +55,9 @@ func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Update(id, data, nil)
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	result, err := s.Update(id, data, uint(authInfo.User_Id), nil)
 	hh.DataResponse(w, result, err)
 }
 

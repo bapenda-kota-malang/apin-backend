@@ -35,21 +35,22 @@ type JaminanBongkar struct {
 }
 
 type CreateDto struct {
-	Spt_Id         *uuid.UUID      `json:"spt_id" validate:"required"`
-	Tanggal        datatypes.Date  `json:"tanggal" validate:"required"`
-	JenisReklame   JenisReklame    `json:"jenisReklame" validate:"required"`
-	TipeReklame    *uint8          `json:"tipeReklame"`
-	TanggalBatas   *datatypes.Date `json:"TanggalBatas"`
-	BiayaPemutusan float64         `json:"biayaPemutusan"`
+	Spt_Id         *uuid.UUID               `json:"spt_id" validate:"required"`
+	Tanggal        datatypes.Date           `json:"tanggal" validate:"required"`
+	JenisReklame   JenisReklame             `json:"jenisReklame" validate:"required"`
+	TipeReklame    *uint8                   `json:"tipeReklame"`
+	TanggalBatas   *datatypes.Date          `json:"TanggalBatas"`
+	BiayaPemutusan float64                  `json:"biayaPemutusan"`
+	DetailsJambong []DetailJambongCreateDto `json:"detailJambong" validate:"required"`
 }
 
 type UpdateDto struct {
-	Spt_Id         *uuid.UUID      `json:"spt_id"`
-	Tanggal        *datatypes.Date `json:"tanggal"`
-	JenisReklame   *JenisReklame   `json:"jenisReklame"`
-	TipeReklame    *uint8          `json:"tipeReklame"`
-	TanggalBatas   *datatypes.Date `json:"TanggalBatas"`
-	BiayaPemutusan *float64        `json:"biayaPemutusan"`
+	Tanggal        *datatypes.Date          `json:"tanggal"`
+	JenisReklame   *JenisReklame            `json:"jenisReklame"`
+	TipeReklame    *uint8                   `json:"tipeReklame"`
+	TanggalBatas   *datatypes.Date          `json:"TanggalBatas"`
+	BiayaPemutusan *float64                 `json:"biayaPemutusan"`
+	DetailsJambong []DetailJambongCreateDto `json:"detailJambong"`
 }
 
 type FilterDto struct {

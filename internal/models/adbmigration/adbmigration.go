@@ -415,9 +415,9 @@ func GetModelList() (data []interface{}) {
 	data = append(data, listModelNilaiIndividu...)
 
 	listModelJaminanBongkar := []interface{}{
+		&jaminanbongkar.JaminanBongkar{},
 		&jaminanbongkar.DetailJambong{},
 		&prosesjambong.ProsesJambong{},
-		&jaminanbongkar.JaminanBongkar{},
 	}
 	data = append(data, listModelJaminanBongkar...)
 
