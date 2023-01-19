@@ -3,7 +3,6 @@ package spt
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"gorm.io/gorm"
 
@@ -12,7 +11,9 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/google/uuid"
+	sc "github.com/jinzhu/copier"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	mdhiburan "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -30,6 +31,7 @@ import (
 	mtarifreklame "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
+	sjambong "github.com/bapenda-kota-malang/apin-backend/internal/services/jaminanbongkar"
 	sdair "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptair"
 	sdhiburan "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailspthiburan"
 	sdhotel "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailspthotel"
@@ -47,7 +49,6 @@ import (
 
 // Process calculate tax
 func taxProcess(rekeningId *uint64, omset *float64, input m.Input) error {
-	yearNow := uint64(time.Now().Year())
 	omsetOpt := "lte"
 
 	// change detail for detail spt air & ppj pln before calculate tax
@@ -121,9 +122,10 @@ func taxProcess(rekeningId *uint64, omset *float64, input m.Input) error {
 	}
 
 	// get tarif pajak data for calculate tax
+	yearOrder := "order desc"
 	rspTp, err := stp.GetList(mtp.FilterDto{
 		Rekening_Id:   rekeningId,
-		Tahun:         &yearNow,
+		Tahun_Opt:     &yearOrder,
 		OmsetAwal:     omset,
 		OmsetAwal_Opt: &omsetOpt,
 	})
@@ -135,7 +137,7 @@ func taxProcess(rekeningId *uint64, omset *float64, input m.Input) error {
 	if len(tarifPajaks) == 0 {
 		return fmt.Errorf("tarif pajak not found")
 	}
-	tarifPajak := tarifPajaks[len(tarifPajaks)-1]
+	tarifPajak := tarifPajaks[0]
 
 	input.ReplaceTarifPajakId(uint(tarifPajak.Id))
 	input.CalculateTax(tarifPajak.TarifPersen)
@@ -279,6 +281,18 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 			}
 		default:
 			return fmt.Errorf("data details unknown")
+		}
+
+		if reklameDto, ok := input.(*m.CreateDetailReklameDto); ok && reklameDto.JaminanBongkar != nil {
+			var jambongDto jaminanbongkar.CreateDto
+			if err := sc.Copy(&jambongDto, &reklameDto.JaminanBongkar); err != nil {
+				return err
+			}
+			jambongDto.Spt_Id = &data.Id
+			_, err := sjambong.Create(jambongDto, opts["userId"].(uint), tx)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil

@@ -8,7 +8,7 @@
 \i sqls/data-Menu.sql
 \i sqls/data-Pangkat.sql
 \i sqls/data-Rekening.sql
-\i sqls/data-Skpd.sql
+\i sqls/data-SatuanKerja.sql
 \i sqls/data-TarifJambong.sql
 \i sqls/data-TarifJambongRek.sql
 \i sqls/data-JenisPPJ.sql
@@ -30,6 +30,7 @@
 \i sqls/data-DbkbFasumDepJpbKlsBintang.sql
 \i sqls/data-DbkbFasumDepMinMax.sql
 \i sqls/data-DbkbFasumNonDep.sql
+\i sqls/data-JenisPajak.sql
 
 -- below for table have relation to child
 

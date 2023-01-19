@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"crypto/rand"
+
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
@@ -165,15 +167,15 @@ func GetList(input m.FilterDto, auth int, tp string) (any, error) {
 	queryBase := a.DB.Model(&m.BphtbSptpd{})
 
 	if (auth == 0 || auth == 4) && tp == "ver" {
-		queryBase = queryBase.Where("\"Status\" IN ?", []string{"01", "03", "04", "05", "06", "07", "08", "09"})
-	} else if (auth == 0 || auth == 4) && tp == "byr" {
-		queryBase = queryBase.Where("\"Status\" IN ?", []string{"09", "10", "11", "12", "13"})
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"02", "03", "04", "05", "06", "07", "08", "21"})
 	} else if auth == 3 && tp == "ver" {
-		queryBase = queryBase.Where("\"Status\" IN ?", []string{"03", "06", "07", "08", "09"})
-	} else if (auth == 0 || auth == 3 || auth == 2 || auth == 4) && tp == "val" {
-		queryBase = queryBase.Where("\"Status\" IN ?", []string{"11", "14", "15"})
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"04", "05", "06", "07", "08", "21"})
 	} else if auth == 2 && tp == "ver" {
-		queryBase = queryBase.Where("\"Status\" IN ?", []string{"06", "08", "09"})
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"06", "07", "08", "21"})
+	} else if (auth == 0 || auth == 4) && tp == "byr" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"08", "10", "12", "22"})
+	} else if (auth == 0 || auth == 4) && tp == "val" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"10", "13", "14", "20"})
 	}
 
 	var pagination gh.Pagination
@@ -299,6 +301,31 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+func LogApproval(id uuid.UUID, input m.RequestApprovalSptpd, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data m.LogApproval
+
+	data = m.LogApproval{
+		Sptpd_Id: id,
+		User_id:  *input.User_id,
+		Status:   *input.Status,
+	}
+
+	var err error
+	if data.Id == 0 {
+		err = tx.Create(&data).Error
+	} else {
+		err = tx.Save(&data).Error
+	}
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data datanir: "+err.Error(), data)
+	}
+
+	return rp.OKSimple{Data: data}, nil
+}
+
 func Approval(id uuid.UUID, kd string, auth int, input m.RequestApprovalSptpd, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
@@ -310,59 +337,44 @@ func Approval(id uuid.UUID, kd string, auth int, input m.RequestApprovalSptpd, t
 	}
 
 	data = input.SetDataApproval(data)
+	_, errLog := LogApproval(id, input, tx)
+	if errLog != nil {
+		return sh.SetError("request", "approval-data", source, "failed", "gagal loging approval data", errLog)
+	}
 
-	tempVal := []string{"10", "11", "12", "13"}
 	if kd == "03" && auth == 4 {
-		//verifikasi staff
-
-		tempVal := "0"
-		data.Proses = &tempVal
-		// data.Dispenda_User_id = auth.user_id
-		// data.NamaStaff = ""
-	} else if kd == "04" && auth == 4 {
-		//penolakan staff
-
+		//Dikembalikan Staf
 		tempVal := "-1"
 		data.Proses = &tempVal
-		// data.Dispenda_User_id = auth.user_id
-		// data.NamaStaff = ""
+	} else if kd == "04" && auth == 4 {
+		//Kasubid
+		tempVal := "0"
+		data.Proses = &tempVal
 	} else if kd == "05" && auth == 3 {
-		//verifikasi kabid
-
-		tempVal := "2"
+		//Dikembalikan Kasubid
+		tempVal := "-1"
 		data.Proses = &tempVal
 	} else if kd == "06" && auth == 3 {
-		//tolak kabid
-		// tempVal := "2"
-		// data.Proses = &tempVal
-	} else if kd == "07" && auth == 3 {
-		//tolak kabid
-		// tempVal := "2"
-		// data.Proses = &tempVal
+		//Kabid
+		tempVal := "2"
+		data.Proses = &tempVal
+	} else if kd == "07" && auth == 2 {
+		//Dikembalikan Kabid
 	} else if kd == "08" && auth == 2 {
-		//tolak kabid
-		// tempVal := "2"
-		// data.Proses = &tempVal
-	} else if kd == "09" && auth == 2 {
-		//tolak kabid
-		// tempVal := "2"
-		// data.Proses = &tempVal
-	} else if stringInSlice(kd, tempVal) && auth == 4 {
-		//tolak kabid
-		// tempVal := "2"
-		// data.Proses = &tempVal
-	} else if kd == "14" && auth == 3 {
-		//tolak kabid
-		// tempVal := "2"
-		// data.Proses = &tempVal
-	} else if kd == "15" && auth == 2 {
-		//tolak kabid
-		// tempVal := "2"
-		// data.Proses = &tempVal
+		//Cetak
+		p, _ := rand.Prime(rand.Reader, 32)
+		tempNumber := p.String()
+		data.IdBilling = &tempNumber
+	} else if kd == "10" && auth == 4 {
+		//Lunas
+	} else if kd == "12" && auth == 4 {
+		//Kurang bayar
+	} else if kd == "14" && auth == 4 {
+		//Validasi
+	} else if kd == "20" || kd == "21" || kd == "22" {
+		//Batal
 	} else if auth == 0 {
-		//tolak kabid
-		// tempVal := "2"
-		// data.Proses = &tempVal
+		//admin
 	} else {
 		return sh.SetError("request", "approval-data", source, "failed", "gagal melakukan approval data, user status tidak valid", data)
 	}

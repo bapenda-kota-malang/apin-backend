@@ -3,7 +3,9 @@ package userservice
 import (
 	"errors"
 	"strconv"
+	"time"
 
+	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 
@@ -15,6 +17,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
+	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/usertoken"
 )
 
 const source = "user"
@@ -183,4 +186,134 @@ func GetJabatanPegawai(userId uint) (any, error) {
 		return sh.SetError("request", "get-data", source, "failed", res.Error.Error(), data)
 	}
 	return data, nil
+}
+
+func ChangePass(id int, input m.ChangePassDto) (any, error) {
+	// TODO: PINDAH KE VALIDATOR
+	if *input.NewPassword != *input.RePassword {
+		return nil, errors.New("password baru dan konfirmasi tidak sama")
+	}
+
+	var data *m.User
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+	} else if !p.Check(*input.OldPassword, *data.Password) {
+		return nil, errors.New("password lama tidak sesuai")
+	}
+
+	password, err := p.Hash(*input.NewPassword)
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal membuat password", data)
+	} else {
+		data.Password = &password
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data: "+result.Error.Error(), data)
+	}
+	data.Password = nil
+
+	return data, nil
+}
+
+func RequestResetPass(input m.RequestResetPassDto) (any, error) {
+	var dataUser *m.User
+	var dataUserToken *mt.UserToken
+
+	result := a.DB.Where(&m.User{Email: input.Email}).First(&dataUser)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "create-data", source, "failed", "user dengan email terkait tidak dapat ditemukan", dataUser)
+	}
+
+	token, err := uuid.NewRandom()
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal membuat token", dataUserToken)
+	}
+
+	expiredAt := time.Now().Local().Add(time.Hour * time.Duration(1))
+	result = a.DB.Where(&mt.UserToken{User_Email: input.Email, Jenis: mt.JenisResetPass}).First(&dataUserToken)
+	if result.RowsAffected == 0 {
+		dataUserToken.User_Email = input.Email
+		dataUserToken.Jenis = mt.JenisResetPass
+		dataUserToken.Token = token
+		dataUserToken.ExpiredAt = &expiredAt
+		if result := a.DB.Create(&dataUserToken); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data token user: "+result.Error.Error(), dataUserToken)
+		}
+		// TODO : REMOVE TOKEN
+		return rp.OKSimple{Data: dataUserToken}, nil
+	} else if result.Error == nil {
+		if err := checkExpiration(*dataUserToken.ExpiredAt); err == nil {
+			return nil, errors.New("permintaan reset pasword sidah pernah dilakukan dan masih berlaku")
+		}
+		dataUserToken.Token = token
+		dataUserToken.ExpiredAt = &expiredAt
+		if result := a.DB.Save(&dataUserToken); result.Error != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data token user: "+result.Error.Error(), dataUserToken)
+		}
+		// TODO : REMOVE TOKEN
+		return rp.OKSimple{Data: dataUserToken}, nil
+	} else {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mendapatkan data token user", dataUserToken)
+	}
+}
+
+func CheckResetPass(input m.CheckResetPassDto) (any, error) {
+	var data *mt.UserToken
+	result := a.DB.Where(&mt.UserToken{User_Email: input.Email, Jenis: mt.JenisResetPass}).First(&data)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data request resest password tidak dapat ditemukan")
+	} else if data.Token.String() != input.Token {
+		return nil, errors.New("token tidak valid")
+	} else if err := checkExpiration(*data.ExpiredAt); err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func ResetPass(input1 m.CheckResetPassDto, input2 m.ResetPassDto) (any, error) {
+	var data1 *mt.UserToken
+	result := a.DB.Where(&mt.UserToken{User_Email: input1.Email, Jenis: mt.JenisResetPass}).First(&data1)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("data request resest password tidak dapat ditemukan")
+	} else if err := checkExpiration(*data1.ExpiredAt); err != nil {
+		return nil, err
+	} else if data1.Token.String() != input1.Token {
+		return nil, errors.New("token tidak valid")
+	}
+
+	// TODO: PINDAH KE VALIDATOR
+	// fmt.Println(input2.NewPassword)
+	// fmt.Println(input2.RePassword)
+	if *input2.NewPassword != *input2.RePassword {
+		return nil, errors.New("password baru dan konfirmasi tidak sama")
+	}
+
+	var data2 *m.User
+	result = a.DB.Where(&m.User{Email: input1.Email}).First(&data2)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data2)
+	}
+
+	password, err := p.Hash(*input2.NewPassword)
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal membuat password", data2)
+	} else {
+		data2.Password = &password
+	}
+
+	if result := a.DB.Save(&data2); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal menyimpan data: "+result.Error.Error(), data2)
+	}
+
+	a.DB.Delete(data1)
+	data2.Password = nil
+	return data2, nil
+
 }

@@ -18,6 +18,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
@@ -43,6 +47,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb9"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbmezanin"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/espt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/geojson"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargareferensi"
@@ -62,6 +67,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kelurahan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/konfigurasipajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nik"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/njoptkpflag"
@@ -88,11 +94,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/satuankerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sinkronisasi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sts"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sumberdana"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/targetrealisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifjambongrek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarifpajak"
@@ -114,7 +122,6 @@ func SetRoutes() http.Handler {
 		"/auth/login",
 		"/auth/logout",
 		"/account/reset-password",
-		"/account/change-password",
 	}
 	auth.Position = 1
 
@@ -141,9 +148,13 @@ func SetRoutes() http.Handler {
 	r.Route("/account", func(r chi.Router) {
 		// r.Post("/register", account.Create) // replaced withr register
 		r.Get("/check", account.Check)
-		r.Patch("/reset-password", account.ResetPassword)
 		r.Patch("/change-password", account.ChangePassword)
+		r.Post("/reset-password", account.RequestResetPassword)
+		r.Get("/reset-password", account.CheckResetPassword)
+		r.Patch("/reset-password", account.ResetPassword)
 	})
+
+	r.Get("/profile", profile.GetDetail)
 
 	rh.RegCrud(r, "/menu", menu.Crud{})
 
@@ -152,6 +163,9 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/jabatan", jabatan.Crud{})
 
 	rh.RegCrud(r, "/pangkat", pangkat.Crud{})
+
+	rh.RegCrud(r, "/target-realisasi", targetrealisasi.Crud{})
+	r.Patch("/target-realisasi/schedule", targetrealisasi.UpdateBySchedule)
 
 	rh.RegCrud(r, "/sektor", sektor.Crud{})
 
@@ -210,12 +224,16 @@ func SetRoutes() http.Handler {
 	r.Patch("/sppt/penilaian", sppt.Penilaian)
 	rh.RegCrud(r, "/sppt", sppt.Crud{})
 
+	r.Post("/sksk/cetak", sksk.Cetak)
+	rh.RegCrud(r, "/sksk", sksk.Crud{})
+
 	rh.RegCrud(r, "/bphtbsptpd", bphtbsptpd.Crud{})
 
 	rh.RegCrud(r, "/kelastanah", kelastanah.Crud{})
 
 	rh.RegCrud(r, "/kelasbangunan", kelasbangunan.Crud{})
 
+	r.Get("/nop-bynopstr/{nop}", nop.GetDetailByNopString)
 	rh.RegCrud(r, "/nop", nop.Crud{})
 
 	rh.RegCrud(r, "/dbkbjpb2", dbkbjpb2.Crud{})
@@ -246,6 +264,15 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/dbkbmezanin", dbkbmezanin.Crud{})
 
+	rh.RegCrud(r, "/nilaiindividu", nilaiindividu.Crud{})
+
+	rh.RegCrud(r, "/geojson-data", geojson.Crud{})
+
+	r.Route("/geojson", func(r chi.Router) {
+		r.Get("/", geojson.GetListGeoJson)
+		r.Get("/{id}", geojson.GetDetailGeoJson)
+	})
+
 	r.Route("/bphtbsptpd-approval", func(r chi.Router) {
 		r.Get("/{tp}", bphtbsptpd.GetListVerifikasi)
 		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
@@ -262,6 +289,9 @@ func SetRoutes() http.Handler {
 	r.Route("/spptsimulasi-process", func(r chi.Router) {
 		r.Post("/{flag}", sppt.GetSimulasiByNop)
 	})
+
+	r.Delete("/kunjungan-detail/{id}", kunjungan.DeleteDetail)
+	rh.RegCrud(r, "/kunjungan", kunjungan.Crud{})
 
 	r.Route("/sppt-simulasi", func(r chi.Router) {
 		r.Post("/", sppt.CreateSimulasi)
@@ -325,13 +355,13 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", group.Delete)
 	})
 
+	r.Get("/npwpd-byno/{no}", npwpd.GetDetailByNoNPWPD)
 	r.Route("/npwpd", func(r chi.Router) {
 		r.Get("/", npwpd.GetList)
 		r.Get("/{id}", npwpd.GetDetail)
 		r.Post("/", npwpd.Create)
 		r.Patch("/{id}", npwpd.Update)
 		r.Delete("/{id}", npwpd.Delete)
-
 	})
 
 	r.Route("/regnpwpd", func(r chi.Router) {
@@ -423,6 +453,13 @@ func SetRoutes() http.Handler {
 		r.Post("/existing/{type}", spt.SkpdkbExisting)
 		r.Post("/new/{type}", spt.SkpdNew)
 	})
+
+	r.Route("/jambong", func(r chi.Router) {
+		r.Post("/existing/{type}", spt.SkpdkbExisting)
+		r.Post("/new/{type}", spt.SkpdNew)
+	})
+
+	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
 
 	// route for espt list data, verify espt, and get detail data for espt before verify
 	r.Route("/espt", func(r chi.Router) {
@@ -535,7 +572,6 @@ func SetRoutes() http.Handler {
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
 		r.Get("/", regobjekpajakpbb.GetList)
 		r.Get("/{id}", regobjekpajakpbb.GetDetail)
-		r.Patch("/verify/{id}", regobjekpajakpbb.VerifySpop)
 	})
 
 	r.Route("/objekpajakbangunan", func(r chi.Router) {
@@ -549,6 +585,10 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", regobjekpajakbangunan.GetDetail)
 		r.Patch("/verify/{id}", regobjekpajakbangunan.VerifyLspop)
 	})
+
+	rh.RegCrud(r, "/jaminanbongkar", jaminanbongkar.Crud{})
+
+	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
 
 	return r
 }

@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	JenisPelayanan = [...]string{"0001", "0002", "0003", "0004"}
+	JenisPelayanan = [...]string{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"}
 )
 
 type PstPermohonan struct {
@@ -80,14 +80,14 @@ type FilterDto struct {
 	PageSize          int             `json:"page_size"`
 }
 
-type permohonanNOP struct {
-	PermohonanProvinsiID  string
-	PermohonanKotaID      string
-	PermohonanKecamatanID string
-	PermohonanKelurahanID string
-	PermohonanBlokID      string
-	NoUrutPemohon         string
-	PemohonJenisOPID      string
+type PermohonanNOP struct {
+	PermohonanProvinsiID  string `json:"provinsiKode" gorm:"type:varchar(2)"`
+	PermohonanKotaID      string `json:"daerahKode" gorm:"type:varchar(2)"`
+	PermohonanKecamatanID string `json:"kecamatanKode" gorm:"type:varchar(3)"`
+	PermohonanKelurahanID string `json:"kelurahanKode" gorm:"type:varchar(3)"`
+	PermohonanBlokID      string `json:"blokKode" gorm:"type:varchar(3)"`
+	NoUrutPemohon         string `json:"noUrutKode" gorm:"type:varchar(4)"`
+	PemohonJenisOPID      string `json:"jenisOP" gorm:"type:varchar(1)"`
 }
 
 type PermohonanNOPResponse struct {
@@ -124,13 +124,18 @@ type PstPermohonanResponse struct {
 	PstDataOPBaru            *PstDataOPBaru            `json:"pstBaru"`
 	PstDetail                *PstDetail                `json:"pstDetil"`
 	PstPermohonanPengurangan *PstPermohonanPengurangan `json:"pstPengurangan"`
+	// PembetulanSpptSKPSTP     *PembetulanSpptSKPSTP     `json:"pembetulanSpptSKPSTP"`
+	// PembatalanSppt           *PembatalanSppt           `json:"pembatalanSppt"`
+	// KeputusanKeberatanPbb    *KeputusanKeberatanPbb    `json:"keputusanKeberatanPbb"`
+	// SPMKP                    *SPMKP                    `json:"spmkp"`
+	// SkSk                     *SkSk                     `json:"sksk"`
 }
 
-func DecodeNOPPermohonan(nop *string) *permohonanNOP {
+func DecodeNOPPermohonan(nop *string) *PermohonanNOP {
 	if nop != nil {
 		var tempNOP string
 		tempNOP = *nop
-		result := permohonanNOP{
+		result := PermohonanNOP{
 			PermohonanProvinsiID:  tempNOP[0:2],
 			PermohonanKotaID:      tempNOP[2:4],
 			PermohonanKecamatanID: tempNOP[4:7],
@@ -246,7 +251,7 @@ func (i PstPermohonan) GetDataPermohonanRequestDtoTransformer(nop *PermohonanNOP
 	return result
 }
 
-func (i PstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto) (*PstDataOPBaru, *PstDetailInput, *PstPermohonanPengurangan) {
+func (i PstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto) (*PstDataOPBaru, *PstDetailInput, *PstPermohonanPengurangan, *PermohonanNOP) {
 	var (
 		// tempTglPenyerahan *datatypes.Date
 		tempTglSelesai *datatypes.Date
@@ -302,8 +307,8 @@ func (i PstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto) (*
 			NamaWPBaru:            i.NamaPemohon,
 			LetakOPBaru:           i.AlamatPemohon,
 		}
-		return &data, &detail, nil
-	} else if *i.BundelPelayanan == JenisPelayanan[2] {
+		return &data, &detail, nil, tempNOP
+	} else if *i.BundelPelayanan == JenisPelayanan[7] || *i.BundelPelayanan == JenisPelayanan[9] {
 		tempPengurangan, _ := strconv.ParseFloat(strings.TrimSpace(*req.PersentasePengurangan), 64)
 		data := PstPermohonanPengurangan{
 			PermohonanId:          &i.Id,
@@ -322,9 +327,9 @@ func (i PstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto) (*
 			JenisPengurangan:      req.JenisPengurangan,
 			PersentasePengurangan: &tempPengurangan,
 		}
-		return nil, &detail, &data
+		return nil, &detail, &data, tempNOP
 	}
-	return nil, &detail, nil
+	return nil, &detail, nil, tempNOP
 }
 
 func (i PstDataOPBaru) GetNOPResponse() *PermohonanNOPResponse {

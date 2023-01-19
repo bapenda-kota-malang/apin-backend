@@ -15,7 +15,6 @@ import (
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 
 	mfb "github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	mrfb "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
@@ -67,14 +66,6 @@ func Create(input m.RegInput) (any, error) {
 
 	// add static field for objek pajak bangunan
 	resultNop, kode := sh.NopParser(*resultGetNop)
-	data.NopDetail.Provinsi_Kode = &resultNop[0]
-	data.NopDetail.Daerah_Kode = &resultNop[1]
-	data.NopDetail.Kecamatan_Kode = &resultNop[2]
-	data.NopDetail.Kelurahan_Kode = &resultNop[3]
-	data.NopDetail.Blok_Kode = &resultNop[4]
-	data.NopDetail.NoUrut = &resultNop[5]
-	data.NopDetail.JenisOp = &resultNop[6]
-	data.NopDetail.Area_Kode = &kode
 
 	if resultGetPemeriksaan != nil {
 
@@ -184,6 +175,22 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
+func GetLast() int {
+	var data *m.RegObjekPajakBangunan
+
+	result := a.DB.
+		Model(&m.RegObjekPajakBangunan{}).
+		Order("NoBangunan desc").
+		First(&data)
+	if result.RowsAffected == 0 {
+		return 0
+	} else if result.Error != nil {
+		return 0
+	}
+
+	return *data.NoBangunan
+}
+
 func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
@@ -278,16 +285,7 @@ func VerifyLspop(id int, input m.VerifyDto) (any, error) {
 	}
 
 	// reg fasilitas bangunan condition for query
-	conditionRFB := mrfb.RegFasilitasBangunan{
-		NopDetail: nop.NopDetail{
-			Provinsi_Kode:  data.Provinsi_Kode,
-			Daerah_Kode:    data.Daerah_Kode,
-			Kecamatan_Kode: data.Kecamatan_Kode,
-			Kelurahan_Kode: data.Kelurahan_Kode,
-			Blok_Kode:      data.Blok_Kode,
-			NoUrut:         data.NoUrut,
-			JenisOp:        data.JenisOp,
-		}}
+	conditionRFB := mrfb.RegFasilitasBangunan{}
 	// find data reg fasilitas bangunan
 	var dataRegFB *mrfb.RegFasilitasBangunan
 	resultRFB := a.DB.Where(conditionRFB).First(&dataRegFB)
@@ -298,16 +296,6 @@ func VerifyLspop(id int, input m.VerifyDto) (any, error) {
 			return sh.SetError("request", "create-data", source, "failed", "gagal menyalin data reg fasilitas bangunan", dataRegFB)
 		}
 
-	}
-
-	conditionJpb := nop.NopDetail{
-		Provinsi_Kode:  data.Provinsi_Kode,
-		Daerah_Kode:    data.Daerah_Kode,
-		Kecamatan_Kode: data.Kecamatan_Kode,
-		Kelurahan_Kode: data.Kelurahan_Kode,
-		Blok_Kode:      data.Blok_Kode,
-		NoUrut:         data.NoUrut,
-		JenisOp:        data.JenisOp,
 	}
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
@@ -334,11 +322,11 @@ func VerifyLspop(id int, input m.VerifyDto) (any, error) {
 			respFasilitasBangunan = resultFasilitasBangunan
 		}
 
-		resultJpb, errJpb := verifyJpb(data.Jpb_Kode, conditionJpb, tx)
-		if errJpb != nil {
-			return errJpb
-		}
-		respJpb = resultJpb
+		// resultJpb, errJpb := verifyJpb(data.Jpb_Kode, conditionJpb, tx)
+		// if errJpb != nil {
+		// 	return errJpb
+		// }
+		// respJpb = resultJpb
 		return nil
 	})
 

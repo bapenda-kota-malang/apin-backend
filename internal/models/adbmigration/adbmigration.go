@@ -41,10 +41,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptppjpln"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/geojson"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jalan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar/prosesjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenispajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisusaha"
@@ -55,8 +58,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/konfigurasipajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
@@ -85,8 +90,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
+	regpstpermohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
@@ -102,6 +109,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sts"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan"
 	suratdpemberitahuanetail "github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan/detail"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/targetrealisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
@@ -118,13 +126,14 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
+	mut "github.com/bapenda-kota-malang/apin-backend/internal/models/usertoken"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 )
 
 func GetModelList() (data []interface{}) {
 	listModelConfigurationReference := []interface{}{
-		&skpd.Satuankerja{},
+		&skpd.SatuanKerja{},
 		&jabatan.Jabatan{},
 		&pangkat.Pangkat{},
 		&adm.Provinsi{},
@@ -163,6 +172,7 @@ func GetModelList() (data []interface{}) {
 
 	listModelManagementUser := []interface{}{
 		&mu.User{},
+		&mut.UserToken{},
 		&group.Group{},
 		&menu.Menu{},
 		&pegawai.Pegawai{},
@@ -287,6 +297,7 @@ func GetModelList() (data []interface{}) {
 		&sinkronisasi.SinkronisasiDetail{},
 		&sts.StsDetail{},
 		&sts.SumberDanaSts{},
+		&targetrealisasi.TargetRealisasi{},
 	}
 	data = append(data, listModelPembayaran...)
 
@@ -302,8 +313,26 @@ func GetModelList() (data []interface{}) {
 		&pstpermohonan.PstDetail{},
 		&pstpermohonan.PstDataOPBaru{},
 		&pstpermohonan.PstPermohonanPengurangan{},
+		&pstpermohonan.KeputusanKeberatanPbb{},
+		&pstpermohonan.PembatalanSppt{},
+		&pstpermohonan.PembetulanSpptSKPSTP{},
+		&pstpermohonan.PstLampiran{},
+		&pstpermohonan.SPMKP{},
 	}
 	data = append(data, listModelPelayanan...)
+
+	listModelRegPelayanan := []interface{}{
+		&regpstpermohonan.RegPstPermohonan{},
+		&regpstpermohonan.RegPstDetail{},
+		&regpstpermohonan.RegPstDataOPBaru{},
+		&regpstpermohonan.RegPstPermohonanPengurangan{},
+		&regpstpermohonan.RegKeputusanKeberatanPbb{},
+		&regpstpermohonan.RegPembatalanSppt{},
+		&regpstpermohonan.RegPembetulanSpptSKPSTP{},
+		&regpstpermohonan.RegPstLampiran{},
+		&regpstpermohonan.RegSPMKP{},
+	}
+	data = append(data, listModelRegPelayanan...)
 
 	listModelWajibPajakPBB := []interface{}{
 		&wajibpajakpbb.WajibPajakPbb{},
@@ -378,6 +407,34 @@ func GetModelList() (data []interface{}) {
 		&undanganpemeriksaan.UndanganPemeriksaan{},
 	}
 	data = append(data, listModelPenagihan...)
+
+	listModelGeoJson := []interface{}{
+		&geojson.GeoJson{},
+	}
+	data = append(data, listModelGeoJson...)
+
+	listModelKunjungan := []interface{}{
+		&kunjungan.Kunjungan{},
+		&kunjungan.KunjunganDetail{},
+	}
+	data = append(data, listModelKunjungan...)
+
+	listModelSkSk := []interface{}{
+		&sksk.SkSk{},
+	}
+	data = append(data, listModelSkSk...)
+
+	listModelNilaiIndividu := []interface{}{
+		&nilaiindividu.NilaiIndividu{},
+	}
+	data = append(data, listModelNilaiIndividu...)
+
+	listModelJaminanBongkar := []interface{}{
+		&jaminanbongkar.JaminanBongkar{},
+		&jaminanbongkar.DetailJambong{},
+		&prosesjambong.ProsesJambong{},
+	}
+	data = append(data, listModelJaminanBongkar...)
 
 	return data
 }

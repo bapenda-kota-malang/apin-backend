@@ -113,7 +113,7 @@ type FilterDto struct {
 
 // spop/lspop
 type NopDetail struct {
-	Id             uint64        `json:"id" gorm:"primarykey"`
+	Id             uint64        `json:"id" gorm:"primarykey;autoIncrement"`
 	Provinsi_Kode  *string       `json:"provinsi_kode" gorm:"type:char(2)"`
 	Daerah_Kode    *string       `json:"daerah_kode" gorm:"type:char(2)"`
 	Kecamatan_Kode *string       `json:"kecamatan_kode" gorm:"type:char(3)"`

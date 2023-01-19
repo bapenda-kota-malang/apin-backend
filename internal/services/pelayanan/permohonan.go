@@ -19,6 +19,8 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
+	reg "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
+	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	// oppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	// wppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
@@ -36,6 +38,12 @@ func Create(input m.PermohonanRequestDto) (any, error) {
 		permohonanBaru        *m.PstDataOPBaru
 		permohonanDetailInput *m.PstDetailInput
 		permohonanPengurangan *m.PstPermohonanPengurangan
+		nop                   *m.PermohonanNOP
+		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
+		pembatalanSppt        *m.PembatalanSppt
+		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+		SPMKP                 *m.SPMKP
+		SkSk                  *sksk.SkSk
 	)
 
 	noUrut := GetNoUrut(input)
@@ -49,7 +57,7 @@ func Create(input m.PermohonanRequestDto) (any, error) {
 			return errors.New("penyimpanan data permohonan gagal")
 		}
 
-		permohonanBaru, permohonanDetailInput, permohonanPengurangan = data.SetDataPermohonanTransformer(input)
+		permohonanBaru, permohonanDetailInput, permohonanPengurangan, nop = data.SetDataPermohonanTransformer(input)
 		permohonanDetail = new(m.PstDetail)
 		if err := sc.Copy(&permohonanDetail, &permohonanDetailInput); err != nil {
 			return errors.New("set data permohonan detail gagal")
@@ -59,15 +67,38 @@ func Create(input m.PermohonanRequestDto) (any, error) {
 		}
 
 		if *data.BundelPelayanan == m.JenisPelayanan[0] {
-			if result := tx.Create(&permohonanBaru); result.Error != nil {
+			if result := tx.Where("PermohonanId", data.Id).Create(&permohonanBaru); result.Error != nil {
 				return errors.New("penyimpanan data permohonan baru gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[2] {
-			if result := tx.Create(&permohonanPengurangan); result.Error != nil {
+			pembetulanSpptSKPSTP = data.SetPembetulanSpptSKPSTP(*nop)
+			if result := tx.Where("PermohonanId", data.Id).Create(&pembetulanSpptSKPSTP); result.Error != nil {
+				return errors.New("penyimpanan data permohonan pembetulan SPPT/SKP/STP gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[3] {
+			pembatalanSppt = data.SetPembatalanSppt(*nop)
+			if result := tx.Where("PermohonanId", data.Id).Create(&pembatalanSppt); result.Error != nil {
+				return errors.New("penyimpanan data permohonan pembatalan SPPT gagal")
+			}
+			SkSk = sksk.SetSkSk(data)
+			if result := tx.Where("PermohonanId", data.Id).Create(&SkSk); result.Error != nil {
+				return errors.New("penyimpanan data permohonan pembatalan SKP gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[8] {
+			SPMKP = data.SetSPMKP(*nop)
+			if result := tx.Where("PermohonanId", data.Id).Create(&SPMKP); result.Error != nil {
+				return errors.New("penyimpanan data permohonan restitusi dan kompensasi gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
+			keputusanKeberatanPbb = data.SetKeputusanKeberatanPbb(*nop)
+			if result := tx.Where("PermohonanId", data.Id).Create(&keputusanKeberatanPbb); result.Error != nil {
+				return errors.New("penyimpanan data permohonan keberatan gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
+			if result := tx.Where("PermohonanId", data.Id).Create(&permohonanPengurangan); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pengurangan gagal")
 			}
 		}
-
 		// return nil will commit the whole transaction
 		return nil
 	})
@@ -112,26 +143,47 @@ func GetList(input m.FilterDto) (any, error) {
 
 func GetNoUrut(input m.PermohonanRequestDto) string {
 	var (
-		checkdata *m.PstPermohonan
-		noUrut    string = "001"
+		checkdataori  *m.PstPermohonan
+		checkdata     *reg.RegPstPermohonan
+		tempNoUrutOri int    = 0
+		tempNoUrutReg int    = 0
+		tempNoUrut    int    = 0
+		noUrut        string = "001"
 	)
 
 	year := strconv.Itoa(time.Now().Year())
+
+	_ = a.DB.Where("TahunPelayanan", year).
+		Where("BundelPelayanan", input.JenisPelayanan).
+		Order("\"NoUrutPelayanan\" desc").
+		First(&checkdataori)
+	if checkdataori.Id != 0 {
+		tempNoUrutOri, _ = strconv.Atoi(*checkdata.NoUrutPelayanan)
+		tempNoUrutOri = tempNoUrutOri + 1
+	}
+
 	_ = a.DB.Where("TahunPelayanan", year).
 		Where("BundelPelayanan", input.JenisPelayanan).
 		Order("\"NoUrutPelayanan\" desc").
 		First(&checkdata)
 	if checkdata.Id != 0 {
-		tempNoUrut, _ := strconv.Atoi(*checkdata.NoUrutPelayanan)
-		tempNoUrut = tempNoUrut + 1
-		noUrut = sh.FixedLengthString(3, fmt.Sprint(tempNoUrut))
+		tempNoUrutReg, _ = strconv.Atoi(*checkdata.NoUrutPelayanan)
+		tempNoUrutReg = tempNoUrut + 1
 	}
 
+	if tempNoUrutOri > tempNoUrutReg {
+		tempNoUrut = tempNoUrutOri
+	} else {
+		tempNoUrut = tempNoUrutReg
+	}
+
+	noUrut = sh.FixedLengthString(3, fmt.Sprint(tempNoUrut))
 	return noUrut
 }
 
 func GetStatusNOP(nop *string) (interface{}, error) {
-	result, err := oppbb.GetDetailbyField("Nop", *nop)
+	permohonannop := m.DecodeNOPPermohonan(nop)
+	result, err := oppbb.GetDetailbyNop(*permohonannop)
 
 	return result, err
 }
@@ -142,6 +194,11 @@ func GetDetail(id int) (interface{}, error) {
 		permohonanBaru        *m.PstDataOPBaru
 		permohonanDetail      *m.PstDetail
 		permohonanPengurangan *m.PstPermohonanPengurangan
+		// pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
+		// pembatalanSppt        *m.PembatalanSppt
+		// keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+		// SPMKP                 *m.SPMKP
+		// SkSk                  *sksk.SkSk
 	)
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
@@ -157,11 +214,31 @@ func GetDetail(id int) (interface{}, error) {
 		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanBaru); result.Error != nil {
 			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Baru", permohonanBaru)
 		}
-	} else if *data.BundelPelayanan == m.JenisPelayanan[2] {
+	} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
 		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanPengurangan); result.Error != nil {
-			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP pengurangan", permohonanPengurangan)
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
 		}
 	}
+	// else if *data.BundelPelayanan == m.JenisPelayanan[2] {
+	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&pembetulanSpptSKPSTP); result.Error != nil {
+	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembetulan", pembetulanSpptSKPSTP)
+	// 	}
+	// } else if *data.BundelPelayanan == m.JenisPelayanan[3] {
+	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&pembatalanSppt); result.Error != nil {
+	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembatalan SPPT", pembatalanSppt)
+	// 	}
+	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&SkSk); result.Error != nil {
+	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembatalan SKP", SkSk)
+	// 	}
+	// } else if *data.BundelPelayanan == m.JenisPelayanan[8] {
+	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&SPMKP); result.Error != nil {
+	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data restitusi dan kompensasi", SPMKP)
+	// 	}
+	// } else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
+	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&keputusanKeberatanPbb); result.Error != nil {
+	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data keberatan", keputusanKeberatanPbb)
+	// 	}
+	// }
 
 	finalresult := data.SetPstPermohonanResponse()
 	finalresult.PstDataOPBaru = permohonanBaru
@@ -178,6 +255,12 @@ func Update(id int, input m.PermohonanRequestDto) (interface{}, error) {
 		permohonanDetail      *m.PstDetail
 		permohonanDetailInput *m.PstDetailInput
 		permohonanPengurangan *m.PstPermohonanPengurangan
+		nop                   *m.PermohonanNOP
+		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
+		pembatalanSppt        *m.PembatalanSppt
+		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+		SPMKP                 *m.SPMKP
+		SkSk                  *sksk.SkSk
 	)
 
 	result := a.DB.First(&data, id)
@@ -196,7 +279,7 @@ func Update(id int, input m.PermohonanRequestDto) (interface{}, error) {
 		if result.RowsAffected > 0 {
 			rowsAffected++
 		}
-		permohonanBaru, permohonanDetailInput, permohonanPengurangan = data.SetDataPermohonanTransformer(input)
+		permohonanBaru, permohonanDetailInput, permohonanPengurangan, nop = data.SetDataPermohonanTransformer(input)
 		result := a.DB.Where("PermohonanId", data.Id).First(&permohonanDetail)
 		if result.RowsAffected == 0 {
 			return errors.New("data permohonan detail tidak ditemukan")
@@ -213,6 +296,30 @@ func Update(id int, input m.PermohonanRequestDto) (interface{}, error) {
 				return errors.New("penyimpanan data permohonan baru gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[2] {
+			pembetulanSpptSKPSTP = data.SetPembetulanSpptSKPSTP(*nop)
+			if result := tx.Where("PermohonanId", data.Id).Updates(&pembetulanSpptSKPSTP); result.Error != nil {
+				return errors.New("penyimpanan data permohonan pembetulan SPPT/SKP/STP gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[3] {
+			pembatalanSppt = data.SetPembatalanSppt(*nop)
+			if result := tx.Where("PermohonanId", data.Id).Updates(&pembatalanSppt); result.Error != nil {
+				return errors.New("penyimpanan data permohonan pembatalan SPPT gagal")
+			}
+			SkSk = sksk.SetSkSk(*data)
+			if result := tx.Where("PermohonanId", data.Id).Updates(&SkSk); result.Error != nil {
+				return errors.New("penyimpanan data permohonan pembatalan SKP gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[8] {
+			SPMKP = data.SetSPMKP(*nop)
+			if result := tx.Where("PermohonanId", data.Id).Updates(&SPMKP); result.Error != nil {
+				return errors.New("penyimpanan data permohonan restitusi dan kompensasi gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
+			keputusanKeberatanPbb = data.SetKeputusanKeberatanPbb(*nop)
+			if result := tx.Where("PermohonanId", data.Id).Updates(&keputusanKeberatanPbb); result.Error != nil {
+				return errors.New("penyimpanan data permohonan keberatan gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
 			if result := tx.Where("PermohonanId", data.Id).Updates(&permohonanPengurangan); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pengurangan gagal")
 			}
@@ -252,7 +359,7 @@ func UpdateStatus(id int, input m.PermohonanRequestDto) (interface{}, error) {
 	if err := sc.Copy(&permohonanDetail, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload untuk permohonan", input)
 	}
-	permohonanDetail.NIP = input.NIPPenyerah
+	permohonanDetail.NIP = input.NIP
 	permohonanDetail.Notes = input.CatatanPenyerahan
 	if input.TanggalPenyerahan != nil {
 		tempTglPenyerahan := (*datatypes.Date)(gormhelper.StringToDate(*input.TanggalPenyerahan))
@@ -284,6 +391,11 @@ func Delete(id int) (interface{}, error) {
 		permohonanBaru        *m.PstDataOPBaru
 		permohonanDetail      *m.PstDetail
 		permohonanPengurangan *m.PstPermohonanPengurangan
+		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
+		pembatalanSppt        *m.PembatalanSppt
+		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+		SPMKP                 *m.SPMKP
+		SkSk                  *sksk.SkSk
 	)
 
 	result := a.DB.First(&data, id)
@@ -301,6 +413,15 @@ func Delete(id int) (interface{}, error) {
 		if *data.BundelPelayanan == m.JenisPelayanan[0] {
 			_ = a.DB.Delete(&permohonanBaru, int(*permohonanBaru.PermohonanId) == id)
 		} else if *data.BundelPelayanan == m.JenisPelayanan[2] {
+			_ = a.DB.Delete(&pembetulanSpptSKPSTP, int(*pembetulanSpptSKPSTP.PermohonanId) == id)
+		} else if *data.BundelPelayanan == m.JenisPelayanan[3] {
+			_ = a.DB.Delete(&pembatalanSppt, int(*pembatalanSppt.PermohonanId) == id)
+			_ = a.DB.Delete(&SkSk, int(*SkSk.PermohonanId) == id)
+		} else if *data.BundelPelayanan == m.JenisPelayanan[8] {
+			_ = a.DB.Delete(&SPMKP, int(*SPMKP.PermohonanId) == id)
+		} else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
+			_ = a.DB.Delete(&keputusanKeberatanPbb, int(*keputusanKeberatanPbb.PermohonanId) == id)
+		} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
 			_ = a.DB.Delete(&permohonanPengurangan, int(*permohonanPengurangan.PermohonanId) == id)
 		}
 	}

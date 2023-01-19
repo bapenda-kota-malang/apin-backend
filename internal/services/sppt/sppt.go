@@ -68,6 +68,21 @@ func GetList(input m.FilterDto) (any, error) {
 	}, nil
 }
 
+func GetListNop(user_id int) (any, error) {
+	var data *[]m.Sppt
+
+	result := a.DB.Where("User_ID", user_id).Find(&data)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
 func GetDetail(id int) (any, error) {
 	var data *m.Sppt
 

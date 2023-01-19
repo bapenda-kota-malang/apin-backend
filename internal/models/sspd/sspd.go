@@ -8,9 +8,11 @@ import (
 	mop "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	mr "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	mu "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"gorm.io/datatypes"
 )
 
 type Sspd struct {
@@ -140,6 +142,19 @@ type FilterDto struct {
 	// fixed
 	Page     int   `json:"page"`
 	PageSize int64 `json:"page_size"`
+}
+
+type FilterWpDto struct {
+	PeriodeAwal  *datatypes.Date `json:"periodeAwal"`
+	PeriodeAkhir *datatypes.Date `json:"periodeAkhir"`
+	// fixed
+	Page     int   `json:"page"`
+	PageSize int64 `json:"page_size"`
+}
+
+type ListLogPayment struct {
+	*Sspd
+	Spt spt.Spt `json:"spt"`
 }
 
 type CancelDto struct {

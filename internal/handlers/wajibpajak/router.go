@@ -26,8 +26,11 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakpbb"
+	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regpelayanan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regwajibpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sppt/objekbersama"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/static"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regnpwpd"
@@ -47,7 +50,6 @@ func SetRoutes() http.Handler {
 		"/register",
 		"/account/register",
 		"/account/reset-password",
-		"/account/change-password",
 		"/provinsi",
 		"/daerah",
 		"/kecamatan",
@@ -79,15 +81,15 @@ func SetRoutes() http.Handler {
 	r.Route("/account", func(r chi.Router) {
 		// r.Post("/register", account.Create) // replaced withr register
 		r.Get("/check", account.Check)
-		r.Get("/confirm-by-email", account.ConfirmByEmail)
-		r.Get("/resend-confirmation", account.ResendConfirmation)
-		r.Patch("/change-pass", account.ChangePassword)
-		r.Patch("/reset-pass", account.ResetPassword)
+		r.Patch("/change-password", account.ChangePassword)
+		r.Post("/reset-password", account.RequestResetPassword)
+		r.Get("/reset-password", account.CheckResetPassword)
+		r.Patch("/reset-password", account.ResetPassword)
 	})
 
 	r.Route("/profile", func(r chi.Router) {
 		r.Get("/", profile.GetDetail) // EXECUTE
-		r.Patch("/{id}", profile.Update)
+		r.Patch("/", profile.Update)
 	})
 
 	r.Route("/provinsi", func(r chi.Router) {
@@ -172,7 +174,14 @@ func SetRoutes() http.Handler {
 	r.Handle("/static/{filename}", http.StripPrefix("/static/", static.AuthFile(static.JoinPrefix(fs))))
 
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
-		r.Post("/", regobjekpajakpbb.Create)
+		r.Post("/", regobjekpajakpbb.CreateMw(http.HandlerFunc(regobjekpajakpbb.Create), "wp"))
+		r.Get("/{id}", regobjekpajakpbb.GetDetail)
+		r.Get("/", regobjekpajakpbb.GetListNop)
+	})
+
+	r.Route("/regwajibpajakpbb", func(r chi.Router) {
+		r.Post("/", regwajibpajakpbb.Create)
+		r.Get("/{id}", regwajibpajakpbb.GetDetail)
 	})
 
 	r.Route("/regobjekpajakbangunan", func(r chi.Router) {
@@ -191,6 +200,11 @@ func SetRoutes() http.Handler {
 		r.Get("/", ppat.GetList)
 	})
 
+	rh.RegCrud(r, "/sppt", sppt.Crud{})
+	r.Route("/sppt-nop", func(r chi.Router) {
+		r.Get("/", sppt.GetListNop)
+	})
+
 	r.Route("/njop", func(r chi.Router) {
 		r.Get("/", sppt.Crud{}.GetList)
 		r.Get("/objekbersama", objekbersama.Crud{}.GetList)
@@ -205,6 +219,19 @@ func SetRoutes() http.Handler {
 	r.Route("/noppbb", func(r chi.Router) {
 		r.Get("/", noppbb.GetList)
 		r.Get("/{id}", noppbb.GetDetail)
+	})
+
+	r.Route("/permohonan", func(r chi.Router) {
+		r.Patch("/{id}/status", permohonan.UpdateStatus)
+		r.Post("/", permohonan.Create)
+		r.Get("/", permohonan.GetList)
+		r.Get("/{id}", permohonan.GetDetail)
+		r.Patch("/{id}", permohonan.Update)
+		r.Delete("/{id}", permohonan.Delete)
+	})
+
+	r.Route("/logpayment", func(r chi.Router) {
+		r.Get("/{npwpd}", sspd.GetList)
 	})
 
 	return r

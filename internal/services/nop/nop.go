@@ -12,6 +12,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
+	pm "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
@@ -66,6 +67,30 @@ func GetDetail(id int) (any, error) {
 	var data *m.Nop
 
 	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data nop", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
+func GetDetailByNop(nop string) (any, error) {
+	var data *m.Nop
+
+	typeNop := pm.DecodeNOPPermohonan(&nop)
+	result := a.DB.
+		Where("Provinsi_Kode", typeNop.PermohonanProvinsiID).
+		Where("Daerah_Kode", typeNop.PermohonanKotaID).
+		Where("Kecamatan_Kode", typeNop.PermohonanKecamatanID).
+		Where("Kelurahan_Kode", typeNop.PermohonanKelurahanID).
+		Where("KodeBlok", typeNop.PermohonanBlokID).
+		Where("NoUrut", typeNop.NoUrutPemohon).
+		Where("KodeJenisOp", typeNop.PemohonJenisOPID).
+		First(&data)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {

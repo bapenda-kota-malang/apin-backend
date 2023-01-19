@@ -12,7 +12,8 @@ import (
 
 // lspop
 type RegObjekPajakBangunan struct {
-	nop.NopDetail
+	Id                    uint64            `json:"id" gorm:"primarykey"`
+	PstPermohonan_id      *uint64           `json:"pstPermohonan_id"`
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode" gorm:"type:char(2)"`
 	Jpb                   *j.Jpb            `json:"jpb,omitempty" gorm:"foreignKey:Jpb_Kode;references:Kode"`
@@ -38,11 +39,13 @@ type RegObjekPajakBangunan struct {
 	TanggalPerekaman      *time.Time        `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip" gorm:"type:char(9)"`
 	Perekam_Pegawai       *p.Pegawai        `json:"perekam_pegawai,omitempty" gorm:"foreignKey:Perekam_Pegawai_Nip;references:Nip"`
+	// jumlah lantai
 	gh.DateModel
 }
 
 type CreateDto struct {
 	nop.NopDetailCreateDto
+	PstPermohonan_id      *uint64           `json:"pstPermohonan_id"`
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              string            `json:"jpb_kode"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop"`
@@ -64,11 +67,15 @@ type CreateDto struct {
 	TanggalPerekaman      *string           `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip"`
 	Nop                   *string           `json:"nop"`
+	JmlLantaiBng          *int              `json:"jmlLantaiBng"`
 	RegFasilitasBangunans *mf.CreateDto     `json:"fasilitasBangunan"`
+
+	RegFasBangunan *OPBngFasilitasBangunan `json:"regFasBangunan"`
 }
 
 type UpdateDto struct {
 	nop.NopDetailUpdateDto
+	PstPermohonan_id      *uint64           `json:"pstPermohonan_id"`
 	NoBangunan            *int              `json:"noBangunan"`
 	Jpb_Kode              *string           `json:"jpb_kode"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop"`
@@ -111,4 +118,52 @@ type FilterDto struct {
 
 type VerifyDto struct {
 	Status VerifyStatus `json:"status" validate:"min=1;max=2"`
+}
+
+type OPBngFasilitasBangunan struct {
+	FBJumlahACSplit        *int `json:"fbJumlahACSplit"`
+	FBJumlahACWindow       *int `json:"fbJumlahACWindow"`
+	FBIsACCentral          *int `json:"fbJumlahAC"`
+	FBLuasKolamRenang      *int `json:"fbLuasKolamRenang"`
+	FBTipeLapisanKolam     *int `json:"fbTipeLapisanKolam"`
+	FBHalamanBerat         *int `json:"fbHalamanBerat"`
+	FBHalamanSendang       *int `json:"fbHalamanSendang"`
+	FBHalamanRingan        *int `json:"fbHalamanRingan"`
+	FBHalamanLantai        *int `json:"fbHalamanLantai"`
+	FBTenisLampuBeton      *int `json:"fbTenisLampuBeton"`
+	FBTenisTanpaLampuBeton *int `json:"fbTenisTanpaLampuBeton"`
+	FBTenisAspal1          *int `json:"fbTenisAspal1"`
+	FBTenisAspal2          *int `json:"fbTenisAspal2"`
+	FBTenisLiatRumput1     *int `json:"fbTenisLiatRumput1"`
+	FBTenisLiatRumput2     *int `json:"fbTenisLiatRumput2"`
+	FBLiftPenumpang        *int `json:"fbLiftPenumpang"`
+	FBLiftKapsul           *int `json:"fbLiftKapsul"`
+	FBLiftBarang           *int `json:"fbLiftBarang"`
+	FBTangga80             *int `json:"fbTangga80"`
+	FBTangga81             *int `json:"fbTangga81"`
+	FBPagarPanjang         *int `json:"fbPagarPanjang"`
+	FBPagarBahan           *int `json:"fbPagarBahan"`
+	FBPKHydrant            *int `json:"fbPKHydrant"`
+	FBPKSplinkler          *int `json:"fbPKSplinkler"`
+	FBPKFireAI             *int `json:"fbPKFireAI"`
+	FBPABX                 *int `json:"fbPABX"`
+	FBSumur                *int `json:"fbSumur"`
+
+	JpbKlinikACCentralKamar    *int    `json:"jpbKlinikACCentralKamar"`
+	JpbKlinikACCentralRuang    *int    `json:"jpbKlinikACCentralRuang"`
+	JpbHotelJenis              *int    `json:"jpbHotelJenis"`
+	JpbHotelBintang            *int    `json:"jpbHotelBintang"`
+	JpbHotelJmlKamar           *int    `json:"jpbHotelJmlKamar"`
+	JpbHotelACCentralKamar     *int    `json:"jpbHotelACCentralKamar"`
+	JpbHotelACCentralRuang     *int    `json:"jpbHotelACCentralRuang"`
+	JpbApartemenJumlah         *int    `json:"jpbApartemenJumlah"`
+	JpbApartemenACCentralKamar *int    `json:"jpbApartemenACCentralKamar"`
+	JpbApartemenACCentralLain  *int    `json:"jpbApartemenACCentralLain"`
+	JpbTankiKapasitas          *int    `json:"jpbTankiKapasitas"`
+	JpbTankiLetak              *string `json:"jpbTankiLetak"`
+	JpbProdTinggi              *int    `json:"jpbProdTinggi"`
+	JpbProdLebar               *int    `json:"jpbProdLebar"`
+	JpbProdDaya                *int    `json:"jpbProdDaya"`
+	JpbProdKeliling            *int    `json:"jpbProdKeliling"`
+	JpbProdLuas                *int    `json:"jpbProdLuas"`
 }

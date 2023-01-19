@@ -1,0 +1,72 @@
+package targetrealisasi
+
+import (
+	"net/http"
+
+	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
+
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/targetrealisasi"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/targetrealisasi"
+)
+
+type Crud struct{}
+
+func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
+	var data m.CreateDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.Create(data, nil)
+	hh.DataResponse(w, result, err)
+}
+
+func (c Crud) GetList(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+
+	result, err := s.GetList(input)
+	hh.DataResponse(w, result, err)
+}
+
+func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	result, err := s.GetDetail(id)
+	hh.DataResponse(w, result, err)
+}
+
+func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	var data m.UpdateDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.Update(id, data, nil)
+	hh.DataResponse(w, result, err)
+}
+
+func UpdateBySchedule(w http.ResponseWriter, r *http.Request) {
+	result, err := s.UpdateBySchedule()
+	hh.DataResponse(w, result, err)
+}
+
+func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	result, err := s.Delete(id, nil)
+	hh.DataResponse(w, result, err)
+}

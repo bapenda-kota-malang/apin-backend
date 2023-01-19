@@ -5,7 +5,7 @@ import (
 
 	rop "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
-	skpd "github.com/bapenda-kota-malang/apin-backend/internal/models/satuankerja"
+	satuanKerja "github.com/bapenda-kota-malang/apin-backend/internal/models/satuankerja"
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	t "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
@@ -22,8 +22,8 @@ type RegNpwpd struct {
 	TanggalPenutupan  *time.Time         `json:"tanggalPenutupan"`
 	TanggalBuka       *time.Time         `json:"tanggalBuka"`
 	JenisPajak        mt.JenisPajak      `json:"jenisPajak" gorm:"size:2"`
-	Skpd_Id           *uint64            `json:"skpd_id"`
-	Skpd              *skpd.Satuankerja  `json:"skpd,omitempty" gorm:"foreignKey:Skpd_Id"`
+	SatuanKerja_Id           *uint64            `json:"satuanKerja_id"`
+	SatuanKerja              *satuanKerja.SatuanKerja  `json:"satuanKerja,omitempty" gorm:"foreignKey:SatuanKerja_Id"`
 	Rekening_Id       *uint64            `json:"rekening_id"`
 	Rekening          *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
 	User_Name         *string            `json:"user_name" gorm:"size:20"`
@@ -64,7 +64,7 @@ type CreateDto struct {
 	Golongan          t.Golongan `json:"golongan" validate:"required"`
 	TanggalPenutupan  *string    `json:"tanggalPenutupan"`
 	TanggalBuka       *string    `json:"tanggalBuka"`
-	Skpd_Id           *uint64    `json:"skpd_id"`
+	SatuanKerja_Id           *uint64    `json:"satuanKerja_id"`
 	Rekening_Id       *uint64    `json:"rekening_id" validate:"required"`
 	User_Name         *string    `json:"user_name"`
 	TanggalMulaiUsaha *string    `json:"tanggalMulaiUsaha"`
@@ -91,7 +91,7 @@ type CreateDto struct {
 type UpdateDto struct {
 	TanggalPenutupan *string `json:"tanggalPenutupan"`
 	TanggalBuka      *string `json:"tanggalBuka"`
-	Skpd_Id          *uint64 `json:"skpd_id"`
+	SatuanKerja_Id          *uint64 `json:"satuanKerja_id"`
 	Rekening_Id      *uint64 `json:"rekening_id"`
 	User_Name        *string `json:"user_name"`
 
@@ -121,7 +121,7 @@ type FilterDto struct {
 	Golongan          *t.Golongan `json:"golongan"`
 	TanggalPenutupan  *string     `json:"tanggalPenutupan"`
 	TanggalBuka       *string     `json:"tanggalBuka"`
-	Skpd_Id           *uint64     `json:"skpd_id"`
+	SatuanKerja_Id           *uint64     `json:"satuanKerja_id"`
 	Rekening_Id       *uint64     `json:"rekening_id"`
 	User_Name         *string     `json:"user_name"`
 	TanggalMulaiUsaha *string     `json:"tanggalMulaiUsaha"`
