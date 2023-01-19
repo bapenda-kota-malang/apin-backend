@@ -459,8 +459,6 @@ func SetRoutes() http.Handler {
 		r.Post("/new/{type}", spt.SkpdNew)
 	})
 
-	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
-
 	// route for espt list data, verify espt, and get detail data for espt before verify
 	r.Route("/espt", func(r chi.Router) {
 		r.Get("/", espt.GetList)
