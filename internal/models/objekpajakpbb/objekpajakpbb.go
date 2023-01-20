@@ -41,8 +41,8 @@ type ObjekPajakPbb struct {
 	PegawaiPerekam        *p.Pegawai        `json:"pegawaiPerekam,omitempty" gorm:"foreignKey:Perekam_Pegawai_Nip;references:Nip"`
 	UpdatedAt             *time.Time        `json:"updatedAt"`
 	// kelurahan
-	// sket 
-	DeletedAt             gorm.DeletedAt    `json:"deletedAt" gorm:"index"`
+	// sket
+	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 }
 
 type CreateDto struct {

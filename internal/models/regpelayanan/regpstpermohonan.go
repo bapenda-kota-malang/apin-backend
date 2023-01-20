@@ -135,6 +135,16 @@ type PstPermohonanResponse struct {
 	// SkSk                     *SkSk                     `json:"sksk"`
 }
 
+type RequestApprovalPermohonan struct {
+	Id          uint64  `json:"id"`
+	NoPelayanan *string `json:"noPelayanan"`
+	NOP         *string `json:"nop"`
+	NIP         *string `json:"nip"`
+	Status      *string `json:"status"`
+	User_ID     *uint64 `json:"user_ID"`
+	gormhelper.DateModel
+}
+
 func DecodeNOPPermohonan(nop *string) *PermohonanNOP {
 	if nop != nil {
 		var tempNOP string

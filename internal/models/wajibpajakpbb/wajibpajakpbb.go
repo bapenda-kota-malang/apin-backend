@@ -23,6 +23,7 @@ type WajibPajakPbb struct {
 	Npwp              *string       `json:"npwp" gorm:"type:varchar(20)"`
 	Pekerjaan         *string       `json:"pekerjaan" gorm:"type:varchar(100)"`
 	StatusKepemilikan *string       `json:"statusKepemilikan" gorm:"type:varchar(20)"`
+	User_ID           *uint64       `json:"user_ID"`
 
 	ObjekPajakPbbs *[]mopp.ObjekPajakPbb `json:"objekPajakPbb,omitempty" gorm:"foreignKey:WajibPajakPbb_Id;references:Id"`
 	gh.DateModel
@@ -40,6 +41,7 @@ type CreateDto struct {
 	KodePos        *string `json:"kodePos"`
 	Telp           *string `json:"telp"`
 	Npwp           *string `json:"npwp"`
+	User_ID        *uint64 `json:"user_ID"`
 	Pekerjaan      *string `json:"pekerjaan"`
 }
 
@@ -55,6 +57,7 @@ type UpdateDto struct {
 	KodePos        *string `json:"kodePos"`
 	Telp           *string `json:"telp"`
 	Npwp           *string `json:"npwp"`
+	User_ID        *uint64 `json:"user_ID"`
 	Pekerjaan      *string `json:"pekerjaan"`
 }
 
