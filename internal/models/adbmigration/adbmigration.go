@@ -115,6 +115,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/penilaianpbb"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	skpd "github.com/bapenda-kota-malang/apin-backend/internal/models/satuankerja"
@@ -435,6 +436,22 @@ func GetModelList() (data []interface{}) {
 		&prosesjambong.ProsesJambong{},
 	}
 	data = append(data, listModelJaminanBongkar...)
+
+	listModelPenilaian := []interface{}{
+		&penilaianpbb.RangePenyusutan{},
+		&penilaianpbb.Penyusutan{},
+		&penilaianpbb.Fasilitas{},
+		&penilaianpbb.FasNonDep{},
+		&penilaianpbb.FasDepMinMax{},
+		&penilaianpbb.FasDepJpbKlsBintang{},
+		&penilaianpbb.DbkbMaterial{},
+		&penilaianpbb.BangunanLantai{},
+		&penilaianpbb.TipeBangunan{},
+		&penilaianpbb.KayuUlin{},
+		&penilaianpbb.DbkbStandard{},
+		&penilaianpbb.DbkbDayaDukung{},
+	}
+	data = append(data, listModelPenilaian...)
 
 	return data
 }
