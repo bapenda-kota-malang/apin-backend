@@ -3,6 +3,7 @@ package bapl
 import (
 	"time"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
@@ -21,10 +22,11 @@ type PotensiBapl struct {
 	Kasubid_Pegawai_Id     *uint                  `json:"kasubid_pegawai_id,omitempty"`
 	Kabid_Pegawai_Id       *uint                  `json:"kabid_pegawai_id,omitempty"`
 	gormhelper.DateModel
-	CreateBy    *user.User `json:"createBy,omitempty" gorm:"foreignKey:CreateBy_Pegawai_Id"`
-	Koordinator *user.User `json:"koordinator,omitempty" gorm:"foreignKey:Koordinator_Pegawai_Id"`
-	Kasubid     *user.User `json:"kasubid,omitempty" gorm:"foreignKey:Kasubid_Pegawai_Id"`
-	Kabid       *user.User `json:"kabid,omitempty" gorm:"foreignKey:Kabid_Pegawai_Id"`
+	CreateBy    *user.User         `json:"createBy,omitempty" gorm:"foreignKey:CreateBy_Pegawai_Id"`
+	Koordinator *user.User         `json:"koordinator,omitempty" gorm:"foreignKey:Koordinator_Pegawai_Id"`
+	Kasubid     *user.User         `json:"kasubid,omitempty" gorm:"foreignKey:Kasubid_Pegawai_Id"`
+	Kabid       *user.User         `json:"kabid,omitempty" gorm:"foreignKey:Kabid_Pegawai_Id"`
+	Petugas     *[]pegawai.Pegawai `json:"petugas,omitempty" gorm:"-"`
 }
 
 type CreateDto struct {

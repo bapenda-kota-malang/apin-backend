@@ -46,6 +46,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jalan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar/prosesjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenispajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisusaha"
@@ -426,6 +428,13 @@ func GetModelList() (data []interface{}) {
 		&nilaiindividu.NilaiIndividu{},
 	}
 	data = append(data, listModelNilaiIndividu...)
+
+	listModelJaminanBongkar := []interface{}{
+		&jaminanbongkar.JaminanBongkar{},
+		&jaminanbongkar.DetailJambong{},
+		&prosesjambong.ProsesJambong{},
+	}
+	data = append(data, listModelJaminanBongkar...)
 
 	return data
 }
