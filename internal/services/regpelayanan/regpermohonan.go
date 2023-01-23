@@ -423,18 +423,10 @@ func Approval(kd string, auth int, input m.RequestApprovalPermohonan, tx *gorm.D
 	data.Status = input.Status
 
 	if kd == "00" && auth == 4 {
-		//verifikasi Staf
+		//baru
 	} else if kd == "01" && auth == 4 {
-		//verifikasi Kasubid
-	} else if kd == "02" && auth == 3 {
-		//verifikasi kabid
-	} else if kd == "03" && auth == 3 {
-		//validasi staff
-	} else if kd == "04" && auth == 2 {
-		//validasi kasubid
-	} else if kd == "05" && auth == 2 {
-		//validasi kabid, proses copy here
-	} else if kd == "06" && auth == 4 {
+		//diterima
+	} else if kd == "02" && auth == 4 {
 		//ditolak
 	} else if auth == 0 {
 		//admin
