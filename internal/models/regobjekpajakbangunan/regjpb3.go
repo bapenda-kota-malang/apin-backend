@@ -1,14 +1,13 @@
 package regobjekpajakbangunan
 
 import (
-	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mrfb "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sc "github.com/jinzhu/copier"
 )
 
 type RegJpb3 struct {
-	nop.NopDetail
+	Id               uint64  `json:"id" gorm:"primarykey;autoIncrement"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi" gorm:"type:char(1)"`
 	TinggiKolom3     *int    `json:"tinggiKolom3"`
@@ -20,7 +19,6 @@ type RegJpb3 struct {
 }
 
 type RegJpb3CreateDto struct {
-	nop.NopDetailCreateDto
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom3     *int    `json:"tinggiKolom3"`
@@ -31,7 +29,6 @@ type RegJpb3CreateDto struct {
 }
 
 type RegJpb3UpdateDto struct {
-	nop.NopDetailUpdateDto
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom3     *int    `json:"tinggiKolom3"`
@@ -42,7 +39,6 @@ type RegJpb3UpdateDto struct {
 }
 
 type RegJpb3FilterDto struct {
-	nop.NopDetailCreateDto
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom3     *int    `json:"tinggiKolom3"`
