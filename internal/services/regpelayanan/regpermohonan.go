@@ -409,3 +409,47 @@ func Delete(id int) (interface{}, error) {
 		Data: data,
 	}, nil
 }
+
+func Approval(kd string, auth int, input m.RequestApprovalPermohonan, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data *m.RegPstPermohonan
+	result := tx.First(&data, "\"Id\" = ?", input.Id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	data.Status = input.Status
+
+	if kd == "00" && auth == 4 {
+		//verifikasi Staf
+	} else if kd == "01" && auth == 4 {
+		//verifikasi Kasubid
+	} else if kd == "02" && auth == 3 {
+		//verifikasi kabid
+	} else if kd == "03" && auth == 3 {
+		//validasi staff
+	} else if kd == "04" && auth == 2 {
+		//validasi kasubid
+	} else if kd == "05" && auth == 2 {
+		//validasi kabid, proses copy here
+	} else if kd == "06" && auth == 4 {
+		//ditolak
+	} else if auth == 0 {
+		//admin
+	} else {
+		return sh.SetError("request", "approval-data", source, "failed", "gagal melakukan approval data, user status tidak valid", data)
+	}
+
+	if result := tx.Save(&data); result.Error != nil {
+		return sh.SetError("request", "approval-data", source, "failed", "gagal melakukan approval data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
