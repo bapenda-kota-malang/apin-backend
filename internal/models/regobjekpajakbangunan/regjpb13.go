@@ -8,35 +8,31 @@ import (
 )
 
 type RegJpb13 struct {
-	nop.NopDetail
-	NoBangunan             *int          `json:"noBangunan"`
-	KelasBangunan13        KelasBangunan `json:"kelasBangunan13" gorm:"type:char(1)"`
-	JumlahApartment        *int          `json:"jumlahApartment"`
-	LuasApartAcCentral     *int          `json:"luasApartAcCentral"`
-	LuasRuangLainAcCentral *int          `json:"luasRuangLainAcCentral"`
+	Id                     uint64 `json:"id" gorm:"primarykey;autoIncrement"`
+	NoBangunan             *int   `json:"noBangunan"`
+	JumlahApartment        *int   `json:"jumlahApartment"`
+	LuasApartAcCentral     *int   `json:"luasApartAcCentral"`
+	LuasRuangLainAcCentral *int   `json:"luasRuangLainAcCentral"`
 	gh.DateModel
 }
 
 type RegJpb13CreateDto struct {
 	nop.NopDetailCreateDto
-	NoBangunan             *int          `json:"noBangunan"`
-	KelasBangunan13        KelasBangunan `json:"kelasBangunan13"`
-	JumlahApartment        *int          `json:"jumlahApartment"`
-	LuasApartAcCentral     *int          `json:"luasApartAcCentral"`
-	LuasRuangLainAcCentral *int          `json:"luasRuangLainAcCentral"`
+	NoBangunan             *int `json:"noBangunan"`
+	JumlahApartment        *int `json:"jumlahApartment"`
+	LuasApartAcCentral     *int `json:"luasApartAcCentral"`
+	LuasRuangLainAcCentral *int `json:"luasRuangLainAcCentral"`
 }
 
 type RegJpb13UpdateDto struct {
 	nop.NopDetailUpdateDto
-	NoBangunan             *int          `json:"noBangunan"`
-	KelasBangunan13        KelasBangunan `json:"kelasBangunan13"`
-	JumlahApartment        *int          `json:"jumlahApartment"`
-	LuasApartAcCentral     *int          `json:"luasApartAcCentral"`
-	LuasRuangLainAcCentral *int          `json:"luasRuangLainAcCentral"`
+	NoBangunan             *int `json:"noBangunan"`
+	JumlahApartment        *int `json:"jumlahApartment"`
+	LuasApartAcCentral     *int `json:"luasApartAcCentral"`
+	LuasRuangLainAcCentral *int `json:"luasRuangLainAcCentral"`
 }
 
 type RegJpb13FilterDto struct {
-	nop.NopDetailCreateDto
 	NoBangunan             *int `json:"noBangunan"`
 	JumlahApartment        *int `json:"jumlahApartment"`
 	LuasApartAcCentral     *int `json:"luasApartAcCentral"`

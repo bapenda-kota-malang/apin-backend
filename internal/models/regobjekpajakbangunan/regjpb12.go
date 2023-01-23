@@ -1,33 +1,29 @@
 package regobjekpajakbangunan
 
 import (
-	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mrfb "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sc "github.com/jinzhu/copier"
 )
 
 type RegJpb12 struct {
-	nop.NopDetail
+	Id           uint64       `json:"id" gorm:"primarykey;autoIncrement"`
 	NoBangunan   int          `json:"noBangunan"`
 	TipeBangunan TipeBangunan `json:"tipeBangunan" gorm:"type:char(1)"`
 	gh.DateModel
 }
 
 type RegJpb12CreateDto struct {
-	nop.NopDetailCreateDto
 	NoBangunan   *int         `json:"noBangunan"`
 	TipeBangunan TipeBangunan `json:"tipeBangunan"`
 }
 
 type RegJpb12UpdateDto struct {
-	nop.NopDetailUpdateDto
 	NoBangunan   *int         `json:"noBangunan"`
 	TipeBangunan TipeBangunan `json:"tipeBangunan"`
 }
 
 type RegJpb12FilterDto struct {
-	nop.NopDetailCreateDto
 	NoBangunan   *int         `json:"noBangunan"`
 	TipeBangunan TipeBangunan `json:"tipeBangunan"`
 	Page         int          `json:"page"`
