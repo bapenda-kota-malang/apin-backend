@@ -46,7 +46,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 		if input.RegObjekPajakBangunans != nil {
 			var errTemp error
 			tempRegOpBng := *input.RegObjekPajakBangunans
-			for _, opb := range tempRegOpBng {
+			for idx, opb := range tempRegOpBng {
 				nobangunan = sropbng.GetLast() + 1
 
 				dataBng.PstPermohonan_id = opb.PstPermohonan_id
@@ -92,7 +92,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					val := opb.RegFasBangunan
 					var fas fasbng.RegFasilitasBangunan
 					_ = a.DB.Order("\"Id\" DESC").First(&fas)
-					if fas.Id != 0 {
+					if fas.Id != 0 && idx == 0 {
 						dataFasBangunan.Id = fas.Id + 1
 					}
 					dataFasBangunan.Provinsi_Kode = input.Provinsi_Kode
@@ -102,6 +102,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					dataFasBangunan.NoUrut = input.NoUrut
 					dataFasBangunan.JenisOp = input.JenisOp
 					dataFasBangunan.NoBangunan = &nobangunan
+
 					//create data fasilitas/jpb berdasar fasilitas/jpb di isi
 					if val.FBJumlahACSplit != nil {
 						tempKodeFas = "01"
@@ -440,7 +441,6 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						dataRJpb.NoBangunan = &nobangunan
 
 						dataRJpb.JumlahApartment = val.JpbApartemenJumlah
-						// dataRJpb.KelasBangunan13 = (bng.KelasBangunan)(strconv.Itoa(*val.))?? kelas bangunan tidak ada di inputan
 
 						if val.JpbApartemenACCentralKamar != nil {
 							tempKodeFas = "09"
