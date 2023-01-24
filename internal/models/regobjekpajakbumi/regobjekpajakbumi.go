@@ -7,23 +7,25 @@ import (
 )
 
 type RegObjekPajakBumi struct {
-	Id              uint64    `json:"id" gorm:"primarykey"`
-	NoBumi          *int      `json:"noBumi"`
-	KodeZNT         *string   `json:"kodeZnt" gorm:"type:char(2)"`
-	LuasBumi        int       `json:"luasBumi"`
-	JenisBumi       JenisBumi `json:"jenisBumi" gorm:"type:char(1)"`
-	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
+	Id               uint64    `json:"id" gorm:"primarykey"`
+	PstPermohonan_id *uint64   `json:"pstPermohonan_id"`
+	NoBumi           *int      `json:"noBumi"`
+	KodeZNT          *string   `json:"kodeZnt" gorm:"type:char(2)"`
+	LuasBumi         int       `json:"luasBumi"`
+	JenisBumi        JenisBumi `json:"jenisBumi" gorm:"type:char(1)"`
+	NilaiSistemBumi  *int      `json:"nilaiSistemBumi"`
 	gh.DateModel
 }
 
 // untuk spop
 type CreateDto struct {
 	nop.NopDetailCreateDto
-	NoBumi          *int      `json:"noBumi"`
-	KodeZNT         *string   `json:"kodeZnt"`
-	LuasBumi        int       `json:"luasBumi"`
-	JenisBumi       JenisBumi `json:"jenisBumi"`
-	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
+	PstPermohonan_id *uint64   `json:"pstPermohonan_id"`
+	NoBumi           *int      `json:"noBumi"`
+	KodeZNT          *string   `json:"kodeZnt"`
+	LuasBumi         int       `json:"luasBumi"`
+	JenisBumi        JenisBumi `json:"jenisBumi"`
+	NilaiSistemBumi  *int      `json:"nilaiSistemBumi"`
 
 	RegObjekPajakBangunans *[]mopbng.CreateDto `json:"regObjekPajakBng"`
 }
