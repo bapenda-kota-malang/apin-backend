@@ -202,6 +202,12 @@ func (i PermohonanRequestDto) SetDataPermohonanRequestDtoTransformer(noUrut *str
 			noUrut = &tempNoUrut
 		}
 	}
+	var tempTglTerima *datatypes.Date
+	if i.TanggalTerima == nil {
+		tempTglTerima = nil
+	} else {
+		tempTglTerima = (*datatypes.Date)(gormhelper.StringToDate(*i.TanggalTerima))
+	}
 	result := RegPstPermohonan{
 		// NoPelayanan:            i.NoPelayanan,
 		NOP:                    i.NOP,
@@ -217,7 +223,7 @@ func (i PermohonanRequestDto) SetDataPermohonanRequestDtoTransformer(noUrut *str
 		Keterangan:             i.Keterangan,
 		CatatanPermohonan:      i.Catatan,
 		StatusKolektif:         i.StatusKolektif,
-		TanggalTerima:          (*datatypes.Date)(gormhelper.StringToDate(*i.TanggalTerima)),
+		TanggalTerima:          tempTglTerima,
 		NIP:                    i.NIP,
 		PenerimaanBerkas:       i.PenerimaanBerkas,
 	}

@@ -272,8 +272,9 @@ func GetDetailbyNop(nop string) (interface{}, error) {
 		opfas                 *mopfas.FasilitasBangunan
 		jpb                   any
 	)
-	dec_nop := m.DecodeNOPPermohonan(&nop)
-	result := a.DB.Where("NOP", transformNOP(nop)).First(&data)
+	tempNOP := transformNOP(nop)
+	dec_nop := m.DecodeNOPPermohonan(&tempNOP)
+	result := a.DB.Where("NOP", tempNOP).First(&data)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
