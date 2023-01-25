@@ -235,6 +235,10 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", permohonan.Delete)
 	})
 
+	r.Route("/regpstlampiran", func(r chi.Router) {
+		r.Patch("/", permohonan.UploadLampiran)
+	})
+
 	r.Route("/logpayment", func(r chi.Router) {
 		r.Get("/{npwpd}", sspd.GetList)
 	})

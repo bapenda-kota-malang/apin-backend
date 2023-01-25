@@ -1,4 +1,4 @@
-package permohonan
+package regpermohonan
 
 import (
 	"fmt"

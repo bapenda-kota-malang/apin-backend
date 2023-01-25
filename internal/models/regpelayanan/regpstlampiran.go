@@ -8,8 +8,6 @@ import (
 type RegPstLampiran struct {
 	Id                      uuid.UUID `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	PermohonanId            *uint64   `json:"permohonanId" gorm:"type:integer"`
-	KanwilId                *string   `json:"kanwilId" gorm:"type:varchar(2)"`
-	KppbbId                 *string   `json:"kppbbId" gorm:"type:varchar(2)"`
 	TahunPelayanan          *string   `json:"tahunPelayanan" gorm:"type:varchar(4)"`
 	BundelPelayanan         *string   `json:"bundlePelayanan" gorm:"type:varchar(4)"`
 	NoUrutPelayanan         *string   `json:"noUrutPelayanan" gorm:"type:varchar(3)"`
@@ -30,17 +28,17 @@ type RegPstLampiran struct {
 	LampiranLainLain        *string   `json:"lampiranLainLain" gorm:"type:varchar(255)"`
 	LampiranLikuid          *string   `json:"lampiranLikuid" gorm:"type:varchar(255)"`
 	LampiranListrik         *string   `json:"lampiranListrik" gorm:"type:varchar(255)"`
+	LampiranLetakOP         *string   `json:"lampiranLetakOP" gorm:"type:varchar(255)"`
+	LampiranHakMilik        *string   `json:"lampiranHakMilik" gorm:"type:varchar(255)"`
+	LampiranFotoOP          *string   `json:"lampiranFotoOP" gorm:"TEXT"`
 	PermohonanNOP
 	gormhelper.DateModel
 }
 
 type RegPstLampiranCreateDTO struct {
-	Id                      uuid.UUID `json:"id"`
 	PermohonanId            *uint64   `json:"permohonanId"`
-	KanwilId                *string   `json:"kanwilId"`
-	KppbbId                 *string   `json:"kppbbId"`
+	BuktiKepemilikan        *string   `json:"buktiKepemilikan"`
 	TahunPelayanan          *string   `json:"tahunPelayanan"`
-	BundelPelayanan         *string   `json:"bundlePelayanan"`
 	NoUrutPelayanan         *string   `json:"noUrutPelayanan"`
 	LampiranPermohonan      *string   `json:"lampiranPermohonan"`
 	LampiranSuratKuasa      *string   `json:"lampiranSuratKuasa"`
@@ -59,6 +57,9 @@ type RegPstLampiranCreateDTO struct {
 	LampiranLainLain        *string   `json:"lampiranLainLain"`
 	LampiranLikuid          *string   `json:"lampiranLikuid"`
 	LampiranListrik         *string   `json:"lampiranListrik"`
+	LampiranLetakOP         *string   `json:"lampiranLetakOP"`
+	LampiranHakMilik        *string   `json:"lampiranHakMilik"`
+	LampiranFotoOP          *[]string `json:"lampiranFotoOP"`
 	PermohonanNOP
 	gormhelper.DateModel
 }
@@ -66,10 +67,8 @@ type RegPstLampiranCreateDTO struct {
 type RegPstLampiranUpdateDTO struct {
 	Id                      uuid.UUID `json:"id"`
 	PermohonanId            *uint64   `json:"permohonanId"`
-	KanwilId                *string   `json:"kanwilId"`
-	KppbbId                 *string   `json:"kppbbId"`
+	BuktiKepemilikan        *string   `json:"buktiKepemilikan"`
 	TahunPelayanan          *string   `json:"tahunPelayanan"`
-	BundelPelayanan         *string   `json:"bundlePelayanan"`
 	NoUrutPelayanan         *string   `json:"noUrutPelayanan"`
 	LampiranPermohonan      *string   `json:"lampiranPermohonan"`
 	LampiranSuratKuasa      *string   `json:"lampiranSuratKuasa"`
@@ -88,6 +87,9 @@ type RegPstLampiranUpdateDTO struct {
 	LampiranLainLain        *string   `json:"lampiranLainLain"`
 	LampiranLikuid          *string   `json:"lampiranLikuid"`
 	LampiranListrik         *string   `json:"lampiranListrik"`
+	LampiranLetakOP         *string   `json:"lampiranLetakOP"`
+	LampiranHakMilik        *string   `json:"lampiranHakMilik"`
+	LampiranFotoOP          *[]string `json:"lampiranFotoOP"`
 	PermohonanNOP
 	gormhelper.DateModel
 }
