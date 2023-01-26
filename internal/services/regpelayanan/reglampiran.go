@@ -20,6 +20,7 @@ func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 
 	result := a.DB.Where("PermohonanId", input.PermohonanId).First(&data)
 	data.PermohonanId = input.PermohonanId
+	data.BuktiKepemilikan = input.BuktiKepemilikan
 
 	var errChan = make(chan error, 16)
 	var wg sync.WaitGroup
