@@ -164,13 +164,19 @@ func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 	}
 
 	if input.LampiranSppt != nil {
-		wg.Add(1)
-		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranSppt, "lampiranSppt", userId, id)
-		if err != nil {
-			return
+		tempSPPT := *input.LampiranSppt
+		var tempResult []string
+		for _, fotoOP := range tempSPPT {
+			wg.Add(1)
+			fileName, path, extFile, _, err = sh.FilePreProcess(fotoOP, "lampiranSppt", userId, id)
+			if err != nil {
+				return
+			}
+			go sh.BulkSaveFile(&wg, fotoOP, fileName, path, extFile, errChan)
+			tempResult = append(tempResult, fileName)
 		}
-		go sh.BulkSaveFile(&wg, *input.LampiranSppt, fileName, path, extFile, errChan)
-		data.LampiranSppt = &fileName
+		joinResult := strings.Join(tempResult, ", ")
+		data.LampiranSppt = &joinResult
 	}
 
 	if input.LampiranSpptStts != nil {
