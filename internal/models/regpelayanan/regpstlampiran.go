@@ -7,6 +7,7 @@ import (
 
 type RegPstLampiran struct {
 	Id                      uuid.UUID `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	BuktiKepemilikan        *string   `json:"buktiKepemilikan" gorm:"type:varchar(2)"`
 	PermohonanId            *uint64   `json:"permohonanId" gorm:"type:integer"`
 	TahunPelayanan          *string   `json:"tahunPelayanan" gorm:"type:varchar(4)"`
 	BundelPelayanan         *string   `json:"bundlePelayanan" gorm:"type:varchar(4)"`
