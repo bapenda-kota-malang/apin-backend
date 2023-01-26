@@ -11,25 +11,25 @@ type RegPstLampiran struct {
 	TahunPelayanan          *string   `json:"tahunPelayanan" gorm:"type:varchar(4)"`
 	BundelPelayanan         *string   `json:"bundlePelayanan" gorm:"type:varchar(4)"`
 	NoUrutPelayanan         *string   `json:"noUrutPelayanan" gorm:"type:varchar(3)"`
-	LampiranPermohonan      *string   `json:"lampiranPermohonan" gorm:"type:varchar(255)"`
-	LampiranSuratKuasa      *string   `json:"lampiranSuratKuasa" gorm:"type:varchar(255)"`
-	LampiranKTP             *string   `json:"lampiranKTP" gorm:"type:varchar(255)"`
-	LampiranSertifikatTanah *string   `json:"lampiranSertifikatTanah" gorm:"type:varchar(255)"`
-	LampiranSppt            *string   `json:"lampiranSppt" gorm:"type:varchar(255)"`
-	LampiranImb             *string   `json:"lampiranImb" gorm:"type:varchar(255)"`
-	LampiranAkte            *string   `json:"lampiranAkte" gorm:"type:varchar(255)"`
-	LampiranSkPensiun       *string   `json:"lampiranSkPensiun" gorm:"type:varchar(255)"`
-	LampiranSpptStts        *string   `json:"lampiranSpptStts" gorm:"type:varchar(255)"`
-	LampiranSTTS            *string   `json:"lampiranSTTS" gorm:"type:varchar(255)"`
-	LampiranSkPengurangan   *string   `json:"lampiranSkPengurangan" gorm:"type:varchar(255)"`
-	LampiranSkKeberatan     *string   `json:"lampiranSkKeberatan" gorm:"type:varchar(255)"`
-	LampiranSkkpPbb         *string   `json:"lampiranSkkpPbb" gorm:"type:varchar(255)"`
-	LampiranSpmkpPbb        *string   `json:"lampiranSpmkpPbb" gorm:"type:varchar(255)"`
-	LampiranLainLain        *string   `json:"lampiranLainLain" gorm:"type:varchar(255)"`
-	LampiranLikuid          *string   `json:"lampiranLikuid" gorm:"type:varchar(255)"`
-	LampiranListrik         *string   `json:"lampiranListrik" gorm:"type:varchar(255)"`
-	LampiranLetakOP         *string   `json:"lampiranLetakOP" gorm:"type:varchar(255)"`
-	LampiranHakMilik        *string   `json:"lampiranHakMilik" gorm:"type:varchar(255)"`
+	LampiranPermohonan      *string   `json:"lampiranPermohonan" gorm:"TEXT"`
+	LampiranSuratKuasa      *string   `json:"lampiranSuratKuasa" gorm:"TEXT"`
+	LampiranKTP             *string   `json:"lampiranKTP" gorm:"TEXT"`
+	LampiranSertifikatTanah *string   `json:"lampiranSertifikatTanah" gorm:"TEXT"`
+	LampiranSppt            *string   `json:"lampiranSppt" gorm:"TEXT"`
+	LampiranImb             *string   `json:"lampiranImb" gorm:"TEXT"`
+	LampiranAkte            *string   `json:"lampiranAkte" gorm:"TEXT"`
+	LampiranSkPensiun       *string   `json:"lampiranSkPensiun" gorm:"TEXT"`
+	LampiranSpptStts        *string   `json:"lampiranSpptStts" gorm:"TEXT"`
+	LampiranSTTS            *string   `json:"lampiranSTTS" gorm:"TEXT"`
+	LampiranSkPengurangan   *string   `json:"lampiranSkPengurangan" gorm:"TEXT"`
+	LampiranSkKeberatan     *string   `json:"lampiranSkKeberatan" gorm:"TEXT"`
+	LampiranSkkpPbb         *string   `json:"lampiranSkkpPbb" gorm:"TEXT"`
+	LampiranSpmkpPbb        *string   `json:"lampiranSpmkpPbb" gorm:"TEXT"`
+	LampiranLainLain        *string   `json:"lampiranLainLain" gorm:"TEXT"`
+	LampiranLikuid          *string   `json:"lampiranLikuid" gorm:"TEXT"`
+	LampiranListrik         *string   `json:"lampiranListrik" gorm:"TEXT"`
+	LampiranLetakOP         *string   `json:"lampiranLetakOP" gorm:"TEXT"`
+	LampiranHakMilik        *string   `json:"lampiranHakMilik" gorm:"TEXT"`
 	LampiranFotoOP          *string   `json:"lampiranFotoOP" gorm:"TEXT"`
 	PermohonanNOP
 	gormhelper.DateModel
