@@ -45,7 +45,7 @@ type RegPstLampiranCreateDTO struct {
 	LampiranSuratKuasa      *string   `json:"lampiranSuratKuasa"`
 	LampiranKTP             *string   `json:"lampiranKTP"`
 	LampiranSertifikatTanah *string   `json:"lampiranSertifikatTanah"`
-	LampiranSppt            *string   `json:"lampiranSppt"`
+	LampiranSppt            *[]string `json:"lampiranSppt"`
 	LampiranImb             *string   `json:"lampiranImb"`
 	LampiranAkte            *string   `json:"lampiranAkte"`
 	LampiranSkPensiun       *string   `json:"lampiranSkPensiun"`
