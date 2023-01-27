@@ -166,13 +166,13 @@ func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 	if input.LampiranSppt != nil {
 		tempSPPT := *input.LampiranSppt
 		var tempResult []string
-		for _, fotoOP := range tempSPPT {
+		for _, item := range tempSPPT {
 			wg.Add(1)
-			fileName, path, extFile, _, err = sh.FilePreProcess(fotoOP, "lampiranSppt", userId, id)
+			fileName, path, extFile, _, err = sh.FilePreProcess(item, "lampiranSppt", userId, id)
 			if err != nil {
 				return
 			}
-			go sh.BulkSaveFile(&wg, fotoOP, fileName, path, extFile, errChan)
+			go sh.BulkSaveFile(&wg, item, fileName, path, extFile, errChan)
 			tempResult = append(tempResult, fileName)
 		}
 		joinResult := strings.Join(tempResult, ", ")
@@ -212,13 +212,13 @@ func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 	if input.LampiranFotoOP != nil {
 		tempFotoOP := *input.LampiranFotoOP
 		var tempResult []string
-		for _, fotoOP := range tempFotoOP {
+		for _, item := range tempFotoOP {
 			wg.Add(1)
-			fileName, path, extFile, _, err = sh.FilePreProcess(fotoOP, "lampiranFotoOP", userId, id)
+			fileName, path, extFile, _, err = sh.FilePreProcess(item, "lampiranFotoOP", userId, id)
 			if err != nil {
 				return
 			}
-			go sh.BulkSaveFile(&wg, fotoOP, fileName, path, extFile, errChan)
+			go sh.BulkSaveFile(&wg, item, fileName, path, extFile, errChan)
 			tempResult = append(tempResult, fileName)
 		}
 		joinResult := strings.Join(tempResult, ", ")
