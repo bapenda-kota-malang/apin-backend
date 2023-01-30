@@ -29,7 +29,9 @@ type RegPstLampiran struct {
 	LampiranSkkpPbb         *string   `json:"lampiranSkkpPbb" gorm:"TEXT"`
 	LampiranSpmkpPbb        *string   `json:"lampiranSpmkpPbb" gorm:"TEXT"`
 	LampiranLainLain        *string   `json:"lampiranLainLain" gorm:"TEXT"`
+	LampiranLaporanKeuangan *string   `json:"lampiranLaporanKeuangan" gorm:"TEXT"`
 	LampiranLikuid          *string   `json:"lampiranLikuid" gorm:"TEXT"`
+	LampiranSlipGaji        *string   `json:"lampiranSlipGaji" gorm:"TEXT"`
 	LampiranListrik         *string   `json:"lampiranListrik" gorm:"TEXT"`
 	LampiranLetakOP         *string   `json:"lampiranLetakOP" gorm:"TEXT"`
 	LampiranHakMilik        *string   `json:"lampiranHakMilik" gorm:"TEXT"`
@@ -60,7 +62,9 @@ type RegPstLampiranCreateDTO struct {
 	LampiranSkkpPbb         *string   `json:"lampiranSkkpPbb"`
 	LampiranSpmkpPbb        *string   `json:"lampiranSpmkpPbb"`
 	LampiranLainLain        *string   `json:"lampiranLainLain"`
+	LampiranLaporanKeuangan *string   `json:"lampiranLaporanKeuangan"`
 	LampiranLikuid          *string   `json:"lampiranLikuid"`
+	LampiranSlipGaji        *string   `json:"lampiranSlipGaji"`
 	LampiranListrik         *string   `json:"lampiranListrik"`
 	LampiranLetakOP         *string   `json:"lampiranLetakOP"`
 	LampiranHakMilik        *string   `json:"lampiranHakMilik"`
@@ -92,7 +96,9 @@ type RegPstLampiranUpdateDTO struct {
 	LampiranSkkpPbb         *string   `json:"lampiranSkkpPbb"`
 	LampiranSpmkpPbb        *string   `json:"lampiranSpmkpPbb"`
 	LampiranLainLain        *string   `json:"lampiranLainLain"`
+	LampiranLaporanKeuangan *string   `json:"lampiranLaporanKeuangan"`
 	LampiranLikuid          *string   `json:"lampiranLikuid"`
+	LampiranSlipGaji        *string   `json:"lampiranSlipGaji"`
 	LampiranListrik         *string   `json:"lampiranListrik"`
 	LampiranLetakOP         *string   `json:"lampiranLetakOP"`
 	LampiranHakMilik        *string   `json:"lampiranHakMilik"`
