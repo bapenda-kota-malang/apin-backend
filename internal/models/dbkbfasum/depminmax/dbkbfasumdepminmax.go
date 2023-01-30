@@ -33,9 +33,10 @@ type FilterDto struct {
 	Daerah_Kode    *string  `json:"daerah_kode"`
 	Tahun          *string  `json:"tahun"`
 	Fasilitas_Kode *string  `json:"fasilitas_kode"`
-	KlsDepMin      *float64 `json:"KlsDepMin"`
-	KlsDepMax      *float64 `json:"KlsDepMax"`
+	KlsDepMin      *float64 `json:"klsDepMin"`
+	KlsDepMax      *float64 `json:"klsDepMax"`
 	Nilai          *float64 `json:"nilai"`
 	Page           int      `json:"page"`
 	PageSize       int      `json:"page_size"`
+	NoPagination   bool     `json:"no_pagination"`
 }
