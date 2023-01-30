@@ -77,7 +77,9 @@ type RegPstLampiranUpdateDTO struct {
 	NoUrutPelayanan         *string   `json:"noUrutPelayanan"`
 	LampiranPermohonan      *string   `json:"lampiranPermohonan"`
 	LampiranSuratKuasa      *string   `json:"lampiranSuratKuasa"`
+	LampiranSK              *string   `json:"lampiranSK"`
 	LampiranKTP             *string   `json:"lampiranKTP"`
+	LampiranKK              *string   `json:"lampiranKK"`
 	LampiranSertifikatTanah *string   `json:"lampiranSertifikatTanah"`
 	LampiranSppt            *string   `json:"lampiranSppt"`
 	LampiranImb             *string   `json:"lampiranImb"`
