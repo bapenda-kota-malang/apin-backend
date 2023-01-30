@@ -14,7 +14,9 @@ type RegPstLampiran struct {
 	NoUrutPelayanan         *string   `json:"noUrutPelayanan" gorm:"type:varchar(3)"`
 	LampiranPermohonan      *string   `json:"lampiranPermohonan" gorm:"TEXT"`
 	LampiranSuratKuasa      *string   `json:"lampiranSuratKuasa" gorm:"TEXT"`
+	LampiranSK              *string   `json:"lampiranSK" gorm:"TEXT"`
 	LampiranKTP             *string   `json:"lampiranKTP" gorm:"TEXT"`
+	LampiranKK              *string   `json:"lampiranKK" gorm:"TEXT"`
 	LampiranSertifikatTanah *string   `json:"lampiranSertifikatTanah" gorm:"TEXT"`
 	LampiranSppt            *string   `json:"lampiranSppt" gorm:"TEXT"`
 	LampiranImb             *string   `json:"lampiranImb" gorm:"TEXT"`
@@ -43,7 +45,9 @@ type RegPstLampiranCreateDTO struct {
 	NoUrutPelayanan         *string   `json:"noUrutPelayanan"`
 	LampiranPermohonan      *string   `json:"lampiranPermohonan"`
 	LampiranSuratKuasa      *string   `json:"lampiranSuratKuasa"`
+	LampiranSK              *string   `json:"lampiranSK"`
 	LampiranKTP             *string   `json:"lampiranKTP"`
+	LampiranKK              *string   `json:"lampiranKK"`
 	LampiranSertifikatTanah *string   `json:"lampiranSertifikatTanah"`
 	LampiranSppt            *[]string `json:"lampiranSppt"`
 	LampiranImb             *string   `json:"lampiranImb"`

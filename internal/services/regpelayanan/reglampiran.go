@@ -143,6 +143,26 @@ func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 		data.LampiranSkPensiun = &fileName
 	}
 
+	if input.LampiranSK != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranSK, "lampiranSK", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranSK, fileName, path, extFile, errChan)
+		data.LampiranSK = &fileName
+	}
+
+	if input.LampiranKK != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranKK, "lampiranKK", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranKK, fileName, path, extFile, errChan)
+		data.LampiranKK = &fileName
+	}
+
 	if input.LampiranSkkpPbb != nil {
 		wg.Add(1)
 		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranSkkpPbb, "lampiranSkkpPbb", userId, id)
