@@ -7,23 +7,27 @@ import (
 )
 
 type RegJpb6 struct {
-	Id         uint64 `json:"id" gorm:"primarykey;autoIncrement"`
-	NoBangunan *int   `json:"noBangunan"`
+	Id               uint64  `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBangunan       *int    `json:"noBangunan"`
 	gh.DateModel
 }
 
 type RegJpb6CreateDto struct {
-	NoBangunan *int `json:"noBangunan"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBangunan       *int    `json:"noBangunan"`
 }
 
 type RegJpb6UpdateDto struct {
-	NoBangunan *int `json:"noBangunan"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBangunan       *int    `json:"noBangunan"`
 }
 
 type RegJpb6FilterDto struct {
-	NoBangunan *int `json:"noBangunan"`
-	Page       int  `json:"page"`
-	PageSize   int  `json:"page_size"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBangunan       *int    `json:"noBangunan"`
+	Page             int     `json:"page"`
+	PageSize         int     `json:"page_size"`
 }
 
 func (input *RegOpbJpb6CreateDto) GetFasilitasBangunan() *mrfb.CreateDto {

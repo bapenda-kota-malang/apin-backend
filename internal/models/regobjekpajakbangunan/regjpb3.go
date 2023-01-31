@@ -8,6 +8,7 @@ import (
 
 type RegJpb3 struct {
 	Id               uint64  `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi" gorm:"type:char(1)"`
 	TinggiKolom3     *int    `json:"tinggiKolom3"`
@@ -19,6 +20,7 @@ type RegJpb3 struct {
 }
 
 type RegJpb3CreateDto struct {
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom3     *int    `json:"tinggiKolom3"`
@@ -29,6 +31,7 @@ type RegJpb3CreateDto struct {
 }
 
 type RegJpb3UpdateDto struct {
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom3     *int    `json:"tinggiKolom3"`
@@ -39,6 +42,7 @@ type RegJpb3UpdateDto struct {
 }
 
 type RegJpb3FilterDto struct {
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom3     *int    `json:"tinggiKolom3"`

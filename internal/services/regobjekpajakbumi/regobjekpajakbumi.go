@@ -102,6 +102,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					dataFasBangunan.NoUrut = input.NoUrut
 					dataFasBangunan.JenisOp = input.JenisOp
 					dataFasBangunan.NoBangunan = &nobangunan
+					dataFasBangunan.PstPermohonan_id = input.PstPermohonan_id
 
 					//create data fasilitas/jpb berdasar fasilitas/jpb di isi
 					if val.FBJumlahACSplit != nil {
@@ -362,6 +363,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if val.JpbKlinikACCentralKamar != nil {
 						var dataRJpb bng.RegJpb5
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						tempKodeFas = "07"
@@ -396,6 +398,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if val.JpbHotelJenis != nil {
 						var dataRJpb bng.RegJpb7
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						dataRJpb.JenisHotel = (bng.JenisHotel)(strconv.Itoa(*val.JpbHotelJenis))
@@ -438,6 +441,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if val.JpbApartemenJumlah != nil {
 						var dataRJpb bng.RegJpb13
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						dataRJpb.JumlahApartment = val.JpbApartemenJumlah
@@ -475,6 +479,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if val.JpbTankiKapasitas != nil {
 						var dataRJpb bng.RegJpb15
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						dataRJpb.KapasitasTanki = val.JpbTankiKapasitas
@@ -491,6 +496,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if opb.Jpb_Kode == "03" {
 							var dataRJpb bng.RegJpb3
 
+							dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 							dataRJpb.NoBangunan = &nobangunan
 
 							dataRJpb.TinggiKolom3 = val.JpbProdTinggi
@@ -514,6 +520,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						} else if opb.Jpb_Kode == "08" {
 							var dataRJpb bng.RegJpb8
 
+							dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 							dataRJpb.NoBangunan = &nobangunan
 
 							dataRJpb.TinggiKolom8 = val.JpbProdTinggi
@@ -543,6 +550,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "02" {
 						var dataRJpb bng.RegJpb2
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						errTemp = tx.Create(&dataRJpb).Error
@@ -553,6 +561,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "04" {
 						var dataRJpb bng.RegJpb4
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						errTemp = tx.Create(&dataRJpb).Error
@@ -563,6 +572,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "06" {
 						var dataRJpb bng.RegJpb6
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						errTemp = tx.Create(&dataRJpb).Error
@@ -573,6 +583,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "09" {
 						var dataRJpb bng.RegJpb9
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						errTemp = tx.Create(&dataRJpb).Error
@@ -583,6 +594,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "12" {
 						var dataRJpb bng.RegJpb12
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = nobangunan
 						dataRJpb.TipeBangunan = "1" // 1-4 gak jelas dapat dari mana
 
@@ -594,6 +606,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "14" {
 						var dataRJpb bng.RegJpb14
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 						dataRJpb.LuasKanopi = nil // gak jelas dapat dari mana
 
@@ -605,6 +618,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "16" {
 						var dataRJpb bng.RegJpb16
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						errTemp = tx.Create(&dataRJpb).Error
