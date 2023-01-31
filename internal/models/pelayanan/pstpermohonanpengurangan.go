@@ -22,6 +22,7 @@ type PstPermohonanPengurangan struct {
 	NoUrutPemohon         *string  `json:"noUrutPemohon" gorm:"type:varchar(4)"`
 	PemohonJenisOPID      *string  `json:"pemohonJenisOPID" gorm:"type:varchar(1)"`
 	JenisPengurangan      *string  `json:"jenisPengurangan" gorm:"type:varchar(1)"`
+	AlasanPengurangan     *string  `json:"alasanPengurangan" gorm:"type:varchar(2)"`
 	PersentasePengurangan *float64 `json:"persentasePengurangan" gorm:"type:decimal(5,2)"`
 	gormhelper.DateModel
 }

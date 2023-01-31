@@ -13,6 +13,7 @@ type RegPstPermohonanPengurangan struct {
 	BundelPelayanan       *string  `json:"jenisPelayanan" gorm:"type:varchar(4)"`
 	NoUrutPelayanan       *string  `json:"noUrutPelayanan" gorm:"type:varchar(3)"`
 	JenisPengurangan      *string  `json:"jenisPengurangan" gorm:"type:varchar(1)"`
+	AlasanPengurangan     *string  `json:"alasanPengurangan" gorm:"type:varchar(2)"`
 	PersentasePengurangan *float64 `json:"persentasePengurangan" gorm:"type:decimal(5,2)"`
 	gormhelper.DateModel
 }
