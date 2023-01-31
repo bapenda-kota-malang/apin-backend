@@ -371,12 +371,12 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 
 						dataRJpb.LuasKamarAcCentral = val.JpbKlinikACCentralKamar
 
 						if val.JpbKlinikACCentralRuang != nil {
 							tempKodeFas = "08"
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
 							dataFasBangunan.KodeFasilitas = &tempKodeFas
 							dataFasBangunan.JumlahSatuan = val.JpbKlinikACCentralRuang
 							errTemp = tx.Create(&dataFasBangunan).Error

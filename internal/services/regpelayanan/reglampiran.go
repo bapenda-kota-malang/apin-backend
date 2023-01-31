@@ -73,6 +73,26 @@ func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 		input.LampiranLikuid = &fileName
 	}
 
+	if input.LampiranLaporanKeuangan != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranLaporanKeuangan, "lampiranLaporanKeuangan", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranLaporanKeuangan, fileName, path, extFile, errChan)
+		input.LampiranLaporanKeuangan = &fileName
+	}
+
+	if input.LampiranSlipGaji != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranSlipGaji, "lampiranSlipGaji", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranSlipGaji, fileName, path, extFile, errChan)
+		input.LampiranSlipGaji = &fileName
+	}
+
 	if input.LampiranPermohonan != nil {
 		wg.Add(1)
 		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranPermohonan, "lampiranPermohonan", userId, id)
@@ -141,6 +161,26 @@ func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 		}
 		go sh.BulkSaveFile(&wg, *input.LampiranSkPensiun, fileName, path, extFile, errChan)
 		data.LampiranSkPensiun = &fileName
+	}
+
+	if input.LampiranSK != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranSK, "lampiranSK", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranSK, fileName, path, extFile, errChan)
+		data.LampiranSK = &fileName
+	}
+
+	if input.LampiranKK != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranKK, "lampiranKK", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranKK, fileName, path, extFile, errChan)
+		data.LampiranKK = &fileName
 	}
 
 	if input.LampiranSkkpPbb != nil {
