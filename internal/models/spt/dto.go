@@ -35,8 +35,11 @@ type CreateDto struct {
 	Gambar          *string  `json:"gambar" validate:"base64=image;b64size=1024"`
 	KeteranganPajak *string  `json:"keteranganPajak"`
 	KoefisienPajak  *uint64  `json:"koefisienPajak"`
-	NamaProduk      *string  `json:"productName"`
-	NomorRegister   *string  `json:"registerNumber"`
+	NamaProduk      *string  `json:"namaProduk"`
+	NomorRegister   *string  `json:"nomorRegister"`
+	JudulReklame    *string  `json:"judulReklame"`
+	NamaPenyewa     *string  `json:"namaPenyewa"`
+	AlamatPenyewa   *string  `json:"alamatPenyewa"`
 	// skdpdkb
 	JenisKetetapan   *JenisKetetapan `json:"jenisKetetapan"`
 	DasarPengenaan   *string         `json:"dasarPengenaan"`
