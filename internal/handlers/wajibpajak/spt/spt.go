@@ -25,6 +25,9 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 		input.Type = mtypes.JenisPajakOA
 	}
 
+	jkOpt := "IS NULL"
+	input.JenisKetetapan_Opt = &jkOpt
+
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 
 	result, err := s.GetList(input, uint(authInfo.User_Id), "wp", nil)
