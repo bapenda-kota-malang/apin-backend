@@ -57,6 +57,7 @@ type PermohonanRequestDto struct {
 	Catatan               *string `json:"catatan"`
 	NIP                   *string `json:"nip"`
 	JenisPengurangan      *string `json:"jenisPengurangan"`
+	AlasanPengurangan     *string `json:"alasanPengurangan"`
 	PersentasePengurangan *string `json:"persentasePengurangan"`
 	SeksiBerkasID         *string `json:"seksiBerkas"`
 	CatatanPenyerahan     *string `json:"catatanPenyerahan"`
@@ -324,6 +325,7 @@ func (i RegPstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto)
 			BundelPelayanan:       i.BundelPelayanan,
 			NoUrutPelayanan:       i.NoUrutPelayanan,
 			JenisPengurangan:      req.JenisPengurangan,
+			AlasanPengurangan:     req.AlasanPengurangan,
 			PersentasePengurangan: &tempPengurangan,
 		}
 		return nil, &detail, &data, tempNOP

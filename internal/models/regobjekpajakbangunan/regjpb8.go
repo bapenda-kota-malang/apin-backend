@@ -8,6 +8,7 @@ import (
 
 type RegJpb8 struct {
 	Id               uint64  `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi" gorm:"type:char(1)"`
 	TinggiKolom8     *int    `json:"tinggiKolom8"`
@@ -19,6 +20,7 @@ type RegJpb8 struct {
 }
 
 type RegJpb8CreateDto struct {
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom8     *int    `json:"tinggiKolom8"`
@@ -29,6 +31,7 @@ type RegJpb8CreateDto struct {
 }
 
 type RegJpb8UpdateDto struct {
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom8     *int    `json:"tinggiKolom8"`
@@ -39,6 +42,7 @@ type RegJpb8UpdateDto struct {
 }
 
 type RegJpb8FilterDto struct {
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom8     *int    `json:"tinggiKolom8"`

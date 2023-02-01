@@ -7,31 +7,35 @@ import (
 )
 
 type RegJpb5 struct {
-	Id                     uint64 `json:"id" gorm:"primarykey;autoIncrement"`
-	NoBangunan             *int   `json:"noBangunan"`
-	LuasKamarAcCentral     *int   `json:"luasKamarAcCentral"`
-	LuasRuangLainAcCentral *int   `json:"luasRuangLainAcCentral"`
+	Id                     uint64  `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id       *uint64 `json:"pstPermohonan_id"`
+	NoBangunan             *int    `json:"noBangunan"`
+	LuasKamarAcCentral     *int    `json:"luasKamarAcCentral"`
+	LuasRuangLainAcCentral *int    `json:"luasRuangLainAcCentral"`
 	gh.DateModel
 }
 
 type RegJpb5CreateDto struct {
-	NoBangunan             *int `json:"noBangunan"`
-	LuasKamarAcCentral     *int `json:"luasKamarAcCentral"`
-	LuasRuangLainAcCentral *int `json:"luasRuangLainAcCentral"`
+	PstPermohonan_id       *uint64 `json:"pstPermohonan_id"`
+	NoBangunan             *int    `json:"noBangunan"`
+	LuasKamarAcCentral     *int    `json:"luasKamarAcCentral"`
+	LuasRuangLainAcCentral *int    `json:"luasRuangLainAcCentral"`
 }
 
 type RegJpb5UpdateDto struct {
-	NoBangunan             *int `json:"noBangunan"`
-	LuasKamarAcCentral     *int `json:"luasKamarAcCentral"`
-	LuasRuangLainAcCentral *int `json:"luasRuangLainAcCentral"`
+	PstPermohonan_id       *uint64 `json:"pstPermohonan_id"`
+	NoBangunan             *int    `json:"noBangunan"`
+	LuasKamarAcCentral     *int    `json:"luasKamarAcCentral"`
+	LuasRuangLainAcCentral *int    `json:"luasRuangLainAcCentral"`
 }
 
 type RegJpb5FilterDto struct {
-	NoBangunan             *int `json:"noBangunan"`
-	LuasKamarAcCentral     *int `json:"luasKamarAcCentral"`
-	LuasRuangLainAcCentral *int `json:"luasRuangLainAcCentral"`
-	Page                   int  `json:"page"`
-	PageSize               int  `json:"page_size"`
+	PstPermohonan_id       *uint64 `json:"pstPermohonan_id"`
+	NoBangunan             *int    `json:"noBangunan"`
+	LuasKamarAcCentral     *int    `json:"luasKamarAcCentral"`
+	LuasRuangLainAcCentral *int    `json:"luasRuangLainAcCentral"`
+	Page                   int     `json:"page"`
+	PageSize               int     `json:"page_size"`
 }
 
 func (input *RegOpbJpb5CreateDto) GetFasilitasBangunan() *mrfb.CreateDto {

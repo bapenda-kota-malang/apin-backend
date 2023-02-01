@@ -7,30 +7,34 @@ import (
 )
 
 type RegJpb15 struct {
-	Id             uint64     `json:"id" gorm:"primarykey;autoIncrement"`
-	NoBangunan     *int       `json:"noBangunan"`
-	LetakTanki     LetakTanki `json:"letakTanki" gorm:"type:char(1)"`
-	KapasitasTanki *int       `json:"kapasitasTanki"`
+	Id               uint64     `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id *uint64    `json:"pstPermohonan_id"`
+	NoBangunan       *int       `json:"noBangunan"`
+	LetakTanki       LetakTanki `json:"letakTanki" gorm:"type:char(1)"`
+	KapasitasTanki   *int       `json:"kapasitasTanki"`
 	gh.DateModel
 }
 
 type RegJpb15CreateDto struct {
-	NoBangunan     *int       `json:"noBangunan"`
-	LetakTanki     LetakTanki `json:"letakTanki"`
-	KapasitasTanki *int       `json:"kapasitasTanki"`
+	PstPermohonan_id *uint64    `json:"pstPermohonan_id"`
+	NoBangunan       *int       `json:"noBangunan"`
+	LetakTanki       LetakTanki `json:"letakTanki"`
+	KapasitasTanki   *int       `json:"kapasitasTanki"`
 }
 
 type RegJpb15UpdateDto struct {
-	NoBangunan     *int       `json:"noBangunan"`
-	LetakTanki     LetakTanki `json:"letakTanki"`
-	KapasitasTanki *int       `json:"kapasitasTanki"`
+	PstPermohonan_id *uint64    `json:"pstPermohonan_id"`
+	NoBangunan       *int       `json:"noBangunan"`
+	LetakTanki       LetakTanki `json:"letakTanki"`
+	KapasitasTanki   *int       `json:"kapasitasTanki"`
 }
 
 type RegJpb15FilterDto struct {
-	NoBangunan     *int `json:"noBangunan"`
-	KapasitasTanki *int `json:"kapasitasTanki"`
-	Page           int  `json:"page"`
-	PageSize       int  `json:"page_size"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBangunan       *int    `json:"noBangunan"`
+	KapasitasTanki   *int    `json:"kapasitasTanki"`
+	Page             int     `json:"page"`
+	PageSize         int     `json:"page_size"`
 }
 
 func (input *RegOpbJpb15CreateDto) GetFasilitasBangunan() *mrfb.CreateDto {
