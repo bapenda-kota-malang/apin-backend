@@ -29,6 +29,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 		Daerah_Kode:    input.Daerah_Kode,
 		Tahun:          input.Tahun,
 		Fasilitas_Kode: input.Fasilitas_Kode,
+		KlsBintang:     input.KlsBintang,
 	}
 
 	if err := tx.Where(condition).First(&data).Error; err != nil && err != gorm.ErrRecordNotFound {
@@ -68,6 +69,7 @@ func GetList(input m.FilterDto) (any, error) {
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
+		Order("\"Tahun\" DESC, \"KlsBintang\"").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
