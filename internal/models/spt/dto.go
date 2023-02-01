@@ -41,17 +41,17 @@ type CreateDto struct {
 	NamaPenyewa     *string  `json:"namaPenyewa"`
 	AlamatPenyewa   *string  `json:"alamatPenyewa"`
 	// skdpdkb
-	JenisKetetapan   *JenisKetetapan `json:"jenisKetetapan"`
-	DasarPengenaan   *string         `json:"dasarPengenaan"`
-	Kenaikan         *float64        `json:"-"`
-	Bunga            *float64        `json:"-"`
-	Denda            *float64        `json:"denda"`
-	Pengurangan      *float64        `json:"pengurangan"`
-	Total            *float64        `json:"-"`
-	Ref_Spt_Id       *uuid.UUID      `json:"-"`
-	BillingPenetapan *string         `json:"-"`
-	Teguran_Id       *uint64         `json:"teguran_id"`
-	IsTeguran        bool            `json:"isTeguran"`
+	JenisKetetapan *JenisKetetapan `json:"jenisKetetapan"`
+	DasarPengenaan *string         `json:"dasarPengenaan"`
+	Kenaikan       *float64        `json:"kenaikan"`
+	// Bunga            *float64        `json:"bunga"`
+	Denda            *float64   `json:"denda"`
+	Pengurangan      *float64   `json:"pengurangan"`
+	Total            *float64   `json:"-"`
+	Ref_Spt_Id       *uuid.UUID `json:"-"`
+	BillingPenetapan *string    `json:"-"`
+	Teguran_Id       *uint64    `json:"teguran_id"`
+	IsTeguran        bool       `json:"isTeguran"`
 }
 
 type UpdateDto struct {
@@ -100,12 +100,21 @@ type VerifyDto struct {
 	StatusPenetapan     string  `json:"statusPenetapan" validate:"required"`
 }
 
+type SkpdkbListDto struct {
+	Rekening_Id        *uint64 `json:"rekening_id" validate:"required"`
+	Type               string  `json:"type" validate:"required"`
+	JenisKetetapan     *string `json:"jenisKetetapan"`
+	JenisKetetapan_Opt *string `json:"-"`
+	Page               int     `json:"page"`
+	PageSize           int     `json:"page_size"`
+	NoPagination       bool    `json:"no_pagination"`
+}
+
 type SkpdkbExisting struct {
 	Spt_Id           uuid.UUID      `json:"spt_id" validate:"required"`
 	JenisKetetapan   JenisKetetapan `json:"jenisKetetapan"`
 	DasarPengenaan   *string        `json:"dasarPengenaan" validate:"required"`
-	Kenaikan         *float64       `json:"-"`
-	Bunga            *float64       `json:"-"`
+	Kenaikan         *float64       `json:"kenaikan"`
 	Denda            *float64       `json:"denda"`
 	Pengurangan      *float64       `json:"pengurangan"`
 	Total            *float64       `json:"-"`
@@ -116,16 +125,19 @@ type SkpdkbExisting struct {
 }
 
 type FilterDto struct {
-	Npwpd_Id        *uint64         `json:"npwpd_id"`
-	StatusData      *uint8          `json:"statusData"`
-	Type            mt.JenisPajak   `json:"-"`
-	JatuhTempo      *datatypes.Date `json:"jatuhTempo"`
-	JatuhTempo_Opt  *string         `json:"jatuhTempo_opt"`
-	Kasubid_User_Id *string         `json:"kasubid_user_id"`
-	Kabid_User_Id   *string         `json:"kabid_user_id"`
-	Page            int             `json:"page"`
-	PageSize        int             `json:"page_size"`
-	NoPagination    bool            `json:"no_pagination"`
+	Npwpd_Id           *uint64         `json:"npwpd_id"`
+	StatusData         *uint8          `json:"statusData"`
+	Rekening_Id        *uint64         `json:"-"`
+	Type               mt.JenisPajak   `json:"-"`
+	JenisKetetapan     *JenisKetetapan `json:"-"`
+	JenisKetetapan_Opt *string         `json:"-"`
+	JatuhTempo         *datatypes.Date `json:"jatuhTempo"`
+	JatuhTempo_Opt     *string         `json:"jatuhTempo_opt"`
+	Kasubid_User_Id    *string         `json:"kasubid_user_id"`
+	Kabid_User_Id      *string         `json:"kabid_user_id"`
+	Page               int             `json:"page"`
+	PageSize           int             `json:"page_size"`
+	NoPagination       bool            `json:"no_pagination"`
 }
 
 type ListDataDto struct {
@@ -144,8 +156,6 @@ func (input *CreateDetailBaseDto) GetSpt(baseUri string) interface{} {
 	}
 	if baseUri == "skpd" {
 		typeSpt = mt.JenisPajakOA
-		jenisKetetapan := JenisKetetapanSkpd
-		input.Spt.JenisKetetapan = &jenisKetetapan
 	}
 	input.Spt.Type = typeSpt
 	input.Spt.LuasLokasi = nil
@@ -198,26 +208,30 @@ func (input *CreateDetailBaseDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *Skpdkb
 }
 
 // calculate skpdkb process
+// 31 1 2023 field bunga deleted
 //
-// kenaikan = jumlah pajak * 0.25 (25%)
+// kenaikan = jumlah pajak * 0.25 (25%) (invalid)
+// provided from fe
 //
-// bunga = jumlah pajak * 0.02 (2%)
+// bunga = jumlah pajak * 0.02 (2%) (invalid)
+// provided from fe
 //
-// total = jumlah pajak + kenaikan + bunga + denda - pengurangan
+// total = jumlah pajak + kenaikan + denda - pengurangan
 func (input *CreateDetailBaseDto) CalculateSkpdkb() {
-	kenaikan := input.Spt.JumlahPajak * 0.25
-	bunga := input.Spt.JumlahPajak * 0.02
+	kenaikan := float64(0)
 	denda := float64(0)
 	pengurangan := float64(0)
+	if input.Spt.Kenaikan != nil {
+		kenaikan = *input.Spt.Kenaikan
+	}
 	if input.Spt.Denda != nil {
 		denda = *input.Spt.Denda
 	}
 	if input.Spt.Pengurangan != nil {
 		pengurangan = *input.Spt.Pengurangan
 	}
-	total := input.Spt.JumlahPajak + kenaikan + bunga + denda - pengurangan
+	total := input.Spt.JumlahPajak + kenaikan + denda - pengurangan
 	input.Spt.Kenaikan = &kenaikan
-	input.Spt.Bunga = &bunga
 	input.Spt.Denda = &denda
 	input.Spt.Pengurangan = &pengurangan
 	input.Spt.Total = &total

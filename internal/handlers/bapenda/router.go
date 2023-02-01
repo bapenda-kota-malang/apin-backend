@@ -450,11 +450,7 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/skpdkb", func(r chi.Router) {
-		r.Post("/existing/{type}", spt.SkpdkbExisting)
-		r.Post("/new/{type}", spt.SkpdNew)
-	})
-
-	r.Route("/jambong", func(r chi.Router) {
+		r.Get("/", spt.SkpdkbGetList)
 		r.Post("/existing/{type}", spt.SkpdkbExisting)
 		r.Post("/new/{type}", spt.SkpdNew)
 	})
