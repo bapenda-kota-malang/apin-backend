@@ -22,6 +22,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/keberatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/noppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/npwpd"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/objekpajakpbb"
+	pelayanan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/wajibpajak/regobjekpajakbangunan"
@@ -173,10 +175,20 @@ func SetRoutes() http.Handler {
 	fs := http.FileServer(http.Dir(servicehelper.GetResourcesPath()))
 	r.Handle("/static/{filename}", http.StripPrefix("/static/", static.AuthFile(static.JoinPrefix(fs))))
 
+	r.Route("/pelayanan", func(r chi.Router) {
+		r.Get("/{nop}", pelayanan.GetDetailbyNop)
+	})
+
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
 		r.Post("/", regobjekpajakpbb.CreateMw(http.HandlerFunc(regobjekpajakpbb.Create), "wp"))
 		r.Get("/{id}", regobjekpajakpbb.GetDetail)
 		r.Get("/", regobjekpajakpbb.GetListNop)
+	})
+
+	r.Route("/objekpajakpbb", func(r chi.Router) {
+		r.Get("/{id}", objekpajakpbb.GetDetail)
+		r.Get("/", objekpajakpbb.GetList)
+		r.Put("/{id}", objekpajakpbb.Update)
 	})
 
 	r.Route("/regwajibpajakpbb", func(r chi.Router) {
@@ -228,6 +240,10 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", permohonan.GetDetail)
 		r.Patch("/{id}", permohonan.Update)
 		r.Delete("/{id}", permohonan.Delete)
+	})
+
+	r.Route("/regpstlampiran", func(r chi.Router) {
+		r.Patch("/", permohonan.UploadLampiran)
 	})
 
 	r.Route("/logpayment", func(r chi.Router) {

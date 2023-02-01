@@ -1,40 +1,40 @@
 package regobjekpajakbangunan
 
 import (
-	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mrfb "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sc "github.com/jinzhu/copier"
 )
 
 type RegJpb15 struct {
-	nop.NopDetail
-	NoBangunan     *int       `json:"noBangunan"`
-	LetakTanki     LetakTanki `json:"letakTanki" gorm:"type:char(1)"`
-	KapasitasTanki *int       `json:"kapasitasTanki"`
+	Id               uint64     `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id *uint64    `json:"pstPermohonan_id"`
+	NoBangunan       *int       `json:"noBangunan"`
+	LetakTanki       LetakTanki `json:"letakTanki" gorm:"type:char(1)"`
+	KapasitasTanki   *int       `json:"kapasitasTanki"`
 	gh.DateModel
 }
 
 type RegJpb15CreateDto struct {
-	nop.NopDetailCreateDto
-	NoBangunan     *int       `json:"noBangunan"`
-	LetakTanki     LetakTanki `json:"letakTanki"`
-	KapasitasTanki *int       `json:"kapasitasTanki"`
+	PstPermohonan_id *uint64    `json:"pstPermohonan_id"`
+	NoBangunan       *int       `json:"noBangunan"`
+	LetakTanki       LetakTanki `json:"letakTanki"`
+	KapasitasTanki   *int       `json:"kapasitasTanki"`
 }
 
 type RegJpb15UpdateDto struct {
-	nop.NopDetailUpdateDto
-	NoBangunan     *int       `json:"noBangunan"`
-	LetakTanki     LetakTanki `json:"letakTanki"`
-	KapasitasTanki *int       `json:"kapasitasTanki"`
+	PstPermohonan_id *uint64    `json:"pstPermohonan_id"`
+	NoBangunan       *int       `json:"noBangunan"`
+	LetakTanki       LetakTanki `json:"letakTanki"`
+	KapasitasTanki   *int       `json:"kapasitasTanki"`
 }
 
 type RegJpb15FilterDto struct {
-	nop.NopDetailCreateDto
-	NoBangunan     *int `json:"noBangunan"`
-	KapasitasTanki *int `json:"kapasitasTanki"`
-	Page           int  `json:"page"`
-	PageSize       int  `json:"page_size"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBangunan       *int    `json:"noBangunan"`
+	KapasitasTanki   *int    `json:"kapasitasTanki"`
+	Page             int     `json:"page"`
+	PageSize         int     `json:"page_size"`
 }
 
 func (input *RegOpbJpb15CreateDto) GetFasilitasBangunan() *mrfb.CreateDto {

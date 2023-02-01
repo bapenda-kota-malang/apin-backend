@@ -1,8 +1,11 @@
 package objekpajakbumi
 
 import (
+	"strings"
+
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	pel "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	msppt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 )
 
@@ -18,4 +21,27 @@ func nopSearcher(input msppt.Sppt) m.ObjekPajakBumi {
 			JenisOp:        input.JenisOP_Id,
 		}}
 
+}
+
+func transformNOP(inputNop string) string {
+	result := strings.Trim(inputNop, ".")
+	return result
+}
+
+func DecodeNOP(inputNop *string) *pel.PermohonanNOP {
+	if inputNop != nil {
+		var tempNOP string
+		tempNOP = *inputNop
+		result := pel.PermohonanNOP{
+			PermohonanProvinsiID:  tempNOP[0:2],
+			PermohonanKotaID:      tempNOP[2:4],
+			PermohonanKecamatanID: tempNOP[4:7],
+			PermohonanKelurahanID: tempNOP[7:10],
+			PermohonanBlokID:      tempNOP[10:13],
+			NoUrutPemohon:         tempNOP[13:17],
+			PemohonJenisOPID:      tempNOP[17:18],
+		}
+		return &result
+	}
+	return nil
 }

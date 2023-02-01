@@ -1,14 +1,14 @@
 package regobjekpajakbangunan
 
 import (
-	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mrfb "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sc "github.com/jinzhu/copier"
 )
 
 type RegJpb7 struct {
-	nop.NopDetail
+	Id                     uint64        `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id       *uint64       `json:"pstPermohonan_id"`
 	NoBangunan             *int          `json:"noBangunan"`
 	JenisHotel             JenisHotel    `json:"jenisHotel" gorm:"type:char(1)"`
 	JumlahBintang          JumlahBintang `json:"jumlahBintang" gorm:"type:char(1)"`
@@ -19,7 +19,7 @@ type RegJpb7 struct {
 }
 
 type RegJpb7CreateDto struct {
-	nop.NopDetailCreateDto
+	PstPermohonan_id       *uint64       `json:"pstPermohonan_id"`
 	NoBangunan             *int          `json:"noBangunan"`
 	JenisHotel             JenisHotel    `json:"jenisHotel"`
 	JumlahBintang          JumlahBintang `json:"jumlahBintang"`
@@ -29,7 +29,7 @@ type RegJpb7CreateDto struct {
 }
 
 type RegJpb7UpdateDto struct {
-	nop.NopDetailUpdateDto
+	PstPermohonan_id       *uint64       `json:"pstPermohonan_id"`
 	NoBangunan             *int          `json:"noBangunan"`
 	JenisHotel             JenisHotel    `json:"jenisHotel"`
 	JumlahBintang          JumlahBintang `json:"jumlahBintang"`
@@ -39,13 +39,13 @@ type RegJpb7UpdateDto struct {
 }
 
 type RegJpb7FilterDto struct {
-	nop.NopDetailCreateDto
-	NoBangunan             *int `json:"noBangunan"`
-	JumlahKamar            *int `json:"jumlahKamar"`
-	LuasKamarAcCentral     *int `json:"luasKamarAcCentral"`
-	LuasRuangLainAcCentral *int `json:"luasRuangLainAcCentral"`
-	Page                   int  `json:"page"`
-	PageSize               int  `json:"page_size"`
+	PstPermohonan_id       *uint64 `json:"pstPermohonan_id"`
+	NoBangunan             *int    `json:"noBangunan"`
+	JumlahKamar            *int    `json:"jumlahKamar"`
+	LuasKamarAcCentral     *int    `json:"luasKamarAcCentral"`
+	LuasRuangLainAcCentral *int    `json:"luasRuangLainAcCentral"`
+	Page                   int     `json:"page"`
+	PageSize               int     `json:"page_size"`
 }
 
 func (input *RegOpbJpb7CreateDto) GetFasilitasBangunan() *mrfb.CreateDto {

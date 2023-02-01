@@ -1,37 +1,37 @@
 package regobjekpajakbangunan
 
 import (
-	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mrfb "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sc "github.com/jinzhu/copier"
 )
 
 type RegJpb14 struct {
-	nop.NopDetail
-	NoBangunan *int `json:"noBangunan"`
-	LuasKanopi *int `json:"luasKanopi"`
+	Id               uint64  `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBangunan       *int    `json:"noBangunan"`
+	LuasKanopi       *int    `json:"luasKanopi"`
 	gh.DateModel
 }
 
 type RegJpb14CreateDto struct {
-	nop.NopDetailCreateDto
-	NoBangunan *int `json:"noBangunan"`
-	LuasKanopi *int `json:"luasKanopi"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBangunan       *int    `json:"noBangunan"`
+	LuasKanopi       *int    `json:"luasKanopi"`
 }
 
 type RegJpb14UpdateDto struct {
-	nop.NopDetailUpdateDto
-	NoBangunan *int `json:"noBangunan"`
-	LuasKanopi *int `json:"luasKanopi"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBangunan       *int    `json:"noBangunan"`
+	LuasKanopi       *int    `json:"luasKanopi"`
 }
 
 type RegJpb14FilterDto struct {
-	nop.NopDetailCreateDto
-	NoBangunan *int `json:"noBangunan"`
-	LuasKanopi *int `json:"luasKanopi"`
-	Page       int  `json:"page"`
-	PageSize   int  `json:"page_size"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBangunan       *int    `json:"noBangunan"`
+	LuasKanopi       *int    `json:"luasKanopi"`
+	Page             int     `json:"page"`
+	PageSize         int     `json:"page_size"`
 }
 
 func (input *RegOpbJpb14CreateDto) GetFasilitasBangunan() *mrfb.CreateDto {

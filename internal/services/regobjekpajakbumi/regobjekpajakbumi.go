@@ -1,7 +1,6 @@
 package regobjekpajakbumi
 
 import (
-	"fmt"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -47,7 +46,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 		if input.RegObjekPajakBangunans != nil {
 			var errTemp error
 			tempRegOpBng := *input.RegObjekPajakBangunans
-			for _, opb := range tempRegOpBng {
+			for idx, opb := range tempRegOpBng {
 				nobangunan = sropbng.GetLast() + 1
 
 				dataBng.PstPermohonan_id = opb.PstPermohonan_id
@@ -87,12 +86,13 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 				if result := tx.Create(&dataBangunan); result.Error != nil {
 					return result.Error
 				}
+				dataBangunan.Id = dataBangunan.Id + 1
 
 				if opb.RegFasBangunan != nil {
 					val := opb.RegFasBangunan
 					var fas fasbng.RegFasilitasBangunan
 					_ = a.DB.Order("\"Id\" DESC").First(&fas)
-					if fas.Id != 0 {
+					if fas.Id != 0 && idx == 0 {
 						dataFasBangunan.Id = fas.Id + 1
 					}
 					dataFasBangunan.Provinsi_Kode = input.Provinsi_Kode
@@ -102,6 +102,8 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					dataFasBangunan.NoUrut = input.NoUrut
 					dataFasBangunan.JenisOp = input.JenisOp
 					dataFasBangunan.NoBangunan = &nobangunan
+					dataFasBangunan.PstPermohonan_id = input.PstPermohonan_id
+
 					//create data fasilitas/jpb berdasar fasilitas/jpb di isi
 					if val.FBJumlahACSplit != nil {
 						tempKodeFas = "01"
@@ -134,7 +136,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBTipeLapisanKolam != nil {
-						tempKodeFas = fmt.Sprint(val.FBTipeLapisanKolam)
+						tempKodeFas = strconv.Itoa(*val.FBTipeLapisanKolam)
 						if val.FBLuasKolamRenang != nil {
 							dataFasBangunan.KodeFasilitas = &tempKodeFas
 							dataFasBangunan.JumlahSatuan = val.FBLuasKolamRenang
@@ -296,7 +298,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						dataFasBangunan.Id = dataFasBangunan.Id + 1
 					}
 					if val.FBPagarBahan != nil {
-						tempKodeFas = fmt.Sprint(val.FBPagarBahan)
+						tempKodeFas = strconv.Itoa(*val.FBPagarBahan)
 						if val.FBPagarPanjang != nil {
 							dataFasBangunan.KodeFasilitas = &tempKodeFas
 							dataFasBangunan.JumlahSatuan = val.FBPagarPanjang
@@ -361,14 +363,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if val.JpbKlinikACCentralKamar != nil {
 						var dataRJpb bng.RegJpb5
 
-						dataRJpb.NopDetail.Provinsi_Kode = input.Provinsi_Kode
-						dataRJpb.NopDetail.Daerah_Kode = input.Daerah_Kode
-						dataRJpb.NopDetail.Kecamatan_Kode = input.Kecamatan_Kode
-						dataRJpb.NopDetail.Kelurahan_Kode = input.Kelurahan_Kode
-						dataRJpb.NopDetail.Blok_Kode = input.Blok_Kode
-						dataRJpb.NopDetail.NoUrut = input.NoUrut
-						dataRJpb.NopDetail.JenisOp = input.JenisOp
-						dataRJpb.NopDetail.Area_Kode = input.Area_Kode
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						tempKodeFas = "07"
@@ -378,6 +373,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if errTemp != nil {
 							return errTemp
 						}
+						dataFasBangunan.Id = dataFasBangunan.Id + 1
 
 						dataRJpb.LuasKamarAcCentral = val.JpbKlinikACCentralKamar
 
@@ -402,19 +398,12 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if val.JpbHotelJenis != nil {
 						var dataRJpb bng.RegJpb7
 
-						dataRJpb.NopDetail.Provinsi_Kode = input.Provinsi_Kode
-						dataRJpb.NopDetail.Daerah_Kode = input.Daerah_Kode
-						dataRJpb.NopDetail.Kecamatan_Kode = input.Kecamatan_Kode
-						dataRJpb.NopDetail.Kelurahan_Kode = input.Kelurahan_Kode
-						dataRJpb.NopDetail.Blok_Kode = input.Blok_Kode
-						dataRJpb.NopDetail.NoUrut = input.NoUrut
-						dataRJpb.NopDetail.JenisOp = input.JenisOp
-						dataRJpb.NopDetail.Area_Kode = input.Area_Kode
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
-						dataRJpb.JenisHotel = (bng.JenisHotel)(fmt.Sprint(val.JpbHotelJenis))
+						dataRJpb.JenisHotel = (bng.JenisHotel)(strconv.Itoa(*val.JpbHotelJenis))
 						if val.JpbHotelBintang != nil {
-							dataRJpb.JumlahBintang = (bng.JumlahBintang)(fmt.Sprint(val.JpbHotelJenis))
+							dataRJpb.JumlahBintang = (bng.JumlahBintang)(strconv.Itoa(*val.JpbHotelJenis))
 						}
 						if val.JpbHotelJmlKamar != nil {
 							dataRJpb.JumlahKamar = val.JpbHotelJmlKamar
@@ -452,18 +441,10 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if val.JpbApartemenJumlah != nil {
 						var dataRJpb bng.RegJpb13
 
-						dataRJpb.NopDetail.Provinsi_Kode = input.Provinsi_Kode
-						dataRJpb.NopDetail.Daerah_Kode = input.Daerah_Kode
-						dataRJpb.NopDetail.Kecamatan_Kode = input.Kecamatan_Kode
-						dataRJpb.NopDetail.Kelurahan_Kode = input.Kelurahan_Kode
-						dataRJpb.NopDetail.Blok_Kode = input.Blok_Kode
-						dataRJpb.NopDetail.NoUrut = input.NoUrut
-						dataRJpb.NopDetail.JenisOp = input.JenisOp
-						dataRJpb.NopDetail.Area_Kode = input.Area_Kode
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						dataRJpb.JumlahApartment = val.JpbApartemenJumlah
-						// dataRJpb.KelasBangunan13 = (bng.KelasBangunan)(fmt.Sprint(val.))?? kelas bangunan tidak ada di inputan
 
 						if val.JpbApartemenACCentralKamar != nil {
 							tempKodeFas = "09"
@@ -498,19 +479,12 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if val.JpbTankiKapasitas != nil {
 						var dataRJpb bng.RegJpb15
 
-						dataRJpb.NopDetail.Provinsi_Kode = input.Provinsi_Kode
-						dataRJpb.NopDetail.Daerah_Kode = input.Daerah_Kode
-						dataRJpb.NopDetail.Kecamatan_Kode = input.Kecamatan_Kode
-						dataRJpb.NopDetail.Kelurahan_Kode = input.Kelurahan_Kode
-						dataRJpb.NopDetail.Blok_Kode = input.Blok_Kode
-						dataRJpb.NopDetail.NoUrut = input.NoUrut
-						dataRJpb.NopDetail.JenisOp = input.JenisOp
-						dataRJpb.NopDetail.Area_Kode = input.Area_Kode
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 
 						dataRJpb.KapasitasTanki = val.JpbTankiKapasitas
 						if val.JpbTankiLetak != nil {
-							dataRJpb.LetakTanki = (bng.LetakTanki)(fmt.Sprint(val.JpbTankiLetak))
+							dataRJpb.LetakTanki = (bng.LetakTanki)(*val.JpbTankiLetak)
 						}
 
 						errTemp = tx.Create(&dataRJpb).Error
@@ -522,14 +496,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						if opb.Jpb_Kode == "03" {
 							var dataRJpb bng.RegJpb3
 
-							dataRJpb.NopDetail.Provinsi_Kode = input.Provinsi_Kode
-							dataRJpb.NopDetail.Daerah_Kode = input.Daerah_Kode
-							dataRJpb.NopDetail.Kecamatan_Kode = input.Kecamatan_Kode
-							dataRJpb.NopDetail.Kelurahan_Kode = input.Kelurahan_Kode
-							dataRJpb.NopDetail.Blok_Kode = input.Blok_Kode
-							dataRJpb.NopDetail.NoUrut = input.NoUrut
-							dataRJpb.NopDetail.JenisOp = input.JenisOp
-							dataRJpb.NopDetail.Area_Kode = input.Area_Kode
+							dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 							dataRJpb.NoBangunan = &nobangunan
 
 							dataRJpb.TinggiKolom3 = val.JpbProdTinggi
@@ -553,14 +520,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 						} else if opb.Jpb_Kode == "08" {
 							var dataRJpb bng.RegJpb8
 
-							dataRJpb.NopDetail.Provinsi_Kode = input.Provinsi_Kode
-							dataRJpb.NopDetail.Daerah_Kode = input.Daerah_Kode
-							dataRJpb.NopDetail.Kecamatan_Kode = input.Kecamatan_Kode
-							dataRJpb.NopDetail.Kelurahan_Kode = input.Kelurahan_Kode
-							dataRJpb.NopDetail.Blok_Kode = input.Blok_Kode
-							dataRJpb.NopDetail.NoUrut = input.NoUrut
-							dataRJpb.NopDetail.JenisOp = input.JenisOp
-							dataRJpb.NopDetail.Area_Kode = input.Area_Kode
+							dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 							dataRJpb.NoBangunan = &nobangunan
 
 							dataRJpb.TinggiKolom8 = val.JpbProdTinggi
@@ -590,8 +550,8 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "02" {
 						var dataRJpb bng.RegJpb2
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
-						dataRJpb.KelasBangunan2 = "2" // gak jelas dapat dari mana
 
 						errTemp = tx.Create(&dataRJpb).Error
 						if errTemp != nil {
@@ -601,8 +561,8 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "04" {
 						var dataRJpb bng.RegJpb4
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
-						dataRJpb.KelasBangunan4 = "4" // gak jelas dapat dari mana
 
 						errTemp = tx.Create(&dataRJpb).Error
 						if errTemp != nil {
@@ -612,8 +572,8 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "06" {
 						var dataRJpb bng.RegJpb6
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
-						dataRJpb.KelasBanguna = "1" // gak jelas dapat dari mana
 
 						errTemp = tx.Create(&dataRJpb).Error
 						if errTemp != nil {
@@ -623,8 +583,8 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "09" {
 						var dataRJpb bng.RegJpb9
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
-						dataRJpb.KelasBangunan9 = "1" // gak jelas dapat dari mana
 
 						errTemp = tx.Create(&dataRJpb).Error
 						if errTemp != nil {
@@ -634,6 +594,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "12" {
 						var dataRJpb bng.RegJpb12
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = nobangunan
 						dataRJpb.TipeBangunan = "1" // 1-4 gak jelas dapat dari mana
 
@@ -645,6 +606,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "14" {
 						var dataRJpb bng.RegJpb14
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
 						dataRJpb.LuasKanopi = nil // gak jelas dapat dari mana
 
@@ -656,8 +618,8 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 					if opb.Jpb_Kode == "16" {
 						var dataRJpb bng.RegJpb16
 
+						dataRJpb.PstPermohonan_id = input.PstPermohonan_id
 						dataRJpb.NoBangunan = &nobangunan
-						dataRJpb.KelasBangunan16 = "1" // gak jelas dapat dari mana
 
 						errTemp = tx.Create(&dataRJpb).Error
 						if errTemp != nil {

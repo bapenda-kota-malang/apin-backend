@@ -1,14 +1,14 @@
 package regobjekpajakbangunan
 
 import (
-	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mrfb "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sc "github.com/jinzhu/copier"
 )
 
 type RegJpb8 struct {
-	nop.NopDetail
+	Id               uint64  `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi" gorm:"type:char(1)"`
 	TinggiKolom8     *int    `json:"tinggiKolom8"`
@@ -20,7 +20,7 @@ type RegJpb8 struct {
 }
 
 type RegJpb8CreateDto struct {
-	nop.NopDetailCreateDto
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom8     *int    `json:"tinggiKolom8"`
@@ -31,7 +31,7 @@ type RegJpb8CreateDto struct {
 }
 
 type RegJpb8UpdateDto struct {
-	nop.NopDetailUpdateDto
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom8     *int    `json:"tinggiKolom8"`
@@ -42,7 +42,7 @@ type RegJpb8UpdateDto struct {
 }
 
 type RegJpb8FilterDto struct {
-	nop.NopDetailCreateDto
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
 	NoBangunan       *int    `json:"noBangunan"`
 	TipeKonstruksi   *string `json:"tipeKonstruksi"`
 	TinggiKolom8     *int    `json:"tinggiKolom8"`

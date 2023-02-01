@@ -1,44 +1,41 @@
 package regobjekpajakbangunan
 
 import (
-	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mrfb "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sc "github.com/jinzhu/copier"
 )
 
 type RegJpb5 struct {
-	nop.NopDetail
-	NoBangunan             *int          `json:"noBangunan"`
-	KelasBangunan5         KelasBangunan `json:"kelasBangunan5" gorm:"type:char(1)"`
-	LuasKamarAcCentral     *int          `json:"luasKamarAcCentral"`
-	LuasRuangLainAcCentral *int          `json:"luasRuangLainAcCentral"`
+	Id                     uint64  `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id       *uint64 `json:"pstPermohonan_id"`
+	NoBangunan             *int    `json:"noBangunan"`
+	LuasKamarAcCentral     *int    `json:"luasKamarAcCentral"`
+	LuasRuangLainAcCentral *int    `json:"luasRuangLainAcCentral"`
 	gh.DateModel
 }
 
 type RegJpb5CreateDto struct {
-	nop.NopDetailCreateDto
-	NoBangunan             *int          `json:"noBangunan"`
-	KelasBangunan5         KelasBangunan `json:"kelasBangunan5"`
-	LuasKamarAcCentral     *int          `json:"luasKamarAcCentral"`
-	LuasRuangLainAcCentral *int          `json:"luasRuangLainAcCentral"`
+	PstPermohonan_id       *uint64 `json:"pstPermohonan_id"`
+	NoBangunan             *int    `json:"noBangunan"`
+	LuasKamarAcCentral     *int    `json:"luasKamarAcCentral"`
+	LuasRuangLainAcCentral *int    `json:"luasRuangLainAcCentral"`
 }
 
 type RegJpb5UpdateDto struct {
-	nop.NopDetailUpdateDto
-	NoBangunan             *int          `json:"noBangunan"`
-	KelasBangunan5         KelasBangunan `json:"kelasBangunan5"`
-	LuasKamarAcCentral     *int          `json:"luasKamarAcCentral"`
-	LuasRuangLainAcCentral *int          `json:"luasRuangLainAcCentral"`
+	PstPermohonan_id       *uint64 `json:"pstPermohonan_id"`
+	NoBangunan             *int    `json:"noBangunan"`
+	LuasKamarAcCentral     *int    `json:"luasKamarAcCentral"`
+	LuasRuangLainAcCentral *int    `json:"luasRuangLainAcCentral"`
 }
 
 type RegJpb5FilterDto struct {
-	nop.NopDetailCreateDto
-	NoBangunan             *int `json:"noBangunan"`
-	LuasKamarAcCentral     *int `json:"luasKamarAcCentral"`
-	LuasRuangLainAcCentral *int `json:"luasRuangLainAcCentral"`
-	Page                   int  `json:"page"`
-	PageSize               int  `json:"page_size"`
+	PstPermohonan_id       *uint64 `json:"pstPermohonan_id"`
+	NoBangunan             *int    `json:"noBangunan"`
+	LuasKamarAcCentral     *int    `json:"luasKamarAcCentral"`
+	LuasRuangLainAcCentral *int    `json:"luasRuangLainAcCentral"`
+	Page                   int     `json:"page"`
+	PageSize               int     `json:"page_size"`
 }
 
 func (input *RegOpbJpb5CreateDto) GetFasilitasBangunan() *mrfb.CreateDto {

@@ -1,6 +1,8 @@
 package objekpajakbumi
 
 import (
+	mopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"gorm.io/datatypes"
@@ -55,6 +57,9 @@ type UpdateDto struct {
 	LuasBumi        int       `json:"luasBumi"`
 	JenisBumi       JenisBumi `json:"jenisBumi"`
 	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
+
+	Nop                 *string             `json:"nop"`
+	ObjekPajakBangunans *[]mopbng.CreateDto `json:"objekPajakBng"`
 }
 
 type FilterDto struct {

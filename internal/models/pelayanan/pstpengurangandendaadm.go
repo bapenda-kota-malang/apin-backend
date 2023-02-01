@@ -1,12 +1,10 @@
 package pstpermohonan
 
 import (
-	"fmt"
-
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
-type PstPermohonanPengurangan struct {
+type PstPenguranganDendaAdm struct {
 	Id                    uint64   `json:"id" gorm:"primaryKey;autoIncrement"`
 	PermohonanId          *uint64  `json:"permohonanId" gorm:"type:integer"`
 	KanwilId              *string  `json:"kanwilId" gorm:"type:varchar(2)"`
@@ -22,12 +20,10 @@ type PstPermohonanPengurangan struct {
 	NoUrutPemohon         *string  `json:"noUrutPemohon" gorm:"type:varchar(4)"`
 	PemohonJenisOPID      *string  `json:"pemohonJenisOPID" gorm:"type:varchar(1)"`
 	JenisPengurangan      *string  `json:"jenisPengurangan" gorm:"type:varchar(1)"`
-	AlasanPengurangan     *string  `json:"alasanPengurangan" gorm:"type:varchar(2)"`
+	TahunPengurangan      *string  `json:"tahunPengurangan" gorm:"type:varchar(4)"`
+	JenisSK               *string  `json:"jenisSK" gorm:"type:varchar(1)"`
+	NoSK                  *string  `json:"noSK" gorm:"type:varchar(30)"`
+	StatusSK              *string  `json:"statusSK" gorm:"type:varchar(1)"`
 	PersentasePengurangan *float64 `json:"persentasePengurangan" gorm:"type:decimal(5,2)"`
 	gormhelper.DateModel
-}
-
-func (i PstPermohonanPengurangan) GetDataPermohonanNOP() string {
-	result := fmt.Sprintf("%s%s%s%s%s%s%s", *i.PermohonanProvinsiID, *i.PermohonanKotaID, *i.PermohonanKecamatanID, *i.PermohonanKelurahanID, *i.PermohonanBlokID, *i.NoUrutPemohon, *i.PemohonJenisOPID)
-	return result
 }

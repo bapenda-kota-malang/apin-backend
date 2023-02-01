@@ -38,10 +38,10 @@ type CreateDto struct {
 	Diameter        *float64     `json:"diameter"`
 	Diskon          float64      `json:"diskon"`
 	Lokasi          string       `json:"lokasi" validate:"required"`
-	TarifHari       float64      `json:"tarifHari"`
-	TarifMinggu     float64      `json:"tarifMinggu"`
-	TarifBulan      float64      `json:"tarifBulan"`
-	TarifTahun      float64      `json:"tarifTahun"`
+	TarifHari       float64      `json:"-"`
+	TarifMinggu     float64      `json:"-"`
+	TarifBulan      float64      `json:"-"`
+	TarifTahun      float64      `json:"-"`
 	JumlahRp        float64      `json:"-"`
 	NomorPersil     string       `json:"nomorPersil"`
 	JenisDimensi    JenisDimensi `json:"jenisDimensi"`
@@ -58,10 +58,10 @@ type UpdateDto struct {
 	Diameter        *float64 `json:"diameter"`
 	Diskon          *float64 `json:"diskon"`
 	Lokasi          *string  `json:"lokasi"`
-	TarifHari       *float64 `json:"tarifHari"`
-	TarifMinggu     *float64 `json:"tarifMinggu"`
-	TarifBulan      *float64 `json:"tarifBulan"`
-	TarifTahun      *float64 `json:"tarifTahun"`
-	JumlahRp        *float64 `json:"jumlahRp"`
+	TarifHari       *float64 `json:"-"`
+	TarifMinggu     *float64 `json:"-"`
+	TarifBulan      *float64 `json:"-"`
+	TarifTahun      *float64 `json:"-"`
+	JumlahRp        *float64 `json:"-"`
 	NomorPersil     *string  `json:"nomorPersil"`
 }

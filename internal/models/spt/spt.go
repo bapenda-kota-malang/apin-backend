@@ -38,46 +38,50 @@ TODO: TANYA INI 2X,3X
 */
 
 type Spt struct {
-	Id                  uuid.UUID           `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	Npwpd_Id            uint64              `json:"npwpd_Id"`
-	ObjekPajak_Id       uint64              `json:"objekPajak_Id"`
-	Rekening_Id         uint64              `json:"rekening_Id"`
-	LuasLokasi          *string             `json:"luasLokasi,omitempty" gorm:"type:varchar(50)"`
-	Description         *string             `json:"description,omitempty" gorm:"type:varchar(255)"`
-	PeriodeAwal         datatypes.Date      `json:"periodeAwal"`
-	PeriodeAkhir        datatypes.Date      `json:"periodeAkhir"`
-	TarifPajak_Id       uint64              `json:"tarifPajak_id"`
-	EtaxSubTotal        *string             `json:"etaxSubTotal,omitempty" gorm:"size:100"`
-	EtaxTotal           *string             `json:"etaxTotal,omitempty" gorm:"size:100"`
-	EtaxJumlahPajak     *string             `json:"etaxJumlahPajak,omitempty" gorm:"size:100"`
-	Omset               float64             `json:"omset"`
-	JumlahPajak         float64             `json:"jumlahPajak"`
-	Lampiran            string              `json:"lampiran"`
-	JatuhTempo          datatypes.Date      `json:"jatuhTempo"`
-	Sunset              *datatypes.Date     `json:"sunset,omitempty"`
-	CreateBy_User_Id    uint                `json:"createBy_user_id"`
-	TanggalSpt          time.Time           `json:"tanggalSpt"`
-	NomorSpt            string              `json:"NomorSpt" gorm:"type:varchar(20)"`
-	KodeBilling         string              `json:"kodeBilling" gorm:"varchar(30)"`
-	Type                mt.JenisPajak       `json:"type" gorm:"type:varchar(2)"`
-	StatusPembayaran    SptStatus           `json:"statusPembayaran" gorm:"type:varchar(5)"`
-	TanggalLunas        *time.Time          `json:"tanggalLunas,omitempty"`
-	BatalPenetapan      bool                `json:"batalPenetapan,omitempty"`
-	IdBT                *uint64             `json:"idBT,omitempty"`
-	JumlahTahun         *float64            `json:"jumlahTahun,omitempty" gorm:"type:decimal"`
-	JumlahBulan         *float64            `json:"jumlahBulan,omitempty" gorm:"type:decimal"`
-	JumlahMinggu        *float64            `json:"jumlahMinggu,omitempty" gorm:"type:decimal"`
-	JumlahHari          *float64            `json:"jumlahHari,omitempty" gorm:"type:decimal"`
-	Gambar              *string             `json:"gambar,omitempty" gorm:"type:varchar(255)"`
-	KeteranganPajak     *string             `json:"keteranganPajak,omitempty" gorm:"type:varchar(255)"`
-	KoefisienPajak      *uint64             `json:"koefisienPajak,omitempty"`
-	NamaProduk          *string             `json:"productName,omitempty" gorm:"type:varchar(200)"`
-	NomorRegister       *string             `json:"registerNumber,omitempty" gorm:"type:varchar(100)"`
-	VaJatim             *string             `json:"vaJatim,omitempty" gorm:"type:varchar(20)"`
+	Id               uuid.UUID       `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	Npwpd_Id         uint64          `json:"npwpd_Id"`
+	ObjekPajak_Id    uint64          `json:"objekPajak_Id"`
+	Rekening_Id      uint64          `json:"rekening_Id"`
+	LuasLokasi       *string         `json:"luasLokasi,omitempty" gorm:"type:varchar(50)"`
+	Description      *string         `json:"description,omitempty" gorm:"type:varchar(255)"`
+	PeriodeAwal      datatypes.Date  `json:"periodeAwal"`
+	PeriodeAkhir     datatypes.Date  `json:"periodeAkhir"`
+	TarifPajak_Id    uint64          `json:"tarifPajak_id"`
+	EtaxSubTotal     *string         `json:"etaxSubTotal,omitempty" gorm:"size:100"`
+	EtaxTotal        *string         `json:"etaxTotal,omitempty" gorm:"size:100"`
+	EtaxJumlahPajak  *string         `json:"etaxJumlahPajak,omitempty" gorm:"size:100"`
+	Omset            float64         `json:"omset"`
+	JumlahPajak      float64         `json:"jumlahPajak"`
+	Lampiran         string          `json:"lampiran"`
+	JatuhTempo       datatypes.Date  `json:"jatuhTempo"`
+	Sunset           *datatypes.Date `json:"sunset,omitempty"`
+	CreateBy_User_Id uint            `json:"createBy_user_id"`
+	TanggalSpt       time.Time       `json:"tanggalSpt"`
+	NomorSpt         string          `json:"NomorSpt" gorm:"type:varchar(20)"`
+	KodeBilling      string          `json:"kodeBilling" gorm:"varchar(30)"`
+	Type             mt.JenisPajak   `json:"type" gorm:"type:varchar(2)"`
+	StatusPembayaran SptStatus       `json:"statusPembayaran" gorm:"type:varchar(5)"`
+	TanggalLunas     *time.Time      `json:"tanggalLunas,omitempty"`
+	BatalPenetapan   bool            `json:"batalPenetapan,omitempty"`
+	IdBT             *uint64         `json:"idBT,omitempty"`
+	// reklame
+	JumlahTahun     *float64 `json:"jumlahTahun,omitempty" gorm:"type:decimal"`
+	JumlahBulan     *float64 `json:"jumlahBulan,omitempty" gorm:"type:decimal"`
+	JumlahMinggu    *float64 `json:"jumlahMinggu,omitempty" gorm:"type:decimal"`
+	JumlahHari      *float64 `json:"jumlahHari,omitempty" gorm:"type:decimal"`
+	Gambar          *string  `json:"gambar,omitempty" gorm:"type:varchar(255)"`
+	KeteranganPajak *string  `json:"keteranganPajak,omitempty" gorm:"type:varchar(255)"`
+	KoefisienPajak  *uint64  `json:"koefisienPajak,omitempty"`
+	NamaProduk      *string  `json:"productName,omitempty" gorm:"type:varchar(200)"`
+	NomorRegister   *string  `json:"registerNumber,omitempty" gorm:"type:varchar(100)"`
+	JudulReklame    *string  `json:"judulReklame,omitempty"`
+	NamaPenyewa     *string  `json:"namaPenyewa,omitempty"`
+	AlamatPenyewa   *string  `json:"alamatPenyewa,omitempty"`
+	VaJatim         *string  `json:"vaJatim,omitempty" gorm:"type:varchar(20)"`
+	// skpdkb
 	JenisKetetapan      *JenisKetetapan     `json:"jenisKetetapan,omitempty" gorm:"varchar(20)"`
 	DasarPengenaan      *string             `json:"dasarPengenaan,omitempty" gorm:"varchar(30)"`
 	Kenaikan            *float64            `json:"kenaikan,omitempty" gorm:"type:decimal"`
-	Bunga               *float64            `json:"bunga,omitempty" gorm:"type:decimal"`
 	Denda               *float64            `json:"denda,omitempty" gorm:"type:decimal"`
 	Pengurangan         *float64            `json:"pengurangan,omitempty" gorm:"type:decimal"`
 	Total               *float64            `json:"total,omitempty" gorm:"type:decimal"`

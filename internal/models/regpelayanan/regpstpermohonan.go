@@ -57,6 +57,7 @@ type PermohonanRequestDto struct {
 	Catatan               *string `json:"catatan"`
 	NIP                   *string `json:"nip"`
 	JenisPengurangan      *string `json:"jenisPengurangan"`
+	AlasanPengurangan     *string `json:"alasanPengurangan"`
 	PersentasePengurangan *string `json:"persentasePengurangan"`
 	SeksiBerkasID         *string `json:"seksiBerkas"`
 	CatatanPenyerahan     *string `json:"catatanPenyerahan"`
@@ -135,6 +136,16 @@ type PstPermohonanResponse struct {
 	// SkSk                     *SkSk                     `json:"sksk"`
 }
 
+type RequestApprovalPermohonan struct {
+	Id          uint64  `json:"id"`
+	NoPelayanan *string `json:"noPelayanan"`
+	NOP         *string `json:"nop"`
+	NIP         *string `json:"nip"`
+	Status      *string `json:"status"`
+	User_ID     *uint64 `json:"user_ID"`
+	gormhelper.DateModel
+}
+
 func DecodeNOPPermohonan(nop *string) *PermohonanNOP {
 	if nop != nil {
 		var tempNOP string
@@ -192,6 +203,12 @@ func (i PermohonanRequestDto) SetDataPermohonanRequestDtoTransformer(noUrut *str
 			noUrut = &tempNoUrut
 		}
 	}
+	var tempTglTerima *datatypes.Date
+	if i.TanggalTerima == nil {
+		tempTglTerima = nil
+	} else {
+		tempTglTerima = (*datatypes.Date)(gormhelper.StringToDate(*i.TanggalTerima))
+	}
 	result := RegPstPermohonan{
 		// NoPelayanan:            i.NoPelayanan,
 		NOP:                    i.NOP,
@@ -207,7 +224,7 @@ func (i PermohonanRequestDto) SetDataPermohonanRequestDtoTransformer(noUrut *str
 		Keterangan:             i.Keterangan,
 		CatatanPermohonan:      i.Catatan,
 		StatusKolektif:         i.StatusKolektif,
-		TanggalTerima:          (*datatypes.Date)(gormhelper.StringToDate(*i.TanggalTerima)),
+		TanggalTerima:          tempTglTerima,
 		NIP:                    i.NIP,
 		PenerimaanBerkas:       i.PenerimaanBerkas,
 	}
@@ -270,22 +287,15 @@ func (i RegPstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto)
 	}
 
 	detail := RegPstDetailInput{
-		PermohonanId:          &i.Id,
-		KanwilId:              i.KanwilId,
-		KppbbId:               i.KanwilId,
-		TahunPelayanan:        i.TahunPelayanan,
-		BundelPelayanan:       i.BundelPelayanan,
-		NoUrutPelayanan:       i.NoUrutPelayanan,
-		PermohonanProvinsiID:  &tempNOP.PermohonanProvinsiID,
-		PermohonanKotaID:      &tempNOP.PermohonanKotaID,
-		PermohonanKecamatanID: &tempNOP.PermohonanKecamatanID,
-		PermohonanKelurahanID: &tempNOP.PermohonanKelurahanID,
-		PermohonanBlokID:      &tempNOP.PermohonanBlokID,
-		NoUrutPemohon:         &tempNOP.NoUrutPemohon,
-		PemohonJenisOPID:      &tempNOP.PemohonJenisOPID,
-		JenisPelayananID:      i.BundelPelayanan,
-		TahunPajakPemohon:     req.TahunPajak,
-		TanggalSelesai:        tempTglSelesai,
+		PermohonanId:      &i.Id,
+		KanwilId:          i.KanwilId,
+		KppbbId:           i.KanwilId,
+		TahunPelayanan:    i.TahunPelayanan,
+		BundelPelayanan:   i.BundelPelayanan,
+		NoUrutPelayanan:   i.NoUrutPelayanan,
+		JenisPelayananID:  i.BundelPelayanan,
+		TahunPajakPemohon: req.TahunPajak,
+		TanggalSelesai:    tempTglSelesai,
 		// NIP:                   req.NIPPenyerah,
 		// Notes:                 req.CatatanPenyerahan,
 		// StatusSelesai:         req.StatusSelesai,
@@ -295,21 +305,14 @@ func (i RegPstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto)
 
 	if *i.BundelPelayanan == JenisPelayanan[0] {
 		data := RegPstDataOPBaru{
-			PermohonanId:          &i.Id,
-			KanwilId:              i.KanwilId,
-			KppbbId:               i.KanwilId,
-			TahunPelayanan:        i.TahunPelayanan,
-			BundelPelayanan:       i.BundelPelayanan,
-			NoUrutPelayanan:       i.NoUrutPelayanan,
-			PermohonanProvinsiID:  &tempNOP.PermohonanProvinsiID,
-			PermohonanKotaID:      &tempNOP.PermohonanKotaID,
-			PermohonanKecamatanID: &tempNOP.PermohonanKecamatanID,
-			PermohonanKelurahanID: &tempNOP.PermohonanKelurahanID,
-			PermohonanBlokID:      &tempNOP.PermohonanBlokID,
-			NoUrutPemohon:         &tempNOP.NoUrutPemohon,
-			PemohonJenisOPID:      &tempNOP.PemohonJenisOPID,
-			NamaWPBaru:            i.NamaPemohon,
-			LetakOPBaru:           i.AlamatPemohon,
+			PermohonanId:    &i.Id,
+			KanwilId:        i.KanwilId,
+			KppbbId:         i.KanwilId,
+			TahunPelayanan:  i.TahunPelayanan,
+			BundelPelayanan: i.BundelPelayanan,
+			NoUrutPelayanan: i.NoUrutPelayanan,
+			NamaWPBaru:      i.NamaPemohon,
+			LetakOPBaru:     i.AlamatPemohon,
 		}
 		return &data, &detail, nil, tempNOP
 	} else if *i.BundelPelayanan == JenisPelayanan[7] || *i.BundelPelayanan == JenisPelayanan[9] {
@@ -321,54 +324,11 @@ func (i RegPstPermohonan) SetDataPermohonanTransformer(req PermohonanRequestDto)
 			TahunPelayanan:        i.TahunPelayanan,
 			BundelPelayanan:       i.BundelPelayanan,
 			NoUrutPelayanan:       i.NoUrutPelayanan,
-			PermohonanProvinsiID:  &tempNOP.PermohonanProvinsiID,
-			PermohonanKotaID:      &tempNOP.PermohonanKotaID,
-			PermohonanKecamatanID: &tempNOP.PermohonanKecamatanID,
-			PermohonanKelurahanID: &tempNOP.PermohonanKelurahanID,
-			PermohonanBlokID:      &tempNOP.PermohonanBlokID,
-			NoUrutPemohon:         &tempNOP.NoUrutPemohon,
-			PemohonJenisOPID:      &tempNOP.PemohonJenisOPID,
 			JenisPengurangan:      req.JenisPengurangan,
+			AlasanPengurangan:     req.AlasanPengurangan,
 			PersentasePengurangan: &tempPengurangan,
 		}
 		return nil, &detail, &data, tempNOP
 	}
 	return nil, &detail, nil, tempNOP
-}
-
-func (i RegPstDataOPBaru) GetNOPResponse() *PermohonanNOPResponse {
-	nop := i.GetDataPermohonanNOP()
-	result := PermohonanNOPResponse{
-		NOP:        &nop,
-		NamaWP:     i.NamaWPBaru,
-		LetakOP:    i.LetakOPBaru,
-		TahunPajak: i.TahunPelayanan,
-	}
-	return &result
-}
-
-func (i RegPstDetail) GetNOPResponse() *PermohonanNOPResponse {
-	temp := (*time.Time)(i.TanggalSelesai).String()
-	tanggalSelesaiTemp := &temp
-
-	nop := i.GetDataPermohonanNOP()
-	result := PermohonanNOPResponse{
-		NOP:            &nop,
-		TahunPajak:     i.TahunPajakPemohon,
-		Keterangan:     i.Notes,
-		TanggalSelesai: tanggalSelesaiTemp,
-	}
-	return &result
-}
-
-func (i RegPstPermohonanPengurangan) GetNOPResponse() *PermohonanNOPResponse {
-	nop := i.GetDataPermohonanNOP()
-	persentase := fmt.Sprint(i.PersentasePengurangan)
-	result := PermohonanNOPResponse{
-		NOP:                   &nop,
-		TahunPajak:            i.TahunPelayanan,
-		JenisPengurangan:      i.JenisPengurangan,
-		PersentasePengurangan: &persentase,
-	}
-	return &result
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	sc "github.com/jinzhu/copier"
@@ -18,9 +19,14 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	mopfas "github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
+	mopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+	moptnh "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	moppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	reg "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
 	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
+	mwppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	// oppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	// wppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
@@ -244,6 +250,222 @@ func GetDetail(id int) (interface{}, error) {
 	finalresult.PstDataOPBaru = permohonanBaru
 	finalresult.PstDetail = permohonanDetail
 	finalresult.PstPermohonanPengurangan = permohonanPengurangan
+
+	return rp.OKSimple{Data: finalresult}, nil
+}
+
+func transformNOP(nop string) string {
+	result := strings.Trim(nop, ".")
+	return result
+}
+
+func GetDetailbyNop(nop string) (interface{}, error) {
+	var (
+		data                  *m.PstPermohonan
+		permohonanBaru        *m.PstDataOPBaru
+		permohonanDetail      *m.PstDetail
+		permohonanPengurangan *m.PstPermohonanPengurangan
+		oppbb                 *moppbb.ObjekPajakPbb
+		wppbb                 *mwppbb.WajibPajakPbb
+		opbng                 *mopbng.ObjekPajakBangunan
+		optnh                 *moptnh.ObjekPajakBumi
+		opfas                 *mopfas.FasilitasBangunan
+		jpb                   any
+	)
+	tempNOP := transformNOP(nop)
+	dec_nop := m.DecodeNOPPermohonan(&tempNOP)
+	result := a.DB.Where("NOP", tempNOP).First(&data)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", data)
+	}
+	if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanDetail); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Detail", permohonanDetail)
+	}
+
+	if *data.BundelPelayanan == m.JenisPelayanan[0] {
+		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanBaru); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Baru", permohonanBaru)
+		}
+	} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
+		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanPengurangan); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+	}
+
+	if result := a.DB.
+		Where("Provinsi_Kode", dec_nop.PermohonanProvinsiID).
+		Where("Daerah_Kode", dec_nop.PermohonanKotaID).
+		Where("Kecamatan_Kode", dec_nop.PermohonanKecamatanID).
+		Where("Kelurahan_Kode", dec_nop.PermohonanKelurahanID).
+		Where("Blok_Kode", dec_nop.PermohonanBlokID).
+		Where("NoUrut", dec_nop.NoUrutPemohon).
+		Where("JenisOp", dec_nop.PemohonJenisOPID).
+		First(&wppbb); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+	}
+
+	if result := a.DB.
+		Where("Provinsi_Kode", dec_nop.PermohonanProvinsiID).
+		Where("Daerah_Kode", dec_nop.PermohonanKotaID).
+		Where("Kecamatan_Kode", dec_nop.PermohonanKecamatanID).
+		Where("Kelurahan_Kode", dec_nop.PermohonanKelurahanID).
+		Where("Blok_Kode", dec_nop.PermohonanBlokID).
+		Where("NoUrut", dec_nop.NoUrutPemohon).
+		Where("JenisOp", dec_nop.PemohonJenisOPID).
+		Where("WajibPajakPbb_Id", wppbb.Id).
+		First(&oppbb); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+	}
+
+	if result := a.DB.
+		Where("Provinsi_Kode", dec_nop.PermohonanProvinsiID).
+		Where("Daerah_Kode", dec_nop.PermohonanKotaID).
+		Where("Kecamatan_Kode", dec_nop.PermohonanKecamatanID).
+		Where("Kelurahan_Kode", dec_nop.PermohonanKelurahanID).
+		Where("Blok_Kode", dec_nop.PermohonanBlokID).
+		Where("NoUrut", dec_nop.NoUrutPemohon).
+		Where("JenisOp", dec_nop.PemohonJenisOPID).
+		First(&optnh); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+	}
+
+	if result := a.DB.
+		Where("Provinsi_Kode", dec_nop.PermohonanProvinsiID).
+		Where("Daerah_Kode", dec_nop.PermohonanKotaID).
+		Where("Kecamatan_Kode", dec_nop.PermohonanKecamatanID).
+		Where("Kelurahan_Kode", dec_nop.PermohonanKelurahanID).
+		Where("Blok_Kode", dec_nop.PermohonanBlokID).
+		Where("NoUrut", dec_nop.NoUrutPemohon).
+		Where("JenisOp", dec_nop.PemohonJenisOPID).
+		First(&opbng); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+	}
+
+	if result := a.DB.
+		Where("NoBangunan", opbng.NoBangunan).
+		First(&opfas); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+	}
+
+	if opbng.Jpb_Kode == "00" || opbng.Jpb_Kode == "01" || opbng.Jpb_Kode == "10" || opbng.Jpb_Kode == "11" {
+	} else if opbng.Jpb_Kode == "02" {
+		var jpbres *mopbng.Jpb2
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "03" {
+		var jpbres *mopbng.Jpb3
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "04" {
+		var jpbres *mopbng.Jpb4
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "05" {
+		var jpbres *mopbng.Jpb5
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "06" {
+		var jpbres *mopbng.Jpb6
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "07" {
+		var jpbres *mopbng.Jpb7
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "08" {
+		var jpbres *mopbng.Jpb8
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "09" {
+		var jpbres *mopbng.Jpb9
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "12" {
+		var jpbres *mopbng.Jpb12
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "13" {
+		var jpbres *mopbng.Jpb13
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "14" {
+		var jpbres *mopbng.Jpb14
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "15" {
+		var jpbres *mopbng.Jpb15
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	} else if opbng.Jpb_Kode == "16" {
+		var jpbres *mopbng.Jpb16
+		if result := a.DB.
+			Where("NoBangunan", opbng.NoBangunan).
+			First(&jpbres); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+		jpb = jpbres
+	}
+
+	finalresult := data.SetPstPermohonanResponse()
+	finalresult.PstDataOPBaru = permohonanBaru
+	finalresult.PstDetail = permohonanDetail
+	finalresult.PstPermohonanPengurangan = permohonanPengurangan
+	finalresult.PstOpjekPajakPBB = oppbb
+	finalresult.PstWajibPajakPBB = wppbb
+	finalresult.PstOPBumi = optnh
+	finalresult.PstOPBangunan = opbng
+	finalresult.PstFasilitasBangunan = opfas
+	finalresult.PstJpb = &jpb
 
 	return rp.OKSimple{Data: finalresult}, nil
 }
