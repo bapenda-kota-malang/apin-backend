@@ -1,20 +1,6 @@
--- Penilaian_Bumi
-create or replace function Penilaian_Bumi(
-  Provinsi_Kode char(2),
-  Daerah_Kode	char(2),
-  Kecamatan_Kode char(3),
-  Kelurahan_Kode char(3),
-  Blok_Kode char(3),
-  NoUrut char(4),
-  JenisOp char(1),
-  NoBumi bigint,
-  KodeZNT char(2),
-  LuasBumi bigint,
-  Tahun varchar(4)
-)
-returns numeric
-language plpgsql    
-as $$
+DROP FUNCTION IF EXISTS "public"."penilaian_bumi"("provinsi_kode" bpchar, "daerah_kode" bpchar, "kecamatan_kode" bpchar, "kelurahan_kode" bpchar, "blok_kode" bpchar, "nourut" bpchar, "jenisop" bpchar, "nobumi" int8, "kodeznt" bpchar, "luasbumi" int8, "tahun" varchar);
+CREATE OR REPLACE FUNCTION "public"."penilaian_bumi"("provinsi_kode" bpchar, "daerah_kode" bpchar, "kecamatan_kode" bpchar, "kelurahan_kode" bpchar, "blok_kode" bpchar, "nourut" bpchar, "jenisop" bpchar, "nobumi" int8, "kodeznt" bpchar, "luasbumi" int8, "tahun" varchar)
+  RETURNS "pg_catalog"."numeric" AS $BODY$
 declare
   nilai_bumi numeric := 0;
   nilai_nir numeric := 0;
@@ -54,6 +40,6 @@ begin
 
   return nilai_bumi;
 
-end;$$
--- sample
--- SELECT * FROM Penilaian_Bumi('35','73','050','009','016','0351','1',1,'BZ',95,'2023')
+end;$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;

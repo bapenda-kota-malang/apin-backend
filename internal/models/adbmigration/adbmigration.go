@@ -115,6 +115,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/penetapan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/penilaianpbb"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -452,6 +453,19 @@ func GetModelList() (data []interface{}) {
 		&penilaianpbb.DbkbDayaDukung{},
 	}
 	data = append(data, listModelPenilaian...)
+
+	listModelPenetapanMassal := []interface{}{
+		&penetapan.PenerimaKompensasi{},
+		&penetapan.SubjekPajakNJOPTKP{},
+		&penetapan.Tarif{},
+		&penetapan.PenguranganPengenaanJPB{},
+		&penetapan.PenguranganPermanen{},
+		&penetapan.PenguranganPST{},
+		&penetapan.SubjekPajak{},
+		&penetapan.DafnomOP{},
+		&penetapan.ReferensiBuku{},
+	}
+	data = append(data, listModelPenetapanMassal...)
 
 	return data
 }
