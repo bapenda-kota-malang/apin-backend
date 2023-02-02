@@ -2,21 +2,20 @@ package seeder
 
 import "flag"
 
-type Option struct {
-	Notrx     *bool
-	UpdateSql *bool
+type option struct {
+	Notrx          *bool
+	UpdateSql      *bool
+	StoreProcedure *string
 }
 
-func NewOption() *Option {
-	cmd := defineFlag()
+func NewOption() *option {
+	return &option{}
+}
+
+func (o *option) ParseOption() {
+	o.Notrx = flag.Bool("notrx", false, "for using transaction when execute seeder psql command")
+	o.UpdateSql = flag.Bool("updatesql", false, "for auto update list seed.sql with sql file inside sqls folder")
+	o.StoreProcedure = flag.String("sp", "skip", "for import store procedure, sync for read first then run or run for run only without sync from db")
 	flag.Parse()
-	return cmd
-}
-
-// get flag and assign to struct
-func defineFlag() *Option {
-	return &Option{
-		Notrx:     flag.Bool("notrx", false, "for using transaction when execute seeder psql command"),
-		UpdateSql: flag.Bool("updatesql", false, "for auto update list seed.sql with sql file inside sqls folder"),
-	}
+	return
 }

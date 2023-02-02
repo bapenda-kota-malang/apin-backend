@@ -16,7 +16,6 @@ func UpdateSqlFile() error {
 	}
 
 	// get list files
-
 	files, err := seeder.GetListFile(path.Join(wd, "sqls"))
 	if err != nil {
 		return fmt.Errorf("get list file: %w", err)
