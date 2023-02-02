@@ -1,9 +1,15 @@
 package seeder
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/seeder"
+	"gorm.io/gorm"
+)
 
 type storeProcedureService struct {
-	Db *gorm.DB
+	Db           *gorm.DB
+	listFunction *[]seeder.StoreProcedure
 }
 
 func NewstoreProcedureService(db *gorm.DB) *storeProcedureService {
@@ -12,7 +18,8 @@ func NewstoreProcedureService(db *gorm.DB) *storeProcedureService {
 	}
 }
 
-func (s *storeProcedureService) getListFunction() {
+func (s *storeProcedureService) getListFunction() error {
+	var listFunction *[]seeder.StoreProcedure
 	queryListSp := `select 
 		pp.proname,
 		pl.lanname,
@@ -24,7 +31,16 @@ func (s *storeProcedureService) getListFunction() {
 	where pl.lanname NOT IN ('c','internal') 
 		and pn.nspname NOT LIKE 'pg_%' 
 		and pn.nspname <> 'information_schema';`
-	s.Db.Raw(queryListSp)
+	res := s.Db.Raw(queryListSp).Scan(&listFunction)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return fmt.Errorf("list function empty")
+	} else {
+		s.listFunction = listFunction
+	}
+	return nil
 }
 
 func (s *storeProcedureService) SyncSp() error {
