@@ -100,8 +100,12 @@ type UpdateDto struct {
 	Pemeriksa_Pegawai_Nip *string           `json:"pemeriksa_pegawai_nip"`
 	TanggalPerekaman      *string           `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip"`
+
 	//data wajibpajakpbb
-	WajibPajakPbbs WpCreateDto `json:"wajibPajakPbb"`
+	WajibPajakPbbs  WpCreateDto     `json:"wajibPajakPbb"`
+	ObjekPajakBumis *mopb.UpdateDto `json:"objekPajakBumi"`
+
+	Nop *string `json:"nop"`
 }
 
 type FilterDto struct {

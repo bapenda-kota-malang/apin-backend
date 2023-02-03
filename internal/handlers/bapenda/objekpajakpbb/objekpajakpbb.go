@@ -35,6 +35,6 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.GetDetail(id, 0)
+	result, err := s.GetDetail(id, 0, nil)
 	hh.DataResponse(w, result, err)
 }

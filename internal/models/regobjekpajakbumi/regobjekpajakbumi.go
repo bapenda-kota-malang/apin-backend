@@ -32,19 +32,23 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	nop.NopDetailUpdateDto
-	NoBumi          *int      `json:"noBumi"`
-	KodeZNT         *string   `json:"kodeZnt"`
-	LuasBumi        int       `json:"luasBumi"`
-	JenisBumi       JenisBumi `json:"jenisBumi"`
-	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
+	PstPermohonan_id *uint64   `json:"pstPermohonan_id"`
+	NoBumi           *int      `json:"noBumi"`
+	KodeZNT          *string   `json:"kodeZnt"`
+	LuasBumi         int       `json:"luasBumi"`
+	JenisBumi        JenisBumi `json:"jenisBumi"`
+	NilaiSistemBumi  *int      `json:"nilaiSistemBumi"`
+
+	RegObjekPajakBangunans *[]mopbng.CreateDto `json:"regObjekPajakBng"`
 }
 
 type FilterDto struct {
 	nop.NopDetailCreateDto
-	NoBumi          *int    `json:"noBumi"`
-	KodeZNT         *string `json:"kodeZnt"`
-	LuasBumi        *int    `json:"luasBumi"`
-	NilaiSistemBumi *int    `json:"nilaiSistemBumi"`
-	Page            int     `json:"page"`
-	PageSize        int     `json:"page_size"`
+	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
+	NoBumi           *int    `json:"noBumi"`
+	KodeZNT          *string `json:"kodeZnt"`
+	LuasBumi         *int    `json:"luasBumi"`
+	NilaiSistemBumi  *int    `json:"nilaiSistemBumi"`
+	Page             int     `json:"page"`
+	PageSize         int     `json:"page_size"`
 }
