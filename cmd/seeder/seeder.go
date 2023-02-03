@@ -5,8 +5,12 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/seeder"
+	_seederHandler "github.com/bapenda-kota-malang/apin-backend/internal/handlers/seeder"
+	_seederService "github.com/bapenda-kota-malang/apin-backend/internal/services/seeder"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/db"
 )
 
 // func initDb(c *seeder.Config) (*gorm.DB, error) {
@@ -34,9 +38,25 @@ func main() {
 	opt := seeder.NewOption()
 	opt.ParseOption()
 
+	// get path
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("get wd path: %s", err)
+	}
+
+	dbConf := db.NewDbConf("", "postgres")
+	dbConf.GenerateDsn(c.Host, c.DbUser, c.Password, c.DbName, c.Port)
+	db, err := dbConf.InitDb()
+	if err != nil {
+		log.Fatalf("setup err %s", err)
+	}
+
+	sSqlService := _seederService.NewSeed(wd, db)
+	sSqlHandler := _seederHandler.NewSeedSqlHandler(sSqlService)
+
 	// update seed.sql list data from inside sqls folder
 	if *opt.UpdateSql {
-		if err := seeder.UpdateSqlFile(); err != nil {
+		if err := sSqlHandler.UpdateSqlFile(); err != nil {
 			log.Fatalf("update sql file: %s", err)
 		}
 	}
@@ -50,7 +70,7 @@ func main() {
 		log.Println("skip store procedure process")
 	}
 
-	if err := seeder.RunImportSql(c.GenerateCommand(opt.Notrx)); err != nil {
+	if err := sSqlHandler.ImportSql(c.GenerateCommand(opt.Notrx)); err != nil {
 		log.Fatalf("update sql file: %s", err)
 	}
 

@@ -2,6 +2,7 @@ package seeder
 
 import (
 	"fmt"
+	"runtime"
 
 	pkgConfig "github.com/bapenda-kota-malang/apin-backend/pkg/config"
 )
@@ -29,5 +30,13 @@ func (c *config) GenerateCommand(notrx *bool) string {
 	if *notrx {
 		trxCommand = ""
 	}
-	return fmt.Sprintf("psql %s%s -f seed.sql", uri, trxCommand)
+	cmd := ""
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = fmt.Sprintf("")
+	case "linux":
+		cmd = fmt.Sprintf("psql %s%s -f seed.sql", uri, trxCommand)
+	}
+	return cmd
 }

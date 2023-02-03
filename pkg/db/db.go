@@ -17,8 +17,8 @@ type dbConf struct {
 	Dialect      string
 }
 
-func NewDbConf(dialect string) *dbConf {
-	return &dbConf{Dialect: dialect}
+func NewDbConf(dsn string, dialect string) *dbConf {
+	return &dbConf{Dsn: dsn, Dialect: dialect}
 }
 
 func (c *dbConf) GenerateDsn(host string, dbUser string, password string, dbName string, port string) error {
