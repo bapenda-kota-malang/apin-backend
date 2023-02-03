@@ -11,22 +11,14 @@ import (
 	"gorm.io/datatypes"
 )
 
-// TODO: REKLAME GES
-type DetailJambongCreateDto struct {
-	JaminanBongkar_Id   uint64 `json:"jaminanBongkar_id"`
-	DetailSptReklame_id uint64 `json:"detailSptReklame_id" validate:"required"`
-	TarifJambong_Id     *int64 `json:"tarifJambong_id"`
-}
-
 type CreateJambongDto struct {
-	Spt_Id         uuid.UUID                `json:"-"`
-	Tanggal        *datatypes.Date          `json:"tanggal" validate:"required"`
-	JenisReklame   uint8                    `json:"jenisReklame" validate:"required;min=1;max=2"`
-	TipeReklame    *uint8                   `json:"tipeReklame"`
-	Nominal        *float64                 `json:"nominal"`
-	TanggalBatas   *datatypes.Date          `json:"TanggalBatas"`
-	BiayaPemutusan *float64                 `json:"biayaPemutusan"`
-	DetailsJambong []DetailJambongCreateDto `json:"detailJambong" validate:"required"`
+	Spt_Id         uuid.UUID       `json:"-"`
+	Tanggal        *datatypes.Date `json:"tanggal" validate:"required"`
+	TipeReklame    *uint8          `json:"tipeReklame"`
+	Nominal        *float64        `json:"nominal"`
+	TanggalBatas   *datatypes.Date `json:"TanggalBatas"`
+	BiayaPemutusan *float64        `json:"biayaPemutusan"`
+	DetailsJambong *[]int64        `json:"detailJambong" validate:"required"`
 }
 
 type CreateDetailReklameDto struct {
