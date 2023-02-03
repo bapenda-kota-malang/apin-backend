@@ -1,8 +1,10 @@
 package objekpajakpbb
 
 import (
+	"fmt"
 	"strconv"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -284,7 +286,7 @@ func Create(input m.CreateDto) (any, error) {
 	}, nil
 }
 
-func GetList(input m.FilterDto, refId int) (any, error) {
+func GetList(input m.FilterDto, refId int, user_id *int) (any, error) {
 	var data []m.ObjekPajakPbb
 	var count int64
 
@@ -292,7 +294,11 @@ func GetList(input m.FilterDto, refId int) (any, error) {
 	baseQuery := a.DB.Model(&m.ObjekPajakPbb{})
 
 	// if refId not 0 then this function called from handler wp that need data to be filtered based from auth login
-	if refId != 0 {
+
+	if user_id != nil {
+		baseQuery = baseQuery.
+			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\" AND \"WajibPajakPbb\".\"User_ID\" = ?", user_id)
+	} else if refId != 0 {
 		baseQuery = baseQuery.
 			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\"").
 			Joins("JOIN \"WajibPajak\" ON \"WajibPajakPbb\".\"Nik\" = \"WajibPajak\".\"Nik\" AND \"WajibPajak\".\"Id\" = ?", refId)
@@ -318,13 +324,19 @@ func GetList(input m.FilterDto, refId int) (any, error) {
 	}, nil
 }
 
-func GetDetail(id int, refId int) (any, error) {
-	var data *m.ObjekPajakPbb
+func GetDetail(id int, refId int, user_id *int) (any, error) {
+	var (
+		data   *m.ObjekPajakPbb
+		datawp *mwp.WajibPajakPbb
+	)
 
 	baseQuery := a.DB.Model(&m.ObjekPajakPbb{})
 
 	// if refId not 0 then this function called from handler wp that need data to be filtered based from auth login
-	if refId != 0 {
+	if user_id != nil {
+		baseQuery = baseQuery.
+			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\" AND \"WajibPajakPbb\".\"User_ID\" = ?", user_id)
+	} else if refId != 0 {
 		baseQuery = baseQuery.
 			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\"").
 			Joins("JOIN \"WajibPajak\" ON \"WajibPajakPbb\".\"Nik\" = \"WajibPajak\".\"Nik\" AND \"WajibPajak\".\"Id\" = ?", refId)
@@ -337,9 +349,25 @@ func GetDetail(id int, refId int) (any, error) {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
 
-	return rp.OKSimple{
-		Data: data,
-	}, nil
+	resultwp := a.DB.Preload(clause.Associations).First(&datawp, data.WajibPajakPbb_Id)
+	if resultwp.RowsAffected == 0 {
+		return nil, nil
+	} else if resultwp.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", datawp)
+	}
+
+	if user_id != nil {
+		// var tempData []m.ObjekPajakPbb
+		// tempData = append(tempData, *data)
+		// datawp.ObjekPajakPbbs = &tempData
+		return rp.OKSimple{
+			Data: datawp,
+		}, nil
+	} else {
+		return rp.OKSimple{
+			Data: data,
+		}, nil
+	}
 }
 
 func GetDetailbyField(field string, value string) (any, error) {
@@ -425,6 +453,135 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 			"affected": strconv.Itoa(int(result.RowsAffected)),
 		},
 		Data: data,
+	}, nil
+}
+
+func UpdatePelayananWP(id int, input m.UpdateDto, from string, authInfo *auth.AuthInfo, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+
+	var data *m.ObjekPajakPbb
+	var datawp mwp.WajibPajakPbb
+	var dataWajibPajakPbb mwp.UpdateDto
+	var dataObjekPajakBumi mopb.UpdateDto
+	// var dataOpb *mopb.ObjekPajakBumi
+	var respDataWajibPajakPbb interface{}
+	var respDataObjekPajakBumi interface{}
+	var resp t.II
+	var kode string
+
+	if input.Nop != nil {
+		var resultNop []string
+		resultNop, kode = sh.NopParser(*input.Nop)
+		if input.Provinsi_Kode == nil {
+			input.Provinsi_Kode = &resultNop[0]
+			input.Daerah_Kode = &resultNop[1]
+			input.Kecamatan_Kode = &resultNop[2]
+			input.Kelurahan_Kode = &resultNop[3]
+			input.Blok_Kode = &resultNop[4]
+			input.NoUrut = &resultNop[5]
+			input.JenisOp = &resultNop[6]
+		}
+	} else if input.Provinsi_Kode != nil {
+		kode = fmt.Sprintf("%s%s%s%s", *input.Provinsi_Kode, *input.Daerah_Kode, *input.Kecamatan_Kode, *input.Kelurahan_Kode)
+	} else {
+		return sh.SetError("request", "update-data", source, "failed", "data nop tidak ditemukan", input)
+	}
+
+	result := tx.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if err := sc.CopyWithOption(&data, &input, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	// copy data wajibpajakPbb
+	resultWp := tx.First(&datawp, data.WajibPajakPbb_Id)
+	if resultWp.RowsAffected > 0 {
+		if err := sc.Copy(&dataWajibPajakPbb, datawp); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg wajibpajakpbb", input.WajibPajakPbbs)
+		}
+	}
+	if err := sc.CopyWithOption(&dataWajibPajakPbb, input.WajibPajakPbbs, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg wajibpajakpbb", input.WajibPajakPbbs)
+	}
+	tempUID := uint64(authInfo.User_Id)
+	dataWajibPajakPbb.User_ID = &tempUID
+
+	// copy data objek pajak bumi
+	if input.ObjekPajakBumis != nil {
+		if err := sc.Copy(&dataObjekPajakBumi, input.ObjekPajakBumis); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg objek pajak bumi", input.ObjekPajakBumis)
+		}
+		dataObjekPajakBumi.Provinsi_Kode = input.Provinsi_Kode
+		dataObjekPajakBumi.Daerah_Kode = input.Daerah_Kode
+		dataObjekPajakBumi.Kecamatan_Kode = input.Kecamatan_Kode
+		dataObjekPajakBumi.Kelurahan_Kode = input.Kelurahan_Kode
+		dataObjekPajakBumi.Blok_Kode = input.Blok_Kode
+		dataObjekPajakBumi.NoUrut = input.NoUrut
+		dataObjekPajakBumi.JenisOp = input.JenisOp
+		dataObjekPajakBumi.Area_Kode = &kode
+	}
+
+	if input.TanggalPemeriksaan != nil {
+		data.TanggalPemeriksaan = th.ParseTime(input.TanggalPemeriksaan)
+	}
+	if input.TanggalPendataan != nil {
+		data.TanggalPendataan = th.ParseTime(input.TanggalPendataan)
+	}
+	if input.TanggalPerekaman != nil {
+		data.TanggalPerekaman = th.ParseTime(input.TanggalPerekaman)
+	}
+
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		// create data wajibpajakpbb
+		resultWajibPajakPbb, err := swp.Update(int(*data.WajibPajakPbb_Id), dataWajibPajakPbb, tx)
+		if err != nil {
+			return err
+		}
+		respDataWajibPajakPbb = resultWajibPajakPbb
+
+		// create data objekpajakpbb
+		if result := tx.Save(&data); result.Error != nil {
+			return result.Error
+		}
+
+		if input.ObjekPajakBumis != nil {
+			// create data objek pajak bumi
+			resultObjekPajakBumi, err := sopb.Update(0, dataObjekPajakBumi, tx)
+			if err != nil {
+				return err
+			}
+			respDataObjekPajakBumi = resultObjekPajakBumi
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
+	}
+
+	if input.ObjekPajakBumis != nil {
+		resp = t.II{
+			"regObjekPajakPbb":  data,
+			"regWajibPajakPbb":  respDataWajibPajakPbb.(rp.OK).Data,
+			"regObjekPajakBumi": respDataObjekPajakBumi.(rp.OK).Data,
+		}
+	} else {
+		resp = t.II{
+			"regObjekPajakPbb":  data,
+			"regWajibPajakPbb":  respDataWajibPajakPbb.(rp.OK).Data,
+			"regObjekPajakBumi": nil,
+		}
+	}
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: resp,
 	}, nil
 }
 

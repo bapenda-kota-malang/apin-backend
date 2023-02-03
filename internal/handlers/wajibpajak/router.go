@@ -188,7 +188,7 @@ func SetRoutes() http.Handler {
 	r.Route("/objekpajakpbb", func(r chi.Router) {
 		r.Get("/{id}", objekpajakpbb.GetDetail)
 		r.Get("/", objekpajakpbb.GetList)
-		r.Put("/{id}", objekpajakpbb.Update)
+		r.Put("/{id}", objekpajakpbb.UpdateMw(http.HandlerFunc(objekpajakpbb.Update), "wp"))
 	})
 
 	r.Route("/regwajibpajakpbb", func(r chi.Router) {
@@ -215,6 +215,7 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/sppt", sppt.Crud{})
 	r.Route("/sppt-nop", func(r chi.Router) {
 		r.Get("/", sppt.GetListNop)
+		r.Put("/", sppt.UpdatebyNop)
 	})
 
 	r.Route("/njop", func(r chi.Router) {
