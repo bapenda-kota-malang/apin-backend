@@ -20,7 +20,6 @@ const (
 	StatusRestitusiSebagian   SptStatus = "32" //restitusi sebagian
 	StatusPenyetoran          SptStatus = "40" //penyetoran
 
-	JenisKetetapanSkpd    JenisKetetapan = "skpd"
 	JenisKetetapanSkpdkb  JenisKetetapan = "skpdkb"
 	JenisKetetapanSkpdkbt JenisKetetapan = "skpdkbt"
 

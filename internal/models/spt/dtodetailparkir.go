@@ -20,8 +20,6 @@ func (input *CreateDetailParkirDto) GetSpt(baseUri string) interface{} {
 	}
 	if baseUri == "skpd" {
 		typeSpt = mt.JenisPajakOA
-		jenisKetetapan := JenisKetetapanSkpd
-		input.Spt.JenisKetetapan = &jenisKetetapan
 	}
 	input.Spt.Type = typeSpt
 	return input.Spt

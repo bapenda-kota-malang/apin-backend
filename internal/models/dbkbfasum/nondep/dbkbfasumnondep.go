@@ -32,4 +32,5 @@ type FilterDto struct {
 	Nilai          *float64 `json:"nilai"`
 	Page           int      `json:"page"`
 	PageSize       int      `json:"page_size"`
+	NoPagination   bool     `json:"no_pagination"`
 }

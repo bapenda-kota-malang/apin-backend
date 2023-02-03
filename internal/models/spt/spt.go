@@ -82,7 +82,6 @@ type Spt struct {
 	JenisKetetapan      *JenisKetetapan     `json:"jenisKetetapan,omitempty" gorm:"varchar(20)"`
 	DasarPengenaan      *string             `json:"dasarPengenaan,omitempty" gorm:"varchar(30)"`
 	Kenaikan            *float64            `json:"kenaikan,omitempty" gorm:"type:decimal"`
-	Bunga               *float64            `json:"bunga,omitempty" gorm:"type:decimal"`
 	Denda               *float64            `json:"denda,omitempty" gorm:"type:decimal"`
 	Pengurangan         *float64            `json:"pengurangan,omitempty" gorm:"type:decimal"`
 	Total               *float64            `json:"total,omitempty" gorm:"type:decimal"`

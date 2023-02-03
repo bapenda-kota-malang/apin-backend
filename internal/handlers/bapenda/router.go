@@ -21,6 +21,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penetapanmassal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
@@ -450,11 +451,7 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/skpdkb", func(r chi.Router) {
-		r.Post("/existing/{type}", spt.SkpdkbExisting)
-		r.Post("/new/{type}", spt.SkpdNew)
-	})
-
-	r.Route("/jambong", func(r chi.Router) {
+		r.Get("/", spt.SkpdkbGetList)
 		r.Post("/existing/{type}", spt.SkpdkbExisting)
 		r.Post("/new/{type}", spt.SkpdNew)
 	})
@@ -587,6 +584,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/jaminanbongkar", jaminanbongkar.Crud{})
 
 	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
+
+	rh.RegCrud(r, "/penetapan-massal", penetapanmassal.Crud{})
 
 	return r
 }
