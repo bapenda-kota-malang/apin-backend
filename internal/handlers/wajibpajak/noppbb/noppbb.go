@@ -13,7 +13,7 @@ import (
 func GetList(w http.ResponseWriter, r *http.Request) {
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 
-	result, err := s.GetList(m.FilterDto{NoPagination: true}, authInfo.Ref_Id)
+	result, err := s.GetList(m.FilterDto{NoPagination: true}, authInfo.Ref_Id, nil)
 	hh.DataResponse(w, result, err)
 }
 

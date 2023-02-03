@@ -25,7 +25,7 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.GetList(input, 0)
+	result, err := s.GetList(input, 0, nil)
 	hh.DataResponse(w, result, err)
 }
 

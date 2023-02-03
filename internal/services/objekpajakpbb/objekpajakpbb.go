@@ -284,7 +284,7 @@ func Create(input m.CreateDto) (any, error) {
 	}, nil
 }
 
-func GetList(input m.FilterDto, refId int) (any, error) {
+func GetList(input m.FilterDto, refId int, user_id *int) (any, error) {
 	var data []m.ObjekPajakPbb
 	var count int64
 
@@ -292,7 +292,11 @@ func GetList(input m.FilterDto, refId int) (any, error) {
 	baseQuery := a.DB.Model(&m.ObjekPajakPbb{})
 
 	// if refId not 0 then this function called from handler wp that need data to be filtered based from auth login
-	if refId != 0 {
+
+	if user_id != nil {
+		baseQuery = baseQuery.
+			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\" AND \"WajibPajakPbb\".\"User_ID\" = ?", user_id)
+	} else if refId != 0 {
 		baseQuery = baseQuery.
 			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\"").
 			Joins("JOIN \"WajibPajak\" ON \"WajibPajakPbb\".\"Nik\" = \"WajibPajak\".\"Nik\" AND \"WajibPajak\".\"Id\" = ?", refId)
