@@ -22,6 +22,7 @@ const (
 
 	JenisKetetapanSkpdkb  JenisKetetapan = "skpdkb"
 	JenisKetetapanSkpdkbt JenisKetetapan = "skpdkbt"
+	JenisKetetapanSkpd    JenisKetetapan = "skpd"
 
 	TbpStatusFilterBaru       uint8 = 1 // baru
 	TbpStatusFilterPembayaran uint8 = 2 // Pembayaran

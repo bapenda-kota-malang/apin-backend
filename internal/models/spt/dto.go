@@ -149,6 +149,11 @@ type CreateDetailBaseDto struct {
 	Spt CreateDto `json:"spt" validate:"required"`
 }
 
+type CopySptDto struct {
+	Spt_Id []uuid.UUID `json:"spt_id" validate:"required"`
+	Types  string      `json:"types"`
+}
+
 func (input *CreateDetailBaseDto) GetSpt(baseUri string) interface{} {
 	typeSpt := input.Spt.Type
 	if typeSpt == "" {
