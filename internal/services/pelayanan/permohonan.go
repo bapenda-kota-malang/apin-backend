@@ -265,6 +265,7 @@ func GetDetailbyNop(nop string) (interface{}, error) {
 		permohonanBaru        *m.PstDataOPBaru
 		permohonanDetail      *m.PstDetail
 		permohonanPengurangan *m.PstPermohonanPengurangan
+		lampiran              *m.PstLampiran
 		oppbb                 *moppbb.ObjekPajakPbb
 		wppbb                 *mwppbb.WajibPajakPbb
 		opbng                 *mopbng.ObjekPajakBangunan
@@ -282,6 +283,9 @@ func GetDetailbyNop(nop string) (interface{}, error) {
 	}
 	if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanDetail); result.Error != nil {
 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Detail", permohonanDetail)
+	}
+	if result := a.DB.Where("PermohonanId", data.Id).First(&lampiran); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data Lampiran Baru", lampiran)
 	}
 
 	if *data.BundelPelayanan == m.JenisPelayanan[0] {
@@ -460,6 +464,7 @@ func GetDetailbyNop(nop string) (interface{}, error) {
 	finalresult.PstDataOPBaru = permohonanBaru
 	finalresult.PstDetail = permohonanDetail
 	finalresult.PstPermohonanPengurangan = permohonanPengurangan
+	finalresult.PstLampiran = lampiran
 	finalresult.PstOpjekPajakPBB = oppbb
 	finalresult.PstWajibPajakPBB = wppbb
 	finalresult.PstOPBumi = optnh
