@@ -86,6 +86,15 @@ type FilterDto struct {
 	PageSize          int             `json:"page_size"`
 }
 
+type DownloadListDTO struct {
+	NoPelayanan     *string `json:"noPelayanan"`
+	StatusKolektif  *string `json:"statusKolektif"`
+	NamaPemohon     *string `json:"namaWP"`
+	BundelPelayanan *string `json:"bundlePelayanan"`
+	NOP             *string `json:"NOP"`
+	TanggalTerima   *string `json:"tanggalTerima"`
+}
+
 type PermohonanNOP struct {
 	PermohonanProvinsiID  string `json:"provinsiKode" gorm:"type:varchar(2)"`
 	PermohonanKotaID      string `json:"daerahKode" gorm:"type:varchar(2)"`

@@ -13,6 +13,7 @@ require (
 	github.com/jinzhu/copier v0.3.5
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.7
+	github.com/paulmach/go.geojson v1.4.0
 	github.com/spf13/viper v1.12.0
 	github.com/xuri/excelize/v2 v2.6.1
 	go.uber.org/zap v1.21.0
@@ -64,7 +65,6 @@ require (
 require (
 	github.com/jackc/pgtype v1.11.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/paulmach/go.geojson v1.4.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 )

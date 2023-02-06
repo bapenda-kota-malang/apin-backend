@@ -325,6 +325,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", permohonan.GetDetail)
 		r.Patch("/{id}", permohonan.Update)
 		r.Delete("/{id}", permohonan.Delete)
+		r.Get("/download/excel", permohonan.DownloadExcelList)
 	})
 
 	r.Route("/statnop", func(r chi.Router) {
