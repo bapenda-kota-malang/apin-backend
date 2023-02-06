@@ -72,7 +72,7 @@ type CreateDto struct {
 	AnggotaObjekPajaks *maop.CreateDto `json:"anggotaObjekPajak"`
 	KunjunganKembalis  *mkk.CreateDto  `json:"kunjunganKembali"`
 	//nop
-	Nop        *string `json:"nop"`
+	Nop        *string `json:"nop" validate:"requiored"`
 	NopBersama *string `json:"nopBersama"`
 	NopAsal    *string `json:"nopAsal"`
 }
