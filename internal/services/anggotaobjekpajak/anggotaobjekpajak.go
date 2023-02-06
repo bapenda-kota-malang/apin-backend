@@ -32,7 +32,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Create(&data); result.Error != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data anggotaobjekpajak", data)
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data anggotaobjekpajak: "+result.Error.Error(), data)
 	}
 
 	return rp.OKSimple{Data: data}, nil
