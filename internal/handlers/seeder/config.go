@@ -34,7 +34,7 @@ func (c *config) GenerateCommand(notrx *bool) string {
 
 	switch runtime.GOOS {
 	case "windows":
-		cmd = fmt.Sprintf("")
+		cmd = fmt.Sprintf("psql%s -f seed.sql %s", trxCommand, uri)
 	case "linux":
 		cmd = fmt.Sprintf("psql %s%s -f seed.sql", uri, trxCommand)
 	}

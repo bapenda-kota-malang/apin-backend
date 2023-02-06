@@ -12,16 +12,14 @@ import (
 	"runtime"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/seeder"
-	"gorm.io/gorm"
 )
 
 type seedSqlService struct {
 	basePath string
-	Db       *gorm.DB
 }
 
-func NewSeed(basePath string, db *gorm.DB) seeder.SeedSqlService {
-	return &seedSqlService{basePath, db}
+func NewSeed(basePath string) seeder.SeedSqlService {
+	return &seedSqlService{basePath}
 }
 
 // import sql file to database use exec from bash psql command
@@ -133,37 +131,4 @@ func (s *seedSqlService) WriteSeedSql(files []string) error {
 	}
 
 	return nil
-}
-
-// get list function from db
-func (s *seedSqlService) getListFunction() ([]seeder.StoreProcedure, error) {
-	var listFunction []seeder.StoreProcedure
-	queryListSp := `select 
-		pp.proname,
-		pl.lanname,
-		pn.nspname,
-		pg_get_functiondef(pp.oid) as queryFunction
-	from pg_proc pp 
-		inner join pg_namespace pn on (pp.pronamespace = pn.oid) 
-		inner join pg_language pl on (pp.prolang = pl.oid) 
-	where pl.lanname NOT IN ('c','internal') 
-		and pn.nspname NOT LIKE 'pg_%' 
-		and pn.nspname <> 'information_schema';`
-	resRows, err := s.Db.Raw(queryListSp).Rows()
-	if err != nil {
-		return nil, err
-	}
-	defer resRows.Close()
-
-	for resRows.Next() {
-		var spRow seeder.StoreProcedure
-		s.Db.ScanRows(resRows, &spRow)
-		listFunction = append(listFunction, spRow)
-	}
-
-	if len(listFunction) == 0 {
-		return nil, fmt.Errorf("list function empty")
-	}
-
-	return listFunction, nil
 }

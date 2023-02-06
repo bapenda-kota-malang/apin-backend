@@ -44,14 +44,7 @@ func main() {
 		log.Fatalf("get wd path: %s", err)
 	}
 
-	dbConf := db.NewDbConf("", "postgres")
-	dbConf.GenerateDsn(c.Host, c.DbUser, c.Password, c.DbName, c.Port)
-	db, err := dbConf.InitDb()
-	if err != nil {
-		log.Fatalf("setup err %s", err)
-	}
-
-	sSqlService := _seederService.NewSeed(wd, db)
+	sSqlService := _seederService.NewSeed(wd)
 	sSqlHandler := _seederHandler.NewSeedSqlHandler(sSqlService)
 
 	// update seed.sql list data from inside sqls folder
@@ -61,17 +54,23 @@ func main() {
 		}
 	}
 
-	switch *opt.StoreProcedure {
-	case "sync":
-		// initDb(c)
-	case "run":
-		// initDb(c)
-	default:
-		log.Println("skip store procedure process")
+	// update seed.sql list store procedure
+	if *opt.StoreProcedure == "sync" {
+		dbConf := db.NewDbConf("", "postgres")
+		dbConf.GenerateDsn(c.Host, c.DbUser, c.Password, c.DbName, c.Port)
+		db, err := dbConf.InitDb()
+		if err != nil {
+			log.Fatalf("setup db err %s", err)
+		}
+		sSpService := _seederService.NewSeedSp(db)
+		_, err = sSpService.GetListFunction()
+		if err != nil {
+			log.Fatalf("get list sp from db err %s", err)
+		}
 	}
 
 	if err := sSqlHandler.ImportSql(c.GenerateCommand(opt.Notrx)); err != nil {
-		log.Fatalf("update sql file: %s", err)
+		log.Fatalf("import sql file: %s", err)
 	}
 
 	log.Println("seeding done")
