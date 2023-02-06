@@ -205,7 +205,7 @@ func GetList(input m.FilterDto, types, kodeJenisPajak string) (any, error) {
 	// pagination
 	var items []item
 	query = fmt.Sprintf(`%s ORDER BY spt."NomorSpt" DESC LIMIT %d OFFSET %d`, query, input.PageSize, offset)
-	result := a.DB.Debug().Raw(query).Scan(&items)
+	result := a.DB.Raw(query).Scan(&items)
 	if result.Error != nil {
 		return nil, result.Error
 	}
