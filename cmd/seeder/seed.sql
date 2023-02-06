@@ -34,29 +34,29 @@
 
 -- below for table have relation to child
 
--- new data
-
 -- SP order
--- sp-PenilaianBumi.sql
--- sp-Susut.sql
--- sp-FasilitasSusut.sql
--- sp-FasilitasSusutXLuas.sql
--- sp-FasilitasTidakSusut.sql
--- sp-KompMaterial.sql
--- sp-KompUtamaStd.sql
--- sp-PenilaianJPB2.sql
--- sp-PenilaianJPB3.sql
--- sp-PenilaianJPB4.sql
--- sp-PenilaianJPB5.sql
--- sp-PenilaianJPB6.sql
--- sp-PenilaianJPB7.sql
--- sp-PenilaianJPB8.sql
--- sp-PenilaianJPB9.sql
--- sp-PenilaianStandard.sql
--- sp-PenilaianJPB12.sql
--- sp-PenilaianJPB13.sql
--- sp-PenilaianJPB14.sql
--- sp-PenilaianJPB15.sql
--- sp-PenilaianJPB16.sql
--- sp-PenilaianBangunan.sql
--- sp-PenetapanMassal.sql
+\i sqls/sp-PenilaianBumi.sql
+\i sqls/sp-Susut.sql
+\i sqls/sp-FasilitasSusut.sql
+\i sqls/sp-FasilitasSusutXLuas.sql
+\i sqls/sp-FasilitasTidakSusut.sql
+\i sqls/sp-KompMaterial.sql
+\i sqls/sp-KompUtamaStd.sql
+\i sqls/sp-PenilaianJPB2.sql
+\i sqls/sp-PenilaianJPB3.sql
+\i sqls/sp-PenilaianJPB4.sql
+\i sqls/sp-PenilaianJPB5.sql
+\i sqls/sp-PenilaianJPB6.sql
+\i sqls/sp-PenilaianJPB7.sql
+\i sqls/sp-PenilaianJPB8.sql
+\i sqls/sp-PenilaianJPB9.sql
+\i sqls/sp-PenilaianStandard.sql
+\i sqls/sp-PenilaianJPB12.sql
+\i sqls/sp-PenilaianJPB13.sql
+\i sqls/sp-PenilaianJPB14.sql
+\i sqls/sp-PenilaianJPB15.sql
+\i sqls/sp-PenilaianJPB16.sql
+\i sqls/sp-PenilaianBangunan.sql
+\i sqls/sp-PenetapanMassal.sql
+
+-- new data

@@ -1,4 +1,3 @@
-DROP FUNCTION IF EXISTS "public"."susut"("tahun" int4, "tahun_dibangun" int4, "tahun_renovasi" int4, "kondisi_bangunan" bpchar, "nilai" numeric, "luas_bangunan" numeric, "flag_standard" numeric);
 CREATE OR REPLACE FUNCTION "public"."susut"("tahun" int4, "tahun_dibangun" int4, "tahun_renovasi" int4, "kondisi_bangunan" bpchar, "nilai" numeric, "luas_bangunan" numeric, "flag_standard" numeric)
   RETURNS "pg_catalog"."numeric" AS $BODY$
 declare

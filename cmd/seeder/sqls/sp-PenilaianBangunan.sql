@@ -1,4 +1,3 @@
-DROP FUNCTION IF EXISTS "public"."penilaian_bangunan"("provinsi_kode" bpchar, "daerah_kode" bpchar, "kecamatan_kode" bpchar, "kelurahan_kode" bpchar, "blok_kode" bpchar, "nourut" bpchar, "jenisop" bpchar, "nobangunan" int8, "jpb_kode" bpchar, "luas_bangunan" numeric, "jmllantai" int4, "tahun" varchar);
 CREATE OR REPLACE FUNCTION "public"."penilaian_bangunan"("provinsi_kode" bpchar, "daerah_kode" bpchar, "kecamatan_kode" bpchar, "kelurahan_kode" bpchar, "blok_kode" bpchar, "nourut" bpchar, "jenisop" bpchar, "nobangunan" int8, "jpb_kode" bpchar, "luas_bangunan" numeric, "jmllantai" int4, "tahun" varchar)
   RETURNS "pg_catalog"."numeric" AS $BODY$
 declare

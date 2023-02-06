@@ -1,4 +1,3 @@
-DROP FUNCTION IF EXISTS "public"."komp_utama_std"("provinsi_kode" bpchar, "daerah_kode" bpchar, "kecamatan_kode" bpchar, "kelurahan_kode" bpchar, "blok_kode" bpchar, "nourut" bpchar, "jenisop" bpchar, "nobangunan" int8, "tahun" varchar, "jpb_kode" bpchar, "luasbangunan" int8, "jml_lantai_bng" int4, "jeniskonstruksi" bpchar);
 CREATE OR REPLACE FUNCTION "public"."komp_utama_std"("provinsi_kode" bpchar, "daerah_kode" bpchar, "kecamatan_kode" bpchar, "kelurahan_kode" bpchar, "blok_kode" bpchar, "nourut" bpchar, "jenisop" bpchar, "nobangunan" int8, "tahun" varchar, "jpb_kode" bpchar, "luasbangunan" int8, "jml_lantai_bng" int4, "jeniskonstruksi" bpchar)
   RETURNS "pg_catalog"."numeric" AS $BODY$
 declare
