@@ -10,7 +10,6 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/seeder"
 	_seederHandler "github.com/bapenda-kota-malang/apin-backend/internal/handlers/seeder"
 	_seederService "github.com/bapenda-kota-malang/apin-backend/internal/services/seeder"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/db"
 )
 
 // func initDb(c *seeder.Config) (*gorm.DB, error) {
@@ -54,20 +53,21 @@ func main() {
 		}
 	}
 
+	// TODO: get list function from db source then create sql file
 	// update seed.sql list store procedure
-	if *opt.StoreProcedure == "sync" {
-		dbConf := db.NewDbConf("", "postgres")
-		dbConf.GenerateDsn(c.Host, c.DbUser, c.Password, c.DbName, c.Port)
-		db, err := dbConf.InitDb()
-		if err != nil {
-			log.Fatalf("setup db err %s", err)
-		}
-		sSpService := _seederService.NewSeedSp(db)
-		_, err = sSpService.GetListFunction()
-		if err != nil {
-			log.Fatalf("get list sp from db err %s", err)
-		}
-	}
+	// if *opt.StoreProcedure == "sync" {
+	// 	dbConf := db.NewDbConf("", "postgres")
+	// 	dbConf.GenerateDsn(c.Host, c.DbUser, c.Password, c.DbName, c.Port)
+	// 	db, err := dbConf.InitDb()
+	// 	if err != nil {
+	// 		log.Fatalf("setup db err %s", err)
+	// 	}
+	// 	sSpService := _seederService.NewSeedSp(db)
+	// 	_, err = sSpService.GetListFunction()
+	// 	if err != nil {
+	// 		log.Fatalf("get list sp from db err %s", err)
+	// 	}
+	// }
 
 	if err := sSqlHandler.ImportSql(c.GenerateCommand(opt.Notrx)); err != nil {
 		log.Fatalf("import sql file: %s", err)
