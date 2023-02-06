@@ -75,6 +75,16 @@ func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func UpdatebyNop(w http.ResponseWriter, r *http.Request) {
+	var data m.RequestDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+		return
+	}
+
+	result, err := s.UpdateByNop(data)
+	hh.DataResponse(w, result, err)
+}
+
 func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {

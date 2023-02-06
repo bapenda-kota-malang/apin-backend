@@ -38,7 +38,7 @@ func (i RegPstPermohonan) SetKeputusanKeberatanPbb(nop PermohonanNOP) *RegKeputu
 		KppbbId:         i.KppbbId,
 		TahunPelayanan:  i.TahunPelayanan,
 		BundelPelayanan: i.BundelPelayanan,
-		NoUrutPelayanan: i.NoPelayanan,
+		NoUrutPelayanan: i.NoUrutPelayanan,
 		PermohonanNOP:   nop,
 	}
 }

@@ -72,7 +72,7 @@ type CreateDto struct {
 	AnggotaObjekPajaks *maop.CreateDto `json:"anggotaObjekPajak"`
 	KunjunganKembalis  *mkk.CreateDto  `json:"kunjunganKembali"`
 	//nop
-	Nop        *string `json:"nop"`
+	Nop        *string `json:"nop" validate:"requiored"`
 	NopBersama *string `json:"nopBersama"`
 	NopAsal    *string `json:"nopAsal"`
 }
@@ -100,8 +100,12 @@ type UpdateDto struct {
 	Pemeriksa_Pegawai_Nip *string           `json:"pemeriksa_pegawai_nip"`
 	TanggalPerekaman      *string           `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip"`
+
 	//data wajibpajakpbb
-	WajibPajakPbbs WpCreateDto `json:"wajibPajakPbb"`
+	WajibPajakPbbs  WpCreateDto     `json:"wajibPajakPbb"`
+	ObjekPajakBumis *mopb.UpdateDto `json:"objekPajakBumi"`
+
+	Nop *string `json:"nop"`
 }
 
 type FilterDto struct {

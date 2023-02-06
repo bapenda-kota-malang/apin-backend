@@ -144,6 +144,38 @@ func Update(id int, input m.RequestDto) (any, error) {
 	}, nil
 }
 
+func UpdateByNop(input m.RequestDto) (any, error) {
+	var data *m.Sppt
+	result := a.DB.
+		Where("Propinsi_Id", &input.Propinsi_Id).
+		Where("Dati2_Id", &input.Dati2_Id).
+		Where("Kecamatan_Id", &input.Kecamatan_Id).
+		Where("Keluarahan_Id", &input.Keluarahan_Id).
+		Where("Blok_Id", &input.Blok_Id).
+		Where("NoUrut", &input.NoUrut).
+		Where("JenisOP_Id", &input.JenisOP_Id).
+		Where("TahunPajakskp_sppt", &input.TahunPajakskp_sppt).
+		First(&data)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	if err := sc.Copy(&data, &input); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
 func Delete(id int) (any, error) {
 	var data *m.Sppt
 	result := a.DB.First(&data, id)
