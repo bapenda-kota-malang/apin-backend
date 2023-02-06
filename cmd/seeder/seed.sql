@@ -35,3 +35,28 @@
 -- below for table have relation to child
 
 -- new data
+
+-- SP order
+-- sp-PenilaianBumi.sql
+-- sp-Susut.sql
+-- sp-FasilitasSusut.sql
+-- sp-FasilitasSusutXLuas.sql
+-- sp-FasilitasTidakSusut.sql
+-- sp-KompMaterial.sql
+-- sp-KompUtamaStd.sql
+-- sp-PenilaianJPB2.sql
+-- sp-PenilaianJPB3.sql
+-- sp-PenilaianJPB4.sql
+-- sp-PenilaianJPB5.sql
+-- sp-PenilaianJPB6.sql
+-- sp-PenilaianJPB7.sql
+-- sp-PenilaianJPB8.sql
+-- sp-PenilaianJPB9.sql
+-- sp-PenilaianStandard.sql
+-- sp-PenilaianJPB12.sql
+-- sp-PenilaianJPB13.sql
+-- sp-PenilaianJPB14.sql
+-- sp-PenilaianJPB15.sql
+-- sp-PenilaianJPB16.sql
+-- sp-PenilaianBangunan.sql
+-- sp-PenetapanMassal.sql

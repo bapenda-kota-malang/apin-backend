@@ -20,6 +20,10 @@ import (
 	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
 	sopp "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+
+	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
+	opbg "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+	opb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 )
 
 const source = "sppt"
@@ -290,4 +294,136 @@ func CetakDaftarTagihan(req m.GetDaftarTagihan) (any, error) {
 	return rp.OKSimple{
 		Data: xlsx,
 	}, nil
+}
+
+func PenilaianMassal(input m.PenilaianDto) (any, error) {
+	var data []m.Sppt
+
+	filter := m.Sppt{
+		Propinsi_Id:        input.Provinsi_Kode,
+		Dati2_Id:           input.Daerah_Kode,
+		Kecamatan_Id:       input.Kecamatan_Kode,
+		Keluarahan_Id:      input.Kelurahan_Kode,
+		TahunPajakskp_sppt: &input.Tahun,
+	}
+
+	result := a.DB.Where(&filter).Order("\"Id\" asc").Find(&data)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "data tidak ada", data)
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "gagal mendapatkan data: "+result.Error.Error(), data)
+	}
+
+	var res []map[string]interface{}
+	for _, v := range data {
+		var (
+			opBumiData opb.ObjekPajakBumi
+			opBngData  opbg.ObjekPajakBangunan
+		)
+
+		// get ObjekPajakBumi detail
+		fBumi := opb.ObjekPajakBumi{
+			NopDetail: nop.NopDetail{
+				Provinsi_Kode:  v.Propinsi_Id,
+				Daerah_Kode:    v.Dati2_Id,
+				Kecamatan_Kode: v.Kecamatan_Id,
+				Kelurahan_Kode: v.Keluarahan_Id,
+				Blok_Kode:      v.Blok_Id,
+				NoUrut:         v.NoUrut,
+			},
+		}
+		a.DB.Where(&fBumi).Order("\"Id\" desc").First(&opBumiData)
+
+		type RsltBumi struct {
+			PenilaianBumi *float64 `gorm:"column:penilaian_bumi"`
+		}
+		var rsltBumi RsltBumi
+		a.DB.Raw("SELECT * FROM Penilaian_Bumi(?,?,?,?,?,?,?,?,?,?,?)", v.Propinsi_Id, v.Dati2_Id, v.Kecamatan_Id, v.Keluarahan_Id, v.Blok_Id, v.NoUrut, v.JenisOP_Id, opBumiData.NoBumi, opBumiData.KodeZNT, opBumiData.LuasBumi, v.TahunPajakskp_sppt).Scan(&rsltBumi)
+
+		// get ObjekPajakBangunan detail
+		fBng := opbg.ObjekPajakBangunan{
+			NopDetail: nop.NopDetail{
+				Provinsi_Kode:  v.Propinsi_Id,
+				Daerah_Kode:    v.Dati2_Id,
+				Kecamatan_Kode: v.Kecamatan_Id,
+				Kelurahan_Kode: v.Keluarahan_Id,
+				Blok_Kode:      v.Blok_Id,
+				NoUrut:         v.NoUrut,
+			},
+		}
+		a.DB.Where(&fBng).Order("\"Id\" desc").First(&opBngData)
+
+		type RsltBng struct {
+			PenilaianBangunan *float64 `gorm:"column:penilaian_bangunan"`
+		}
+		var rsltBng RsltBng
+		a.DB.Raw("SELECT * FROM Penilaian_Bangunan(?,?,?,?,?,?,?,?,?,?,?,?)", v.Propinsi_Id, v.Dati2_Id, v.Kecamatan_Id, v.Keluarahan_Id, v.Blok_Id, v.NoUrut, v.JenisOP_Id, opBngData.NoBangunan, opBngData.Jpb_Kode, opBngData.LuasBangunan, 1, v.TahunPajakskp_sppt).Scan(&rsltBng)
+
+		njopTkp := m.NjopTkpOld
+		thnPjk, _ := strconv.Atoi(input.Tahun)
+		if thnPjk >= m.NjopTkpYear {
+			njopTkp = m.NjopTkpNew
+		}
+
+		nilaiBumi := float64(0)
+		luasBumi := float64(0)
+		nilaiBng := float64(0)
+		luasBng := float64(0)
+		if rsltBumi.PenilaianBumi != nil {
+			nilaiBumi = *rsltBumi.PenilaianBumi
+		}
+		if v.LuasBumi_sppt != nil {
+			luasBumi = float64(*v.LuasBumi_sppt)
+		}
+		if rsltBng.PenilaianBangunan != nil {
+			nilaiBng = *rsltBng.PenilaianBangunan
+		}
+		if v.LuasBangunan_sppt != nil {
+			luasBng = float64(*v.LuasBangunan_sppt)
+		}
+		njopBumi := int(nilaiBumi * luasBumi * 1000)
+		njopBng := int(nilaiBng * luasBng * 1000)
+		njopSppt := njopBumi + njopBng
+		dateNow := time.Now()
+		yearNow := time.Now().Format("2006")
+
+		newSppt := m.RequestDto{
+			Propinsi_Id:            v.Propinsi_Id,
+			Dati2_Id:               v.Dati2_Id,
+			Kecamatan_Id:           v.Kecamatan_Id,
+			Keluarahan_Id:          v.Keluarahan_Id,
+			Blok_Id:                v.Blok_Id,
+			NoUrut:                 v.NoUrut,
+			JenisOP_Id:             v.JenisOP_Id,
+			KelasTanah_Id:          v.KelasTanah_Id,
+			KelasBangunan_Id:       v.KelasBangunan_Id,
+			KelurahanWP_sppt:       v.KelurahanWP_sppt,
+			KotaWP_sppt:            v.KotaWP_sppt,
+			LuasBumi_sppt:          v.LuasBumi_sppt,
+			LuasBangunan_sppt:      v.LuasBangunan_sppt,
+			NJOPTKP_sppt:           &njopTkp,
+			NJOPBumi_sppt:          &njopBumi,
+			NJOPBangunan_sppt:      &njopBng,
+			NJOP_sppt:              &njopSppt,
+			TanggalTerbit_sppt:     (*datatypes.Date)(&dateNow),
+			TahunAwalKelasBangunan: &yearNow,
+			TahunAwalKelasTanah:    &yearNow,
+			TahunPajakskp_sppt:     &yearNow,
+		}
+
+		res = append(res, map[string]interface{}{
+			"sppt": newSppt,
+			// "penilaian_bumi":     rsltBumi,
+			// "penilaian_bangunan": rsltBng,
+			// "njop_tkp":           njopTkp,
+			// "njop_bumi":          njopBumi,
+			// "njop_bng":           njopBng,
+			// "njop_sppt":          njopSppt,
+		})
+
+		// create new sppt
+		Create(newSppt)
+
+	}
+	return rp.OKSimple{Data: res}, nil
 }
