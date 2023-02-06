@@ -182,7 +182,7 @@ func GetList(input m.FilterDto, types, kodeJenisPajak string) (any, error) {
 				INNER JOIN "ObjekPajak" op ON op."Id" = spt."ObjekPajak_Id"
 			WHERE
 				rek."KodeJenisUsaha" IN (%s) 
-				AND npwpd."JenisPajak" = '%s' 
+				AND spt."Type" = '%s' 
 				AND spt."DeletedAt" IS NULL 
 				AND npwpd."DeletedAt" IS NULL 
 		`, kodeJenisPajak, types)
