@@ -189,10 +189,11 @@ func GetList(input m.FilterDto, types, kodeJenisPajak string) (any, error) {
 
 	// query
 	if types == "OA" {
-		// query += ` AND spt."PeriodeAwal" BETWEEN date_trunc('month', current_date - interval '1 month') AND date_trunc('month', current_date) - interval '1 day' AND spt."PeriodeAkhir" BETWEEN date_trunc('month', current_date - interval '1 month') AND date_trunc('month', current_date) - interval '1 day'`
+		query += ` AND spt."PeriodeAwal" BETWEEN date_trunc('month', current_date - interval '1 month') AND date_trunc('month', current_date) - interval '1 day'`
 
 	} else if types == "SA" {
-		// query += ` AND spt."PeriodeAwal" BETWEEN date_trunc('month', current_date - interval '1 month') AND date_trunc('month', current_date) - interval '10 day' AND spt."PeriodeAkhir" BETWEEN date_trunc('month', current_date - interval '1 month') AND date_trunc('month', current_date) - interval '10 day'`
+		// if TanggalSpt day > 10
+		query += ` AND spt."TanggalSpt" > date_trunc('month', current_date) - interval '1 day'`
 	}
 
 	// query count
