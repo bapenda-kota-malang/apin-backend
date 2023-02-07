@@ -18,10 +18,12 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -204,6 +206,93 @@ func GetList(input rn.FilterDto) (interface{}, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input rn.FilterDto) (*excelize.File, error) {
+	var data []rn.RegNpwpd
+
+	result := a.DB.
+		Model(&rn.RegNpwpd{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		Preload("RegObjekPajak.Kecamatan").
+		Preload("RegObjekPajak.Kelurahan").
+		Preload("RegPemilikWps.Daerah").
+		Preload("RegPemilikWps.Kelurahan").
+		Preload("RegPemilikWps.Direktur_Daerah").
+		Preload("RegPemilikWps.Direktur_Kelurahan").
+		Preload("RegNarahubungs.Daerah").
+		Preload("RegNarahubungs.Kelurahan").
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "ID",
+			"C": "Jenis",
+			"D": "Golongan",
+			"E": "Jenis Usaha",
+			"F": "Nama WP",
+			"G": "Nama Pemilik",
+			"H": "Kecamatan",
+			"I": "Kelurahan",
+			"J": "Tgl Daftar",
+			"K": "Status",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": v.Id,
+				"C": func() string {
+					if v.JenisPajak == mt.JenisPajakOA {
+						return "OA"
+					} else if v.JenisPajak == mt.JenisPajakSA {
+						return "SA"
+					} else {
+						return ""
+					}
+				}(),
+				"D": func() string {
+					if v.Golongan == 1 {
+						return "Orang Pribadi"
+					} else if v.Golongan == 2 {
+						return "Badan"
+					} else {
+						return ""
+					}
+				}(),
+				"E": *v.Rekening.JenisUsaha,
+				"F": *v.RegObjekPajak.Nama,
+				"G": *v.RegPemilikWps[0].Nama,
+				"H": v.RegObjekPajak.Kecamatan.Nama,
+				"I": v.RegObjekPajak.Kelurahan.Nama,
+				"J": func() string {
+					return v.CreatedAt.Format("2006-01-02")
+				}(),
+				"K": func() string {
+					if v.Status == 0 {
+						return "Baru"
+					} else if v.Status == 1 || v.Status == 2 {
+						return "Disetujui"
+					} else if v.Status == 3 || v.Status == 4 {
+						return "Ditolak"
+					} else {
+						return ""
+					}
+				}(),
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
 }
 
 func GetDetail(r *http.Request, regID int) (interface{}, error) {

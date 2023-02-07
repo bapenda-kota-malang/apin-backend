@@ -374,6 +374,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", regnpwpd.GetDetail)
 		r.Delete("/{id}", regnpwpd.Delete)
 		r.Patch("/{id}", regnpwpd.Update)
+		r.Get("/download/excel", regnpwpd.DownloadExcelList)
 	})
 
 	r.Route("/potensiopwp", func(r chi.Router) {
