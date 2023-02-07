@@ -347,6 +347,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", user.Update)
 		r.Delete("/{id}", user.Delete)
 		r.Patch("/{id}/verifikasi", user.Verifikasi)
+		r.Get("/download/excel", user.DownloadExcelList)
 	})
 
 	r.Route("/group", func(r chi.Router) {
