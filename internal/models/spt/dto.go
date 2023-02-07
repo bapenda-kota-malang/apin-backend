@@ -28,18 +28,19 @@ type CreateDto struct {
 	IdBT             *uint64         `json:"idBT"`
 	VaJatim          *string         `json:"-"`
 	// for reklame
-	JumlahTahun     *float64 `json:"jumlahTahun"`
-	JumlahBulan     *float64 `json:"jumlahBulan"`
-	JumlahMinggu    *float64 `json:"jumlahMinggu"`
-	JumlahHari      *float64 `json:"jumlahHari"`
-	Gambar          *string  `json:"gambar" validate:"base64=image;b64size=1024"`
-	KeteranganPajak *string  `json:"keteranganPajak"`
-	KoefisienPajak  *uint64  `json:"koefisienPajak"`
-	NamaProduk      *string  `json:"namaProduk"`
-	NomorRegister   *string  `json:"nomorRegister"`
-	JudulReklame    *string  `json:"judulReklame"`
-	NamaPenyewa     *string  `json:"namaPenyewa"`
-	AlamatPenyewa   *string  `json:"alamatPenyewa"`
+	JenisMasaPajakReklame *JenisMasa `json:"jenisMasaPajakReklame"`
+	JumlahTahun           *float64   `json:"jumlahTahun"`
+	JumlahBulan           *float64   `json:"jumlahBulan"`
+	JumlahMinggu          *float64   `json:"jumlahMinggu"`
+	JumlahHari            *float64   `json:"jumlahHari"`
+	Gambar                *string    `json:"gambar" validate:"base64=image;b64size=1024"`
+	KeteranganPajak       *string    `json:"keteranganPajak"`
+	KoefisienPajak        *uint64    `json:"koefisienPajak"`
+	NamaProduk            *string    `json:"namaProduk"`
+	NomorRegister         *string    `json:"nomorRegister"`
+	JudulReklame          *string    `json:"judulReklame"`
+	NamaPenyewa           *string    `json:"namaPenyewa"`
+	AlamatPenyewa         *string    `json:"alamatPenyewa"`
 	// skdpdkb
 	JenisKetetapan *JenisKetetapan `json:"jenisKetetapan"`
 	DasarPengenaan *string         `json:"dasarPengenaan"`
@@ -55,44 +56,45 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
-	Npwpd_Id         uint64          `json:"-"`
-	ObjekPajak_Id    uint64          `json:"objekPajak_id"`
-	Rekening_Id      *uint64         `json:"rekening_id"`
-	LuasLokasi       *string         `json:"luasLokasi"`
-	Description      *string         `json:"description"`
-	PeriodeAwal      *datatypes.Date `json:"-"`
-	PeriodeAkhir     *datatypes.Date `json:"-"`
-	TarifPajak_Id    *uint64         `json:"-"`
-	Omset            *float64        `json:"omset"`
-	JumlahPajak      *float64        `json:"-"`
-	Lampiran         *string         `json:"lampiran" validate:"base64=pdf,image,excel;b64size=1024"`
-	JatuhTempo       *datatypes.Date `json:"-"`
-	Sunset           *datatypes.Date `json:"sunset,omitempty"`
-	KodeBilling      *string         `json:"kodeBilling"`
-	Status           *SptStatus      `json:"-"`
-	TanggalLunas     *time.Time      `json:"tanggalLunas"`
-	BatalPenetapan   *string         `json:"batalPenetapan"`
-	IdBT             *uint64         `json:"idBT"`
-	JumlahTahun      *float64        `json:"jumlahTahun"`
-	JumlahBulan      *float64        `json:"jumlahBulan"`
-	JumlahMinggu     *float64        `json:"jumlahMinggu"`
-	JumlahHari       *float64        `json:"jumlahHari"`
-	Gambar           *string         `json:"gambar"`
-	KeteranganPajak  *string         `json:"keteranganPajak"`
-	KoefisienPajak   *uint64         `json:"koefisienPajak"`
-	NamaProduk       *string         `json:"productName"`
-	NomorRegister    *string         `json:"registerNumber"`
-	VaJatim          *string         `json:"vaJatim"`
-	JenisKetetapan   *JenisKetetapan `json:"jenisKetetapan"`
-	Kenaikan         *float64        `json:"kenaikan"`
-	Bunga            *float64        `json:"bunga"`
-	Denda            *float64        `json:"denda"`
-	Pengurangan      *float64        `json:"pengurangan"`
-	Total            *float64        `json:"total"`
-	Ref_Spt_Id       *uint64         `json:"ref_spt_id"`
-	BillingPenetapan *string         `json:"billingPenetapan"`
-	Teguran_Id       *uint64         `json:"teguran_id"`
-	IsTeguran        *bool           `json:"isTeguran"`
+	Npwpd_Id              uint64          `json:"-"`
+	ObjekPajak_Id         uint64          `json:"objekPajak_id"`
+	Rekening_Id           *uint64         `json:"rekening_id"`
+	LuasLokasi            *string         `json:"luasLokasi"`
+	Description           *string         `json:"description"`
+	PeriodeAwal           *datatypes.Date `json:"-"`
+	PeriodeAkhir          *datatypes.Date `json:"-"`
+	TarifPajak_Id         *uint64         `json:"-"`
+	Omset                 *float64        `json:"omset"`
+	JumlahPajak           *float64        `json:"-"`
+	Lampiran              *string         `json:"lampiran" validate:"base64=pdf,image,excel;b64size=1024"`
+	JatuhTempo            *datatypes.Date `json:"-"`
+	Sunset                *datatypes.Date `json:"sunset,omitempty"`
+	KodeBilling           *string         `json:"kodeBilling"`
+	Status                *SptStatus      `json:"-"`
+	TanggalLunas          *time.Time      `json:"tanggalLunas"`
+	BatalPenetapan        *string         `json:"batalPenetapan"`
+	IdBT                  *uint64         `json:"idBT"`
+	JenisMasaPajakReklame *JenisMasa      `json:"jenisMasaPajakReklame"`
+	JumlahTahun           *float64        `json:"jumlahTahun"`
+	JumlahBulan           *float64        `json:"jumlahBulan"`
+	JumlahMinggu          *float64        `json:"jumlahMinggu"`
+	JumlahHari            *float64        `json:"jumlahHari"`
+	Gambar                *string         `json:"gambar"`
+	KeteranganPajak       *string         `json:"keteranganPajak"`
+	KoefisienPajak        *uint64         `json:"koefisienPajak"`
+	NamaProduk            *string         `json:"productName"`
+	NomorRegister         *string         `json:"registerNumber"`
+	VaJatim               *string         `json:"vaJatim"`
+	JenisKetetapan        *JenisKetetapan `json:"jenisKetetapan"`
+	Kenaikan              *float64        `json:"kenaikan"`
+	Bunga                 *float64        `json:"bunga"`
+	Denda                 *float64        `json:"denda"`
+	Pengurangan           *float64        `json:"pengurangan"`
+	Total                 *float64        `json:"total"`
+	Ref_Spt_Id            *uint64         `json:"ref_spt_id"`
+	BillingPenetapan      *string         `json:"billingPenetapan"`
+	Teguran_Id            *uint64         `json:"teguran_id"`
+	IsTeguran             *bool           `json:"isTeguran"`
 }
 
 type VerifyDto struct {

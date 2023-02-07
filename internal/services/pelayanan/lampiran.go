@@ -1,41 +1,54 @@
 package permohonan
 
 import (
+	"strings"
 	"sync"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
+	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
 func CreateLampiran(input m.PstLampiranCreateDTO, userId uint, tx *gorm.DB) (data m.PstLampiran, err error) {
+	var (
+		fileName string
+		path     string
+		extFile  string
+	)
 	// TODO: lampiran section
 	id, err := sh.GetUuidv4()
 	if err != nil {
 		return
 	}
 
+	result := a.DB.Where("PermohonanId", input.PermohonanId).First(&data)
 	data.PermohonanId = input.PermohonanId
+	data.BuktiKepemilikan = input.BuktiKepemilikan
 
 	var errChan = make(chan error, 16)
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	fileName, path, extFile, _, err := sh.FilePreProcess(*input.LampiranAkte, "lampiranAkte", userId, id)
-	if err != nil {
-		return
+	if input.LampiranKTP != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranKTP, "lampiranKTP", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranKTP, fileName, path, extFile, errChan)
+		data.LampiranKTP = &fileName
 	}
-	go sh.BulkSaveFile(&wg, *input.LampiranAkte, fileName, path, extFile, errChan)
-	data.LampiranAkte = &fileName
 
-	wg.Add(1)
-	fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranKTP, "lampiranKTP", userId, id)
-	if err != nil {
-		return
+	if input.LampiranAkte != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranAkte, "lampiranAkte", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranAkte, fileName, path, extFile, errChan)
+		data.LampiranAkte = &fileName
 	}
-	go sh.BulkSaveFile(&wg, *input.LampiranKTP, fileName, path, extFile, errChan)
-	data.LampiranKTP = &fileName
 
 	if input.LampiranImb != nil {
 		wg.Add(1)
@@ -65,6 +78,26 @@ func CreateLampiran(input m.PstLampiranCreateDTO, userId uint, tx *gorm.DB) (dat
 		}
 		go sh.BulkSaveFile(&wg, *input.LampiranLikuid, fileName, path, extFile, errChan)
 		input.LampiranLikuid = &fileName
+	}
+
+	if input.LampiranLaporanKeuangan != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranLaporanKeuangan, "lampiranLaporanKeuangan", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranLaporanKeuangan, fileName, path, extFile, errChan)
+		input.LampiranLaporanKeuangan = &fileName
+	}
+
+	if input.LampiranSlipGaji != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranSlipGaji, "lampiranSlipGaji", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranSlipGaji, fileName, path, extFile, errChan)
+		input.LampiranSlipGaji = &fileName
 	}
 
 	if input.LampiranPermohonan != nil {
@@ -137,6 +170,26 @@ func CreateLampiran(input m.PstLampiranCreateDTO, userId uint, tx *gorm.DB) (dat
 		data.LampiranSkPensiun = &fileName
 	}
 
+	if input.LampiranSK != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranSK, "lampiranSK", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranSK, fileName, path, extFile, errChan)
+		data.LampiranSK = &fileName
+	}
+
+	if input.LampiranKK != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranKK, "lampiranKK", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranKK, fileName, path, extFile, errChan)
+		data.LampiranKK = &fileName
+	}
+
 	if input.LampiranSkkpPbb != nil {
 		wg.Add(1)
 		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranSkkpPbb, "lampiranSkkpPbb", userId, id)
@@ -158,13 +211,19 @@ func CreateLampiran(input m.PstLampiranCreateDTO, userId uint, tx *gorm.DB) (dat
 	}
 
 	if input.LampiranSppt != nil {
-		wg.Add(1)
-		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranSppt, "lampiranSppt", userId, id)
-		if err != nil {
-			return
+		tempSPPT := *input.LampiranSppt
+		var tempResult []string
+		for _, item := range tempSPPT {
+			wg.Add(1)
+			fileName, path, extFile, _, err = sh.FilePreProcess(item, "lampiranSppt", userId, id)
+			if err != nil {
+				return
+			}
+			go sh.BulkSaveFile(&wg, item, fileName, path, extFile, errChan)
+			tempResult = append(tempResult, fileName)
 		}
-		go sh.BulkSaveFile(&wg, *input.LampiranSppt, fileName, path, extFile, errChan)
-		data.LampiranSppt = &fileName
+		joinResult := strings.Join(tempResult, ", ")
+		data.LampiranSppt = &joinResult
 	}
 
 	if input.LampiranSpptStts != nil {
@@ -187,6 +246,42 @@ func CreateLampiran(input m.PstLampiranCreateDTO, userId uint, tx *gorm.DB) (dat
 		data.LampiranSuratKuasa = &fileName
 	}
 
+	if input.LampiranLetakOP != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranLetakOP, "lampiranLetakOP", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranLetakOP, fileName, path, extFile, errChan)
+		data.LampiranLetakOP = &fileName
+	}
+
+	if input.LampiranFotoOP != nil {
+		tempFotoOP := *input.LampiranFotoOP
+		var tempResult []string
+		for _, item := range tempFotoOP {
+			wg.Add(1)
+			fileName, path, extFile, _, err = sh.FilePreProcess(item, "lampiranFotoOP", userId, id)
+			if err != nil {
+				return
+			}
+			go sh.BulkSaveFile(&wg, item, fileName, path, extFile, errChan)
+			tempResult = append(tempResult, fileName)
+		}
+		joinResult := strings.Join(tempResult, ", ")
+		data.LampiranFotoOP = &joinResult
+	}
+
+	if input.LampiranHakMilik != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranHakMilik, "lampiranHakMilik", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranHakMilik, fileName, path, extFile, errChan)
+		data.LampiranHakMilik = &fileName
+	}
+
 	if err = sc.Copy(&data, &input); err != nil {
 		return
 	}
@@ -202,8 +297,15 @@ func CreateLampiran(input m.PstLampiranCreateDTO, userId uint, tx *gorm.DB) (dat
 			return
 		}
 	}
-	if result := tx.Create(&data); result.Error != nil {
-		err = result.Error
+
+	if result.RowsAffected > 0 {
+		if result := tx.Where("PermohonanId", input.PermohonanId).Save(&data); result.Error != nil {
+			err = result.Error
+		}
+	} else {
+		if result := tx.Create(&data); result.Error != nil {
+			err = result.Error
+		}
 	}
 	return
 }

@@ -16,7 +16,6 @@ type JaminanBongkar struct {
 	Spt_Id             uuid.UUID       `json:"spt_Id" gorm:"type:uuid"`
 	Nomor              string          `json:"nomor" gorm:"type:varchar(20)"`
 	Tanggal            datatypes.Date  `json:"tanggal"`
-	JenisReklame       JenisReklame    `json:"jenisReklame" gorm:"type:smallint"`
 	TipeReklame        *uint8          `json:"tipeReklame" gorm:"type:smallint"`
 	TarifJambong_Id    *uint64         `json:"tarifJambong_id"`
 	TarifJambongRek_Id *uint64         `json:"tarifJambongRek_id"`
@@ -37,7 +36,6 @@ type JaminanBongkar struct {
 type CreateDto struct {
 	Spt_Id         *uuid.UUID               `json:"spt_id" validate:"required"`
 	Tanggal        datatypes.Date           `json:"tanggal" validate:"required"`
-	JenisReklame   JenisReklame             `json:"jenisReklame" validate:"required"`
 	TipeReklame    *uint8                   `json:"tipeReklame"`
 	TanggalBatas   *datatypes.Date          `json:"TanggalBatas"`
 	BiayaPemutusan float64                  `json:"biayaPemutusan"`
@@ -46,7 +44,6 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Tanggal        *datatypes.Date          `json:"tanggal"`
-	JenisReklame   *JenisReklame            `json:"jenisReklame"`
 	TipeReklame    *uint8                   `json:"tipeReklame"`
 	TanggalBatas   *datatypes.Date          `json:"TanggalBatas"`
 	BiayaPemutusan *float64                 `json:"biayaPemutusan"`
@@ -57,7 +54,6 @@ type FilterDto struct {
 	Spt_Id             *uuid.UUID      `json:"spt_id"`
 	Nomor              *string         `json:"nomor"`
 	Tanggal            *datatypes.Date `json:"tanggal"`
-	JenisReklame       *JenisReklame   `json:"jenisReklame"`
 	TipeReklame        *uint8          `json:"tipeReklame"`
 	TarifJambong_Id    *uint64         `json:"tarifJambong_id"`
 	TarifJambongRek_Id *uint64         `json:"tarifJambongRek_id"`
