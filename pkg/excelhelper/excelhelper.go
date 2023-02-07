@@ -18,7 +18,7 @@ func ExportList(data []interface{}, sn string) (*excelize.File, error) {
 			case string, int:
 				xlsx.SetCellValue(sn, fmt.Sprintf("%s%d", string(col), r), t)
 			default:
-				fmt.Println("wrong type")
+				fmt.Println("wrong type " + string(col))
 			}
 			c = c + 1
 		}
