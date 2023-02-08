@@ -11,11 +11,13 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 	"github.com/lib/pq"
+	"github.com/xuri/excelize/v2"
 
 	mpegawai "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
@@ -387,4 +389,80 @@ func Delete(id uuid.UUID) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
+	var data []m.PotensiOp
+
+	result := a.DB.Model(&m.PotensiOp{}).
+		Scopes(gh.Filter(input)).
+		Preload("Rekening").
+		Preload("PotensiPemilikWp").
+		Preload("DetailPotensiOp.Kecamatan").
+		Preload("DetailPotensiOp.Kelurahan").
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "Golongan",
+			"C": "Nomor",
+			"D": "Jenis Usaha",
+			"E": "Nama WP",
+			"F": "Nama Pemilik",
+			"G": "Kecamatan",
+			"H": "Kelurahan",
+			"I": "Tanggal",
+			"J": "Status",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": func() string {
+					if v.Golongan == 1 {
+						return "Orang Pribadi"
+					} else if v.Golongan == 2 {
+						return "Badan"
+					} else {
+						return ""
+					}
+				}(),
+				"C": v.Id,
+				"D": *v.Rekening.JenisUsaha,
+				"E": v.DetailPotensiOp.Nama,
+				"F": func() string {
+					if v.PotensiPemilikWp != nil {
+						for _, r := range *v.PotensiPemilikWp {
+							return r.Nama
+						}
+					}
+					return ""
+				},
+				"G": v.DetailPotensiOp.Kecamatan.Nama,
+				"H": v.DetailPotensiOp.Kelurahan.Nama,
+				"I": func() string {
+					return v.CreatedAt.Format("2006-01-02")
+				}(),
+				"J": func() string {
+					if v.Status == 0 {
+						return "Baru"
+					} else if v.Status == 1 || v.Status == 2 {
+						return "Disetujui"
+					} else if v.Status == 3 || v.Status == 4 {
+						return "Ditolak"
+					} else {
+						return ""
+					}
+				}(),
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
 }

@@ -3,6 +3,7 @@ package excelhelper
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -15,7 +16,7 @@ func ExportList(data []interface{}, sn string) (*excelize.File, error) {
 		c := 0
 		for col, val := range v.(map[string]interface{}) {
 			switch t := val.(type) {
-			case string, int, uint64:
+			case string, int, uint64, uuid.UUID:
 				xlsx.SetCellValue(sn, fmt.Sprintf("%s%d", string(col), r), t)
 			default:
 				fmt.Println("wrong type " + string(col))
