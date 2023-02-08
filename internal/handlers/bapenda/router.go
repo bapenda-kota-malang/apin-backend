@@ -462,6 +462,7 @@ func SetRoutes() http.Handler {
 
 	r.Route("/skpdkb", func(r chi.Router) {
 		r.Get("/", spt.SkpdkbGetList)
+		r.Get("/{id}", spt.GetDetail)
 		r.Post("/existing/{type}", spt.SkpdkbExisting)
 		r.Post("/new/{type}", spt.SkpdNew)
 	})
@@ -595,7 +596,11 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
 
-	rh.RegCrud(r, "/penetapan-massal", penetapanmassal.Crud{})
+	// rh.RegCrud(r, "/penetapan-massal", penetapanmassal.Crud{})
+	r.Route("/penetapan-massal", func(r chi.Router) {
+		r.Get("/", penetapanmassal.GetList)
+		r.Post("/copy", penetapanmassal.Copy)
+	})
 
 	return r
 }
