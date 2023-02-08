@@ -567,6 +567,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", objekpajakpbb.Create)
 		r.Get("/", objekpajakpbb.GetList)
 		r.Get("/{id}", objekpajakpbb.GetDetail)
+		r.Get("/download/excel", objekpajakpbb.DownloadExcelList)
 	})
 
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
