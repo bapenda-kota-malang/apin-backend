@@ -238,6 +238,15 @@ func EndOfMonth(date time.Time) time.Time {
 	return BeginningOfMonth(date).AddDate(0, 1, 0).Add(-time.Nanosecond)
 }
 
+// get end of previous month
+//
+// e.g now = 2022-10-11 22:33:44 +0700 WIB
+//
+// EndOfPreviousMonth() = 2022-09-30 23:59:59.999999999 +0700 WIB
+func EndOfPreviousMonth() time.Time {
+	return EndOfMonth(time.Now()).AddDate(0, -1, 0)
+}
+
 // get next midnight
 //
 // e.g now = 2022-10-11 22:33:44 +0700 WIB
@@ -688,4 +697,8 @@ func FormatCurrency(value float64) string {
 func ParseCurrency(value string) (float64, error) {
 	value = strings.ReplaceAll(value, ",", "")
 	return strconv.ParseFloat(value, 64)
+}
+
+func CurrentDate() time.Time {
+	return time.Now()
 }

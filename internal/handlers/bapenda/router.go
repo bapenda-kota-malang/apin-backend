@@ -92,6 +92,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/referensibank"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regobjekpajakbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regobjekpajakpbb"
+	regpermohonan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regpelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/reklas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/satuankerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/sektor"
@@ -328,6 +329,15 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", permohonan.Delete)
 	})
 
+	r.Route("/regpermohonan", func(r chi.Router) {
+		r.Patch("/{id}/status", regpermohonan.UpdateStatus)
+		r.Post("/", regpermohonan.Create)
+		r.Get("/", regpermohonan.GetList)
+		r.Get("/{id}", regpermohonan.GetDetail)
+		r.Patch("/{id}", regpermohonan.Update)
+		r.Delete("/{id}", regpermohonan.Delete)
+	})
+
 	r.Route("/statnop", func(r chi.Router) {
 		r.Get("/{id}", permohonan.GetStatusNOP)
 	})
@@ -453,6 +463,7 @@ func SetRoutes() http.Handler {
 
 	r.Route("/skpdkb", func(r chi.Router) {
 		r.Get("/", spt.SkpdkbGetList)
+		r.Get("/{id}", spt.GetDetail)
 		r.Post("/existing/{type}", spt.SkpdkbExisting)
 		r.Post("/new/{type}", spt.SkpdNew)
 	})
@@ -585,6 +596,11 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/jaminanbongkar", jaminanbongkar.Crud{})
 
 	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
+
+	r.Route("/penetapan-massal", func(r chi.Router) {
+		r.Get("/", penetapanmassal.GetList)
+		r.Post("/copy", penetapanmassal.Copy)
+	})
 
 	r.Route("/penilaian", func(r chi.Router) {
 		r.Post("/massal", penilaian.Massal)
