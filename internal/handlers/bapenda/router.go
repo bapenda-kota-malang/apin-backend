@@ -259,6 +259,7 @@ func SetRoutes() http.Handler {
 	r.Get("/dbkbjpb8/download/excel", dbkbjpb8.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb9", dbkbjpb9.Crud{})
+	r.Get("/dbkbjpb9/download/excel", dbkbjpb9.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb12", dbkbjpb12.Crud{})
 

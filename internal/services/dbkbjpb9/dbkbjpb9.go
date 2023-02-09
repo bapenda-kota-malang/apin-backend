@@ -4,10 +4,12 @@ import (
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
@@ -126,4 +128,52 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
+	var data []m.DbkbJpb9
+
+	result := a.DB.
+		Model(&m.DbkbJpb9{}).
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data dbkbjpb8", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "Kode Prov.",
+			"C": "Kode Kota",
+			"D": "Tahun",
+			"E": "Kelas",
+			"F": "Min",
+			"G": "Max",
+			"H": "Nilai",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": *v.Provinsi_Kode,
+				"C": *v.Daerah_Kode,
+				"D": *v.TahunDbkbJpb9,
+				"E": *v.KelasDbkbJpb9,
+				"F": *v.LantaiMinJpb9,
+				"G": *v.LantaiMaxJpb9,
+				"H": func() string {
+					if v.NilaiDbkbJpb9 != nil {
+						s := strconv.FormatFloat(*v.NilaiDbkbJpb9, 'f', 0, 64)
+						return s
+					}
+					return ""
+				}(),
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
 }
