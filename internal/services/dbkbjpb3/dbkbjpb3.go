@@ -72,7 +72,7 @@ func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
 		Scopes(gh.Filter(input)).
 		Find(&data)
 	if result.Error != nil {
-		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data dbkbjpb2", data)
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data dbkbjpb3", data)
 		return nil, err
 	}
 
