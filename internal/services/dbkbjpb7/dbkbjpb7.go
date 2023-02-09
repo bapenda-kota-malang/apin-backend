@@ -168,7 +168,7 @@ func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
 				"H": *v.LantaiMaxJpb7,
 				"I": func() string {
 					if v.NilaiDbkbJp75 != nil {
-						s := strconv.FormatFloat(*v.NilaiDbkbJp75, 'f', 6, 64)
+						s := strconv.FormatFloat(*v.NilaiDbkbJp75, 'f', 0, 64)
 						return s
 					}
 					return ""
