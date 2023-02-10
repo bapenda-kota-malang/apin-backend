@@ -198,10 +198,11 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 		opts = "="
 	}
 
-	if input.JatuhTempo == nil && input.JenisKetetapan_Opt == nil || *input.JenisKetetapan_Opt == "IS NULL" {
-		dataDateNow := datatypes.Date(time.Now())
-		input.JatuhTempo = &dataDateNow
-	}
+	// TODO: hapus filter date now ini
+	// if input.JatuhTempo == nil && input.JenisKetetapan_Opt == nil || *input.JenisKetetapan_Opt == "IS NULL" {
+	// 	dataDateNow := datatypes.Date(time.Now())
+	// 	input.JatuhTempo = &dataDateNow
+	// }
 
 	if input.JenisKetetapan_Opt != nil && (*input.JenisKetetapan_Opt == "IS NOT NULL" || *input.JenisKetetapan_Opt == "IS NULL") {
 		baseQuery.Where(fmt.Sprintf("\"JenisKetetapan\" %s", *input.JenisKetetapan_Opt))
