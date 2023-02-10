@@ -130,6 +130,7 @@ type PstPermohonanResponse struct {
 	PstDataOPBaru            *PstDataOPBaru            `json:"pstBaru"`
 	PstDetail                *PstDetail                `json:"pstDetil"`
 	PstPermohonanPengurangan *PstPermohonanPengurangan `json:"pstPengurangan"`
+	PstLampiran              *PstLampiran              `json:"pstLampiran"`
 
 	// PembetulanSpptSKPSTP     *PembetulanSpptSKPSTP     `json:"pembetulanSpptSKPSTP"`
 	// PembatalanSppt           *PembatalanSppt           `json:"pembatalanSppt"`
