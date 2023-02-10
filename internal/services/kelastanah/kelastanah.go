@@ -79,7 +79,9 @@ func GetDetail(id int) (any, error) {
 
 func GetDetailByCode(kd string) (interface{}, error) {
 	var data *m.KelasTanah
-	result := a.DB.Where("KdTanah", kd).First(&data)
+	result := a.DB.Where(&m.KelasTanah{
+		KdTanah: kd,
+	}).Order("\"Id\" desc").First(&data)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {

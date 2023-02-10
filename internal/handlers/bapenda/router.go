@@ -85,6 +85,7 @@ import (
 	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penagihan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pengurangan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penilaian"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/provinsi"
@@ -596,6 +597,10 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
 
+	r.Route("/penilaian", func(r chi.Router) {
+		r.Post("/massal", penilaian.Massal)
+	})
+  
 	// rh.RegCrud(r, "/penetapan-massal", penetapanmassal.Crud{})
 	r.Route("/penetapan-massal", func(r chi.Router) {
 		r.Get("/", penetapanmassal.GetList)
