@@ -4,10 +4,12 @@ import (
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
@@ -140,4 +142,69 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
+	var data []m.KelasBangunan
+
+	result := a.DB.
+		Model(&m.KelasBangunan{}).
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data kelas bangunan", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "Kode",
+			"C": "Tahun Awal",
+			"D": "Tahun Akhir",
+			"E": "Nilai Min",
+			"F": "Nilai Max",
+			"G": "Nilai /m2",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": v.KdBangunan,
+				"C": func() string {
+					if v.TahunAwalKelasBangunan != nil {
+						return *v.TahunAwalKelasBangunan
+					}
+					return ""
+				}(),
+				"D": func() string {
+					if v.TahunAkhirKelasBangunan != nil {
+						return *v.TahunAkhirKelasBangunan
+					}
+					return ""
+				}(),
+				"E": func() string {
+					if v.NilaiMinBangunan != nil {
+						return strconv.FormatFloat(*v.NilaiMinBangunan, 'f', 0, 64)
+					}
+					return ""
+				}(),
+				"F": func() string {
+					if v.NilaiMaxBangunan != nil {
+						return strconv.FormatFloat(*v.NilaiMaxBangunan, 'f', 0, 64)
+					}
+					return ""
+				}(),
+				"G": func() string {
+					if v.NilaiPerM2Bangunan != nil {
+						return strconv.FormatFloat(*v.NilaiPerM2Bangunan, 'f', 0, 64)
+					}
+					return ""
+				}(),
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
 }
