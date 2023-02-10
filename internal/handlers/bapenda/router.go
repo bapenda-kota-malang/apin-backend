@@ -482,6 +482,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", espt.GetList)
 		r.Get("/{id}", espt.GetDetail)
 		r.Patch("/{id}/verify", espt.Verify)
+		r.Get("/download/excel", espt.DownloadExcelList)
 	})
 
 	r.Route("/sspd", func(r chi.Router) {
