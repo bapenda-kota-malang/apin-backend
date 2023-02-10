@@ -205,3 +205,23 @@ type GetDaftarTagihan struct {
 	KetetapanPBBAwal  *string `json:"ketetapanPBBAwal"`
 	KetetapanPBBAkhir *string `json:"ketetapanPBBAkhir"`
 }
+
+type PenetapanMassalDto struct {
+	Provinsi_Kode  *string   `json:"provinsi_kode"`
+	Daerah_Kode    *string   `json:"daerah_kode"`
+	Kecamatan_Kode *string   `json:"kecamatan_kode"`
+	Kelurahan_Kode *string   `json:"kelurahan_kode"`
+	Tahun          string    `json:"tahun"`
+	TglJatuhTempo1 string    `json:"tglJatuhTempo1"`
+	TglJatuhTempo2 string    `json:"tglJatuhTempo2"`
+	TglJatuhTempo3 string    `json:"tglJatuhTempo3"`
+	TglJatuhTempo4 string    `json:"tglJatuhTempo4"`
+	TglJatuhTempo5 string    `json:"tglJatuhTempo5"`
+	TglTerbit1     string    `json:"tglTerbit1"`
+	TglTerbit2     string    `json:"tglTerbit2"`
+	TglTerbit3     string    `json:"tglTerbit3"`
+	TglTerbit4     string    `json:"tglTerbit4"`
+	TglTerbit5     string    `json:"tglTerbit5"`
+	BukuMin        []float64 `json:"bukuMin"`
+	BukuMax        []float64 `json:"bukuMax"`
+}

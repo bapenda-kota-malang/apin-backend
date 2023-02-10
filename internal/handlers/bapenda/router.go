@@ -606,5 +606,9 @@ func SetRoutes() http.Handler {
 		r.Post("/massal", penilaian.Massal)
 	})
 
+	r.Route("/pbb", func(r chi.Router) {
+		r.Post("/penetapan-massal", sppt.PenetapanMassal)
+	})
+
 	return r
 }
