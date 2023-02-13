@@ -76,6 +76,33 @@ func GetListVerifikasi(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func DownloadExcelListVerifikasi(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterDto
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
+		return
+	}
+
+	authInfo, ok := r.Context().Value("authInfo").(*auth.AuthInfo)
+	if !ok {
+		hj.WriteJSON(w, http.StatusUnauthorized, nil, nil)
+		return
+	}
+
+	tp := hh.ValidateString(w, r, "tp")
+	if tp == "" {
+		return
+	}
+
+	result, err := s.DownloadExcelListVerifikasi(input, authInfo.Jabatan_Id, tp)
+	if err != nil {
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=list_verfikasi_bphtb.xlsx")
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+	result.Write(w)
+}
+
 func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
 	if !pass {

@@ -292,6 +292,7 @@ func SetRoutes() http.Handler {
 
 	r.Route("/bphtbsptpd-approval", func(r chi.Router) {
 		r.Get("/{tp}", bphtbsptpd.GetListVerifikasi)
+		r.Get("/{tp}/download/excel", bphtbsptpd.DownloadExcelListVerifikasi)
 		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
 	})
 
