@@ -24,6 +24,7 @@ import (
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	opbg "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	opb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	pn "github.com/bapenda-kota-malang/apin-backend/internal/models/penetapan"
 )
 
 const source = "sppt"
@@ -457,5 +458,99 @@ func PenilaianMassal(input m.PenilaianDto) (any, error) {
 		Create(newSppt)
 
 	}
+	return rp.OKSimple{Data: res}, nil
+}
+
+func PenetapanMassal(input m.PenetapanMassalDto) (any, error) {
+	var data []m.Sppt
+
+	filter := m.Sppt{
+		Propinsi_Id:        input.Provinsi_Kode,
+		Dati2_Id:           input.Daerah_Kode,
+		Kecamatan_Id:       input.Kecamatan_Kode,
+		Keluarahan_Id:      input.Kelurahan_Kode,
+		TahunPajakskp_sppt: &input.Tahun,
+	}
+
+	result := a.DB.Where(&filter).Order("\"Id\" asc").Find(&data)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "data tidak ada", data)
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "gagal mendapatkan data: "+result.Error.Error(), data)
+	}
+
+	var rfBuku []pn.ReferensiBuku
+	var minValue, maxValue []float64
+	rBuku := a.DB.Order("\"Id\" asc").Find(&rfBuku)
+
+	if rBuku.RowsAffected == 0 {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "data referensi buku tidak ada", data)
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "gagal mendapatkan data: "+result.Error.Error(), data)
+	}
+
+	for _, rb := range rfBuku {
+		minValue = append(minValue, *rb.NilaiMin)
+		maxValue = append(maxValue, *rb.NilaiMax)
+	}
+	input.BukuMin = minValue
+	input.BukuMax = maxValue
+
+	var res []map[string]interface{}
+	for _, v := range data {
+		var (
+			opBumiData opb.ObjekPajakBumi
+			opBngData  opbg.ObjekPajakBangunan
+		)
+
+		// get ObjekPajakBumi detail
+		fBumi := opb.ObjekPajakBumi{
+			NopDetail: nop.NopDetail{
+				Provinsi_Kode:  v.Propinsi_Id,
+				Daerah_Kode:    v.Dati2_Id,
+				Kecamatan_Kode: v.Kecamatan_Id,
+				Kelurahan_Kode: v.Keluarahan_Id,
+				Blok_Kode:      v.Blok_Id,
+				NoUrut:         v.NoUrut,
+			},
+		}
+		a.DB.Where(&fBumi).Order("\"Id\" desc").First(&opBumiData)
+
+		// get ObjekPajakBangunan detail
+		fBng := opbg.ObjekPajakBangunan{
+			NopDetail: nop.NopDetail{
+				Provinsi_Kode:  v.Propinsi_Id,
+				Daerah_Kode:    v.Dati2_Id,
+				Kecamatan_Kode: v.Kecamatan_Id,
+				Kelurahan_Kode: v.Keluarahan_Id,
+				Blok_Kode:      v.Blok_Id,
+				NoUrut:         v.NoUrut,
+			},
+		}
+		a.DB.Where(&fBng).Order("\"Id\" desc").First(&opBngData)
+
+		type SPRslt struct {
+			PenetepanMassal *float64 `gorm:"column:penetapan_massal"`
+		}
+		var spRslt SPRslt
+
+		// select * ReferensiBuku
+		MinB1 := minValue[0]
+		MaxB1 := maxValue[0]
+		MinB2 := minValue[1]
+		MaxB2 := maxValue[1]
+		MinB3 := minValue[2]
+		MaxB3 := maxValue[2]
+		MinB4 := minValue[3]
+		MaxB4 := maxValue[3]
+		MinB5 := minValue[4]
+		MaxB5 := maxValue[4]
+
+		nip := "123456789"
+		nipTgl := time.Now().Format("2006-01-02")
+		a.DB.Raw("SELECT * FROM Penetapan_Massal(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", v.Propinsi_Id, v.Dati2_Id, v.Kecamatan_Id, v.Keluarahan_Id, v.Blok_Id, v.NoUrut, v.JenisOP_Id, v.NoPersil_sppt, v.NJOPBumi_sppt, v.NJOPBangunan_sppt, v.LuasBumi_sppt, v.LuasBangunan_sppt, 1, v.KanwilBank_Id, v.KPPBBbank_Id, v.BankTunggal_Id, v.BankPersepsi_Id, v.TP_Id, v.NJOPTKP_sppt, MinB1, MaxB1, MinB2, MaxB2, MinB3, MaxB3, MinB4, MaxB4, MinB5, MaxB5, input.Tahun, input.TglJatuhTempo1, input.TglJatuhTempo2, input.TglJatuhTempo3, input.TglJatuhTempo4, input.TglJatuhTempo5, input.TglTerbit1, input.TglTerbit2, input.TglTerbit3, input.TglTerbit4, input.TglTerbit5, nip, nipTgl).Scan(&spRslt)
+
+	}
+
 	return rp.OKSimple{Data: res}, nil
 }

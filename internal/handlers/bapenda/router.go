@@ -597,14 +597,17 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
 
-	r.Route("/penilaian", func(r chi.Router) {
-		r.Post("/massal", penilaian.Massal)
-	})
-  
-	// rh.RegCrud(r, "/penetapan-massal", penetapanmassal.Crud{})
 	r.Route("/penetapan-massal", func(r chi.Router) {
 		r.Get("/", penetapanmassal.GetList)
 		r.Post("/copy", penetapanmassal.Copy)
+	})
+
+	r.Route("/penilaian", func(r chi.Router) {
+		r.Post("/massal", penilaian.Massal)
+	})
+
+	r.Route("/pbb", func(r chi.Router) {
+		r.Post("/penetapan-massal", sppt.PenetapanMassal)
 	})
 
 	return r

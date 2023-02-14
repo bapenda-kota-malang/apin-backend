@@ -1,5 +1,23 @@
-CREATE OR REPLACE FUNCTION "public"."penetapan_massal"("provinsi_kode" bpchar, "daerah_kode" bpchar, "kecamatan_kode" bpchar, "kelurahan_kode" bpchar, "blok_kode" bpchar, "nourut" bpchar, "jenisop" bpchar, "persil" varchar, "njopbumi" int8, "njopbng" int8, "luasbumi" int8, "luasbng" int8, "wp_id" int8, "kanwil_kode" bpchar, "kppbb_kode" bpchar, "tunggal_kode" bpchar, "persepsi_kode" varchar, "tp_kode" bpchar, "njoptkp" numeric, "minb1" numeric, "maxb1" numeric, "minb2" numeric, "maxb2" numeric, "minb3" numeric, "maxb3" numeric, "minb4" numeric, "maxb4" numeric, "minb5" numeric, "maxb5" numeric, "tahun" bpchar, "tjttbk1" date, "tjttbk2" date, "tjttbk3" date, "tjttbk4" date, "tjttbk5" date, "trbbk1" date, "trbbk2" date, "trbbk3" date, "trbbk4" date, "trbbk5" date, "nip" varchar, "niptgl" date)
-  RETURNS "pg_catalog"."numeric" AS $BODY$
+create or replace function Penetapan_Massal(
+  Provinsi_Kode char(2), Daerah_Kode char(2), Kecamatan_Kode char(3), Kelurahan_Kode char(3),
+  Blok_Kode char(3), NoUrut char(4), JenisOp char(1), Persil varchar(10),
+  NJOPBumi bigint, NJOPBng bigint, LuasBumi bigint, LuasBng bigint,
+  wp_id bigint,
+  Kanwil_Kode char(2), KPPBB_Kode char(2), Tunggal_Kode char(2), Persepsi_Kode varchar(5), Tp_Kode char(2), 
+  NJOPTKP numeric,
+  MinB1 numeric, MaxB1 numeric,
+  MinB2 numeric, MaxB2 numeric,
+  MinB3 numeric, MaxB3 numeric,
+  MinB4 numeric, MaxB4 numeric,
+  MinB5 numeric, MaxB5 numeric,
+  Tahun char(4),
+  TjttBk1 date, TjttBk2 date, TjttBk3 date, TjttBk4 date, TjttBk5 date,
+  TrbBk1 date, TrbBk2 date, TrbBk3 date, TrbBk4 date, TrbBk5 date,
+  Nip varchar(10), NipTgl date
+)
+returns numeric
+language plpgsql    
+as $$
 declare
   pbb_min numeric := 0;
   tnh_ks char(1);
@@ -149,8 +167,7 @@ begin
   BEGIN
     SELECT count(*) into flag_njoptkp
     FROM "SubjekPajakNJOPTKP"
-    Where "Id" = wp_id and
-      "Provinsi_Kode" = Provinsi_Kode AND
+    Where "Provinsi_Kode" = Provinsi_Kode AND
       "Daerah_Kode" = Daerah_Kode AND
       "Kecamatan_Kode" = Kecamatan_Kode AND
       "Kelurahan_Kode" = Kelurahan_Kode AND
@@ -393,10 +410,17 @@ begin
 
   -- lookup subjek_pajak
   begin
-  Select "Nama_WP", "Jalan_WP", "Blok_KaNo", "RT", "RW", "Kelurahan_Kode", "Kota_Kode", "Kode_Pos", "NPWP"
-  into nm_wp, jln_wp, blk_kawp, rw_wp, rt_wp, kel_wp, kota_wp, kd_pos, npwp
+    Select "Nama_WP", "Jalan_WP", "Blok_Kav_No", "RT", "RW", "Kelurahan_Kode", "Kota_Kode", "Kode_Pos", "NPWP"
+    into nm_wp, jln_wp, blk_kawp, rw_wp, rt_wp, kel_wp, kota_wp, kd_pos, npwp
     from "SubjekPajak"
-    Where "id" = wp_id;
+    Where "NPWP" IN (SELECT "NPWP" FROM "Sppt" WHERE "Propinsi_Id" = Provinsi_Kode AND
+      "Dati2_Id" = Daerah_Kode AND
+      "Kecamatan_Id" = Kecamatan_Kode AND
+      "Keluarahan_Id" = Kelurahan_Kode AND
+      "Blok_Id" = Blok_Kode AND
+      "NoUrut" =  NoUrut AND
+      "JenisOP_Id" = JenisOp AND
+      "TahunPajakskp_sppt" = Tahun);
   
     exception when others then null;
   end;
@@ -551,7 +575,4 @@ begin
 
   return pbb_min;
 
-end;$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
-  
+end;$$

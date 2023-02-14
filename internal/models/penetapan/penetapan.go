@@ -166,9 +166,28 @@ type ReferensiBuku struct {
 	Kode              *string  `json:"kode" gorm:"type:varchar(1)"`
 	ThnAwal           *string  `json:"thnAwal" gorm:"type:varchar(4)"`
 	ThnAkhir          *string  `json:"thnAkhir" gorm:"type:varchar(4)"`
+	NilaiMin          *float64 `json:"nilaiMin"`
+	NilaiMax          *float64 `json:"nilaiMax"`
 	LuasMinTipe       *int     `json:"luasMinTipe"`
 	LuasMaxTipe       *int     `json:"luasMaxTipe"`
 	FaktorPembagiTipe *float64 `json:"faktorPembagiTipe"`
 	Status            *float64 `json:"STATUS"`
 	gh.DateModel
+}
+
+type ReportDataTable struct {
+	No           uint16
+	MasaPajak    string
+	JatuhTempo   string
+	Skpd         string
+	Ketetapan    string
+	Denda        string
+	TelahDibayar string
+	SisaPajak    string
+}
+
+type Pdf interface {
+	GeneratePdf(outFile string) error
+	AppendContent(ReportDataTable)
+	SetTotal(map[string]float64)
 }
