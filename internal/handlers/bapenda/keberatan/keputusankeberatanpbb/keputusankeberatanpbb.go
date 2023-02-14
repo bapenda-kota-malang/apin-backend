@@ -1,6 +1,7 @@
 package keputusankeberatanpbb
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -12,11 +13,11 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 )
 
-func checkJnsSk(w http.ResponseWriter, jnsSk string) {
+func checkJnsSk(jnsSk string) error {
 	if jnsSk != "A" {
-		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: "jenis sk tidak valid"}, nil)
-		return
+		return fmt.Errorf("jenis sk tidak valid")
 	}
+	return nil
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +28,10 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	jnsSkUp := strings.ToUpper(*input.JnsSK)
 	input.JnsSK = &jnsSkUp
-	checkJnsSk(w, jnsSkUp)
+	if err := checkJnsSk(jnsSkUp); err != nil {
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
+		return
+	}
 
 	result, err := s.Create(input, nil)
 	hh.DataResponse(w, result, err)
@@ -66,7 +70,10 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 	jnsSkUp := strings.ToUpper(*data.JnsSK)
 	data.JnsSK = &jnsSkUp
-	checkJnsSk(w, jnsSkUp)
+	if err := checkJnsSk(jnsSkUp); err != nil {
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
+		return
+	}
 
 	result, err := s.Update(id, data, nil)
 	hh.DataResponse(w, result, err)
