@@ -73,3 +73,19 @@ func UpdateStatusTerbit(w http.ResponseWriter, r *http.Request) {
 	result, err := s.UpdateStatusTerbit(input, nil)
 	hh.DataResponse(w, result, err)
 }
+
+func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterDto
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
+		return
+	}
+
+	result, err := s.DownloadExcelList(input)
+	if err != nil {
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=list_daftar_undangan_pemeriksaan.xlsx")
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+	result.Write(w)
+}
