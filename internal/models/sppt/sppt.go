@@ -5,6 +5,12 @@ import (
 	"gorm.io/datatypes"
 )
 
+const (
+	NjopTkpYear = 2012
+	NjopTkpOld  = 6000000
+	NjopTkpNew  = 10000000
+)
+
 type Sppt struct {
 	Id                     uint64          `json:"id" gorm:"primaryKey"`
 	Propinsi_Id            *string         `json:"propinsi_Id" gorm:"type:varchar(2)"`

@@ -80,7 +80,7 @@ func Create(input m.CreateDto) (any, error) {
 	if input.NopBersama != nil {
 		// copy data anggota objek pajak
 		if err := sc.Copy(&dataAnggotaObjekPajak, input.AnggotaObjekPajaks); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload anggota objek pajak", input.AnggotaObjekPajaks)
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload anggota objek pajak: "+err.Error(), input.AnggotaObjekPajaks)
 		}
 
 		// data induk objek
