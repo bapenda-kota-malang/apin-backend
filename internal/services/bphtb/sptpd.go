@@ -3,6 +3,7 @@ package sptpd
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"crypto/rand"
 
@@ -203,7 +204,6 @@ func GetList(input m.FilterDto, auth int, tp string) (any, error) {
 
 func DownloadExcelListVerifikasi(input m.FilterDto, auth int, tp string) (*excelize.File, error) {
 	var data []m.BphtbSptpd
-	var count int64
 
 	queryBase := a.DB.Model(&m.BphtbSptpd{})
 
@@ -219,11 +219,8 @@ func DownloadExcelListVerifikasi(input m.FilterDto, auth int, tp string) (*excel
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"10", "13", "14", "20"})
 	}
 
-	var pagination gh.Pagination
 	result := queryBase.
 		Scopes(gh.Filter(input)).
-		Count(&count).
-		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
 	if result.Error != nil {
 		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
@@ -246,11 +243,27 @@ func DownloadExcelListVerifikasi(input m.FilterDto, auth int, tp string) (*excel
 			tmp = append(tmp, map[string]interface{}{
 				"A": n,
 				"B": func() string {
-					return v.Tanggal.GormDataType()
+					t, _ := v.Tanggal.Value()
+					return t.(time.Time).Format("2006-01-02")
 				}(),
-				"C": *v.NoPelayanan,
-				"D": *v.NamaWp,
-				"E": *v.Alamat,
+				"C": func() string {
+					if v.NoPelayanan != nil {
+						return *v.NoPelayanan
+					}
+					return ""
+				}(),
+				"D": func() string {
+					if v.NamaWp != nil {
+						return *v.NamaWp
+					}
+					return ""
+				}(),
+				"E": func() string {
+					if v.Alamat != nil {
+						return *v.Alamat
+					}
+					return ""
+				}(),
 				"F": func() string {
 					return strconv.FormatFloat(v.JumlahSetor, 'f', 0, 64)
 				}(),
