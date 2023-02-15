@@ -3,6 +3,7 @@ package sspd
 import (
 	"errors"
 	"strconv"
+	"time"
 
 	mn "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
@@ -11,12 +12,14 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/slicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -128,6 +131,112 @@ func GetList(input m.FilterDto, tx *gorm.DB) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto, tx *gorm.DB) (*excelize.File, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data []m.Sspd
+
+	result := tx.
+		Model(&m.Sspd{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
+		Preload("Npwpd.Rekening").
+		Preload("SspdDetails.Spt").
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "NPWP",
+			"C": "Nama WP",
+			"D": "Periode Awal",
+			"E": "Periode Akhir",
+			"F": "Jumlah SKPD",
+			"G": "Tgl Bayar",
+			"H": "Kenaikan",
+			"I": "Pengurangan",
+			"J": "Denda",
+			"K": "Bunga",
+			"L": "Total Bayar",
+			"M": "Jenis Usaha",
+			"N": "Nama Petugas",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": func() string {
+					if v.Npwpd_Npwpd != nil {
+						return *v.Npwpd_Npwpd
+					}
+					return ""
+				}(),
+				"C": func() string {
+					if v.ObjekPajak != nil {
+						return *v.ObjekPajak.Nama
+					}
+					return ""
+				}(),
+				"D": func() string {
+					if v.SspdDetails[0].Spt != nil {
+						t, _ := v.SspdDetails[0].Spt.PeriodeAwal.Value()
+						return t.(time.Time).Format("2006-01-02")
+					}
+					return ""
+				}(),
+				"E": func() string {
+					if v.SspdDetails[0].Spt != nil {
+						t, _ := v.SspdDetails[0].Spt.PeriodeAkhir.Value()
+						return t.(time.Time).Format("2006-01-02")
+					}
+					return ""
+				}(),
+				"F": "-",
+				"G": func() string {
+					if v.TanggalBayar != nil {
+						return v.TanggalBayar.Format("2006-01-02")
+					}
+					return ""
+				}(),
+				"H": "",
+				"I": "",
+				"J": "",
+				"K": "",
+				"L": func() float64 {
+					if v.Total != nil {
+						return *v.Total
+					}
+					return 0
+				}(),
+				"M": func() string {
+					if v.Rekening != nil {
+						return *v.Rekening.JenisUsaha
+					}
+					return ""
+				}(),
+				"N": func() string {
+					if v.User != nil {
+						return v.User.Name
+					}
+					return ""
+				}(),
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
 }
 
 func GetListWp(userId int, npwpd string, input m.FilterWpDto) (any, error) {
