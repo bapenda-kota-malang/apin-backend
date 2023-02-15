@@ -122,7 +122,10 @@ func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
 					}
 					return ""
 				}(),
-				"F": int(v.Status),
+				"F": func() string {
+					s := []string{"Belum Terbit", "Terbit", "Selesai"}
+					return s[v.Status]
+				}(),
 			})
 		}
 		return tmp
