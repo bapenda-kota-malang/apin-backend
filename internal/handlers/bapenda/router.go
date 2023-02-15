@@ -553,6 +553,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", keberatan.GetDetail)
 		r.Post("/", keberatan.Create)
 		r.Patch("/verify/{id}", keberatan.Verify)
+		r.Get("/download/excel", keberatan.DownloadExcelList)
 	})
 
 	r.Route("/baplpengajuan", func(r chi.Router) {

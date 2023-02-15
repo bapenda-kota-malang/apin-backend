@@ -9,10 +9,12 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -233,4 +235,55 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 	return rp.OKSimple{
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
+	var data []m.Keberatan
+	result := a.DB.
+		Model(&m.Keberatan{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		Preload("Spt.Npwpd.ObjekPajak").
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data keberatan", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "Tanggal",
+			"C": "Pemohon",
+			"D": "NPWPD",
+			"E": "Nama Usaha",
+			"F": "Status",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": func() string {
+					if v.TanggalPengajuan != nil {
+						return v.TanggalPengajuan.Format("2006-01-02")
+					}
+					return ""
+				}(),
+				"C": func() string {
+					if v.Pemohon != nil {
+						return v.Pemohon.Name
+					}
+					return ""
+				}(),
+				"D": "", 
+				"E": "",
+				"F": v.Status,
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
 }
