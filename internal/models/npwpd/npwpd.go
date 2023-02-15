@@ -21,7 +21,7 @@ type Npwpd struct {
 	Nomor             int                 `json:"nomor"`
 	TanggalPengukuhan *time.Time          `json:"tanggalPengukuhan"`
 	TanggalNpwpd      *time.Time          `json:"tanggalNpwpd"`
-	Npwpd             *string             `json:"npwpd" gorm:"unique;size:22"`
+	Npwpd             *string             `json:"npwpd" gorm:"unique;size:22;not null"`
 	Status            t.Status            `json:"status"`
 	TanggalTutup      *time.Time          `json:"tanggalTutup"`
 	TanggalBuka       *time.Time          `json:"tanggalBuka"`
@@ -30,7 +30,7 @@ type Npwpd struct {
 	SatuanKerja       *skpd.SatuanKerja   `json:"skpd,omitempty" gorm:"foreignKey:SatuanKerja_Id"`
 	Rekening_Id       *uint64             `json:"rekening_id"`
 	Rekening          *rekening.Rekening  `json:"rekening" gorm:"foreignKey:Rekening_Id"`
-	Nama              *string             `json:"nama" gorm:"size:20"`
+	Nama              *string             `json:"nama" gorm:"size:20;not null"`
 	User_Id           *uint64             `json:"user_id"`
 	User              *user.User          `gorm:"foreignKey:User_Id"`
 	OmsetOp           *string             `json:"omsetOp" gorm:"size:50"`
