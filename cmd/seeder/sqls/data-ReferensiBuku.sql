@@ -20,12 +20,12 @@ SET row_security = off;
 -- Data for Name: ReferensiBuku; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."ReferensiBuku" (Id, "Kode", "ThnAwal", "ThnAkhir", "NilaiMin", "NilaiMax", "Id", "LuasMinTipe", "LuasMaxTipe", "FaktorPembagiTipe", "Status", "CreatedAt", "UpdatedAt", "DeletedAt") FROM stdin;
-1	1	2000	2020	0	100000	1	\N	\N	\N	\N	\N	\N	\N
-2	2	2000	2020	100001	500000	2	\N	\N	\N	\N	\N	\N	\N
-3	3	2000	2020	500001	2000000	3	\N	\N	\N	\N	\N	\N	\N
-4	4	2000	2020	2000001	5000000	4	\N	\N	\N	\N	\N	\N	\N
-5	5	2000	2020	5000001	999999999999999	5	\N	\N	\N	\N	\N	\N	\N
+COPY "public"."ReferensiBuku" ("Id", "Kode", "ThnAwal", "ThnAkhir", "NilaiMin", "NilaiMax") FROM stdin;
+1	1	2000	2020	0	100000
+2	2	2000	2020	100001	500000
+3	3	2000	2020	500001	2000000
+4	4	2000	2020	2000001	5000000
+5	5	2000	2020	5000001	999999999999999
 \.
 
 
