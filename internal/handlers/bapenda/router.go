@@ -511,6 +511,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", sts.Create)
 		r.Patch("/{id}", sts.Update)
 		r.Delete("/{id}", sts.Delete)
+		r.Get("/download/excel", sts.DownloadExcelList)
 	})
 
 	r.Route("/undanganpemeriksaan", func(r chi.Router) {

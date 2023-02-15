@@ -10,10 +10,12 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -266,4 +268,55 @@ func Delete(sts_id uint64) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
+	var data []m.Sts
+	result := a.DB.
+		Model(&m.Sts{}).
+		Preload(clause.Associations).
+		Preload("StsDetails.Rekening").
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data sts", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "Nomor STS",
+			"C": "Tanggal STS",
+			"D": "Total Setor",
+			"E": "Nama Petugas",
+			"F": "Status",
+			"G": "Tanggal Setor",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": v.NomorOutput,
+				"C": v.TanggalSts.Format("2006-01-02"),
+				"D": func() float64 {
+					if v.TotalSetor != nil {
+						return *v.TotalSetor
+					}
+					return 0.0
+				}(),
+				"E": func() string {
+					if v.BendaharaPenerima != nil {
+						return v.BendaharaPenerima.Nama
+					}
+					return ""
+				}(),
+				"F": "-",
+				"G": "",
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
 }
