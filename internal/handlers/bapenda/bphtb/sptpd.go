@@ -2,6 +2,7 @@ package bphtbsptpd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
@@ -97,8 +98,16 @@ func DownloadExcelListVerifikasi(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+
+	name := "verifikasi_bphtb"
+	if tp == "val" {
+		name = "validasi_bphtb"
+	} else if tp == "byr" {
+		name = "laporan_sspd_bphtb"
+	}
+
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=list_verfikasi_bphtb.xlsx")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=list_%s.xlsx", name))
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	result.Write(w)
 }

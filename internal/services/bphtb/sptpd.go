@@ -227,51 +227,103 @@ func DownloadExcelListVerifikasi(input m.FilterDto, auth int, tp string) (*excel
 		return nil, err
 	}
 
-	var excelData = func() []interface{} {
-		var tmp []interface{}
-		tmp = append(tmp, map[string]interface{}{
-			"A": "No",
-			"B": "Tanggal Pengajuan",
-			"C": "No Pelayanan",
-			"D": "Nama Wajib Pajak",
-			"E": "NOP Alamat OP",
-			"F": "Jumlah Setor",
-			"G": "Status",
-		})
-		for i, v := range data {
-			n := i + 1
+	var excelData []interface{}
+
+	if tp == "byr" {
+		excelData = func() []interface{} {
+			var tmp []interface{}
 			tmp = append(tmp, map[string]interface{}{
-				"A": n,
-				"B": func() string {
-					t, _ := v.Tanggal.Value()
-					return t.(time.Time).Format("2006-01-02")
-				}(),
-				"C": func() string {
-					if v.NoPelayanan != nil {
-						return *v.NoPelayanan
-					}
-					return ""
-				}(),
-				"D": func() string {
-					if v.NamaWp != nil {
-						return *v.NamaWp
-					}
-					return ""
-				}(),
-				"E": func() string {
-					if v.Alamat != nil {
-						return *v.Alamat
-					}
-					return ""
-				}(),
-				"F": func() string {
-					return strconv.FormatFloat(v.JumlahSetor, 'f', 0, 64)
-				}(),
-				"G": v.Status,
+				"A": "No",
+				"B": "No Pelayanan",
+				"C": "No SSPD",
+				"D": "Nama WP",
+				"E": "Alamat OP",
+				"F": "Jumlah Setor",
+				"G": "Tanggal",
 			})
-		}
-		return tmp
-	}()
+			for i, v := range data {
+				n := i + 1
+				tmp = append(tmp, map[string]interface{}{
+					"A": n,
+					"B": func() string {
+						if v.NoPelayanan != nil {
+							return *v.NoPelayanan
+						}
+						return ""
+					}(),
+					"C": func() string {
+						if v.NoDokumen != nil {
+							return *v.NoDokumen
+						}
+						return ""
+					}(),
+					"D": func() string {
+						if v.NamaWp != nil {
+							return *v.NamaWp
+						}
+						return ""
+					}(),
+					"E": func() string {
+						if v.NOPAlamat != nil {
+							return *v.NOPAlamat
+						}
+						return ""
+					}(),
+					"F": func() string {
+						return strconv.FormatFloat(v.JumlahSetor, 'f', 0, 64)
+					}(),
+					"G": "-",
+				})
+			}
+			return tmp
+		}()
+	} else {
+		excelData = func() []interface{} {
+			var tmp []interface{}
+			tmp = append(tmp, map[string]interface{}{
+				"A": "No",
+				"B": "Tanggal Pengajuan",
+				"C": "No Pelayanan",
+				"D": "Nama Wajib Pajak",
+				"E": "NOP Alamat OP",
+				"F": "Jumlah Setor",
+				"G": "Status",
+			})
+			for i, v := range data {
+				n := i + 1
+				tmp = append(tmp, map[string]interface{}{
+					"A": n,
+					"B": func() string {
+						t, _ := v.Tanggal.Value()
+						return t.(time.Time).Format("2006-01-02")
+					}(),
+					"C": func() string {
+						if v.NoPelayanan != nil {
+							return *v.NoPelayanan
+						}
+						return ""
+					}(),
+					"D": func() string {
+						if v.NamaWp != nil {
+							return *v.NamaWp
+						}
+						return ""
+					}(),
+					"E": func() string {
+						if v.Alamat != nil {
+							return *v.Alamat
+						}
+						return ""
+					}(),
+					"F": func() string {
+						return strconv.FormatFloat(v.JumlahSetor, 'f', 0, 64)
+					}(),
+					"G": v.Status,
+				})
+			}
+			return tmp
+		}()
+	}
 	return excelhelper.ExportList(excelData, "List")
 }
 
