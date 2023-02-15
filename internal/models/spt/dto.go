@@ -130,6 +130,7 @@ type FilterDto struct {
 	Npwpd_Id           *uint64         `json:"npwpd_id"`
 	StatusData         *uint8          `json:"statusData"`
 	Rekening_Id        *uint64         `json:"-"`
+	Rekening_Objek     *string         `json:"rekening_objek" refsource:"Rekening.Objek"`
 	Type               mt.JenisPajak   `json:"-"`
 	JenisKetetapan     *JenisKetetapan `json:"-"`
 	JenisKetetapan_Opt *string         `json:"-"`

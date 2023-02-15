@@ -84,18 +84,23 @@ func CreateBulk(input m.CreateBulkDto) (any, error) {
 					datas = append(datas, respData.(rp.OK).Data.(m.DataPetaZnt))
 				}
 			} else {
-				respData, err := Create(m.CreateDto{
+				var data m.DataPetaZnt
+				tempCreate := m.CreateDto{
 					Provinsi_Kode:  input.Provinsi_Kode,
 					Daerah_Kode:    input.Daerah_Kode,
 					Kecamatan_Kode: input.Kecamatan_Kode,
 					Kelurahan_Kode: input.Kelurahan_Kode,
 					Blok_Kode:      v.Blok_Kode,
 					Znt_Kode:       v.Znt_Kode,
-				}, tx)
+				}
+				if err := sc.Copy(&data, &tempCreate); err != nil {
+					return err
+				}
+				err := tx.Create(&data).Error
 				if err != nil {
 					return err
 				}
-				datas = append(datas, respData.(rp.OKSimple).Data.(m.DataPetaZnt))
+				datas = append(datas, data)
 			}
 		}
 		return nil

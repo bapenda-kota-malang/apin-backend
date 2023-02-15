@@ -115,6 +115,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/penetapan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/penilaianpbb"
 	rn "github.com/bapenda-kota-malang/apin-backend/internal/models/regnpwpd"
 	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	skpd "github.com/bapenda-kota-malang/apin-backend/internal/models/satuankerja"
@@ -283,6 +285,10 @@ func GetModelList() (data []interface{}) {
 
 	listModelPengajuan := []interface{}{
 		&pengurangan.Pengurangan{},
+		&pengurangan.PenguranganDendaADM{},
+		&pengurangan.PenguranganJPB{},
+		&pengurangan.PenguranganPST{},
+		&pengurangan.PenguranganPermanen{},
 		&keberatan.Keberatan{},
 		&baplpengajuan.PengajuanBapl{},
 		&keberatan.PembetulanKeberatan{},
@@ -436,6 +442,35 @@ func GetModelList() (data []interface{}) {
 		&prosesjambong.ProsesJambong{},
 	}
 	data = append(data, listModelJaminanBongkar...)
+
+	listModelPenilaian := []interface{}{
+		&penilaianpbb.RangePenyusutan{},
+		&penilaianpbb.Penyusutan{},
+		&penilaianpbb.Fasilitas{},
+		&penilaianpbb.FasNonDep{},
+		&penilaianpbb.FasDepMinMax{},
+		&penilaianpbb.FasDepJpbKlsBintang{},
+		&penilaianpbb.DbkbMaterial{},
+		&penilaianpbb.BangunanLantai{},
+		&penilaianpbb.TipeBangunan{},
+		&penilaianpbb.KayuUlin{},
+		&penilaianpbb.DbkbStandard{},
+		&penilaianpbb.DbkbDayaDukung{},
+	}
+	data = append(data, listModelPenilaian...)
+
+	listModelPenetapanMassal := []interface{}{
+		&penetapan.PenerimaKompensasi{},
+		&penetapan.SubjekPajakNJOPTKP{},
+		&penetapan.Tarif{},
+		&penetapan.PenguranganPengenaanJPB{},
+		&penetapan.PenguranganPermanen{},
+		&penetapan.PenguranganPST{},
+		&penetapan.SubjekPajak{},
+		&penetapan.DafnomOP{},
+		&penetapan.ReferensiBuku{},
+	}
+	data = append(data, listModelPenetapanMassal...)
 
 	return data
 }

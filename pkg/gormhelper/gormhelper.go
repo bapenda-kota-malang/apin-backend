@@ -61,8 +61,16 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 				db.AddError(fmt.Errorf("field %s: opt undefined", iTF.Name))
 			}
 
+			// check source if avaibale
+			refSource := iTF.Tag.Get("refsource")
+			if refSource != "" {
+				refSource = strings.Replace(refSource, ".", "\".\"", -1)
+			} else {
+				refSource = iTF.Name
+			}
+
 			// add where query
-			whereString, value := optionString(iTF.Name, vOpt, iVF.Interface())
+			whereString, value := optionString(refSource, vOpt, iVF.Interface())
 			if vOpt != "between" {
 				db.Where(whereString, value)
 			} else {

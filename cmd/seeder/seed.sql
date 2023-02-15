@@ -31,7 +31,33 @@
 \i sqls/data-DbkbFasumDepMinMax.sql
 \i sqls/data-DbkbFasumNonDep.sql
 \i sqls/data-JenisPajak.sql
+\i sqls/data-ReferensiBuku.sql
 
 -- below for table have relation to child
+
+-- SP order
+\i sqls/sp-PenilaianBumi.sql
+\i sqls/sp-Susut.sql
+\i sqls/sp-FasilitasSusut.sql
+\i sqls/sp-FasilitasSusutXLuas.sql
+\i sqls/sp-FasilitasTidakSusut.sql
+\i sqls/sp-KompMaterial.sql
+\i sqls/sp-KompUtamaStd.sql
+\i sqls/sp-PenilaianJPB2.sql
+\i sqls/sp-PenilaianJPB3.sql
+\i sqls/sp-PenilaianJPB4.sql
+\i sqls/sp-PenilaianJPB5.sql
+\i sqls/sp-PenilaianJPB6.sql
+\i sqls/sp-PenilaianJPB7.sql
+\i sqls/sp-PenilaianJPB8.sql
+\i sqls/sp-PenilaianJPB9.sql
+\i sqls/sp-PenilaianStandard.sql
+\i sqls/sp-PenilaianJPB12.sql
+\i sqls/sp-PenilaianJPB13.sql
+\i sqls/sp-PenilaianJPB14.sql
+\i sqls/sp-PenilaianJPB15.sql
+\i sqls/sp-PenilaianJPB16.sql
+\i sqls/sp-PenilaianBangunan.sql
+\i sqls/sp-PenetapanMassal.sql
 
 -- new data

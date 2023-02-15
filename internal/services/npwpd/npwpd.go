@@ -37,7 +37,8 @@ func GetList(input npwpd.FilterDto) (interface{}, error) {
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
-		Preload("ObjekPajak").
+		Joins("Rekening").
+		// Preload("ObjekPajak").
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
 		Scopes(gh.Filter(input)).
