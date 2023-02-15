@@ -10,12 +10,14 @@ import (
 
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
@@ -148,6 +150,47 @@ func GetList(input m.FilterDto, tx *gorm.DB) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto, tx *gorm.DB) (*excelize.File, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data []m.BaPenagihan
+	result := tx.
+		Model(&m.BaPenagihan{}).
+		Scopes(gh.Filter(input)).
+		Preload("Undangan.Npwpd.ObjekPajak").
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "NPWD",
+			"C": "Nama Usaha",
+			"D": "No Surat Undangan",
+			"E": "Tanggal Pemeriksaan",
+			"F": "Verifikasi Kasubid",
+		})
+		for i, _ := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": "",
+				"C": "",
+				"D": "",
+				"E": "",
+				"F": "",
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
 }
 
 func GetDetail(id uuid.UUID, tx *gorm.DB) (any, error) {
