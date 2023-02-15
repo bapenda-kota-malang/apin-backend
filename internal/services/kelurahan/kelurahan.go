@@ -1,4 +1,4 @@
-package kecamatan
+package kelurahan
 
 import (
 	"errors"
