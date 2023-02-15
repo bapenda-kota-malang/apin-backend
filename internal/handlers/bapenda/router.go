@@ -383,6 +383,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", npwpd.Update)
 		r.Delete("/{id}", npwpd.Delete)
 		r.Get("/download/excel", npwpd.DownloadExcelList)
+		r.Get("/download/excel/{type}", npwpd.DownloadExcelSpec)
 	})
 
 	r.Route("/regnpwpd", func(r chi.Router) {

@@ -157,6 +157,70 @@ func DownloadExcelList(input npwpd.FilterDto) (*excelize.File, error) {
 	return excelhelper.ExportList(excelData, "List Pend. Wajib Pajak")
 }
 
+func DownloadExcelSpec(input npwpd.FilterDto, tp string) (*excelize.File, error) {
+	var data []npwpd.Npwpd
+
+	result := a.DB.
+		Model(&npwpd.Npwpd{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		Preload("ObjekPajak").
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData []interface{}
+	if tp == "lapbphtb" {
+		excelData = func() []interface{} {
+			var tmp []interface{}
+			tmp = append(tmp, map[string]interface{}{
+				"A": "No",
+				"B": "Tanggal",
+				"C": "NOP",
+				"D": "NO SSPD",
+				"E": "Nama WP",
+				"F": "Payment Point",
+				"G": "Jumlah Disetor",
+			})
+			for i, _ := range data {
+				n := i + 1
+				tmp = append(tmp, map[string]interface{}{
+					"A": n,
+				})
+			}
+			return tmp
+		}()
+	} else if tp == "pemsspd" {
+		excelData = func() []interface{} {
+			var tmp []interface{}
+			tmp = append(tmp, map[string]interface{}{
+				"A": "No",
+				"B": "No Pelayanan",
+				"C": "No SSPD",
+				"D": "Nama WP",
+				"E": "Alamat OP",
+				"F": "Jumlah Disetor",
+				"G": "Tanggal",
+			})
+			for i, _ := range data {
+				n := i + 1
+				tmp = append(tmp, map[string]interface{}{
+					"A": n,
+				})
+			}
+			return tmp
+		}()
+	}
+
+	return excelhelper.ExportList(excelData, "List Pend. Wajib Pajak")
+}
+
 func GetDetail(r *http.Request, regID int) (interface{}, error) {
 	var register *npwpd.Npwpd
 	err := a.DB.Model(&npwpd.Npwpd{}).
