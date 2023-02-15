@@ -127,6 +127,17 @@ type RequestDto struct {
 	VirtualAccoountJatim   *int            `json:"virtualAccoountJatim"`
 }
 
+type NopDto struct {
+	Propinsi_Id        *string `json:"propinsi_Id"`
+	Dati2_Id           *string `json:"dati2_Id"`
+	Kecamatan_Id       *string `json:"kecamatan_Id"`
+	Keluarahan_Id      *string `json:"keluarahan_Id"`
+	Blok_Id            *string `json:"blok_Id"`
+	NoUrut             *string `json:"noUrut"`
+	JenisOP_Id         *string `json:"jenisOP_Id"`
+	TahunPajakskp_sppt *string `json:"tahunPajakskp_sppt"`
+}
+
 type FilterDto struct {
 	BlokKavNoWP_sppt       *string         `json:"blokKavNoWP_sppt"`
 	Faktorpengurangan_sppt *int            `json:"faktorpengurangan_sppt"`

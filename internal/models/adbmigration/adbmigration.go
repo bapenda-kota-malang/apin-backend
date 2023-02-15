@@ -285,6 +285,10 @@ func GetModelList() (data []interface{}) {
 
 	listModelPengajuan := []interface{}{
 		&pengurangan.Pengurangan{},
+		&pengurangan.PenguranganDendaADM{},
+		&pengurangan.PenguranganJPB{},
+		&pengurangan.PenguranganPST{},
+		&pengurangan.PenguranganPermanen{},
 		&keberatan.Keberatan{},
 		&baplpengajuan.PengajuanBapl{},
 		&keberatan.PembetulanKeberatan{},
