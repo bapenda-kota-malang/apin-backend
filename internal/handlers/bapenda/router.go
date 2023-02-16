@@ -338,6 +338,12 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", regpermohonan.Delete)
 	})
 
+	r.Route("/regpermohonan-approval", func(r chi.Router) {
+		r.Patch("/{id}/status", regpermohonan.UpdateStatus)
+		r.Get("/{id}", regpermohonan.GetDetailApproval)
+		r.Patch("/{id}", regpermohonan.Update)
+	})
+
 	r.Route("/statnop", func(r chi.Router) {
 		r.Get("/{id}", permohonan.GetStatusNOP)
 	})
@@ -600,7 +606,7 @@ func SetRoutes() http.Handler {
 	r.Route("/penilaian", func(r chi.Router) {
 		r.Post("/massal", penilaian.Massal)
 	})
-  
+
 	// rh.RegCrud(r, "/penetapan-massal", penetapanmassal.Crud{})
 	r.Route("/penetapan-massal", func(r chi.Router) {
 		r.Get("/", penetapanmassal.GetList)

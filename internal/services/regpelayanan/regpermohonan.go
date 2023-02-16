@@ -223,6 +223,41 @@ func GetDetail(id int) (interface{}, error) {
 	return rp.OKSimple{Data: finalresult}, nil
 }
 
+func GetDetailApproval(id int) (interface{}, error) {
+	var (
+		data                  *m.RegPstPermohonan
+		permohonanBaru        *m.RegPstDataOPBaru
+		permohonanDetail      *m.RegPstDetail
+		permohonanPengurangan *m.RegPstPermohonanPengurangan
+	)
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", data)
+	}
+	if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanDetail); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Detail", permohonanDetail)
+	}
+
+	if *data.BundelPelayanan == m.JenisPelayanan[0] {
+		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanBaru); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Baru", permohonanBaru)
+		}
+	} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
+		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanPengurangan); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+	}
+
+	finalresult := data.SetPstPermohonanResponse()
+	finalresult.PstDataOPBaru = permohonanBaru
+	finalresult.PstDetail = permohonanDetail
+	finalresult.PstPermohonanPengurangan = permohonanPengurangan
+
+	return rp.OKSimple{Data: finalresult}, nil
+}
+
 func Update(id int, input m.PermohonanRequestDto) (interface{}, error) {
 	var (
 		data                  *m.RegPstPermohonan

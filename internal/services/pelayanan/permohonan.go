@@ -23,10 +23,17 @@ import (
 	mopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	moptnh "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	moppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	mwppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
+
+	rmopfas "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
+	rmopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
+	rmoptnh "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
+	rmoppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
+	rmwppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/regwajibpajakpbb"
+
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	reg "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
 	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
-	mwppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	// oppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	// wppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
@@ -73,35 +80,35 @@ func Create(input m.PermohonanRequestDto) (any, error) {
 		}
 
 		if *data.BundelPelayanan == m.JenisPelayanan[0] {
-			if result := tx.Where("PermohonanId", data.Id).Create(&permohonanBaru); result.Error != nil {
+			if result := tx.Create(&permohonanBaru); result.Error != nil {
 				return errors.New("penyimpanan data permohonan baru gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[2] {
 			pembetulanSpptSKPSTP = data.SetPembetulanSpptSKPSTP(*nop)
-			if result := tx.Where("PermohonanId", data.Id).Create(&pembetulanSpptSKPSTP); result.Error != nil {
+			if result := tx.Create(&pembetulanSpptSKPSTP); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pembetulan SPPT/SKP/STP gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[3] {
 			pembatalanSppt = data.SetPembatalanSppt(*nop)
-			if result := tx.Where("PermohonanId", data.Id).Create(&pembatalanSppt); result.Error != nil {
+			if result := tx.Create(&pembatalanSppt); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pembatalan SPPT gagal")
 			}
 			SkSk = sksk.SetSkSk(data)
-			if result := tx.Where("PermohonanId", data.Id).Create(&SkSk); result.Error != nil {
+			if result := tx.Create(&SkSk); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pembatalan SKP gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[8] {
 			SPMKP = data.SetSPMKP(*nop)
-			if result := tx.Where("PermohonanId", data.Id).Create(&SPMKP); result.Error != nil {
+			if result := tx.Create(&SPMKP); result.Error != nil {
 				return errors.New("penyimpanan data permohonan restitusi dan kompensasi gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
 			keputusanKeberatanPbb = data.SetKeputusanKeberatanPbb(*nop)
-			if result := tx.Where("PermohonanId", data.Id).Create(&keputusanKeberatanPbb); result.Error != nil {
+			if result := tx.Create(&keputusanKeberatanPbb); result.Error != nil {
 				return errors.New("penyimpanan data permohonan keberatan gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
-			if result := tx.Where("PermohonanId", data.Id).Create(&permohonanPengurangan); result.Error != nil {
+			if result := tx.Create(&permohonanPengurangan); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pengurangan gagal")
 			}
 		}
@@ -660,4 +667,558 @@ func Delete(id int) (interface{}, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func LogApproval(id uint64, input m.RequestPSTLogApproval, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var data m.PstLogApproval
+
+	data = m.PstLogApproval{
+		Permohonan_Id: id,
+		User_id:       input.User_id,
+		Catatan:       input.Catatan,
+		Status:        input.Status,
+	}
+
+	var err error
+	if data.Id == 0 {
+		err = tx.Create(&data).Error
+	} else {
+		err = tx.Save(&data).Error
+	}
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data data: "+err.Error(), data)
+	}
+
+	return rp.OKSimple{Data: data}, nil
+}
+
+func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangunan string, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+	var (
+		err error
+
+		data                  m.PstPermohonan
+		dataReg               reg.RegPstPermohonan
+		nop                   *m.PermohonanNOP
+		permohonanDetail      *m.PstDetail
+		permohonanBaru        *m.PstDataOPBaru
+		permohonanPengurangan *m.PstPermohonanPengurangan
+		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
+		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+
+		regPermohonanDetail      *reg.RegPstDetail
+		regPermohonanBaru        *reg.RegPstDataOPBaru
+		regPermohonanPengurangan *reg.RegPstPermohonanPengurangan
+		regPembetulanSpptSKPSTP  *reg.RegPembetulanSpptSKPSTP
+		regKeputusanKeberatanPbb *reg.RegKeputusanKeberatanPbb
+
+		oppbb *moppbb.ObjekPajakPbb
+		wppbb *mwppbb.WajibPajakPbb
+		optnh *moptnh.ObjekPajakBumi
+		opbng *mopbng.ObjekPajakBangunan
+		opfas *mopfas.FasilitasBangunan
+
+		roppbb *rmoppbb.RegObjekPajakPbb
+		rwppbb *rmwppbb.RegWajibPajakPbb
+		roptnh *rmoptnh.RegObjekPajakBumi
+		ropbng []rmopbng.RegObjekPajakBangunan
+		ropfas []rmopfas.RegFasilitasBangunan
+	)
+
+	nop = m.DecodeNOPPermohonan(&nopInput)
+	areaCode := nop.PermohonanProvinsiID + nop.PermohonanKotaID + nop.PermohonanKecamatanID + nop.PermohonanKelurahanID
+
+	result := a.DB.First(&dataReg, id)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data: "+err.Error(), data)
+	}
+
+	idPermohonan := dataReg.Id
+
+	if err := sc.Copy(&data, &dataReg); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
+	}
+
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
+		// simpan data permohonan ke db satu if karena result dipakai sekali, +error
+		if result := tx.Create(&data); result.Error != nil {
+			return errors.New("penyimpanan data permohonan gagal")
+		}
+
+		_ = a.DB.Where("PermohonanId", idPermohonan).First(&regPermohonanDetail)
+		if err := sc.Copy(&permohonanDetail, &regPermohonanDetail); err != nil {
+			return errors.New("set data permohonan detail gagal")
+		}
+		if err := sc.CopyWithOption(&permohonanDetail, &nop, sc.Option{IgnoreEmpty: true}); err != nil {
+			return errors.New("set data permohonan detail gagal")
+		}
+		permohonanDetail.PermohonanId = &data.Id
+
+		if result := tx.Create(&permohonanDetail); result.Error != nil {
+			return errors.New("penyimpanan data permohonan detail gagal")
+		}
+
+		if *data.BundelPelayanan == m.JenisPelayanan[0] {
+			_ = a.DB.Where("PermohonanId", idPermohonan).First(&regPermohonanBaru)
+			if err := sc.Copy(&permohonanBaru, &regPermohonanBaru); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			if err := sc.CopyWithOption(&permohonanBaru, &nop, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			regPermohonanBaru.PermohonanId = &data.Id
+
+			if result := tx.Create(&permohonanBaru); result.Error != nil {
+				return errors.New("penyimpanan data permohonan baru gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[2] {
+			_ = a.DB.Where("PermohonanId", idPermohonan).First(&regPembetulanSpptSKPSTP)
+			if err := sc.Copy(&pembetulanSpptSKPSTP, &regPembetulanSpptSKPSTP); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			if err := sc.CopyWithOption(&pembetulanSpptSKPSTP, &nop, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			pembetulanSpptSKPSTP.PermohonanId = &data.Id
+
+			if result := tx.Create(&pembetulanSpptSKPSTP); result.Error != nil {
+				return errors.New("penyimpanan data permohonan pembetulan SPPT/SKP/STP gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
+			_ = a.DB.Where("PermohonanId", idPermohonan).First(&regKeputusanKeberatanPbb)
+			if err := sc.Copy(&keputusanKeberatanPbb, &regKeputusanKeberatanPbb); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			if err := sc.CopyWithOption(&keputusanKeberatanPbb, &nop, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			keputusanKeberatanPbb.PermohonanId = &data.Id
+
+			if result := tx.Create(&keputusanKeberatanPbb); result.Error != nil {
+				return errors.New("penyimpanan data permohonan keberatan gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
+			_ = a.DB.Where("PermohonanId", idPermohonan).First(&regPermohonanPengurangan)
+			if err := sc.Copy(&permohonanPengurangan, &regPermohonanPengurangan); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			if err := sc.CopyWithOption(&permohonanPengurangan, &nop, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			permohonanPengurangan.PermohonanId = &data.Id
+			permohonanPengurangan.JenisPengurangan = &jenisPengurangan
+
+			if result := tx.Create(&permohonanPengurangan); result.Error != nil {
+				return errors.New("penyimpanan data permohonan pengurangan gagal")
+			}
+		}
+
+		// roppbb                 *roppbb.RegObjekPajakPbb
+		_ = tx.Where("PstPermohonan_id", idPermohonan).First(&roppbb)
+		if err := sc.Copy(&oppbb, &roppbb); err != nil {
+			return errors.New("set data permohonan detail gagal")
+		}
+		oppbb.Provinsi_Kode = &nop.PermohonanProvinsiID
+		oppbb.Daerah_Kode = &nop.PermohonanKotaID
+		oppbb.Kecamatan_Kode = &nop.PermohonanKecamatanID
+		oppbb.Kelurahan_Kode = &nop.PermohonanKelurahanID
+		oppbb.Blok_Kode = &nop.PermohonanBlokID
+		oppbb.NoUrut = &nop.NoUrutPemohon
+		oppbb.JenisOp = &nop.PemohonJenisOPID
+		oppbb.Area_Kode = &areaCode
+		// oppbb.PstPermohonan_id = &data.Id
+
+		if result := tx.Create(&oppbb); result.Error != nil {
+			return errors.New("penyimpanan data permohonan pengurangan gagal")
+		}
+
+		// rwppbb                 *rwppbb.RegWajibPajakPbb
+		_ = tx.Where("Id", roppbb.RegWajibPajakPbb_Id).First(&rwppbb)
+		if err := sc.Copy(&wppbb, &rwppbb); err != nil {
+			return errors.New("set data permohonan detail gagal")
+		}
+		if result := tx.Create(&wppbb); result.Error != nil {
+			return errors.New("penyimpanan data permohonan pengurangan gagal")
+		}
+
+		// roptnh                 *roptnh.RegObjekPajakBumi
+		_ = tx.Where("PstPermohonan_id", idPermohonan).First(&roptnh)
+		if err := sc.Copy(&optnh, &roptnh); err != nil {
+			return errors.New("set data permohonan detail gagal")
+		}
+		// optnh.PstPermohonan_id = &data.Id
+		if result := tx.Create(&optnh); result.Error != nil {
+			return errors.New("penyimpanan data permohonan pengurangan gagal")
+		}
+
+		// ropbng                 *ropbng.RegObjekPajakBangunan
+		resBang := a.DB.Where("PstPermohonan_id", idPermohonan).Find(&ropbng)
+		if resBang.RowsAffected > 0 {
+			for _, val := range ropbng {
+				if err := sc.Copy(&opbng, &val); err != nil {
+					return errors.New("set data permohonan detail gagal")
+				}
+				// opbng.PstPermohonan_id = &data.Id
+				if result := tx.Create(&opbng); result.Error != nil {
+					return errors.New("penyimpanan data permohonan pengurangan gagal")
+				}
+			}
+
+			// ropfas                 *ropfas.RegFasilitasBangunan
+			resFas := a.DB.Where("PstPermohonan_id", idPermohonan).Find(&ropfas)
+			if resFas.RowsAffected > 0 {
+				for _, val := range ropfas {
+					if err := sc.Copy(&opfas, &val); err != nil {
+						return errors.New("set data permohonan detail gagal")
+					}
+					opfas.Provinsi_Kode = &nop.PermohonanProvinsiID
+					opfas.Daerah_Kode = &nop.PermohonanKotaID
+					opfas.Kecamatan_Kode = &nop.PermohonanKecamatanID
+					opfas.Kelurahan_Kode = &nop.PermohonanKelurahanID
+					opfas.Blok_Kode = &nop.PermohonanBlokID
+					opfas.NoUrut = &nop.NoUrutPemohon
+					opfas.JenisOp = &nop.PemohonJenisOPID
+					opfas.Area_Kode = &areaCode
+					// opfas.PstPermohonan_id = &data.Id
+					if result := tx.Create(&opfas); result.Error != nil {
+						return errors.New("penyimpanan data permohonan pengurangan gagal")
+					}
+				}
+			}
+
+			if opbng.Jpb_Kode == "00" || opbng.Jpb_Kode == "01" || opbng.Jpb_Kode == "10" || opbng.Jpb_Kode == "11" {
+			} else if opbng.Jpb_Kode == "02" {
+				var jpbres *mopbng.Jpb2
+				var jpbreg *rmopbng.RegJpb2
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+				jpbres.KelasBangunan2 = mopbng.KelasBangunan(kelasbangunan)
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "03" {
+				var jpbres *mopbng.Jpb3
+				var jpbreg *rmopbng.RegJpb3
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "04" {
+				var jpbres *mopbng.Jpb4
+				var jpbreg *rmopbng.RegJpb4
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+				jpbres.KelasBangunan4 = mopbng.KelasBangunan(kelasbangunan)
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "05" {
+				var jpbres *mopbng.Jpb5
+				var jpbreg *rmopbng.RegJpb5
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+				jpbres.KelasBangunan5 = mopbng.KelasBangunan(kelasbangunan)
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "06" {
+				var jpbres *mopbng.Jpb6
+				var jpbreg *rmopbng.RegJpb6
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+				jpbres.KelasBangunan6 = mopbng.KelasBangunan(kelasbangunan)
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "07" {
+				var jpbres *mopbng.Jpb7
+				var jpbreg *rmopbng.RegJpb7
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "08" {
+				var jpbres *mopbng.Jpb8
+				var jpbreg *rmopbng.RegJpb8
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "09" {
+				var jpbres *mopbng.Jpb9
+				var jpbreg *rmopbng.RegJpb9
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+				jpbres.KelasBangunan9 = mopbng.KelasBangunan(kelasbangunan)
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "12" {
+				var jpbres *mopbng.Jpb12
+				var jpbreg *rmopbng.RegJpb12
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "13" {
+				var jpbres *mopbng.Jpb13
+				var jpbreg *rmopbng.RegJpb13
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+				jpbres.KelasBangunan13 = mopbng.KelasBangunan(kelasbangunan)
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "14" {
+				var jpbres *mopbng.Jpb14
+				var jpbreg *rmopbng.RegJpb14
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "15" {
+				var jpbres *mopbng.Jpb15
+				var jpbreg *rmopbng.RegJpb15
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			} else if opbng.Jpb_Kode == "16" {
+				var jpbres *mopbng.Jpb16
+				var jpbreg *rmopbng.RegJpb16
+				if result := a.DB.
+					Where("NoBangunan", opbng.NoBangunan).
+					First(&jpbreg); result.Error != nil {
+					return result.Error
+				}
+				if err := sc.Copy(&jpbres, &jpbreg); err != nil {
+					return errors.New("set data gagal")
+				}
+
+				jpbres.Provinsi_Kode = &nop.PermohonanProvinsiID
+				jpbres.Daerah_Kode = &nop.PermohonanKotaID
+				jpbres.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				jpbres.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				jpbres.Blok_Kode = &nop.PermohonanBlokID
+				jpbres.NoUrut = &nop.NoUrutPemohon
+				jpbres.JenisOp = &nop.PemohonJenisOPID
+				jpbres.Area_Kode = &areaCode
+				jpbres.KelasBangunan16 = mopbng.KelasBangunan(kelasbangunan)
+
+				if result := tx.Create(&jpbres); result.Error != nil {
+					return errors.New("penyimpanan data gagal")
+				}
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data data: "+err.Error(), data)
+	}
+
+	return rp.OKSimple{Data: data}, nil
 }
