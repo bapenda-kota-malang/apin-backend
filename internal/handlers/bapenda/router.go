@@ -373,6 +373,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", group.GetDetail)
 		r.Patch("/{id}", group.Update)
 		r.Delete("/{id}", group.Delete)
+		r.Get("/download/excel", group.DownloadExcelList)
 	})
 
 	r.Get("/npwpd-byno/{no}", npwpd.GetDetailByNoNPWPD)
