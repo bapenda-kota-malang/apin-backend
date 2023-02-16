@@ -20,6 +20,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	mopfas "github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
+	mkepkebpbb "github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
 	mopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	moptnh "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	moppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
@@ -34,6 +35,7 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	reg "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
 	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
+	skepkebpbb "github.com/bapenda-kota-malang/apin-backend/internal/services/keberatan/keputusankeberatanpbb"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	// oppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	// wppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
@@ -54,7 +56,7 @@ func Create(input m.PermohonanRequestDto) (any, error) {
 		nop                   *m.PermohonanNOP
 		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
 		pembatalanSppt        *m.PembatalanSppt
-		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+		kepKebPbbDto          *mkepkebpbb.CreateDtoKepKebPbb
 		SPMKP                 *m.SPMKP
 		SkSk                  *sksk.SkSk
 	)
@@ -103,9 +105,11 @@ func Create(input m.PermohonanRequestDto) (any, error) {
 				return errors.New("penyimpanan data permohonan restitusi dan kompensasi gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
-			keputusanKeberatanPbb = data.SetKeputusanKeberatanPbb(*nop)
-			if result := tx.Create(&keputusanKeberatanPbb); result.Error != nil {
-				return errors.New("penyimpanan data permohonan keberatan gagal")
+			if err := sc.Copy(&kepKebPbbDto, &data); err != nil {
+				return errors.New("set data keputusan keberatan pbb  gagal")
+			}
+			if _, err := skepkebpbb.Create(*kepKebPbbDto, tx); err != nil {
+				return errors.New("penyimpanan data keputusan keberatan pbb gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
 			if result := tx.Create(&permohonanPengurangan); result.Error != nil {
@@ -492,7 +496,7 @@ func Update(id int, input m.PermohonanRequestDto) (interface{}, error) {
 		nop                   *m.PermohonanNOP
 		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
 		pembatalanSppt        *m.PembatalanSppt
-		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+		kepKebPbbDto          *mkepkebpbb.UpdateDtoKepKebPbb
 		SPMKP                 *m.SPMKP
 		SkSk                  *sksk.SkSk
 	)
@@ -549,9 +553,18 @@ func Update(id int, input m.PermohonanRequestDto) (interface{}, error) {
 				return errors.New("penyimpanan data permohonan restitusi dan kompensasi gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
-			keputusanKeberatanPbb = data.SetKeputusanKeberatanPbb(*nop)
-			if result := tx.Where("PermohonanId", data.Id).Updates(&keputusanKeberatanPbb); result.Error != nil {
-				return errors.New("penyimpanan data permohonan keberatan gagal")
+			// copy to dto
+			if err := sc.CopyWithOption(&kepKebPbbDto, &data, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data keputusan keberatan pbb gagal")
+			}
+			// search data
+			var dataKepKebPbb mkepkebpbb.KeputusanKeberatanPbb
+			if res := tx.Select("Id").Where("PermohonanId", data.Id).First(&dataKepKebPbb); res.Error != nil {
+				return res.Error
+			}
+			// update
+			if _, err := skepkebpbb.Update(int(dataKepKebPbb.Id), *kepKebPbbDto, tx); err != nil {
+				return errors.New("penyimpanan data keputusan keberatan pbb gagal")
 			}
 		} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
 			if result := tx.Where("PermohonanId", data.Id).Updates(&permohonanPengurangan); result.Error != nil {
@@ -627,7 +640,7 @@ func Delete(id int) (interface{}, error) {
 		permohonanPengurangan *m.PstPermohonanPengurangan
 		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
 		pembatalanSppt        *m.PembatalanSppt
-		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+		keputusanKeberatanPbb *mkepkebpbb.KeputusanKeberatanPbb
 		SPMKP                 *m.SPMKP
 		SkSk                  *sksk.SkSk
 	)

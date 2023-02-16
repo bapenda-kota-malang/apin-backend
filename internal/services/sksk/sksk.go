@@ -8,6 +8,7 @@ import (
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 	sc "github.com/jinzhu/copier"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	ni "github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
@@ -27,13 +28,16 @@ import (
 
 const source = "sksk"
 
-func Create(input m.CreateDto) (any, error) {
+func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
 	var data m.SkSk
 	if err := sc.Copy(&data, input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	result := a.DB.Create(&data)
+	result := tx.Create(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
@@ -158,7 +162,7 @@ func Cetak(input m.CetakDto) (interface{}, error) {
 			TglCetak:      input.TglCetak,
 			NipPenetak:    input.NipPenetak,
 		}
-		_, err := Create(createData)
+		_, err := Create(createData, nil)
 		if err != nil {
 			return nil, err
 		}

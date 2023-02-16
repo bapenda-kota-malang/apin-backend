@@ -128,6 +128,7 @@ type FilterDto struct {
 	Pengunjung        *string `json:"pengunjung"`
 	OmsetOp           *string `json:"omsetOp"`
 	Rekening_Id       *uint64 `json:"rekening_id"`
+	Rekening_Objek    *string `json:"rekening_objek" refsource:"Rekening.Objek"`
 	Genset            *bool   `json:"genset"`
 	AirTanah          *bool   `json:"airTanah"`
 	// SuratIzinUsaha    *[]string     `json:"suratIzinUsaha"`

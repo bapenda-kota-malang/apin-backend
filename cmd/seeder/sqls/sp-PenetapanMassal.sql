@@ -149,8 +149,7 @@ begin
   BEGIN
     SELECT count(*) into flag_njoptkp
     FROM "SubjekPajakNJOPTKP"
-    Where "Id" = wp_id and
-      "Provinsi_Kode" = Provinsi_Kode AND
+    Where "Provinsi_Kode" = Provinsi_Kode AND
       "Daerah_Kode" = Daerah_Kode AND
       "Kecamatan_Kode" = Kecamatan_Kode AND
       "Kelurahan_Kode" = Kelurahan_Kode AND
@@ -393,10 +392,17 @@ begin
 
   -- lookup subjek_pajak
   begin
-  Select "Nama_WP", "Jalan_WP", "Blok_KaNo", "RT", "RW", "Kelurahan_Kode", "Kota_Kode", "Kode_Pos", "NPWP"
-  into nm_wp, jln_wp, blk_kawp, rw_wp, rt_wp, kel_wp, kota_wp, kd_pos, npwp
+    Select "Nama_WP", "Jalan_WP", "Blok_Kav_No", "RT", "RW", "Kelurahan_Kode", "Kota_Kode", "Kode_Pos", "NPWP"
+    into nm_wp, jln_wp, blk_kawp, rw_wp, rt_wp, kel_wp, kota_wp, kd_pos, npwp
     from "SubjekPajak"
-    Where "id" = wp_id;
+    Where "NPWP" IN (SELECT "NPWP" FROM "Sppt" WHERE "Propinsi_Id" = Provinsi_Kode AND
+      "Dati2_Id" = Daerah_Kode AND
+      "Kecamatan_Id" = Kecamatan_Kode AND
+      "Keluarahan_Id" = Kelurahan_Kode AND
+      "Blok_Id" = Blok_Kode AND
+      "NoUrut" =  NoUrut AND
+      "JenisOP_Id" = JenisOp AND
+      "TahunPajakskp_sppt" = Tahun);
   
     exception when others then null;
   end;
@@ -554,4 +560,3 @@ begin
 end;$BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-  
