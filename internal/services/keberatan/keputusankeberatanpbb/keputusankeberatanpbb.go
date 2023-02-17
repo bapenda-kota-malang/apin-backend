@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
@@ -56,11 +57,22 @@ func updateSpptSp(data m.KeputusanKeberatanPbb, tx *gorm.DB) error {
 	}
 
 	// input dto provide tahun, min, max value, tglJatuhTempo, tglTerbit
+	dateFormat := time.Now().Format("2006-01-02")
 	_, err = ssppt.SpPenetapan(
 		msppt.PenetapanMassalDto{
-			Tahun:   *dataSppt.TahunPajakskp_sppt,
-			BukuMin: minValue,
-			BukuMax: maxValue,
+			Tahun:          *dataSppt.TahunPajakskp_sppt,
+			TglJatuhTempo1: dateFormat,
+			TglJatuhTempo2: dateFormat,
+			TglJatuhTempo3: dateFormat,
+			TglJatuhTempo4: dateFormat,
+			TglJatuhTempo5: dateFormat,
+			TglTerbit1:     dateFormat,
+			TglTerbit2:     dateFormat,
+			TglTerbit3:     dateFormat,
+			TglTerbit4:     dateFormat,
+			TglTerbit5:     dateFormat,
+			BukuMin:        minValue,
+			BukuMax:        maxValue,
 		},
 		dataSppt,
 		tx,
