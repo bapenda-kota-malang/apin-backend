@@ -103,6 +103,23 @@ func TrxSchedule(db *gorm.DB) (resp rp.OKSimple, err error) {
 					NoSurat:    nomorSurat,
 				}
 
+				jenisPajak := ""
+				if v.Rekening.Nama != nil {
+					jenisPajak = *v.Rekening.Nama
+				}
+				pengelola := ""
+				if v.Npwpd.Nama != nil {
+					pengelola = *v.Npwpd.Nama
+				}
+				npwpd := ""
+				if v.Npwpd.Npwpd != nil {
+					npwpd = *v.Npwpd.Npwpd
+				}
+				alamat := ""
+				if v.ObjekPajak.Alamat != nil {
+					alamat = *v.ObjekPajak.Alamat
+				}
+
 				perihal := "Surat Pemberitahuan"
 				mapPdf[v.Npwpd_Id] = &Surat{
 					Title:      perihal,
@@ -110,10 +127,10 @@ func TrxSchedule(db *gorm.DB) (resp rp.OKSimple, err error) {
 					Sifat:      "Penting",
 					Lampiran:   "-",
 					Perihal:    perihal,
-					JenisPajak: *v.Rekening.Nama,
-					Pengelola:  *v.Npwpd.Nama,
-					Npwpd:      *v.Npwpd.Npwpd,
-					Alamat:     *v.ObjekPajak.Alamat,
+					JenisPajak: jenisPajak,
+					Pengelola:  pengelola,
+					Npwpd:      npwpd,
+					Alamat:     alamat,
 					DataTable:  []m.DataTableSurat{tableContent},
 				}
 				mapTotalPdf[v.Npwpd_Id] = make(map[string]float64)
