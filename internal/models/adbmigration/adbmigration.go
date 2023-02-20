@@ -112,6 +112,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/targetrealisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/bidangkerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
@@ -136,6 +137,7 @@ import (
 func GetModelList() (data []interface{}) {
 	listModelConfigurationReference := []interface{}{
 		&skpd.SatuanKerja{},
+		&bidangkerja.BidangKerja{},
 		&jabatan.Jabatan{},
 		&pangkat.Pangkat{},
 		&adm.Provinsi{},
