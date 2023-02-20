@@ -23,10 +23,10 @@ type KeputusanKeberatanPbb struct {
 	JnsSK                 *string         `json:"jnsSK" gorm:"type:varchar(1)"`
 	NoSK                  *string         `json:"noSK" gorm:"type:varchar(30)"`
 	JnsKeputusan          JnsKeputusan    `json:"jnsKeputusan" gorm:"type:varchar(1);not null"`
-	KlsTanah_Kode         *string         `json:"klsTanah_Kode" gorm:"type:varchar(3)"`
-	KlsTanah_TahunAwal    *string         `json:"klsTanah_TahunAwal" gorm:"type:varchar(4)"`
-	KlsBangunan_Kode      *string         `json:"klsBangunan_Kode" gorm:"type:varchar(3)"`
-	KlsBangunan_TahunAwal *string         `json:"klsBangunan_TahunAwal" gorm:"type:varchar(4)"`
+	KlsTanah_Kode         *string         `json:"klsTanah_kode" gorm:"type:varchar(3)"`
+	KlsTanah_TahunAwal    *string         `json:"klsTanah_tahunAwal" gorm:"type:varchar(4)"`
+	KlsBangunan_Kode      *string         `json:"klsBangunan_kode" gorm:"type:varchar(3)"`
+	KlsBangunan_TahunAwal *string         `json:"klsBangunan_tahunAwal" gorm:"type:varchar(4)"`
 	LuasBumi              *int            `json:"luasBumi" gorm:"type:INTEGER"`
 	LuasBangunan          *int            `json:"luasBangunan" gorm:"type:INTEGER"`
 	NjopBumi              *int32          `json:"njopBumi" gorm:"type:BIGINT"`
