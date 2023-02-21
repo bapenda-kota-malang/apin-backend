@@ -652,5 +652,7 @@ func SetRoutes() http.Handler {
 		r.Post("/penetapan-massal", sppt.PenetapanMassal)
 	})
 
+	rh.RegCrud(r, "/spptpembayaran", sppt.CrudSpptPembayaran{})
+
 	return r
 }

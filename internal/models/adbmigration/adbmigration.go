@@ -95,6 +95,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
+	spptpembayaran "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -312,6 +313,7 @@ func GetModelList() (data []interface{}) {
 		&sppt.Sppt{},
 		&sppt.SpptObjekBersama{},
 		&sppt.SpptSimulasi{},
+		&spptpembayaran.SpptPembayaran{},
 	}
 	data = append(data, listModelSppt...)
 
