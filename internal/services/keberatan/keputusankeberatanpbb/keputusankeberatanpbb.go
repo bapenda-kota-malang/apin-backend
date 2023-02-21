@@ -4,13 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
 	msksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
+	msppt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	ssksk "github.com/bapenda-kota-malang/apin-backend/internal/services/sksk"
+	ssppt "github.com/bapenda-kota-malang/apin-backend/internal/services/sppt"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -19,6 +22,67 @@ import (
 )
 
 const source = "KeputusanKeberatanPbb"
+
+func updateSpptSp(data m.KeputusanKeberatanPbb, tx *gorm.DB) error {
+	if data.JnsKeputusan != m.JnsKeputusanDiterima {
+		return nil
+	}
+
+	// get data sppt
+	var dataSppt msppt.Sppt
+	resDataSspt, err := ssppt.GetByNop(
+		&data.PermohonanProvinsiID,
+		&data.PermohonanKotaID,
+		&data.PermohonanKecamatanID,
+		&data.PermohonanKelurahanID,
+		&data.PermohonanBlokID,
+		&data.NoUrutPemohon,
+		&data.PemohonJenisOPID,
+		data.TahunPelayanan,
+	)
+	if err != nil {
+		return err
+	}
+	dataSppt = resDataSspt.(rp.OKSimple).Data.(msppt.Sppt)
+
+	_, _, err = ssppt.SpPenilaian(dataSppt, tx)
+	if err != nil {
+		return err
+	}
+
+	// get min max value referensi buku
+	minValue, maxValue, err := ssppt.MinMaxValueReferensiBuku()
+	if err != nil {
+		return err
+	}
+
+	// input dto provide tahun, min, max value, tglJatuhTempo, tglTerbit
+	dateFormat := time.Now().Format("2006-01-02")
+	_, err = ssppt.SpPenetapan(
+		msppt.PenetapanMassalDto{
+			Tahun:          *dataSppt.TahunPajakskp_sppt,
+			TglJatuhTempo1: dateFormat,
+			TglJatuhTempo2: dateFormat,
+			TglJatuhTempo3: dateFormat,
+			TglJatuhTempo4: dateFormat,
+			TglJatuhTempo5: dateFormat,
+			TglTerbit1:     dateFormat,
+			TglTerbit2:     dateFormat,
+			TglTerbit3:     dateFormat,
+			TglTerbit4:     dateFormat,
+			TglTerbit5:     dateFormat,
+			BukuMin:        minValue,
+			BukuMax:        maxValue,
+		},
+		dataSppt,
+		tx,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func Create(input m.CreateDtoKepKebPbb, tx *gorm.DB) (any, error) {
 	if tx == nil {
@@ -38,7 +102,10 @@ func Create(input m.CreateDtoKepKebPbb, tx *gorm.DB) (any, error) {
 		if err := sc.Copy(&createDtoSksk, data); err != nil {
 			return err
 		}
-		if _, err := ssksk.Create(createDtoSksk, tx); err != nil {
+		if _, err := ssksk.Create(createDtoSksk, txChild); err != nil {
+			return err
+		}
+		if err := updateSpptSp(data, txChild); err != nil {
 			return err
 		}
 		return nil
@@ -109,8 +176,8 @@ func Update(id int, input m.UpdateDtoKepKebPbb, tx *gorm.DB) (interface{}, error
 		if result := txChild.Save(&data); result.Error != nil {
 			return result.Error
 		}
-		if *data.JnsKeputusan == m.JnsKeputusanDiterima {
-			// TODO: Call SP sppt recalculate penilaian dan penetapan, ask luke
+		if err := updateSpptSp(*data, txChild); err != nil {
+			return err
 		}
 		return nil
 	})

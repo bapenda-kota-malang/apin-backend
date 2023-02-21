@@ -204,6 +204,14 @@ type PenilaianDto struct {
 	Tahun          string  `json:"tahun"`
 }
 
+type SpPenilaianBumi struct {
+	PenilaianBumi *float64 `gorm:"column:penilaian_bumi"`
+}
+
+type SpPenilaianBangunan struct {
+	PenilaianBangunan *float64 `gorm:"column:penilaian_bangunan"`
+}
+
 type GetDaftarTagihan struct {
 	Provinsi_Kode     string  `json:"provinsi_kode" validate:"required;minLength=2;maxLength=2"`
 	Daerah_Kode       string  `json:"daerah_kode" validate:"required;minLength=2;maxLength=2"`
@@ -235,4 +243,8 @@ type PenetapanMassalDto struct {
 	TglTerbit5     string    `json:"tglTerbit5"`
 	BukuMin        []float64 `json:"bukuMin"`
 	BukuMax        []float64 `json:"bukuMax"`
+}
+
+type SpPenetapanMassal struct {
+	PenetepanMassal *float64 `gorm:"column:penetapan_massal"`
 }
