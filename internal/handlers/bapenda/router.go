@@ -339,6 +339,12 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", regpermohonan.Delete)
 	})
 
+	r.Route("/regpermohonan-approval", func(r chi.Router) {
+		r.Patch("/{id}/status", regpermohonan.UpdateStatus)
+		r.Get("/{id}", regpermohonan.GetDetailApproval)
+		r.Patch("/{id}", regpermohonan.Update)
+	})
+
 	r.Route("/statnop", func(r chi.Router) {
 		r.Get("/{id}", permohonan.GetStatusNOP)
 	})
