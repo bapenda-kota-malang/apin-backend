@@ -44,18 +44,6 @@ type SubjekPajakNJOPTKP struct {
 	gh.DateModel
 }
 
-type Tarif struct {
-	Id            uint64   `json:"id" gorm:"primaryKey"`
-	Provinsi_Kode *string  `json:"provinsi_kode" gorm:"type:varchar(2)"`
-	Daerah_Kode   *string  `json:"daerah_kode" gorm:"type:varchar(2)"`
-	TahunAwal     *string  `json:"tahunAwal" gorm:"type:varchar(4)"`
-	TahunAkhir    *string  `json:"tahunAkhir" gorm:"type:varchar(4)"`
-	NJOPMix       *float64 `json:"NJOPMix"`
-	NJOPMax       *float64 `json:"NJOPMax"`
-	NilaiTarif    *float64 `json:"nilaiTarif"`
-	gh.DateModel
-}
-
 type PenguranganPengenaanJPB struct {
 	Id                     uint64   `json:"id" gorm:"primaryKey"`
 	Kanwil_Kode            string   `json:"kanwil_kode" gorm:"type:varchar(2)"`
