@@ -4,7 +4,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kanwil"
 )
 
-type kppbb struct {
+type Kppbb struct {
 	Id              uint64  `json:"id" gorm:"primaryKey"`
 	AlKppbb         *string `json:"alKppbb" gorm:"type:varchar(50)"`
 	KdKanwil        *string `json:"kdKanwil,omitempty" gorm:"type:varchar(2);foreignKey:Rekening_Id"`

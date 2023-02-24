@@ -25,6 +25,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tempatpembayaranspptmasal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
@@ -609,6 +610,8 @@ func SetRoutes() http.Handler {
 	r.Route("/pbb", func(r chi.Router) {
 		r.Post("/penetapan-massal", sppt.PenetapanMassal)
 	})
+
+	rh.RegCrud(r, "/tempatpembayaranspptmasal", tempatpembayaranspptmasal.Crud{})
 
 	return r
 }
