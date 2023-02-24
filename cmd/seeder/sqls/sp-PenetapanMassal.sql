@@ -1,23 +1,5 @@
-create or replace function Penetapan_Massal(
-  Provinsi_Kode char(2), Daerah_Kode char(2), Kecamatan_Kode char(3), Kelurahan_Kode char(3),
-  Blok_Kode char(3), NoUrut char(4), JenisOp char(1), Persil varchar(10),
-  NJOPBumi bigint, NJOPBng bigint, LuasBumi bigint, LuasBng bigint,
-  wp_id bigint,
-  Kanwil_Kode char(2), KPPBB_Kode char(2), Tunggal_Kode char(2), Persepsi_Kode varchar(5), Tp_Kode char(2), 
-  NJOPTKP numeric,
-  MinB1 numeric, MaxB1 numeric,
-  MinB2 numeric, MaxB2 numeric,
-  MinB3 numeric, MaxB3 numeric,
-  MinB4 numeric, MaxB4 numeric,
-  MinB5 numeric, MaxB5 numeric,
-  Tahun char(4),
-  TjttBk1 date, TjttBk2 date, TjttBk3 date, TjttBk4 date, TjttBk5 date,
-  TrbBk1 date, TrbBk2 date, TrbBk3 date, TrbBk4 date, TrbBk5 date,
-  Nip varchar(10), NipTgl date
-)
-returns numeric
-language plpgsql    
-as $$
+CREATE OR REPLACE FUNCTION "public"."penetapan_massal"("provinsi_kode" bpchar, "daerah_kode" bpchar, "kecamatan_kode" bpchar, "kelurahan_kode" bpchar, "blok_kode" bpchar, "nourut" bpchar, "jenisop" bpchar, "persil" varchar, "njopbumi" int8, "njopbng" int8, "luasbumi" int8, "luasbng" int8, "wp_id" int8, "kanwil_kode" bpchar, "kppbb_kode" bpchar, "tunggal_kode" bpchar, "persepsi_kode" varchar, "tp_kode" bpchar, "njoptkp" numeric, "minb1" numeric, "maxb1" numeric, "minb2" numeric, "maxb2" numeric, "minb3" numeric, "maxb3" numeric, "minb4" numeric, "maxb4" numeric, "minb5" numeric, "maxb5" numeric, "tahun" bpchar, "tjttbk1" date, "tjttbk2" date, "tjttbk3" date, "tjttbk4" date, "tjttbk5" date, "trbbk1" date, "trbbk2" date, "trbbk3" date, "trbbk4" date, "trbbk5" date, "nip" varchar, "niptgl" date)
+  RETURNS "pg_catalog"."numeric" AS $BODY$
 declare
   pbb_min numeric := 0;
   tnh_ks char(1);
@@ -575,4 +557,6 @@ begin
 
   return pbb_min;
 
-end;$$
+end;$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;

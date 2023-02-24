@@ -95,6 +95,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
+	spptpembayaran "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
+	sppttandaterima "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/tandaterima"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -112,6 +114,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/targetrealisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/bidangkerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
@@ -136,6 +139,7 @@ import (
 func GetModelList() (data []interface{}) {
 	listModelConfigurationReference := []interface{}{
 		&skpd.SatuanKerja{},
+		&bidangkerja.BidangKerja{},
 		&jabatan.Jabatan{},
 		&pangkat.Pangkat{},
 		&adm.Provinsi{},
@@ -285,9 +289,14 @@ func GetModelList() (data []interface{}) {
 
 	listModelPengajuan := []interface{}{
 		&pengurangan.Pengurangan{},
+		&pengurangan.PenguranganDendaADM{},
+		&pengurangan.PenguranganJPB{},
+		&pengurangan.PenguranganPST{},
+		&pengurangan.PenguranganPermanen{},
 		&keberatan.Keberatan{},
 		&baplpengajuan.PengajuanBapl{},
 		&keberatan.PembetulanKeberatan{},
+		&keberatan.KeputusanKeberatanPbb{},
 	}
 	data = append(data, listModelPengajuan...)
 
@@ -307,6 +316,8 @@ func GetModelList() (data []interface{}) {
 		&sppt.Sppt{},
 		&sppt.SpptObjekBersama{},
 		&sppt.SpptSimulasi{},
+		&spptpembayaran.SpptPembayaran{},
+		&sppttandaterima.SpptTandaTerima{},
 	}
 	data = append(data, listModelSppt...)
 
@@ -315,7 +326,7 @@ func GetModelList() (data []interface{}) {
 		&pstpermohonan.PstDetail{},
 		&pstpermohonan.PstDataOPBaru{},
 		&pstpermohonan.PstPermohonanPengurangan{},
-		&pstpermohonan.KeputusanKeberatanPbb{},
+		// &pstpermohonan.KeputusanKeberatanPbb{},
 		&pstpermohonan.PembatalanSppt{},
 		&pstpermohonan.PembetulanSpptSKPSTP{},
 		&pstpermohonan.PstLampiran{},

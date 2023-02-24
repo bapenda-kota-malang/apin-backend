@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	sc "github.com/jinzhu/copier"
@@ -19,11 +20,14 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	ori "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
+	mropfas "github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
+	mropbng "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
+	mroptnh "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbumi"
+	mroppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
 	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/regsksk"
+	mrwppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/regwajibpajakpbb"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
-	// oppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
-	// wppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 )
 
 // /// Private funcs start here
@@ -219,6 +223,322 @@ func GetDetail(id int) (interface{}, error) {
 	finalresult.PstDataOPBaru = permohonanBaru
 	finalresult.PstDetail = permohonanDetail
 	finalresult.PstPermohonanPengurangan = permohonanPengurangan
+
+	return rp.OKSimple{Data: finalresult}, nil
+}
+
+func transformNOP(nop string) string {
+	result := strings.Trim(nop, ".")
+	return result
+}
+
+func GetDetailApproval(id int) (interface{}, error) {
+	var (
+		data                  *m.RegPstPermohonan
+		permohonanBaru        *m.RegPstDataOPBaru
+		permohonanDetail      *m.RegPstDetail
+		permohonanPengurangan *m.RegPstPermohonanPengurangan
+		lampiran              *m.RegPstLampiran
+		oppbb                 *mroppbb.RegObjekPajakPbb
+		wppbb                 *mrwppbb.RegWajibPajakPbb
+		optnh                 *mroptnh.RegObjekPajakBumi
+		opbng                 []mropbng.RegObjekPajakBangunan
+		opfas                 []mropfas.RegFasilitasBangunan
+
+		bangunans []mropbng.CreateDto
+		// jpb       any
+	)
+	// tempNOP := transformNOP(nop)
+	// dec_nop := m.DecodeNOPPermohonan(&tempNOP)
+	result := a.DB.First(&data, &id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", data)
+	}
+	if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanDetail); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Detail", permohonanDetail)
+	}
+	_ = a.DB.Where("PermohonanId", data.Id).First(&lampiran)
+
+	if *data.BundelPelayanan == m.JenisPelayanan[0] {
+		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanBaru); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Baru", permohonanBaru)
+		}
+	} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
+		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanPengurangan); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+	}
+
+	if result := a.DB.
+		Where("PstPermohonan_id", data.Id).
+		First(&oppbb); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", oppbb)
+	}
+
+	if result := a.DB.
+		Where("Id", oppbb.RegWajibPajakPbb_Id).
+		First(&wppbb); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", wppbb)
+	}
+
+	if result := a.DB.
+		Where("PstPermohonan_id", data.Id).
+		First(&optnh); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", optnh)
+	}
+
+	finalresult := data.SetPstPermohonanResponse()
+	finalresult.PstDataOPBaru = permohonanBaru
+	finalresult.PstDetail = permohonanDetail
+	finalresult.PstPermohonanPengurangan = permohonanPengurangan
+	finalresult.PstLampiran = lampiran
+
+	if err := sc.CopyWithOption(&finalresult.PstOpjekPajakPBB, &oppbb, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data data", oppbb)
+	}
+
+	if err := sc.CopyWithOption(&finalresult.PstOpjekPajakPBB.RegWajibPajakPbbs, &wppbb, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data data", oppbb)
+	}
+
+	if err := sc.CopyWithOption(&finalresult.PstOpjekPajakPBB.RegObjekPajakBumis, &optnh, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data data", oppbb)
+	}
+
+	if resBang := a.DB.
+		Where("PstPermohonan_id", data.Id).
+		Find(&opbng); resBang.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", opbng)
+	} else if resBang.RowsAffected > 0 {
+		for _, bang := range opbng {
+			var tempBang *mropbng.CreateDto
+			var fasilitas mropbng.OPBngFasilitasBangunan
+
+			if err := sc.CopyWithOption(&tempBang, &opbng, sc.Option{IgnoreEmpty: true}); err != nil {
+				return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data data", oppbb)
+			}
+
+			if result := a.DB.
+				Where("PstPermohonan_id", data.Id).
+				Where("NoBangunan", bang.NoBangunan).
+				Find(&opfas); result.Error != nil {
+				return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data fasilitas", opfas)
+			} else {
+				for _, fas := range opfas {
+					switch *fas.KodeFasilitas {
+					case "01":
+						fasilitas.FBJumlahACSplit = fas.JumlahSatuan
+					case "02":
+						fasilitas.FBJumlahACWindow = fas.JumlahSatuan
+					case "11":
+						fasilitas.FBIsACCentral = fas.JumlahSatuan
+					case "12":
+						tempint := 12
+						fasilitas.FBTipeLapisanKolam = &tempint
+						fasilitas.FBLuasKolamRenang = fas.JumlahSatuan
+					case "13":
+						tempint := 13
+						fasilitas.FBTipeLapisanKolam = &tempint
+						fasilitas.FBLuasKolamRenang = fas.JumlahSatuan
+					case "16":
+						fasilitas.FBHalamanBerat = fas.JumlahSatuan
+					case "15":
+						fasilitas.FBHalamanSendang = fas.JumlahSatuan
+					case "14":
+						fasilitas.FBHalamanRingan = fas.JumlahSatuan
+					case "17":
+						fasilitas.FBHalamanLantai = fas.JumlahSatuan
+					case "18":
+						fasilitas.FBTenisLampuBeton = fas.JumlahSatuan
+					case "21":
+						fasilitas.FBTenisTanpaLampuBeton = fas.JumlahSatuan
+					case "19":
+						fasilitas.FBTenisAspal1 = fas.JumlahSatuan
+					case "22":
+						fasilitas.FBTenisAspal2 = fas.JumlahSatuan
+					case "20":
+						fasilitas.FBTenisLiatRumput1 = fas.JumlahSatuan
+					case "23":
+						fasilitas.FBTenisLiatRumput2 = fas.JumlahSatuan
+					case "30":
+						fasilitas.FBLiftPenumpang = fas.JumlahSatuan
+					case "31":
+						fasilitas.FBLiftKapsul = fas.JumlahSatuan
+					case "32":
+						fasilitas.FBLiftBarang = fas.JumlahSatuan
+					case "33":
+						fasilitas.FBTangga80 = fas.JumlahSatuan
+					case "34":
+						fasilitas.FBTangga81 = fas.JumlahSatuan
+					case "35":
+						tempint := 35
+						fasilitas.FBPagarBahan = &tempint
+						fasilitas.FBPagarPanjang = fas.JumlahSatuan
+					case "36":
+						tempint := 36
+						fasilitas.FBPagarBahan = &tempint
+						fasilitas.FBPagarPanjang = fas.JumlahSatuan
+					case "37":
+						fasilitas.FBPKHydrant = fas.JumlahSatuan
+					case "39":
+						fasilitas.FBPKSplinkler = fas.JumlahSatuan
+					case "38":
+						fasilitas.FBPKFireAI = fas.JumlahSatuan
+					case "41":
+						fasilitas.FBPABX = fas.JumlahSatuan
+					case "42":
+						fasilitas.FBSumur = fas.JumlahSatuan
+					case "07":
+						fasilitas.JpbKlinikACCentralKamar = fas.JumlahSatuan
+					case "08":
+						fasilitas.JpbKlinikACCentralRuang = fas.JumlahSatuan
+					case "04":
+						fasilitas.JpbHotelACCentralKamar = fas.JumlahSatuan
+					case "05":
+						fasilitas.JpbHotelACCentralRuang = fas.JumlahSatuan
+					case "09":
+						fasilitas.JpbApartemenACCentralKamar = fas.JumlahSatuan
+					case "10":
+						fasilitas.JpbApartemenACCentralLain = fas.JumlahSatuan
+					default:
+						return sh.SetError("request", "get-data", source, "failed", "kode fasilitas tidak ditemukan", fas.KodeFasilitas)
+					}
+				}
+			}
+
+			if bang.Jpb_Kode == "00" || bang.Jpb_Kode == "01" || bang.Jpb_Kode == "10" || bang.Jpb_Kode == "11" {
+			} else if bang.Jpb_Kode == "02" {
+				var jpbres *mropbng.RegJpb2
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+
+			} else if bang.Jpb_Kode == "03" {
+				var jpbres *mropbng.RegJpb3
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+				fasilitas.JpbProdTinggi = jpbres.TinggiKolom3
+				fasilitas.JpbProdLebar = jpbres.LebarBentang3
+				fasilitas.JpbProdDaya = jpbres.DayaDukungLantai
+				fasilitas.JpbProdKeliling = jpbres.KelilingDinding3
+				fasilitas.JpbProdLuas = jpbres.LuasMezzanine3
+
+			} else if bang.Jpb_Kode == "04" {
+				var jpbres *mropbng.RegJpb4
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+
+			} else if bang.Jpb_Kode == "05" {
+				var jpbres *mropbng.RegJpb5
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+				fasilitas.JpbKlinikACCentralKamar = jpbres.LuasKamarAcCentral
+				fasilitas.JpbKlinikACCentralRuang = jpbres.LuasRuangLainAcCentral
+
+			} else if bang.Jpb_Kode == "06" {
+				var jpbres *mropbng.RegJpb6
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+
+			} else if bang.Jpb_Kode == "07" {
+				var jpbres *mropbng.RegJpb7
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+				tempStr, _ := strconv.Atoi((string)(jpbres.JenisHotel))
+				fasilitas.JpbHotelJenis = &tempStr
+				tempStr, _ = strconv.Atoi((string)(jpbres.JumlahBintang))
+				fasilitas.JpbHotelBintang = &tempStr
+				fasilitas.JpbHotelJmlKamar = jpbres.JumlahKamar
+				fasilitas.JpbHotelACCentralKamar = jpbres.LuasKamarAcCentral
+				fasilitas.JpbHotelACCentralRuang = jpbres.LuasRuangLainAcCentral
+			} else if bang.Jpb_Kode == "08" {
+				var jpbres *mropbng.RegJpb8
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+				fasilitas.JpbProdTinggi = jpbres.TinggiKolom8
+				fasilitas.JpbProdLebar = jpbres.LebarBentang8
+				fasilitas.JpbProdDaya = jpbres.DayaDukungLantai
+				fasilitas.JpbProdKeliling = jpbres.KelilingDinding8
+				fasilitas.JpbProdLuas = jpbres.LuasMezzanine8
+			} else if bang.Jpb_Kode == "09" {
+				var jpbres *mropbng.RegJpb9
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+			} else if bang.Jpb_Kode == "12" {
+				var jpbres *mropbng.RegJpb12
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+			} else if bang.Jpb_Kode == "13" {
+				var jpbres *mropbng.RegJpb13
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+				fasilitas.JpbApartemenJumlah = jpbres.JumlahApartment
+				fasilitas.JpbApartemenACCentralKamar = jpbres.LuasApartAcCentral
+				fasilitas.JpbApartemenACCentralLain = jpbres.LuasRuangLainAcCentral
+
+			} else if bang.Jpb_Kode == "14" {
+				var jpbres *mropbng.RegJpb14
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+			} else if bang.Jpb_Kode == "15" {
+				var jpbres *mropbng.RegJpb15
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+				fasilitas.JpbTankiKapasitas = jpbres.KapasitasTanki
+				tempStr := (string)(jpbres.LetakTanki)
+				fasilitas.JpbTankiLetak = &tempStr
+			} else if bang.Jpb_Kode == "16" {
+				var jpbres *mropbng.RegJpb16
+				if result := a.DB.
+					Where("NoBangunan", bang.NoBangunan).
+					First(&jpbres); result.Error != nil {
+					return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+				}
+			}
+
+			tempBang.RegFasBangunan = &fasilitas
+			bangunans = append(bangunans, *tempBang)
+		}
+	}
+
+	finalresult.PstOpjekPajakPBB.RegObjekPajakBumis.RegObjekPajakBangunans = &bangunans
 
 	return rp.OKSimple{Data: finalresult}, nil
 }

@@ -8,6 +8,8 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"gorm.io/datatypes"
+
+	mroppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 )
 
 var (
@@ -129,11 +131,15 @@ type PstPermohonanResponse struct {
 	PstDataOPBaru            *RegPstDataOPBaru            `json:"pstBaru"`
 	PstDetail                *RegPstDetail                `json:"pstDetil"`
 	PstPermohonanPengurangan *RegPstPermohonanPengurangan `json:"pstPengurangan"`
+	PstLampiran              *RegPstLampiran              `json:"pstLampiran"`
+
 	// PembetulanSpptSKPSTP     *PembetulanSpptSKPSTP     `json:"pembetulanSpptSKPSTP"`
 	// PembatalanSppt           *PembatalanSppt           `json:"pembatalanSppt"`
 	// KeputusanKeberatanPbb    *KeputusanKeberatanPbb    `json:"keputusanKeberatanPbb"`
 	// SPMKP                    *SPMKP                    `json:"spmkp"`
 	// SkSk                     *SkSk                     `json:"sksk"`
+
+	PstOpjekPajakPBB *mroppbb.CreateDto `json:"oppbb"`
 }
 
 type RequestApprovalPermohonan struct {

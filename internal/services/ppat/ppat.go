@@ -24,7 +24,7 @@ const source = "pegawai"
 
 ///// Exported funcs start here
 
-func Create(input m.Create) (any, error) {
+func Create(input m.CreateDto) (any, error) {
 	var data m.Ppat
 	var dataU mu.CreateDto
 	var dataUX any
@@ -32,9 +32,6 @@ func Create(input m.Create) (any, error) {
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, input); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
-	}
-	if err := sc.Copy(&dataU, input); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", dataU)
 	}
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
@@ -44,9 +41,14 @@ func Create(input m.Create) (any, error) {
 		}
 
 		// simpan data user melalui user service
+		dataU.Name = input.User_Name
+		dataU.Password = &input.User_Password
+		dataU.Email = input.User_Email
+		dataU.Notes = input.User_Notes
 		dataU.Position = 2
 		dataU.Ref_Id = data.Id
 		dataU.RegMode = 1
+		dataU.Status = 1
 		dataUXTemp, err := su.Create(dataU, tx)
 		if err != nil {
 			return err
@@ -70,25 +72,34 @@ func Create(input m.Create) (any, error) {
 	}}, nil
 }
 
-func GetList(input m.Filter) (any, error) {
-	var data []m.Ppat
+func GetList(input m.FilterDto) (any, error) {
+	var data []m.OutputDto
 	var count int64
 
 	var pagination gh.Pagination
-	result := a.DB.
-		Model(&m.Ppat{}).
+	rows, err := a.DB.Table("\"Ppat\" \"P\"").
 		Scopes(gh.Filter(input)).
+		Joins("LEFT JOIN \"User\" \"U\" ON \"P\".\"Id\"=\"U\".\"Ref_Id\" AND \"U\".\"Position\"=2").
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
-		Find(&data)
-	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		Select("\"P\".\"Id\", \"P\".\"Nama\", \"P\".\"Alamat\", \"P\".\"Nik\", \"U\".\"Name\", \"U\".\"Email\"").
+		Rows()
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data: "+err.Error(), data)
+	}
+	defer rows.Close()
+
+	data = make([]m.OutputDto, 0)
+	row := m.OutputDto{}
+	for rows.Next() {
+		rows.Scan(&row.Id, &row.Nama, &row.Alamat, &row.Nik, &row.User_Name, &row.User_Email)
+		data = append(data, row)
 	}
 
 	return rp.OK{
 		Meta: t.IS{
 			"totalCount":   strconv.Itoa(int(count)),
-			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"currentCount": strconv.Itoa(int(len(data))),
 			"page":         strconv.Itoa(pagination.Page),
 			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
@@ -97,18 +108,24 @@ func GetList(input m.Filter) (any, error) {
 }
 
 func GetDetail(id int) (interface{}, error) {
-	var data *m.Ppat
-	result := a.DB.First(&data, id)
-	if result.RowsAffected == 0 {
-		return nil, nil
-	} else if result.Error != nil {
-		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", data)
-	}
+	var data *m.OutputDto = &m.OutputDto{}
+	row := a.DB.Table("\"Ppat\" \"P\"").
+		Joins("LEFT JOIN \"User\" \"U\" ON \"P\".\"Id\"=\"U\".\"Ref_Id\" AND \"U\".\"Position\"=2").
+		Where("\"P\".\"Id\"", id).
+		Select("\"P\".\"Id\", \"P\".\"Nama\", \"P\".\"Alamat\", \"P\".\"Nik\", \"U\".\"Name\", \"U\".\"Email\", \"U\".\"Notes\"").
+		Row()
+	row.Scan(&data.Id, &data.Nama, &data.Alamat, &data.Nik, &data.User_Name, &data.User_Email, &data.User_Notes)
+
+	// if result.RowsAffected == 0 {
+	// 	return nil, nil
+	// } else if result.Error != nil {
+	// 	return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", data)
+	// }
 
 	return rp.OKSimple{Data: data}, nil
 }
 
-func Update(id int, input m.Update) (interface{}, error) {
+func Update(id int, input m.UpdateDto) (interface{}, error) {
 	var data *m.Ppat
 	var dataU *mu.User
 
@@ -116,21 +133,24 @@ func Update(id int, input m.Update) (interface{}, error) {
 	if result.RowsAffected == 0 {
 		return sh.SetError("request", "update-data", source, "failed", "data ppat tidak dapat ditemukan", data)
 	}
-	result = a.DB.Where(mu.User{Ref_Id: data.Id, Position: 2}).First(&dataU, id)
+	result = a.DB.Where(mu.User{Ref_Id: data.Id, Position: 2}).First(&dataU)
 	if result.RowsAffected == 0 {
-		return sh.SetError("request", "update-data", source, "failed", "data user tidak dapat ditemukan", data)
+		return sh.SetError("request", "update-data", source, "failed", "data user tidak dapat ditemukan", dataU)
 	}
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload ppat", data)
 	}
-	if err := sc.Copy(&dataU, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload user", data)
-	}
+	// if err := sc.Copy(&dataU, &input); err != nil {
+	// 	return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload user", data)
+	// }
 
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		if result := a.DB.Save(&data); result.Error != nil {
 			return errors.New("gagal menyimpan data ppat")
 		}
+
+		dataU.Email = input.User_Email
+		dataU.Notes = input.User_Notes
 		if result := a.DB.Save(&dataU); result.Error != nil {
 			return errors.New("gagal menyimpan data user")
 		}
