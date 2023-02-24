@@ -34,22 +34,22 @@ func CreatePermanen(input m.CreateDtoPermanen) (any, error) {
 		}
 
 		yearNow := time.Now().Year()
-		tahunAwal, _ := strconv.Atoi(*data.TahunPenguranganPermanenAwal)
-		tahunAkhir, _ := strconv.Atoi(*data.TahunPenguranganPermanenAkhir)
+		tahunAwal, _ := strconv.Atoi(*data.ThnAwal)
+		tahunAkhir, _ := strconv.Atoi(*data.ThnAkhir)
 		if yearNow < tahunAwal || yearNow > tahunAkhir {
 			return fmt.Errorf("tahun tidak dalam range tahun pengurangan permanen")
 		}
 
 		_, err := ssppt.UpdatePenguranganByNop(msppt.NopDto{
-			Propinsi_Id:        data.ProvinsiPemohon_Kd,
-			Dati2_Id:           data.DaerahPemohon_Kd,
-			Kecamatan_Id:       data.KecamatanPemohon_Kd,
-			Keluarahan_Id:      data.KelurahanPemohon_Kd,
-			Blok_Id:            data.BlokPemohon_Kd,
-			NoUrut:             data.NoUrutPemohon_Kd,
-			JenisOP_Id:         data.JenisOpPemohon_Kd,
-			TahunPajakskp_sppt: data.TahunPenguranganPermanenAwal,
-		}, *data.PctPenguranganPermanen, tx)
+			Propinsi_Id:        data.Provinsi_Kode_Pemohon,
+			Dati2_Id:           data.Daerah_Kode_Pemohon,
+			Kecamatan_Id:       data.Kecamatan_Kode_Pemohon,
+			Keluarahan_Id:      data.Kelurahan_Kode_Pemohon,
+			Blok_Id:            data.Blok_Kode_Pemohon,
+			NoUrut:             data.NoUrut_Pemohon,
+			JenisOP_Id:         data.JenisOp_Pemohon,
+			TahunPajakskp_sppt: data.ThnAwal,
+		}, *data.PCTPenguranganPermanen, tx)
 		if err != nil {
 			return err
 		}
@@ -117,23 +117,23 @@ func UpdatePermanen(id int, input m.UpdateDtoPermanen) (interface{}, error) {
 		if result := tx.Save(&data); result.Error != nil {
 			return result.Error
 		}
-		if input.PctPenguranganPermanen != nil {
+		if input.PCTPenguranganPermanen != nil {
 			yearNow := time.Now().Year()
-			tahunAwal, _ := strconv.Atoi(*data.TahunPenguranganPermanenAwal)
-			tahunAkhir, _ := strconv.Atoi(*data.TahunPenguranganPermanenAkhir)
+			tahunAwal, _ := strconv.Atoi(*data.ThnAwal)
+			tahunAkhir, _ := strconv.Atoi(*data.ThnAkhir)
 			if yearNow < tahunAwal || yearNow > tahunAkhir {
 				return fmt.Errorf("tahun tidak dalam range tahun pengurangan permanen")
 			}
 			_, err := ssppt.UpdatePenguranganByNop(msppt.NopDto{
-				Propinsi_Id:        data.ProvinsiPemohon_Kd,
-				Dati2_Id:           data.DaerahPemohon_Kd,
-				Kecamatan_Id:       data.KecamatanPemohon_Kd,
-				Keluarahan_Id:      data.KelurahanPemohon_Kd,
-				Blok_Id:            data.BlokPemohon_Kd,
-				NoUrut:             data.NoUrutPemohon_Kd,
-				JenisOP_Id:         data.JenisOpPemohon_Kd,
-				TahunPajakskp_sppt: data.TahunPenguranganPermanenAwal,
-			}, *data.PctPenguranganPermanen, tx)
+				Propinsi_Id:        data.Provinsi_Kode_Pemohon,
+				Dati2_Id:           data.Daerah_Kode_Pemohon,
+				Kecamatan_Id:       data.Kecamatan_Kode_Pemohon,
+				Keluarahan_Id:      data.Kelurahan_Kode_Pemohon,
+				Blok_Id:            data.Blok_Kode_Pemohon,
+				NoUrut:             data.NoUrutPelayanan,
+				JenisOP_Id:         data.JenisOp_Pemohon,
+				TahunPajakskp_sppt: data.ThnAwal,
+			}, *data.PCTPenguranganPermanen, tx)
 			if err != nil {
 				return err
 			}

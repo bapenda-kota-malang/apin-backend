@@ -32,15 +32,15 @@ func CreatePST(input m.CreateDtoPST) (any, error) {
 			return result.Error
 		}
 		_, err := ssppt.UpdatePenguranganByNop(msppt.NopDto{
-			Propinsi_Id:        data.ProvinsiPemohon_Kd,
-			Dati2_Id:           data.DaerahPemohon_Kd,
-			Kecamatan_Id:       data.KecamatanPemohon_Kd,
-			Keluarahan_Id:      data.KelurahanPemohon_Kd,
-			Blok_Id:            data.BlokPemohon_Kd,
-			NoUrut:             data.NoUrutPemohon_Kd,
-			JenisOP_Id:         data.JenisOpPemohon_Kd,
-			TahunPajakskp_sppt: data.TahunPenguranganPST,
-		}, *data.PctPenguranganPST, tx)
+			Propinsi_Id:        data.Provinsi_Kode_Pemohon,
+			Dati2_Id:           data.Daerah_Kode_Pemohon,
+			Kecamatan_Id:       data.Kecamatan_Kode_Pemohon,
+			Keluarahan_Id:      data.Kelurahan_Kode_Pemohon,
+			Blok_Id:            data.Blok_Kode_Pemohon,
+			NoUrut:             data.NoUrut_Pemohon,
+			JenisOP_Id:         data.JenisOp_Pemohon,
+			TahunPajakskp_sppt: data.ThnPengPST,
+		}, *data.PCTPenguranganPST, tx)
 		if err != nil {
 			return err
 		}
@@ -108,17 +108,17 @@ func UpdatePST(id int, input m.UpdateDtoPST) (interface{}, error) {
 		if result := tx.Save(&data); result.Error != nil {
 			return result.Error
 		}
-		if input.PctPenguranganPST != nil {
+		if input.PCTPenguranganPST != nil {
 			_, err := ssppt.UpdatePenguranganByNop(msppt.NopDto{
-				Propinsi_Id:        data.ProvinsiPemohon_Kd,
-				Dati2_Id:           data.DaerahPemohon_Kd,
-				Kecamatan_Id:       data.KecamatanPemohon_Kd,
-				Keluarahan_Id:      data.KelurahanPemohon_Kd,
-				Blok_Id:            data.BlokPemohon_Kd,
-				NoUrut:             data.NoUrutPemohon_Kd,
-				JenisOP_Id:         data.JenisOpPemohon_Kd,
-				TahunPajakskp_sppt: data.TahunPenguranganPST,
-			}, *data.PctPenguranganPST, tx)
+				Propinsi_Id:        data.Provinsi_Kode_Pemohon,
+				Dati2_Id:           data.Daerah_Kode_Pemohon,
+				Kecamatan_Id:       data.Kecamatan_Kode_Pemohon,
+				Keluarahan_Id:      data.Kelurahan_Kode_Pemohon,
+				Blok_Id:            data.Blok_Kode_Pemohon,
+				NoUrut:             data.NoUrut_Pemohon,
+				JenisOP_Id:         data.JenisOp_Pemohon,
+				TahunPajakskp_sppt: data.ThnPengPST,
+			}, *data.PCTPenguranganPST, tx)
 			if err != nil {
 				return err
 			}
