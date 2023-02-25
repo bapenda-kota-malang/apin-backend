@@ -473,7 +473,6 @@ func GetModelList() (data []interface{}) {
 		&penetapan.PenguranganPST{},
 		&penetapan.SubjekPajak{},
 		&penetapan.DafnomOP{},
-		&penetapan.ReferensiBuku{},
 	}
 	data = append(data, listModelPenetapanMassal...)
 
