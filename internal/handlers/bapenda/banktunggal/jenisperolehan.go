@@ -1,12 +1,12 @@
-package banktunggal
+package jenisperolehan
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/banktunggal"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/banktunggal"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/jenisperolehan"
 )
 
 type Crud struct{}
