@@ -34,6 +34,8 @@ func (s *seedSqlService) RunImportSql(cmd string) error {
 		ex = exec.Command("bash", "-c", cmd)
 	case "windows":
 		ex = exec.Command("cmd", "/C", cmd)
+	case "darwin":
+		ex = exec.Command("bash", "-c", cmd)
 	default:
 		return fmt.Errorf("OS not supported")
 	}
