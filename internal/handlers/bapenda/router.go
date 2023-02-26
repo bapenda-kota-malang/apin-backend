@@ -9,6 +9,7 @@ import (
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bankpersepsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bapenagihan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datanir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetablok"
@@ -670,6 +671,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/sppt/tandaterima", sppt.CrudSpptTandaTerima{})
 
 	rh.RegCrud(r, "/banktunggal", banktunggal.Crud{})
+
+	rh.RegCrud(r, "/bankpersepsi", bankpersepsi.Crud{})
 
 	return r
 }

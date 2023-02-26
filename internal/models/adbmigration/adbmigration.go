@@ -4,6 +4,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/bankpersepsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/banktunggal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
 	bapenagihanpetugas "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
@@ -483,6 +484,7 @@ func GetModelList() (data []interface{}) {
 	listModeTempatPembayaranSpptMasal := []interface{}{
 		&tempatpembayaranspptmasal.TempatPembayaranSPPTMasal{},
 		&banktunggal.BankTunggal{},
+		&bankpersepsi.BankPersepsi{},
 	}
 	data = append(data, listModeTempatPembayaranSpptMasal...)
 
