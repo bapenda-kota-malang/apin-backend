@@ -21,7 +21,9 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kanwil"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/keberatan/keputusankeberatanpbb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penetapanmassal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
@@ -673,6 +675,10 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/banktunggal", banktunggal.Crud{})
 
 	rh.RegCrud(r, "/bankpersepsi", bankpersepsi.Crud{})
+
+	rh.RegCrud(r, "/kanwil", kanwil.Crud{})
+
+	rh.RegCrud(r, "/kppbb", kppbb.Crud{})
 
 	return r
 }

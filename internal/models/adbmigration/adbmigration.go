@@ -55,11 +55,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisusaha"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jpb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kanwil"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelasbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/konfigurasipajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
@@ -485,6 +487,8 @@ func GetModelList() (data []interface{}) {
 		&tempatpembayaranspptmasal.TempatPembayaranSPPTMasal{},
 		&banktunggal.BankTunggal{},
 		&bankpersepsi.BankPersepsi{},
+		&kanwil.Kanwil{},
+		&kppbb.Kppbb{},
 	}
 	data = append(data, listModeTempatPembayaranSpptMasal...)
 

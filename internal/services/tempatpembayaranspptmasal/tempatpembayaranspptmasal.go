@@ -68,13 +68,22 @@ func GetList(input m.FilterDto) (any, error) {
 		response = append(response, temp)
 	}
 
+	meta := t.IS{
+		"totalCount":   strconv.Itoa(int(count)),
+		"currentCount": strconv.Itoa(int(result.RowsAffected)),
+		"page":         strconv.Itoa(pagination.Page),
+		"pageSize":     strconv.Itoa(pagination.PageSize),
+	}
+
+	if len(response) == 0 {
+		return rp.OK{
+			Meta: meta,
+			Data: []string{},
+		}, nil
+	}
+
 	return rp.OK{
-		Meta: t.IS{
-			"totalCount":   strconv.Itoa(int(count)),
-			"currentCount": strconv.Itoa(int(result.RowsAffected)),
-			"page":         strconv.Itoa(pagination.Page),
-			"pageSize":     strconv.Itoa(pagination.PageSize),
-		},
+		Meta: meta,
 		Data: response,
 	}, nil
 }
