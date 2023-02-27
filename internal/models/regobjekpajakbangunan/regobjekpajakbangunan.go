@@ -166,4 +166,6 @@ type OPBngFasilitasBangunan struct {
 	JpbProdDaya                *int    `json:"jpbProdDaya"`
 	JpbProdKeliling            *int    `json:"jpbProdKeliling"`
 	JpbProdLuas                *int    `json:"jpbProdLuas"`
+
+	KelasBangunan *string `json:"kelasBangunan"`
 }

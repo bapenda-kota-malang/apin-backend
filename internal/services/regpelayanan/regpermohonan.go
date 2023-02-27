@@ -245,6 +245,8 @@ func GetDetailApproval(id int) (interface{}, error) {
 		opbng                 []mropbng.RegObjekPajakBangunan
 		opfas                 []mropfas.RegFasilitasBangunan
 
+		tempmroppbb mroppbb.CreateDto
+
 		bangunans []mropbng.CreateDto
 		// jpb       any
 	)
@@ -289,23 +291,24 @@ func GetDetailApproval(id int) (interface{}, error) {
 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", optnh)
 	}
 
+	if err := sc.CopyWithOption(&tempmroppbb, &oppbb, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data oppbb", oppbb)
+	}
+
+	if err := sc.CopyWithOption(&tempmroppbb.RegWajibPajakPbbs, &wppbb, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data wppbb", wppbb)
+	}
+
+	if err := sc.CopyWithOption(&tempmroppbb.RegObjekPajakBumis, &optnh, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data optnh", optnh)
+	}
+
 	finalresult := data.SetPstPermohonanResponse()
 	finalresult.PstDataOPBaru = permohonanBaru
 	finalresult.PstDetail = permohonanDetail
 	finalresult.PstPermohonanPengurangan = permohonanPengurangan
 	finalresult.PstLampiran = lampiran
-
-	if err := sc.CopyWithOption(&finalresult.PstOpjekPajakPBB, &oppbb, sc.Option{IgnoreEmpty: true}); err != nil {
-		return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data data", oppbb)
-	}
-
-	if err := sc.CopyWithOption(&finalresult.PstOpjekPajakPBB.RegWajibPajakPbbs, &wppbb, sc.Option{IgnoreEmpty: true}); err != nil {
-		return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data data", oppbb)
-	}
-
-	if err := sc.CopyWithOption(&finalresult.PstOpjekPajakPBB.RegObjekPajakBumis, &optnh, sc.Option{IgnoreEmpty: true}); err != nil {
-		return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data data", oppbb)
-	}
+	finalresult.PstOpjekPajakPBB = &tempmroppbb
 
 	if resBang := a.DB.
 		Where("PstPermohonan_id", data.Id).
@@ -763,5 +766,684 @@ func Approval(kd string, auth int, input m.RequestApprovalPermohonan, tx *gorm.D
 			"affected": strconv.Itoa(int(result.RowsAffected)),
 		},
 		Data: data,
+	}, nil
+}
+
+func UpdateApproval(id int, auth int, input m.PermohonanRequestDto) (interface{}, error) {
+	var (
+		err error
+
+		data m.RegPstPermohonan
+		nop  *m.PermohonanNOP
+
+		regPermohonanDetail      *m.RegPstDetail
+		regPermohonanBaru        *m.RegPstDataOPBaru
+		regPermohonanPengurangan *m.RegPstPermohonanPengurangan
+		regPembetulanSpptSKPSTP  *m.RegPembetulanSpptSKPSTP
+		regKeputusanKeberatanPbb *m.RegKeputusanKeberatanPbb
+
+		regPermohonanDetailInput      *m.RegPstDetailInput
+		regPermohonanBaruInput        *m.RegPstDataOPBaru
+		regPermohonanPenguranganInput *m.RegPstPermohonanPengurangan
+		regPembetulanSpptSKPSTPInput  *m.RegPembetulanSpptSKPSTP
+		regKeputusanKeberatanPbbInput *m.RegKeputusanKeberatanPbb
+
+		roppbb *mroppbb.RegObjekPajakPbb
+		rwppbb *mrwppbb.RegWajibPajakPbb
+		roptnh *mroptnh.RegObjekPajakBumi
+		// ropbng []mropbng.RegObjekPajakBangunan
+		ropfas []mropfas.RegFasilitasBangunan
+
+		opbng []mropbng.RegObjekPajakBangunan
+		// opfas []mropfas.RegFasilitasBangunan
+
+		// areaCode    string
+		tempKodeFas string
+		errTemp     error
+	)
+
+	if input.NOP != nil {
+		nop = m.DecodeNOPPermohonan(input.NOP)
+		// areaCode = nop.PermohonanProvinsiID + nop.PermohonanKotaID + nop.PermohonanKecamatanID + nop.PermohonanKelurahanID
+	}
+
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data: "+err.Error(), data)
+	}
+
+	idPermohonan := data.Id
+
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
+		// simpan data permohonan ke db satu if karena result dipakai sekali, +error
+		if result := tx.Save(&data); result.Error != nil {
+			return errors.New("penyimpanan data permohonan gagal")
+		}
+
+		regPermohonanBaruInput, regPermohonanDetailInput, regPermohonanPenguranganInput, nop = data.SetDataPermohonanTransformer(input)
+		regPermohonanDetail = new(m.RegPstDetail)
+
+		_ = a.DB.Where("PermohonanId", idPermohonan).First(&regPermohonanDetail)
+		if err := sc.CopyWithOption(&regPermohonanDetail, &regPermohonanDetailInput, sc.Option{IgnoreEmpty: true}); err != nil {
+			return errors.New("set data permohonan detail gagal")
+		}
+		if err := sc.CopyWithOption(&regPermohonanDetail, &nop, sc.Option{IgnoreEmpty: true}); err != nil {
+			return errors.New("set data permohonan detail gagal")
+		}
+		regPermohonanDetail.PermohonanId = &data.Id
+
+		if result := tx.Save(&regPermohonanDetail); result.Error != nil {
+			return errors.New("penyimpanan data permohonan detail gagal")
+		}
+
+		if *data.BundelPelayanan == m.JenisPelayanan[0] {
+			_ = a.DB.Where("PermohonanId", idPermohonan).First(&regPermohonanBaru)
+			if err := sc.CopyWithOption(&regPermohonanBaru, &regPermohonanBaruInput, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			if err := sc.CopyWithOption(&regPermohonanBaru, &nop, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			regPermohonanBaru.PermohonanId = &data.Id
+
+			if result := tx.Save(&regPermohonanBaru); result.Error != nil {
+				return errors.New("penyimpanan data permohonan baru gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[2] {
+			regPembetulanSpptSKPSTPInput = data.SetPembetulanSpptSKPSTP(*nop)
+			_ = a.DB.Where("PermohonanId", idPermohonan).First(&regPembetulanSpptSKPSTP)
+			if err := sc.CopyWithOption(&regPembetulanSpptSKPSTP, &regPembetulanSpptSKPSTPInput, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			if err := sc.CopyWithOption(&regPembetulanSpptSKPSTP, &nop, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			regPembetulanSpptSKPSTP.PermohonanId = &data.Id
+
+			if result := tx.Save(&regPembetulanSpptSKPSTP); result.Error != nil {
+				return errors.New("penyimpanan data permohonan pembetulan SPPT/SKP/STP gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
+			regKeputusanKeberatanPbbInput = data.SetKeputusanKeberatanPbb(*nop)
+			_ = a.DB.Where("PermohonanId", idPermohonan).First(&regKeputusanKeberatanPbb)
+			if err := sc.CopyWithOption(&regKeputusanKeberatanPbb, &regKeputusanKeberatanPbbInput, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			if err := sc.CopyWithOption(&regKeputusanKeberatanPbb, &nop, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			regKeputusanKeberatanPbb.PermohonanId = &data.Id
+
+			if result := tx.Save(&regKeputusanKeberatanPbb); result.Error != nil {
+				return errors.New("penyimpanan data permohonan keberatan gagal")
+			}
+		} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
+			_ = a.DB.Where("PermohonanId", idPermohonan).First(&regPermohonanPengurangan)
+			if err := sc.CopyWithOption(&regPermohonanPengurangan, &regPermohonanPenguranganInput, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			if err := sc.CopyWithOption(&regPermohonanPengurangan, &nop, sc.Option{IgnoreEmpty: true}); err != nil {
+				return errors.New("set data permohonan detail gagal")
+			}
+			regPermohonanPengurangan.PermohonanId = &data.Id
+			regPermohonanPengurangan.JenisPengurangan = input.JenisPengurangan
+			tempPP, _ := strconv.ParseFloat(*input.PersentasePengurangan, 64)
+			regPermohonanPengurangan.PersentasePengurangan = &tempPP
+
+			if result := tx.Save(&regPermohonanPengurangan); result.Error != nil {
+				return errors.New("penyimpanan data permohonan pengurangan gagal")
+			}
+		}
+
+		// roppbb                 *roppbb.RegObjekPajakPbb
+		_ = tx.Where("PstPermohonan_id", idPermohonan).First(&roppbb)
+		if err := sc.CopyWithOption(&roppbb, &input.PstOpjekPajakPBB, sc.Option{IgnoreEmpty: true}); err != nil {
+			return errors.New("set data permohonan detail gagal")
+		}
+		if result := tx.Save(&roppbb); result.Error != nil {
+			return errors.New("penyimpanan data permohonan pengurangan gagal")
+		}
+
+		// rwppbb                 *rwppbb.RegWajibPajakPbb
+		_ = tx.Where("PstPermohonan_id", idPermohonan).Where("Id", roppbb.RegWajibPajakPbb_Id).First(&rwppbb)
+		if err := sc.CopyWithOption(&rwppbb, &input.PstOpjekPajakPBB.RegWajibPajakPbbs, sc.Option{IgnoreEmpty: true}); err != nil {
+			return errors.New("set data permohonan detail gagal")
+		}
+		if result := tx.Create(&rwppbb); result.Error != nil {
+			return errors.New("penyimpanan data permohonan pengurangan gagal")
+		}
+
+		// roptnh                 *roptnh.RegObjekPajakBumi
+		_ = tx.Where("PstPermohonan_id", idPermohonan).First(&roptnh)
+		if err := sc.CopyWithOption(&roptnh, &input.PstOpjekPajakPBB.RegObjekPajakBumis, sc.Option{IgnoreEmpty: true}); err != nil {
+			return errors.New("set data permohonan detail gagal")
+		}
+		if result := tx.Create(&roptnh); result.Error != nil {
+			return errors.New("penyimpanan data permohonan pengurangan gagal")
+		}
+
+		// ropbng                 *ropbng.RegObjekPajakBangunan
+		tempBangs := input.PstOpjekPajakPBB.RegObjekPajakBumis.RegObjekPajakBangunans
+		if tempBangs != nil {
+			notNil := *tempBangs
+			for _, val := range notNil {
+				_ = a.DB.Where("PstPermohonan_id", idPermohonan).Where("NoBangunan", val.NoBangunan).Find(&opbng)
+				if err := sc.CopyWithOption(&opbng, &val, sc.Option{IgnoreEmpty: true}); err != nil {
+					return errors.New("set data permohonan detail gagal")
+				}
+				if result := tx.Save(&opbng); result.Error != nil {
+					return errors.New("penyimpanan data permohonan pengurangan gagal")
+				}
+
+				// ropfas                 *ropfas.RegFasilitasBangunan
+				resFas := tx.
+					Where("PstPermohonan_id", idPermohonan).
+					Where("NoBangunan", val.NoBangunan).
+					Find(&ropfas)
+				if resFas.RowsAffected > 0 {
+					for _, dataFasBangunan := range ropfas {
+						dataFasBangunan.Provinsi_Kode = &nop.PermohonanProvinsiID
+						dataFasBangunan.Daerah_Kode = &nop.PermohonanKotaID
+						dataFasBangunan.Kecamatan_Kode = &nop.PermohonanKecamatanID
+						dataFasBangunan.Kelurahan_Kode = &nop.PermohonanKelurahanID
+						dataFasBangunan.NoUrut = &nop.NoUrutPemohon
+						dataFasBangunan.JenisOp = &nop.PemohonJenisOPID
+						dataFasBangunan.NoBangunan = val.NoBangunan
+						dataFasBangunan.PstPermohonan_id = &idPermohonan
+
+						//create data fasilitas/jpb berdasar fasilitas/jpb di isi
+						if val.RegFasBangunan.FBJumlahACSplit != nil {
+							tempKodeFas = "01"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBJumlahACSplit
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBJumlahACWindow != nil {
+							tempKodeFas = "02"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBJumlahACWindow
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBIsACCentral != nil {
+							tempKodeFas = "11"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBIsACCentral
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBTipeLapisanKolam != nil {
+							tempKodeFas = strconv.Itoa(*val.RegFasBangunan.FBTipeLapisanKolam)
+							if val.RegFasBangunan.FBLuasKolamRenang != nil {
+								dataFasBangunan.KodeFasilitas = &tempKodeFas
+								dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLuasKolamRenang
+							}
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBHalamanBerat != nil {
+							tempKodeFas = "16"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBHalamanBerat
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBHalamanSendang != nil {
+							tempKodeFas = "15"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBHalamanSendang
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBHalamanRingan != nil {
+							tempKodeFas = "14"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBJumlahACSplit
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBHalamanLantai != nil {
+							tempKodeFas = "17"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBHalamanLantai
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBTenisLampuBeton != nil {
+							tempKodeFas = "18"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisLampuBeton
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBTenisTanpaLampuBeton != nil {
+							tempKodeFas = "21"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisTanpaLampuBeton
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBTenisAspal1 != nil {
+							tempKodeFas = "19"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisAspal1
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBTenisAspal2 != nil {
+							tempKodeFas = "22"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisAspal2
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBTenisLiatRumput1 != nil {
+							tempKodeFas = "20"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisLiatRumput1
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBTenisLiatRumput2 != nil {
+							tempKodeFas = "23"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisLiatRumput2
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBLiftPenumpang != nil {
+							tempKodeFas = "30"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLiftPenumpang
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBLiftKapsul != nil {
+							tempKodeFas = "31"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLiftKapsul
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBLiftBarang != nil {
+							tempKodeFas = "32"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLiftBarang
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBTangga80 != nil {
+							tempKodeFas = "33"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTangga80
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBTangga81 != nil {
+							tempKodeFas = "34"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTangga81
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBPagarBahan != nil {
+							tempKodeFas = strconv.Itoa(*val.RegFasBangunan.FBPagarBahan)
+							if val.RegFasBangunan.FBPagarPanjang != nil {
+								dataFasBangunan.KodeFasilitas = &tempKodeFas
+								dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPagarPanjang
+							}
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBPKHydrant != nil {
+							tempKodeFas = "37"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPKHydrant
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBPKSplinkler != nil {
+							tempKodeFas = "39"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPKSplinkler
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBPKFireAI != nil {
+							tempKodeFas = "38"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPKFireAI
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBPABX != nil {
+							tempKodeFas = "41"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPABX
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+						if val.RegFasBangunan.FBSumur != nil {
+							tempKodeFas = "42"
+							dataFasBangunan.KodeFasilitas = &tempKodeFas
+							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBSumur
+							errTemp = tx.Save(&dataFasBangunan).Error
+							if errTemp != nil {
+								return errTemp
+							}
+							dataFasBangunan.Id = dataFasBangunan.Id + 1
+						}
+					}
+				}
+
+				if val.Jpb_Kode == "00" || val.Jpb_Kode == "01" || val.Jpb_Kode == "10" || val.Jpb_Kode == "11" {
+				} else if val.Jpb_Kode == "02" {
+					var jpbres *mropbng.RegJpb2
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					temp := mropbng.KelasBangunan(*val.RegFasBangunan.KelasBangunan)
+					jpbres.KelasBangunan2 = &temp
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "03" {
+					var jpbres *mropbng.RegJpb3
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					jpbres.TinggiKolom3 = val.RegFasBangunan.JpbProdTinggi
+					jpbres.LebarBentang3 = val.RegFasBangunan.JpbProdLebar
+					jpbres.DayaDukungLantai = val.RegFasBangunan.JpbProdDaya
+					jpbres.KelilingDinding3 = val.RegFasBangunan.JpbProdKeliling
+					jpbres.LuasMezzanine3 = val.RegFasBangunan.JpbProdLuas
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "04" {
+					var jpbres *mropbng.RegJpb4
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					temp := mropbng.KelasBangunan(*val.RegFasBangunan.KelasBangunan)
+					jpbres.KelasBangunan4 = &temp
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "05" {
+					var jpbres *mropbng.RegJpb5
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					jpbres.LuasKamarAcCentral = val.RegFasBangunan.JpbKlinikACCentralKamar
+					jpbres.LuasRuangLainAcCentral = val.RegFasBangunan.JpbKlinikACCentralRuang
+
+					temp := mropbng.KelasBangunan(*val.RegFasBangunan.KelasBangunan)
+					jpbres.KelasBangunan5 = &temp
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "06" {
+					var jpbres *mropbng.RegJpb6
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					temp := mropbng.KelasBangunan(*val.RegFasBangunan.KelasBangunan)
+					jpbres.KelasBangunan6 = &temp
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "07" {
+					var jpbres *mropbng.RegJpb7
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					jpbres.JenisHotel = (mropbng.JenisHotel)(strconv.Itoa(*val.RegFasBangunan.JpbHotelJenis))
+					jpbres.JumlahBintang = (mropbng.JumlahBintang)(strconv.Itoa(*val.RegFasBangunan.JpbHotelBintang))
+					jpbres.JumlahKamar = val.RegFasBangunan.JpbHotelJmlKamar
+					jpbres.LuasKamarAcCentral = val.RegFasBangunan.JpbHotelACCentralKamar
+					jpbres.LuasRuangLainAcCentral = val.RegFasBangunan.JpbHotelACCentralRuang
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "08" {
+					var jpbres *mropbng.RegJpb8
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					jpbres.TinggiKolom8 = val.RegFasBangunan.JpbProdTinggi
+					jpbres.LebarBentang8 = val.RegFasBangunan.JpbProdLebar
+					jpbres.DayaDukungLantai = val.RegFasBangunan.JpbProdDaya
+					jpbres.KelilingDinding8 = val.RegFasBangunan.JpbProdKeliling
+					jpbres.LuasMezzanine8 = val.RegFasBangunan.JpbProdLuas
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "09" {
+					var jpbres *mropbng.RegJpb9
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					temp := mropbng.KelasBangunan(*val.RegFasBangunan.KelasBangunan)
+					jpbres.KelasBangunan9 = &temp
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "12" {
+					var jpbres *mropbng.RegJpb12
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "13" {
+					var jpbres *mropbng.RegJpb13
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					jpbres.JumlahApartment = val.RegFasBangunan.JpbApartemenJumlah
+					jpbres.LuasApartAcCentral = val.RegFasBangunan.JpbApartemenACCentralKamar
+					jpbres.LuasRuangLainAcCentral = val.RegFasBangunan.JpbApartemenACCentralLain
+
+					temp := mropbng.KelasBangunan(*val.RegFasBangunan.KelasBangunan)
+					jpbres.KelasBangunan13 = &temp
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "14" {
+					var jpbres *mropbng.RegJpb14
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "15" {
+					var jpbres *mropbng.RegJpb15
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+
+					jpbres.KapasitasTanki = val.RegFasBangunan.JpbTankiKapasitas
+					jpbres.LetakTanki = (mropbng.LetakTanki)(*val.RegFasBangunan.JpbTankiLetak)
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				} else if val.Jpb_Kode == "16" {
+					var jpbres *mropbng.RegJpb16
+					if result := tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						First(&jpbres); result.Error != nil {
+						return result.Error
+					}
+					// jpbres.KelasBangunan16 = mropbng.KelasBangunan(*val.RegFasBangunan.KelasBangunan)
+
+					if result := tx.Save(&jpbres); result.Error != nil {
+						return errors.New("penyimpanan data gagal")
+					}
+				}
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data data: "+err.Error(), data)
+	}
+
+	tempApproval := m.RequestApprovalPermohonan{
+		NoPelayanan: data.NoPelayanan,
+		NOP:         input.NOP,
+		NIP:         input.NIP,
+		Status:      input.Status,
+		User_ID:     input.User_ID,
+	}
+
+	resultApproval, errApproval := Approval(*input.Status, auth, tempApproval, a.DB)
+	if errApproval != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data data: "+errApproval.Error(), data)
+	}
+
+	// return rp.OKSimple{Data: data}, nil
+	return rp.OK{
+		// Meta: t.IS{
+		// 	"affected": strconv.Itoa(rowsAffected),
+		// },
+		Data: t.II{
+			"permohonan":     data,
+			"resultApproval": resultApproval,
+		},
 	}, nil
 }

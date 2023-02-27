@@ -69,6 +69,8 @@ type PermohonanRequestDto struct {
 	Status                *string `json:"status"`
 	User_ID               *uint64 `json:"user_ID"`
 	TanggalPenyerahan     *string `json:"tanggalPenyerahan"`
+
+	PstOpjekPajakPBB *mroppbb.CreateDto `json:"oppbb"`
 }
 
 type FilterDto struct {

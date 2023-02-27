@@ -6,11 +6,7 @@ import (
 	"strings"
 	"time"
 
-	mopfas "github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
-	mopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
-	moptnh "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	moppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
-	mwppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"gorm.io/datatypes"
 )
@@ -68,6 +64,8 @@ type PermohonanRequestDto struct {
 	NIPPenyerah           *string `json:"nipPenyerah"`
 	StatusSelesai         *int    `json:"statusSelesai"`
 	TanggalPenyerahan     *string `json:"tanggalPenyerahan"`
+
+	PstOpjekPajakPBB *moppbb.CreateDto `json:"oppbb"`
 }
 
 type FilterDto struct {
@@ -138,12 +136,7 @@ type PstPermohonanResponse struct {
 	// SPMKP                    *SPMKP                    `json:"spmkp"`
 	// SkSk                     *SkSk                     `json:"sksk"`
 
-	PstOpjekPajakPBB     *moppbb.ObjekPajakPbb      `json:"pstOpjekPajakPBB"`
-	PstWajibPajakPBB     *mwppbb.WajibPajakPbb      `json:"pstWajibPajakPBB"`
-	PstOPBumi            *moptnh.ObjekPajakBumi     `json:"pstOPBumi"`
-	PstOPBangunan        *mopbng.ObjekPajakBangunan `json:"pstOPBangunan"`
-	PstFasilitasBangunan *mopfas.FasilitasBangunan  `json:"pstFasilitasBangunan"`
-	PstJpb               *any                       `json:"pstJpb"`
+	PstOpjekPajakPBB *moppbb.CreateDto `json:"oppbb"`
 }
 
 func DecodeNOPPermohonan(nop *string) *PermohonanNOP {
