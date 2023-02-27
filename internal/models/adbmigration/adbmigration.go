@@ -4,6 +4,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/bankpersepsi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/banktunggal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
 	bapenagihanpetugas "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/baplpengajuan"
@@ -53,11 +55,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisusaha"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jpb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jurnal"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kanwil"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelasbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/klasifikasijalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/konfigurasipajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/kppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
@@ -95,6 +99,8 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
+	spptpembayaran "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
+	sppttandaterima "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/tandaterima"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -110,8 +116,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan"
 	suratdpemberitahuanetail "github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan/detail"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/targetrealisasi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaranspptmasal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/bidangkerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenisperolehan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nik"
@@ -136,6 +144,7 @@ import (
 func GetModelList() (data []interface{}) {
 	listModelConfigurationReference := []interface{}{
 		&skpd.SatuanKerja{},
+		&bidangkerja.BidangKerja{},
 		&jabatan.Jabatan{},
 		&pangkat.Pangkat{},
 		&adm.Provinsi{},
@@ -312,6 +321,8 @@ func GetModelList() (data []interface{}) {
 		&sppt.Sppt{},
 		&sppt.SpptObjekBersama{},
 		&sppt.SpptSimulasi{},
+		&spptpembayaran.SpptPembayaran{},
+		&sppttandaterima.SpptTandaTerima{},
 	}
 	data = append(data, listModelSppt...)
 
@@ -471,6 +482,15 @@ func GetModelList() (data []interface{}) {
 		&penetapan.ReferensiBuku{},
 	}
 	data = append(data, listModelPenetapanMassal...)
+
+	listModeTempatPembayaranSpptMasal := []interface{}{
+		&tempatpembayaranspptmasal.TempatPembayaranSPPTMasal{},
+		&banktunggal.BankTunggal{},
+		&bankpersepsi.BankPersepsi{},
+		&kanwil.Kanwil{},
+		&kppbb.Kppbb{},
+	}
+	data = append(data, listModeTempatPembayaranSpptMasal...)
 
 	return data
 }

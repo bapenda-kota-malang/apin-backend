@@ -1,25 +1,27 @@
-package ppat
+package tempatpembayaranspptmasal
 
 import (
 	"net/http"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
-	s "github.com/bapenda-kota-malang/apin-backend/internal/services/ppat"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaranspptmasal"
+	s "github.com/bapenda-kota-malang/apin-backend/internal/services/tempatpembayaranspptmasal"
 )
 
-func Create(w http.ResponseWriter, r *http.Request) {
-	var input m.CreateDto
-	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
+type Crud struct{}
+
+func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
+	var data m.CreateDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
 
-	result, err := s.Create(input)
+	result, err := s.Create(data)
 	hh.DataResponse(w, result, err)
 }
 
-func GetList(w http.ResponseWriter, r *http.Request) {
+func (c Crud) GetList(w http.ResponseWriter, r *http.Request) {
 	var input m.FilterDto
 	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
 		return
@@ -29,7 +31,7 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func GetDetail(w http.ResponseWriter, r *http.Request) {
+func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
 		return
@@ -39,7 +41,7 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func Update(w http.ResponseWriter, r *http.Request) {
+func (c Crud) Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
 		return
@@ -54,7 +56,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
-func Delete(w http.ResponseWriter, r *http.Request) {
+func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
 		return

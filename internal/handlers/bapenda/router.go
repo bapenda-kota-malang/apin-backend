@@ -9,6 +9,7 @@ import (
 	rh "github.com/bapenda-kota-malang/apin-backend/pkg/routerhelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bankpersepsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bapenagihan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datanir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetablok"
@@ -20,17 +21,22 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kanwil"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/keberatan/keputusankeberatanpbb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penetapanmassal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tempatpembayaranspptmasal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/anggaran"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/banktunggal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/baplpengajuan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bidangkerja"
 	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
@@ -163,6 +169,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/menu", menu.Crud{})
 
 	rh.RegCrud(r, "/satuankerja", satuankerja.Crud{})
+
+	rh.RegCrud(r, "/bidangkerja", bidangkerja.Crud{})
 
 	rh.RegCrud(r, "/jabatan", jabatan.Crud{})
 
@@ -657,6 +665,20 @@ func SetRoutes() http.Handler {
 	r.Route("/pbb", func(r chi.Router) {
 		r.Post("/penetapan-massal", sppt.PenetapanMassal)
 	})
+
+	rh.RegCrud(r, "/tempatpembayaranspptmasal", tempatpembayaranspptmasal.Crud{})
+
+	rh.RegCrud(r, "/sppt/pembayaran", sppt.CrudSpptPembayaran{})
+
+	rh.RegCrud(r, "/sppt/tandaterima", sppt.CrudSpptTandaTerima{})
+
+	rh.RegCrud(r, "/banktunggal", banktunggal.Crud{})
+
+	rh.RegCrud(r, "/bankpersepsi", bankpersepsi.Crud{})
+
+	rh.RegCrud(r, "/kanwil", kanwil.Crud{})
+
+	rh.RegCrud(r, "/kppbb", kppbb.Crud{})
 
 	return r
 }
