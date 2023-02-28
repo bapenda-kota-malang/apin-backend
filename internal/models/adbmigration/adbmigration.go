@@ -87,6 +87,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibank"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/refumum"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reganggotaobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regkunjungankembali"
@@ -491,6 +492,11 @@ func GetModelList() (data []interface{}) {
 		&kppbb.Kppbb{},
 	}
 	data = append(data, listModeTempatPembayaranSpptMasal...)
+
+	listModelRefUmum := []interface{}{
+		&refumum.RefUmum{},
+	}
+	data = append(data, listModelRefUmum...)
 
 	return data
 }
