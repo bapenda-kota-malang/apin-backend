@@ -1,4 +1,4 @@
-package detailpotensihotel
+package potensiopwp
 
 import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
@@ -15,10 +15,15 @@ type DetailPotensiHotel struct {
 	gormhelper.DateModel
 }
 
-type CreateDto struct {
+type CreateDtoDPHotel struct {
 	Potensiop_Id    uuid.UUID `json:"-"`
 	JenisFasilitas  string    `json:"jenisFasilitas"`
 	JumlahFasilitas string    `json:"jumlahFasilitas"`
 	TarifFasilitas  string    `json:"tarifFasilitas"`
 	Kapasitas       string    `json:"kapasitas"`
+}
+
+type CreateDtoHotel struct {
+	CreateDto
+	DetailPajakDtos []CreateDtoDPHotel `json:"detailPajaks"`
 }

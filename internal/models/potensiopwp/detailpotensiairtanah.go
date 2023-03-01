@@ -1,4 +1,4 @@
-package detailpotensiairtanah
+package potensiopwp
 
 import (
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
@@ -16,10 +16,15 @@ type DetailPotensiAirTanah struct {
 	gormhelper.DateModel
 }
 
-type CreateDto struct {
+type CreateDtoDPAirTanah struct {
 	Potensiop_Id uuid.UUID     `json:"-"`
 	Peruntukan   mt.Peruntukan `json:"peruntukan"`
 	JenisAbt     mt.JenisABT   `json:"jenisAbt"`
 	JumlahSumber string        `json:"jumlahSumber"`
 	DiameterPipa string        `json:"diameterPipa"`
+}
+
+type CreateDtoAirTanah struct {
+	CreateDto
+	DetailPajakDtos []CreateDtoDPAirTanah `json:"detailPajaks"`
 }

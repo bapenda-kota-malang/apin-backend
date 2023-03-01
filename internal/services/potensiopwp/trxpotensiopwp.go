@@ -14,7 +14,6 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 
 	sbapl "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/bapl"
-	sdetailobjek "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailobjek"
 	sdpotensiop "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailpotensiop"
 	spnarahubung "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/potensinarahubung"
 	sppemilikiwp "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/potensipemilikwp"
@@ -135,12 +134,12 @@ func UpdateTrx(id uuid.UUID, input m.UpdateDto, userId uint) (any, error) {
 			}
 		}
 
-		if len(input.DetailPajakDtos) > 0 {
-			_, err = sdetailobjek.Update(id, input.DetailPajakDtos, tx)
-			if err != nil {
-				return err
-			}
-		}
+		// if len(input.DetailPajakDtos) > 0 {
+		// 	_, err = sdetailobjek.Update(id, input.DetailPajakDtos, tx)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// }
 
 		_, err = sbapl.Update(id, input.Bapl, tx)
 		if err != nil {

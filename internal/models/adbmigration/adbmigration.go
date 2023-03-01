@@ -81,9 +81,6 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/bapl"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailobjek"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiairtanah"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensihotel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensinarahubung"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
@@ -230,15 +227,13 @@ func GetModelList() (data []interface{}) {
 		&detailpotensiop.DetailPotensiOp{},
 		&potensipemilikwp.PotensiPemilikWp{},
 		&potensinarahubung.PotensiNarahubung{},
-		&detailobjek.DetailPotensiAirTanah{},
-		&detailobjek.DetailPotensiHiburan{},
-		&detailobjek.DetailPotensiHotel{},
-		&detailobjek.DetailPotensiPPJ{},
-		&detailobjek.DetailPotensiParkir{},
-		&detailobjek.DetailPotensiReklame{},
-		&detailobjek.DetailPotensiResto{},
-		&detailpotensiairtanah.DetailPotensiAirTanah{},
-		&detailpotensihotel.DetailPotensiHotel{},
+		&potensiopwp.DetailPotensiAirTanah{},
+		&potensiopwp.DetailPotensiHiburan{},
+		&potensiopwp.DetailPotensiHotel{},
+		&potensiopwp.DetailPotensiPPJNonPLN{},
+		&potensiopwp.DetailPotensiParkir{},
+		&potensiopwp.DetailPotensiReklame{},
+		&potensiopwp.DetailPotensiResto{},
 		&reklas.Reklas{},
 		&njoptkpflag.NjoptkpFlag{},
 		&njoptkpflag.NjoptkpFlagDetail{},

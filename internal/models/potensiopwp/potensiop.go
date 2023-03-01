@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/bapl"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailobjek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensinarahubung"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
@@ -47,13 +46,13 @@ type PotensiOp struct {
 	DetailPotensiOp        *detailpotensiop.DetailPotensiOp       `json:"detailPotensiOp,omitempty" gorm:"foreignKey:Potensiop_Id"`
 	PotensiPemilikWp       *[]potensipemilikwp.PotensiPemilikWp   `json:"potensiPemilikWp,omitempty" gorm:"foreignKey:Potensiop_Id"`
 	PotensiNarahubung      *[]potensinarahubung.PotensiNarahubung `json:"potensiNarahubung,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiAirTanahs *[]detailobjek.DetailPotensiAirTanah   `json:"detailPotensiAirTanahs,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiHiburans  *[]detailobjek.DetailPotensiHiburan    `json:"detailPotensiHiburans,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiHotels    *[]detailobjek.DetailPotensiHotel      `json:"detailPotensiHotels,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiPPJs      *[]detailobjek.DetailPotensiPPJ        `json:"detailPotensiPpjs,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiParkirs   *[]detailobjek.DetailPotensiParkir     `json:"DetailPotensiParkirs,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiReklames  *[]detailobjek.DetailPotensiReklame    `json:"DetailPotensiReklames,omitempty" gorm:"foreignKey:Potensiop_Id"`
-	DetailPotensiRestos    *[]detailobjek.DetailPotensiResto      `json:"DetailPotensiRestos,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiAirTanahs *[]DetailPotensiAirTanah               `json:"detailPotensiAirTanahs,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiHiburans  *[]DetailPotensiHiburan                `json:"detailPotensiHiburans,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiHotels    *[]DetailPotensiHotel                  `json:"detailPotensiHotels,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiPPJs      *[]DetailPotensiPPJNonPLN              `json:"detailPotensiPpjs,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiParkirs   *[]DetailPotensiParkir                 `json:"DetailPotensiParkirs,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiReklames  *[]DetailPotensiReklame                `json:"DetailPotensiReklames,omitempty" gorm:"foreignKey:Potensiop_Id"`
+	DetailPotensiRestos    *[]DetailPotensiResto                  `json:"DetailPotensiRestos,omitempty" gorm:"foreignKey:Potensiop_Id"`
 	Bapl                   *[]bapl.PotensiBapl                    `json:"bapl,omitempty" gorm:"foreignKey:Potensiop_Id"`
 }
 

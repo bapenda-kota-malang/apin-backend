@@ -2,9 +2,6 @@ package potensiopwp
 
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/bapl"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailobjek"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiairtanah"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensihotel"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensinarahubung"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
@@ -20,20 +17,10 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
-	PotensiOp          UpdatePotensiOpDto            `json:"potensiOp"`
-	DetailPotensiOp    detailpotensiop.UpdateDto     `json:"detailPotensiOp"`
-	DetailPajakDtos    []detailobjek.UpdateDto       `json:"detailPajaks"`
+	PotensiOp       UpdatePotensiOpDto        `json:"potensiOp"`
+	DetailPotensiOp detailpotensiop.UpdateDto `json:"detailPotensiOp"`
+	// DetailPajakDtos    []detailobjek.UpdateDto       `json:"detailPajaks"`
 	PotensiPemilikWps  []potensipemilikwp.UpdateDto  `json:"potensiPemilikWps"`
 	PotensiNarahubungs []potensinarahubung.UpdateDto `json:"potensiNarahubungs"`
 	Bapl               bapl.UpdateDto                `json:"bapl"`
-}
-
-type CreateDtoAirTanah struct {
-	CreateDto
-	DetailPajakDtos []detailpotensiairtanah.CreateDto `json:"detailPajaks"`
-}
-
-type CreateDtoHotel struct {
-	CreateDto
-	DetailPajakDtos []detailpotensihotel.CreateDto `json:"detailPajaks"`
 }

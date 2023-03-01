@@ -7,10 +7,7 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
-	"github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
-	"github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailpotensiairtanah"
-	"github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailpotensihotel"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
@@ -47,19 +44,56 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		if !hh.ValidateStructByIOR(w, r.Body, &data) {
 			return
 		}
-		input = detailpotensiairtanah.NewDPAirTanahUsecase(s.DPBaseUsecase{CreateDto: data.CreateDto}, data.DetailPajakDtos)
+		baseDto := s.DPBaseUsecase{CreateDto: data.CreateDto}
+		input = s.NewDPAirTanahUsecase(baseDto, data.DetailPajakDtos)
+	case "hiburan":
+		var data m.CreateDtoHiburan
+		if !hh.ValidateStructByIOR(w, r.Body, &data) {
+			return
+		}
+		baseDto := s.DPBaseUsecase{CreateDto: data.CreateDto}
+		input = s.NewDPHiburanUsecase(baseDto, data.DetailPajakDtos)
 	case "hotel":
 		var data m.CreateDtoHotel
 		if !hh.ValidateStructByIOR(w, r.Body, &data) {
 			return
 		}
-		input = detailpotensihotel.NewDPHotelUsecase(data)
+		baseDto := s.DPBaseUsecase{CreateDto: data.CreateDto}
+		input = s.NewDPHotelUsecase(baseDto, data.DetailPajakDtos)
+	case "parkir":
+		var data m.CreateDtoParkir
+		if !hh.ValidateStructByIOR(w, r.Body, &data) {
+			return
+		}
+		baseDto := s.DPBaseUsecase{CreateDto: data.CreateDto}
+		input = s.NewDPParkirUsecase(baseDto, data.DetailPajakDtos)
+	case "ppjnonpln":
+		var data m.CreateDtoPPJNonPLN
+		if !hh.ValidateStructByIOR(w, r.Body, &data) {
+			return
+		}
+		baseDto := s.DPBaseUsecase{CreateDto: data.CreateDto}
+		input = s.NewDPPPJNonPLNUsecase(baseDto, data.DetailPajakDtos)
+	case "reklame":
+		var data m.CreateDtoReklame
+		if !hh.ValidateStructByIOR(w, r.Body, &data) {
+			return
+		}
+		baseDto := s.DPBaseUsecase{CreateDto: data.CreateDto}
+		input = s.NewDPReklameUsecase(baseDto, data.DetailPajakDtos)
+	case "resto":
+		var data m.CreateDtoResto
+		if !hh.ValidateStructByIOR(w, r.Body, &data) {
+			return
+		}
+		baseDto := s.DPBaseUsecase{CreateDto: data.CreateDto}
+		input = s.NewDPRestoUsecase(baseDto, data.DetailPajakDtos)
 	default:
 		var data m.CreateDto
 		if !hh.ValidateStructByIOR(w, r.Body, &data) {
 			return
 		}
-		input = potensiopwp.NewDPBaseUsecase(data)
+		input = s.NewDPBaseUsecase(data)
 	}
 
 	switch input.GetPotensiOp().Golongan {

@@ -1,11 +1,9 @@
-package detailpotensiairtanah
+package potensiopwp
 
 import (
 	"errors"
 
-	mpotensiopwp "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiairtanah"
-	spotensiopwp "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
@@ -13,11 +11,11 @@ import (
 )
 
 type DPAirTanahUsecase struct {
-	spotensiopwp.DPBaseUsecase
-	DetailPajakDtos []m.CreateDto
+	DPBaseUsecase
+	DetailPajakDtos []m.CreateDtoDPAirTanah
 }
 
-func NewDPAirTanahUsecase(baseDto spotensiopwp.DPBaseUsecase, detailPajakDto []m.CreateDto) mpotensiopwp.Input {
+func NewDPAirTanahUsecase(baseDto DPBaseUsecase, detailPajakDto []m.CreateDtoDPAirTanah) m.Input {
 	return &DPAirTanahUsecase{baseDto, detailPajakDto}
 }
 
