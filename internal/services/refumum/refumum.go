@@ -15,7 +15,7 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "bank persepsi"
+const source = "ref umum"
 
 func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
