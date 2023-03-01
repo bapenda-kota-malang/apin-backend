@@ -2,11 +2,15 @@ package potensiopwp
 
 import (
 	"net/http"
+	"strings"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	nt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailpotensiairtanah"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailpotensihotel"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
@@ -35,12 +39,30 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var data m.CreateDto
-	if !hh.ValidateStructByIOR(w, r.Body, &data) {
-		return
+	var input m.Input
+
+	switch strings.ToLower(r.URL.Query().Get("category")) {
+	case "airtanah":
+		var data m.CreateDtoAirTanah
+		if !hh.ValidateStructByIOR(w, r.Body, &data) {
+			return
+		}
+		input = detailpotensiairtanah.NewDPAirTanahUsecase(s.DPBaseUsecase{CreateDto: data.CreateDto}, data.DetailPajakDtos)
+	case "hotel":
+		var data m.CreateDtoHotel
+		if !hh.ValidateStructByIOR(w, r.Body, &data) {
+			return
+		}
+		input = detailpotensihotel.NewDPHotelUsecase(data)
+	default:
+		var data m.CreateDto
+		if !hh.ValidateStructByIOR(w, r.Body, &data) {
+			return
+		}
+		input = potensiopwp.NewDPBaseUsecase(data)
 	}
 
-	switch data.PotensiOp.Golongan {
+	switch input.GetPotensiOp().Golongan {
 	case nt.GolonganBadan:
 		break
 	case nt.GolonganOrangPribadi:
@@ -52,7 +74,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 
-	result, err := s.CreateTrx(data, uint(authInfo.User_Id))
+	result, err := s.CreateTrx(input, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 
