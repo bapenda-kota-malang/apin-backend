@@ -11,7 +11,7 @@ type TempatPembayaran struct {
 	Kanwil_Id       *string `json:"kanwil_id" gorm:"type:varchar(2)"`
 	Kppbb_Id        *string `json:"kppbb_id" gorm:"type:varchar(2)"`
 	Merchant_Id     *string `json:"merchant_id" gorm:"type:varchar(4)"`
-	Tp_Id           *string `json:"tp_id" gorm:"type:varchar(2)"`
+	Tp_Id           *string `json:"tp_id" gorm:"unique;type:varchar(2)"`
 	NamaTp          *string `json:"namaTp" gorm:"type:varchar(30)"`
 	NoRekeningTp    *string `json:"noRekeningTp" gorm:"type:varchar(15)"`
 	gh.DateModel
