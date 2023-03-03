@@ -12,10 +12,10 @@ import (
 
 type DPPPJNonPLNUsecase struct {
 	DPBaseUsecase
-	DetailPajakDtos []m.CreateDtoDPPPJNonPLN
+	DetailPajakDtos m.CreateDtoDPPPJNonPLN
 }
 
-func NewDPPPJNonPLNUsecase(baseDto DPBaseUsecase, detailPajakDto []m.CreateDtoDPPPJNonPLN) m.Input {
+func NewDPPPJNonPLNUsecase(baseDto DPBaseUsecase, detailPajakDto m.CreateDtoDPPPJNonPLN) m.Input {
 	return &DPPPJNonPLNUsecase{baseDto, detailPajakDto}
 }
 
@@ -28,9 +28,7 @@ func (s *DPPPJNonPLNUsecase) ReplacePotensiOpId(id uuid.UUID) {
 	for v := range s.PotensiNarahubungs {
 		s.PotensiNarahubungs[v].Potensiop_Id = id
 	}
-	for v := range s.DetailPajakDtos {
-		s.DetailPajakDtos[v].Potensiop_Id = id
-	}
+	s.DetailPajakDtos.Potensiop_Id = id
 }
 
 func (s *DPPPJNonPLNUsecase) GetDetailPotensiPajak() interface{} {

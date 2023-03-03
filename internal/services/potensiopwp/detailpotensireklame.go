@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
@@ -48,5 +49,10 @@ func (s *DPReklameUsecase) SaveDetailPotensiPajak(tx *gorm.DB) error {
 	if result := tx.Create(&data); result.Error != nil {
 		return result.Error
 	}
+	return nil
+}
+
+func (s *DPReklameUsecase) CalculateTax(tarifPajak mtp.TarifPajak) error {
+	// TODO: IMPLEMENT CALC PROCESS
 	return nil
 }

@@ -138,7 +138,7 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 	}
 
 	// static add value to field
-	data.User_Id = userId
+	data.User_Id = uint64(userId)
 	data.Status = nt.StatusAktif
 
 	// simpan data ke db satu if karena result dipakai sekali, +error

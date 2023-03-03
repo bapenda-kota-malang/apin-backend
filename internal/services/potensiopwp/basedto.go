@@ -6,6 +6,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensinarahubung"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -58,5 +59,11 @@ func (s *DPBaseUsecase) GetDetailPotensiPajak() interface{} {
 }
 
 func (s *DPBaseUsecase) SaveDetailPotensiPajak(tx *gorm.DB) error {
+	return nil
+}
+
+func (s *DPBaseUsecase) CalculateTax(tarifPajak tarifpajak.TarifPajak) error {
+	s.PotensiOp.TarifPajak_Id = tarifPajak.Id
+	s.PotensiOp.JumlahPajak = *s.PotensiOp.OmsetOp * (*tarifPajak.TarifPersen / 100)
 	return nil
 }

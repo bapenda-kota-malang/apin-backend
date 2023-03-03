@@ -25,5 +25,5 @@ type CreateDtoDPResto struct {
 
 type CreateDtoResto struct {
 	CreateDto
-	DetailPajakDtos []CreateDtoDPResto `json:"detailPajaks"`
+	DetailPajakDtos CreateDtoDPResto `json:"detailPajaks"`
 }

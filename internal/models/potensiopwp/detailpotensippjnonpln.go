@@ -23,5 +23,5 @@ type CreateDtoDPPPJNonPLN struct {
 
 type CreateDtoPPJNonPLN struct {
 	CreateDto
-	DetailPajakDtos []CreateDtoDPPPJNonPLN `json:"detailPajaks"`
+	DetailPajakDtos CreateDtoDPPPJNonPLN `json:"detailPajaks"`
 }

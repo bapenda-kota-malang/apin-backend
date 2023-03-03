@@ -89,11 +89,8 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		baseDto := s.DPBaseUsecase{CreateDto: data.CreateDto}
 		input = s.NewDPRestoUsecase(baseDto, data.DetailPajakDtos)
 	default:
-		var data m.CreateDto
-		if !hh.ValidateStructByIOR(w, r.Body, &data) {
-			return
-		}
-		input = s.NewDPBaseUsecase(data)
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: "category tidak diketahui"}, nil)
+		return
 	}
 
 	switch input.GetPotensiOp().Golongan {
@@ -108,26 +105,26 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 
-	result, err := s.CreateTrx(input, uint(authInfo.User_Id))
+	result, err := s.CreateTrx(input, authInfo.User_Id)
 	hh.DataResponse(w, result, err)
 }
 
-func Update(w http.ResponseWriter, r *http.Request) {
-	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
-	if !pass {
-		return
-	}
+// func Update(w http.ResponseWriter, r *http.Request) {
+// 	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+// 	if !pass {
+// 		return
+// 	}
 
-	var data m.UpdateDto
-	if !hh.ValidateStructByIOR(w, r.Body, &data) {
-		return
-	}
+// 	var data m.UpdateDto
+// 	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+// 		return
+// 	}
 
-	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+// 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 
-	result, err := s.UpdateTrx(id, data, uint(authInfo.User_Id))
-	hh.DataResponse(w, result, err)
-}
+// 	result, err := s.UpdateTrx(id, data, uint(authInfo.User_Id))
+// 	hh.DataResponse(w, result, err)
+// }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
 	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))

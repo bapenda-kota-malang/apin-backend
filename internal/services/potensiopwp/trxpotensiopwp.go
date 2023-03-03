@@ -12,6 +12,8 @@ import (
 	"github.com/google/uuid"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
+	stp "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
 
 	sbapl "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/bapl"
 	sdpotensiop "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailpotensiop"
@@ -20,17 +22,40 @@ import (
 	// mvetax "github.com/bapenda-kota-malang/apin-backend/internal/models/vendoretax"
 )
 
-func CreateTrx(input m.Input, userId uint) (any, error) {
+func CreateTrx(input m.Input, userId int) (any, error) {
 	var dataPotensiOp m.PotensiOp
 
+	detailPotensiOpDto := input.GetDetailPotensiOp()
+	potensiOpDto := input.GetPotensiOp()
+
+	// get tarif pajak data for calculate tax
+	yearOrder := "order desc"
+	omsetOpt := "lte"
+	rspTp, err := stp.GetList(mtp.FilterDto{
+		Rekening_Id:   &potensiOpDto.Rekening_Id,
+		Tahun_Opt:     &yearOrder,
+		OmsetAwal:     potensiOpDto.OmsetOp,
+		OmsetAwal_Opt: &omsetOpt,
+	})
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mencari tarif pajak: "+err.Error(), dataPotensiOp)
+	}
+	if len(rspTp.(rp.OK).Data.([]mtp.TarifPajak)) == 0 {
+		return sh.SetError("request", "create-data", source, "failed", "data tarif pajak tidak ditemukan", dataPotensiOp)
+	}
+	tarifPajak := rspTp.(rp.OK).Data.([]mtp.TarifPajak)[0]
+
+	// calculate tax
+	if err := input.CalculateTax(tarifPajak); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menghitung potensi pajak: "+err.Error(), dataPotensiOp)
+	}
+
 	// Transaction save to db
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data ke db satu if karena result dipakai sekali, +error
 		// save potensi op
-		detailPotensiOpDto := input.GetDetailPotensiOp()
-		potensiOpDto := input.GetPotensiOp()
-
-		respPotensiOp, err := Create(potensiOpDto, userId, tx)
+		potensiOpDto = input.GetPotensiOp()
+		respPotensiOp, err := Create(potensiOpDto, uint(userId), tx)
 		if err != nil {
 			return err
 		}
@@ -82,7 +107,7 @@ func CreateTrx(input m.Input, userId uint) (any, error) {
 		// 	return err
 		// }
 
-		_, err = sbapl.Create(input.GetBapl(), userId, tx)
+		_, err = sbapl.Create(input.GetBapl(), uint(userId), tx)
 		if err != nil {
 			return err
 		}

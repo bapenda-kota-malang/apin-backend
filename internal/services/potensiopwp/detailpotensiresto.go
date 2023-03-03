@@ -12,10 +12,10 @@ import (
 
 type DPRestoUsecase struct {
 	DPBaseUsecase
-	DetailPajakDtos []m.CreateDtoDPResto
+	DetailPajakDtos m.CreateDtoDPResto
 }
 
-func NewDPRestoUsecase(baseDto DPBaseUsecase, detailPajakDto []m.CreateDtoDPResto) m.Input {
+func NewDPRestoUsecase(baseDto DPBaseUsecase, detailPajakDto m.CreateDtoDPResto) m.Input {
 	return &DPRestoUsecase{baseDto, detailPajakDto}
 }
 
@@ -28,9 +28,7 @@ func (s *DPRestoUsecase) ReplacePotensiOpId(id uuid.UUID) {
 	for v := range s.PotensiNarahubungs {
 		s.PotensiNarahubungs[v].Potensiop_Id = id
 	}
-	for v := range s.DetailPajakDtos {
-		s.DetailPajakDtos[v].Potensiop_Id = id
-	}
+	s.DetailPajakDtos.Potensiop_Id = id
 }
 
 func (s *DPRestoUsecase) GetDetailPotensiPajak() interface{} {
