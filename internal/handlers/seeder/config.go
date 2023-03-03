@@ -37,6 +37,8 @@ func (c *config) GenerateCommand(notrx *bool) string {
 		cmd = fmt.Sprintf("psql%s -f seed.sql %s", trxCommand, uri)
 	case "linux":
 		cmd = fmt.Sprintf("psql %s%s -f seed.sql", uri, trxCommand)
+	case "darwin":
+		cmd = fmt.Sprintf("psql %s%s -f seed.sql", uri, trxCommand)
 	}
 	return cmd
 }

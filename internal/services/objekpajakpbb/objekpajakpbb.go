@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/kelurahan"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -15,6 +17,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
@@ -32,6 +35,24 @@ import (
 )
 
 const source = "objekpajakpbb"
+
+func getAreaData(data m.ObjekPajakPbb) (*areadivision.Kecamatan, *areadivision.Kelurahan, error) {
+	kecamatanKode := fmt.Sprintf("%s%s%s", *data.Provinsi_Kode, *data.Daerah_Kode, *data.Kecamatan_Kode)
+	kecamatanKodeInt, _ := strconv.Atoi(kecamatanKode)
+	resKec, err := kecamatan.GetDetailByCode(kecamatanKodeInt)
+	if resKec == nil || err != nil {
+		return nil, nil, err
+	}
+
+	// data kelurahan
+	kelurahanKode := fmt.Sprintf("%s%s", kecamatanKode, *data.Kelurahan_Kode)
+	kelurahanKodeInt, _ := strconv.Atoi(kelurahanKode)
+	resKel, err := kelurahan.GetDetailByCode(kelurahanKodeInt)
+	if resKel == nil || err != nil {
+		return nil, nil, err
+	}
+	return resKec.(rp.OKSimple).Data.(*areadivision.Kecamatan), resKel.(rp.OKSimple).Data.(*areadivision.Kelurahan), nil
+}
 
 func Create(input m.CreateDto) (any, error) {
 	var data m.ObjekPajakPbb
@@ -288,6 +309,7 @@ func Create(input m.CreateDto) (any, error) {
 
 func GetList(input m.FilterDto, refId int, user_id *int) (any, error) {
 	var data []m.ObjekPajakPbb
+	var dataWp []mwp.WajibPajakPbb
 	var count int64
 
 	var pagination gh.Pagination
@@ -313,6 +335,26 @@ func GetList(input m.FilterDto, refId int, user_id *int) (any, error) {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
 
+	for i := 0; i < len(data); i++ {
+		kecamatan, kelurahan, err := getAreaData(data[i])
+		if err != nil {
+			return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data[i])
+		}
+		data[i].Kecamatan = kecamatan
+		data[i].Kelurahan = kelurahan
+
+		resWpPbb, err := swp.GetDetail(int(*data[i].WajibPajakPbb_Id))
+		if err != nil {
+			return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data[i])
+		}
+		if resWpPbb == nil {
+			continue
+		}
+		dataWpTmp := resWpPbb.(rp.OKSimple).Data.(*mwp.WajibPajakPbb)
+		dataWpTmp.ObjekPajakPbbs = &[]m.ObjekPajakPbb{data[i]}
+		dataWp = append(dataWp, *dataWpTmp)
+	}
+
 	return rp.OK{
 		Meta: t.IS{
 			"totalCount":   strconv.Itoa(int(count)),
@@ -320,7 +362,7 @@ func GetList(input m.FilterDto, refId int, user_id *int) (any, error) {
 			"page":         strconv.Itoa(pagination.Page),
 			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
-		Data: data,
+		Data: dataWp,
 	}, nil
 }
 
@@ -349,25 +391,32 @@ func GetDetail(id int, refId int, user_id *int) (any, error) {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
 
-	resultwp := a.DB.Preload(clause.Associations).First(&datawp, data.WajibPajakPbb_Id)
-	if resultwp.RowsAffected == 0 {
-		return nil, nil
-	} else if resultwp.Error != nil {
-		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", datawp)
+	kecamatan, kelurahan, err := getAreaData(*data)
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
 	}
+	data.Kecamatan = kecamatan
+	data.Kelurahan = kelurahan
 
-	if user_id != nil {
-		// var tempData []m.ObjekPajakPbb
-		// tempData = append(tempData, *data)
-		// datawp.ObjekPajakPbbs = &tempData
-		return rp.OKSimple{
-			Data: datawp,
-		}, nil
-	} else {
-		return rp.OKSimple{
-			Data: data,
-		}, nil
+	resWpPbb, err := swp.GetDetail(int(*data.WajibPajakPbb_Id))
+	if resWpPbb == nil || err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
 	}
+	datawp = resWpPbb.(rp.OKSimple).Data.(*mwp.WajibPajakPbb)
+	datawp.ObjekPajakPbbs = &[]m.ObjekPajakPbb{*data}
+
+	return rp.OKSimple{
+		Data: datawp,
+	}, nil
+	// if user_id != nil {
+	// 	// var tempData []m.ObjekPajakPbb
+	// 	// tempData = append(tempData, *data)
+	// 	// datawp.ObjekPajakPbbs = &tempData
+	// } else {
+	// 	return rp.OKSimple{
+	// 		Data: data,
+	// 	}, nil
+	// }
 }
 
 func GetDetailbyField(field string, value string) (any, error) {
@@ -379,6 +428,13 @@ func GetDetailbyField(field string, value string) (any, error) {
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
+
+	kecamatan, kelurahan, err := getAreaData(*data)
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+	}
+	data.Kecamatan = kecamatan
+	data.Kelurahan = kelurahan
 
 	return rp.OKSimple{
 		Data: data,
@@ -403,6 +459,13 @@ func GetDetailbyNop(nop pmh.PermohonanNOP) (any, error) {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
 
+	kecamatan, kelurahan, err := getAreaData(*data)
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+	}
+	data.Kecamatan = kecamatan
+	data.Kelurahan = kelurahan
+
 	return rp.OKSimple{
 		Data: data,
 	}, nil
@@ -425,6 +488,13 @@ func GetRegDetailbyNop(nop regpmh.PermohonanNOP) (any, error) {
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
+
+	kecamatan, kelurahan, err := getAreaData(*data)
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+	}
+	data.Kecamatan = kecamatan
+	data.Kelurahan = kelurahan
 
 	return rp.OKSimple{
 		Data: data,

@@ -23,12 +23,17 @@ func init() {
 	RegisterFieldChecker("max", maxTagValidator)
 	RegisterFieldChecker("minLength", minLengthTagValidator)
 	RegisterFieldChecker("maxLength", maxLengthTagValidator)
-	RegisterFieldChecker("validemail", emailValidator)
-	RegisterFieldChecker("base64", base64Validator)
-	RegisterFieldChecker("b64size", b64SizeKb)
-	RegisterFieldChecker("nik", nikValidator)
-	RegisterFieldChecker("nohp", noHpValidator)
-	RegisterFieldChecker("notelp", noTelpValidator)
+	RegisterFieldChecker("numeric", numericTagValidator)
+	RegisterFieldChecker("alphabet", alphabetTagValidator)
+	RegisterFieldChecker("alphabetspace", alphabetSTagValidator)
+	RegisterFieldChecker("alphanumeric", alphaNumericTagValidator)
+	RegisterFieldChecker("alphanumericfu", alphaNumericUTagValidator)
+	RegisterFieldChecker("email", alphaNumericUTagValidator)
+	RegisterFieldChecker("base64", base64TagValidator)
+	RegisterFieldChecker("b64size", b64SizeKbTagValidator)
+	RegisterFieldChecker("nik", nikTagValidator)
+	RegisterFieldChecker("nohp", noHpTagValidator)
+	RegisterFieldChecker("notelp", noTelpTagValidator)
 }
 
 ///// Field checkers
@@ -96,7 +101,72 @@ func maxLengthTagValidator(val reflect.Value, exptVal string) error {
 	return nil
 }
 
-func emailValidator(val reflect.Value, exptVal string) error {
+func numericTagValidator(val reflect.Value, exptVal string) error {
+	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
+		return nil
+	}
+	re := regexp.MustCompile("^[0-9]+$")
+
+	if !re.MatchString(h.ValStringer(val)) {
+		return errors.New("harus berupa karakter numerik")
+	}
+
+	return nil
+}
+
+func alphabetTagValidator(val reflect.Value, exptVal string) error {
+	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
+		return nil
+	}
+	re := regexp.MustCompile("^[a-zA-Z]+$")
+
+	if !re.MatchString(h.ValStringer(val)) {
+		return errors.New("harus berupa karakter alfabet")
+	}
+
+	return nil
+}
+
+func alphabetSTagValidator(val reflect.Value, exptVal string) error {
+	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
+		return nil
+	}
+	re := regexp.MustCompile("^[ a-zA-Z]+$")
+
+	if !re.MatchString(h.ValStringer(val)) {
+		return errors.New("harus berupa karakter alfabet")
+	}
+
+	return nil
+}
+
+func alphaNumericTagValidator(val reflect.Value, exptVal string) error {
+	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
+		return nil
+	}
+	re := regexp.MustCompile("^[a-zA-Z0-9]+$")
+
+	if !re.MatchString(h.ValStringer(val)) {
+		return errors.New("harus berupa kombinasi karakter alfabet-numerik")
+	}
+
+	return nil
+}
+
+func alphaNumericUTagValidator(val reflect.Value, exptVal string) error {
+	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
+		return nil
+	}
+	re := regexp.MustCompile("^[a-zA-Z0-9_]+$")
+
+	if !re.MatchString(h.ValStringer(val)) {
+		return errors.New("harus berupa kombinasi karakter alfabet-numerik dan underscore")
+	}
+
+	return nil
+}
+
+func emailTagValidator(val reflect.Value, exptVal string) error {
 	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
 		return nil
 	}
@@ -110,7 +180,7 @@ func emailValidator(val reflect.Value, exptVal string) error {
 }
 
 // check base64 string validation, ex: base64 or base64=pdf,image,excel or base64=pdf
-func base64Validator(val reflect.Value, exptVal string) error {
+func base64TagValidator(val reflect.Value, exptVal string) error {
 	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
 		return nil
 	}
@@ -153,7 +223,7 @@ validasi 6 karakter pertama, 2 angka pertama sesuai dengan format provinsi di In
 6 karakter berikutnya mengikuti format tanggal lahir 01..31 (untuk laki-laki) atau 41..71 (untuk perempuan), bulan lahir 01-12, dan tahun lahir 2 angka
 4 karakter terakhir adalah angka sequence.
 */
-func nikValidator(val reflect.Value, exptVal string) error {
+func nikTagValidator(val reflect.Value, exptVal string) error {
 	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
 		return nil
 	}
@@ -169,7 +239,7 @@ func nikValidator(val reflect.Value, exptVal string) error {
 // validate no hp indonesia
 //
 // dianggap valid untuk: +62897123456, 0897123456.
-func noHpValidator(val reflect.Value, exptVal string) error {
+func noHpTagValidator(val reflect.Value, exptVal string) error {
 	if val.Kind() == reflect.Pointer && val.IsNil() {
 		return nil
 	}
@@ -182,7 +252,7 @@ func noHpValidator(val reflect.Value, exptVal string) error {
 	return nil
 }
 
-func noTelpValidator(val reflect.Value, exptVal string) error {
+func noTelpTagValidator(val reflect.Value, exptVal string) error {
 	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
 		return nil
 	}
@@ -198,7 +268,7 @@ func noTelpValidator(val reflect.Value, exptVal string) error {
 // validate base64 approx size file
 //
 // using kb for parameter value eg: 1024 means 1024KB or 1MB or 1024000 B max allowed size file
-func b64SizeKb(val reflect.Value, exptVal string) error {
+func b64SizeKbTagValidator(val reflect.Value, exptVal string) error {
 	if (val.Kind() == reflect.Pointer && val.IsNil()) || val.String() == "" {
 		return nil
 	}

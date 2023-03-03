@@ -127,6 +127,17 @@ type RequestDto struct {
 	VirtualAccoountJatim   *int            `json:"virtualAccoountJatim"`
 }
 
+type NopDto struct {
+	Propinsi_Id        *string `json:"propinsi_Id"`
+	Dati2_Id           *string `json:"dati2_Id"`
+	Kecamatan_Id       *string `json:"kecamatan_Id"`
+	Keluarahan_Id      *string `json:"keluarahan_Id"`
+	Blok_Id            *string `json:"blok_Id"`
+	NoUrut             *string `json:"noUrut"`
+	JenisOP_Id         *string `json:"jenisOP_Id"`
+	TahunPajakskp_sppt *string `json:"tahunPajakskp_sppt"`
+}
+
 type FilterDto struct {
 	BlokKavNoWP_sppt       *string         `json:"blokKavNoWP_sppt"`
 	Faktorpengurangan_sppt *int            `json:"faktorpengurangan_sppt"`
@@ -193,6 +204,14 @@ type PenilaianDto struct {
 	Tahun          string  `json:"tahun"`
 }
 
+type SpPenilaianBumi struct {
+	PenilaianBumi *float64 `gorm:"column:penilaian_bumi"`
+}
+
+type SpPenilaianBangunan struct {
+	PenilaianBangunan *float64 `gorm:"column:penilaian_bangunan"`
+}
+
 type GetDaftarTagihan struct {
 	Provinsi_Kode     string  `json:"provinsi_kode" validate:"required;minLength=2;maxLength=2"`
 	Daerah_Kode       string  `json:"daerah_kode" validate:"required;minLength=2;maxLength=2"`
@@ -224,4 +243,8 @@ type PenetapanMassalDto struct {
 	TglTerbit5     string    `json:"tglTerbit5"`
 	BukuMin        []float64 `json:"bukuMin"`
 	BukuMax        []float64 `json:"bukuMax"`
+}
+
+type SpPenetapanMassal struct {
+	PenetepanMassal *float64 `gorm:"column:penetapan_massal"`
 }

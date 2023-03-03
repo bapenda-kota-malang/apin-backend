@@ -9,3 +9,33 @@ type Kanwil struct {
 	NoFaksimili      *string `json:"noFaksimili" gorm:"type:varchar(50)"`
 	NoTelpon         *string `json:"noTelpon" gorm:"type:varchar(50)"`
 }
+
+type CreateDto struct {
+	AlKanwil         *string `json:"alKanwil"`
+	KdKanwil         *string `json:"kdKanwil,omitempty"`
+	KotaTerbitKanwil *string `json:"kotaTerbitKanwil"`
+	NmKanwil         *string `json:"nmKanwil"`
+	NoFaksimili      *string `json:"noFaksimili"`
+	NoTelpon         *string `json:"noTelpon"`
+}
+
+type UpdateDto struct {
+	Id               *uint64 `json:"id"`
+	AlKanwil         *string `json:"alKanwil"`
+	KdKanwil         *string `json:"kdKanwil,omitempty"`
+	KotaTerbitKanwil *string `json:"kotaTerbitKanwil"`
+	NmKanwil         *string `json:"nmKanwil"`
+	NoFaksimili      *string `json:"noFaksimili"`
+	NoTelpon         *string `json:"noTelpon"`
+}
+
+type FilterDto struct {
+	AlKanwil         *string `json:"alKanwil"`
+	KdKanwil         *string `json:"kdKanwil,omitempty"`
+	KotaTerbitKanwil *string `json:"kotaTerbitKanwil"`
+	NmKanwil         *string `json:"nmKanwil"`
+	NoFaksimili      *string `json:"noFaksimili"`
+	NoTelpon         *string `json:"noTelpon"`
+	Page             int     `json:"page"`
+	PageSize         int     `json:"page_size"`
+}

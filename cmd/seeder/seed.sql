@@ -32,6 +32,9 @@
 \i sqls/data-DbkbFasumNonDep.sql
 \i sqls/data-JenisPajak.sql
 \i sqls/data-ReferensiBuku.sql
+\i sqls/data-Nir.sql
+\i sqls/data-Znt.sql
+\i sqls/data-PetaZnt.sql
 
 -- below for table have relation to child
 

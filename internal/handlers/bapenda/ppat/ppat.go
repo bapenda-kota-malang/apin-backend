@@ -10,7 +10,7 @@ import (
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	var input m.Create
+	var input m.CreateDto
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
@@ -20,7 +20,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {
-	var input m.Filter
+	var input m.FilterDto
 	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
 		return
 	}
@@ -45,7 +45,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data m.Update
+	var data m.UpdateDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}
