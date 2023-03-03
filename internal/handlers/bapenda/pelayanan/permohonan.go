@@ -7,7 +7,10 @@ import (
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
+	rm "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/pelayanan"
+	rs "github.com/bapenda-kota-malang/apin-backend/internal/services/regpelayanan"
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
@@ -88,5 +91,37 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := s.Delete(id)
+	hh.DataResponse(w, result, err)
+}
+
+func UpdateApproval(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	var data m.PermohonanRequestDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.UpdateApproval(id, data)
+	hh.DataResponse(w, result, err)
+}
+
+func UpdateApprovalReg(w http.ResponseWriter, r *http.Request) {
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	var data rm.PermohonanRequestDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := rs.UpdateApproval(id, authInfo.User_Id, data)
 	hh.DataResponse(w, result, err)
 }
