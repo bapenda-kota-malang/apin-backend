@@ -30,7 +30,7 @@ type Create struct {
 
 	// user.Create	// using embed composition is not good since structvalidation inlcudes the parent namespace
 	// for user
-	Name     string `json:"name" validate:"required"`
+	Name     string `json:"name" validate:"required;alphanumeric"`
 	Password string `json:"password" validate:"required"`
 	// Position    int16     `json:"position"`
 	Group_Id    int       `json:"group_id" validate:"required;min=1"`
