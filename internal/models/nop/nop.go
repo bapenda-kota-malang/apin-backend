@@ -134,6 +134,15 @@ type NopDetailCreateDto struct {
 	NoUrut         *string `json:"noUrut"`
 	JenisOp        *string `json:"jenisOp"`
 	Area_Kode      *string `json:"area_kode"`
+
+	// Provinsi_Kode  *string `json:"provinsi_kode" validate:"required"`
+	// Daerah_Kode    *string `json:"daerah_kode" validate:"required"`
+	// Kecamatan_Kode *string `json:"kecamatan_kode" validate:"required"`
+	// Kelurahan_Kode *string `json:"kelurahan_kode" validate:"required"`
+	// Blok_Kode      *string `json:"blok_kode" validate:"required"`
+	// NoUrut         *string `json:"noUrut" validate:"required"`
+	// JenisOp        *string `json:"jenisOp" validate:"required"`
+	// Area_Kode      *string `json:"area_kode"`
 }
 
 type NopDetailUpdateDto struct {

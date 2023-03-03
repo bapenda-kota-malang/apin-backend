@@ -21,11 +21,11 @@ type ObjekPajakBumi struct {
 // untuk spop
 type CreateDto struct {
 	nop.NopDetailCreateDto
-	NoBumi          *int      `json:"noBumi"`
-	KodeZNT         *string   `json:"kodeZnt"`
-	LuasBumi        int       `json:"luasBumi"`
-	JenisBumi       JenisBumi `json:"jenisBumi"`
-	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
+	NoBumi          *int      `json:"noBumi" validate:"required"`
+	KodeZNT         *string   `json:"kodeZnt" validate:"required"`
+	LuasBumi        int       `json:"luasBumi" validate:"required"`
+	JenisBumi       JenisBumi `json:"jenisBumi" validate:"required"`
+	NilaiSistemBumi *int      `json:"nilaiSistemBumi" validate:"required"`
 
 	// RegObjekPajakBangunans *[]mopbng.CreateDto `json:"regObjekPajakBng"`
 }

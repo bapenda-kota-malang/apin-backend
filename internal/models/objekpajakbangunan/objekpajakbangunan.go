@@ -44,12 +44,12 @@ type ObjekPajakBangunan struct {
 
 type CreateDto struct {
 	nop.NopDetailCreateDto
-	NoBangunan            *int              `json:"noBangunan"`
-	Jpb_Kode              string            `json:"jpb_kode"`
-	NoFormulirSpop        *string           `json:"noFormulirSpop"`
-	TahunDibangun         *string           `json:"tahunDibangun"`
+	NoBangunan            *int              `json:"noBangunan" validate:"required"`
+	Jpb_Kode              string            `json:"jpb_kode" validate:"required"`
+	NoFormulirSpop        *string           `json:"noFormulirSpop" validate:"required"`
+	TahunDibangun         *string           `json:"tahunDibangun" validate:"required"`
 	TahunRenovasi         *string           `json:"tahunRenovasi"`
-	LuasBangunan          *int              `json:"luasBangunan"`
+	LuasBangunan          *int              `json:"luasBangunan" validate:"required"`
 	Kondisi               Kondisi           `json:"kondisi"`
 	JenisKonstruksi       JenisKonstruksi   `json:"jenisKonstruksi"`
 	JenisAtap             JenisAtap         `json:"jenisAtap"`
