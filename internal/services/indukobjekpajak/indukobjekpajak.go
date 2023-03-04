@@ -1,7 +1,6 @@
 package indukobjekpajak
 
 import (
-	"fmt"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -46,16 +45,29 @@ func GetList(input m.FilterDto) (any, error) {
 		response m.ListDto
 	)
 
+	// get induk objek pajak
+	var indukObjekPajak m.IndukObjekPajak
+	if err := a.DB.
+		Where(`"Provinsi_Kode" = ?`, input.Provinsi_Kode).
+		Where(`"Dati2_Kode" = ?`, input.Dati2_Kode).
+		Where(`"Kecamatan_Kode" = ?`, input.Kecamatan_Kode).
+		Where(`"Kelurahan_Kode" = ?`, input.Kelurahan_Kode).
+		Where(`"Blok_Kode" = ?`, input.Blok_Kode).
+		Where(`"NoUrut" = ?`, input.NoUrut).
+		Where(`"JenisOP_Kode" = ?`, input.JenisOP_Kode).
+		First(&indukObjekPajak).Error; err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data ", data)
+	}
+
 	// get objek pajak pbb
 	var objekPajaPbb m_objekpajakpbb.ObjekPajakPbb
 	if err := a.DB.
-		Where("Provinsi_Kode = ?", input.Provinsi_Kode).
-		Where("Daerah_Kode = ?", input.Dati2_Kode).
-		Where("Kecamatan_Kode = ?", input.Kecamatan_Kode).
-		Where("Kelurahan_Kode = ?", input.Kelurahan_Kode).
-		Where("Blok_Kode = ?", input.Blok_Kode).
-		Where("NoUrut = ?", input.NoUrut).
-		Where("JenisOP = ?", input.JenisOP_Kode).
+		Where(`"Provinsi_Kode" = ?`, indukObjekPajak.Provinsi_Kode).
+		Where(`"Daerah_Kode" = ?`, indukObjekPajak.Dati2_Kode).
+		Where(`"Kecamatan_Kode" = ?`, indukObjekPajak.Kecamatan_Kode).
+		Where(`"Kelurahan_Kode" = ?`, indukObjekPajak.Kelurahan_Kode).
+		Where(`"Blok_Kode" = ?`, indukObjekPajak.Blok_Kode).
+		Where(`"NoUrut" = ?`, indukObjekPajak.NoUrut).
 		Preload("Kelurahan").
 		First(&objekPajaPbb).Error; err != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data ", data)
@@ -77,14 +89,14 @@ func GetList(input m.FilterDto) (any, error) {
 
 	// get anggota objek pajak
 	var anggotaObjekPajak []anggotaobjekpajak.AnggotaObjekPajak
-	if err := a.DB.
-		Where("Induk_Provinsi_Kode = ?", input.Provinsi_Kode).
-		Where("Induk_Daerah_Kode = ?", input.Dati2_Kode).
-		Where("Induk_Kecamatan_Kode = ?", input.Kecamatan_Kode).
-		Where("Induk_Kelurahan_Kode = ?", input.Kelurahan_Kode).
-		Where("Induk_Blok_Kode = ?", input.Blok_Kode).
-		Where("Induk_NoUrut = ?", input.NoUrut).
-		Where("Induk_JenisOp = ?", input.JenisOP_Kode).
+	if err := a.DB.Debug().
+		Where(`"Induk_Provinsi_Kode" = ?`, indukObjekPajak.Provinsi_Kode).
+		Where(`"Induk_Daerah_Kode" = ?`, indukObjekPajak.Dati2_Kode).
+		Where(`"Induk_Kecamatan_Kode" = ?`, indukObjekPajak.Kecamatan_Kode).
+		Where(`"Induk_Kelurahan_Kode" = ?`, indukObjekPajak.Kelurahan_Kode).
+		Where(`"Induk_Blok_Kode" = ?`, indukObjekPajak.Blok_Kode).
+		Where(`"Induk_NoUrut" = ?`, indukObjekPajak.NoUrut).
+		Where(`"Induk_JenisOp" = ?`, indukObjekPajak.JenisOP_Kode).
 		Find(&anggotaObjekPajak).Error; err != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data ", data)
 	}
@@ -93,14 +105,31 @@ func GetList(input m.FilterDto) (any, error) {
 	for _, item := range anggotaObjekPajak {
 		var detailDto m.ListDetailDto
 		// str provinsi_kode + dati2_kode + kecamatan_kode + kelurahan_kode + blok_kode + no_urut + jenis_op
-		nopAnggota := fmt.Sprintf("%s%s%s%s%s%s%s", item.Provinsi_Kode, item.Daerah_Kode, item.Kecamatan_Kode, item.Kelurahan_Kode, item.Blok_Kode, item.NoUrut, item.JenisOp)
+		var (
+			provinsiKode  string
+			dati2Kode     string
+			kecamatanKode string
+			kelurahanKode string
+			blokKode      string
+			noUrut        string
+			jenisOp       string
+		)
+		provinsiKode = *item.Provinsi_Kode
+		dati2Kode = *item.Daerah_Kode
+		kecamatanKode = *item.Kecamatan_Kode
+		kelurahanKode = *item.Kelurahan_Kode
+		blokKode = *item.Blok_Kode
+		noUrut = *item.NoUrut
+		jenisOp = *item.JenisOp
+
+		nopAnggota := provinsiKode + dati2Kode + kecamatanKode + kelurahanKode + blokKode + noUrut + jenisOp
 		detailDto.NOPAnggota = nopAnggota
 		detailDto.NamaWajibPajak = wajibPajakPbb.Nama
 		detailDto.LuasBumiBeban = item.LuasBumiBeban
 		detailDto.LuasBangunanBeban = item.LuasBangunanBeban
 
 		var sppt sppt.Sppt
-		if err := a.DB.Where("NJOP_sppt = ?", nopAnggota).First(&sppt).Error; err != nil {
+		if err := a.DB.Where(`"NJOP_sppt" = ?`, nopAnggota).First(&sppt).Error; err != nil {
 			return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data ", data)
 		}
 		detailDto.NJOP = sppt.NJOP_sppt

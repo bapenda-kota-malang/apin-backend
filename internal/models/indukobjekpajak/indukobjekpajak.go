@@ -38,13 +38,13 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	Provinsi_Kode  string `json:"provinsi_kode"`
-	Dati2_Kode     string `json:"dati2_kode"`
-	Kecamatan_Kode string `json:"kecamatan_kode"`
-	Kelurahan_Kode string `json:"kelurahan_kode"`
-	Blok_Kode      string `json:"blok_kode"`
-	NoUrut         string `json:"no_urut"`
-	JenisOP_Kode   string `json:"jenis_op_kode"`
+	Provinsi_Kode  string `json:"provinsi_kode" query:"provinsi_kode"`
+	Dati2_Kode     string `json:"dati2_kode" query:"dati2_kode"`
+	Kecamatan_Kode string `json:"kecamatan_kode" query:"kecamatan_kode"`
+	Kelurahan_Kode string `json:"kelurahan_kode" query:"kelurahan_kode"`
+	Blok_Kode      string `json:"blok_kode" query:"blok_kode"`
+	NoUrut         string `json:"no_urut" query:"no_urut"`
+	JenisOP_Kode   string `json:"jenis_op_kode" query:"jenis_op_kode"`
 	Page           int    `json:"page"`
 	PageSize       int    `json:"page_size"`
 }
