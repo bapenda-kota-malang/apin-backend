@@ -112,24 +112,22 @@ type UpdatePotensiOpDto struct {
 type FilterDto struct {
 	// dynamic from column table field
 	// potensiop
-	Assessment   *string     `json:"assessment"`
-	Golongan     *t.Golongan `json:"golongan"`
-	Status       *t.Status   `json:"status"`
-	ClosingDate  *time.Time  `json:"closingDate"`
-	OpeningDate  *time.Time  `json:"openingDate"`
-	LuasBangunan *string     `json:"luasBangunan"`
-	JamBuka      *string     `json:"jamBuka"`
-	JamTutup     *string     `json:"jamTutup"`
-	Visitors     *string     `json:"visitors"`
-	OmsetOp      *string     `json:"omsetOp"`
-	Genset       *string     `json:"genset"`
-	AirTanah     *string     `json:"airTanah"`
-	// detail potensiop
-	JenisOp  *string `json:"jenisOp"`
-	JumlahOp *string `json:"jumlahOp"`
-	TarifOp  *string `json:"tarifOp"`
-	UnitOp   *string `json:"unitOp"`
-	Notes    *string `json:"notes"`
+	Assessment     *string         `json:"assessment"`
+	Golongan       *t.Golongan     `json:"golongan"`
+	Npwp           *string         `json:"npwp" gorm:"size:50"`
+	Rekening_Id    *uint64         `json:"rekening_id"`
+	Rekening_Objek *string         `json:"rekening_objek" refsource:"Rekening.Objek"`
+	StartDate      *datatypes.Date `json:"startDate"`
+	LuasBangunan   *string         `json:"luasBangunan"`
+	JamBuka        *string         `json:"jamBuka"`
+	JamTutup       *string         `json:"jamTutup"`
+	Visitors       *string         `json:"visitors"`
+	OmsetOp        *string         `json:"omsetOp"`
+	JumlahPajak    *float64        `json:"jumlahPajak"`
+	TarifPajak_Id  *uint64         `json:"tarifPajak_id"`
+	Genset         *string         `json:"genset"`
+	AirTanah       *string         `json:"airTanah"`
+	Status         *t.Status       `json:"status"`
 	// fixed
 	Page     int   `json:"page"`
 	PageSize int64 `json:"page_size"`
