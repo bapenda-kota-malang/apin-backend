@@ -43,7 +43,7 @@ type CreateDto struct {
 	Nama             string    `json:"nama" validate:"required;maxLength=100;alphabetspace"`
 	Nip              string    `json:"nip" validate:"required;maxLength=30"`
 	Jabatan_Id       int       `json:"jabatan_id" validate:"required;min=1"`
-	BidangKerja_Kode string    `json:"bidangKerja_kode" validate:"required"`
+	BidangKerja_Kode string    `json:"bidangKerja_kode"`
 	StartDate        time.Time `json:"startDate"`
 	EndDate          time.Time `json:"endDate"`
 	// SatuanKerja_Id   int       `json:"satuanKerja_id"`

@@ -19,6 +19,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/indukobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kanwil"
@@ -27,9 +28,11 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penetapanmassal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/referensibuku"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/refumum"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/regnpwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/suratpemberitahuan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tarif"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/tempatpembayaranspptmasal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/account"
 	er "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/errors"
@@ -404,7 +407,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", potensiopwp.Create)
 		r.Get("/", potensiopwp.GetList)
 		r.Get("/{id}", potensiopwp.GetDetail)
-		r.Patch("/{id}", potensiopwp.Update)
+		// r.Patch("/{id}", potensiopwp.Update)
 		r.Delete("/{id}", potensiopwp.Delete)
 	})
 
@@ -673,6 +676,10 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/sppt/tandaterima", sppt.CrudSpptTandaTerima{})
 
+	rh.RegCrud(r, "/tarif", tarif.CrudTarif{})
+
+	rh.RegCrud(r, "/referensibuku", referensibuku.CrudReferensiBuku{})
+
 	rh.RegCrud(r, "/banktunggal", banktunggal.Crud{})
 
 	rh.RegCrud(r, "/bankpersepsi", bankpersepsi.Crud{})
@@ -682,6 +689,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/kppbb", kppbb.Crud{})
 
 	rh.RegCrud(r, "/refumum", refumum.Crud{})
+
+	rh.RegCrud(r, "/indukobjekpajak", indukobjekpajak.Crud{})
 
 	return r
 }
