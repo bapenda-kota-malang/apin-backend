@@ -32,7 +32,7 @@ func checkLastUpdate(data m.DetailPotensiOp) (err error) {
 	return
 }
 
-func Create(input m.CreateDto, rekeningId uint, tx *gorm.DB) (any, error) {
+func Create(input m.CreateDto, rekeningId uint64, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -111,7 +111,7 @@ func Update(potensiOp_Id uuid.UUID, input m.UpdateDto, tx *gorm.DB) (any, error)
 	}, nil
 }
 
-func GetExisting(nama, alamat, rtRw string, kecamatanId, kelurahanId uint, rekeningId uint, tx *gorm.DB) (data m.DetailPotensiOp, err error) {
+func GetExisting(nama, alamat, rtRw string, kecamatanId, kelurahanId uint, rekeningId uint64, tx *gorm.DB) (data m.DetailPotensiOp, err error) {
 	if tx == nil {
 		tx = a.DB
 	}

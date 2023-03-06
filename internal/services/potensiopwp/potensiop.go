@@ -138,7 +138,7 @@ func Create(input m.CreatePotensiOpDto, userId uint, tx *gorm.DB) (any, error) {
 	}
 
 	// static add value to field
-	data.User_Id = userId
+	data.User_Id = uint64(userId)
 	data.Status = nt.StatusAktif
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
@@ -155,10 +155,10 @@ func GetList(input m.FilterDto) (any, error) {
 
 	var pagination gh.Pagination
 	result := a.DB.Model(&m.PotensiOp{}).
+		Joins("Rekening").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
-		Preload("Rekening").
 		Preload("PotensiPemilikWp").
 		Preload("DetailPotensiOp.Kecamatan").
 		Preload("DetailPotensiOp.Kelurahan").

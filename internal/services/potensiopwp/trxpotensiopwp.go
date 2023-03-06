@@ -12,79 +12,102 @@ import (
 	"github.com/google/uuid"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
+	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
+	stp "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
 
 	sbapl "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/bapl"
-	sdetailobjek "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailobjek"
 	sdpotensiop "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/detailpotensiop"
 	spnarahubung "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/potensinarahubung"
 	sppemilikiwp "github.com/bapenda-kota-malang/apin-backend/internal/services/potensiopwp/potensipemilikwp"
 	// mvetax "github.com/bapenda-kota-malang/apin-backend/internal/models/vendoretax"
 )
 
-func CreateTrx(input m.CreateDto, userId uint) (any, error) {
+func CreateTrx(input m.Input, userId int) (any, error) {
 	var dataPotensiOp m.PotensiOp
 
+	detailPotensiOpDto := input.GetDetailPotensiOp()
+	potensiOpDto := input.GetPotensiOp()
+
+	// get tarif pajak data for calculate tax
+	yearOrder := "order desc"
+	omsetOpt := "lte"
+	rspTp, err := stp.GetList(mtp.FilterDto{
+		Rekening_Id:   &potensiOpDto.Rekening_Id,
+		Tahun_Opt:     &yearOrder,
+		OmsetAwal:     potensiOpDto.OmsetOp,
+		OmsetAwal_Opt: &omsetOpt,
+	})
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mencari tarif pajak: "+err.Error(), dataPotensiOp)
+	}
+	if len(rspTp.(rp.OK).Data.([]mtp.TarifPajak)) == 0 {
+		return sh.SetError("request", "create-data", source, "failed", "data tarif pajak tidak ditemukan", dataPotensiOp)
+	}
+	tarifPajak := rspTp.(rp.OK).Data.([]mtp.TarifPajak)[0]
+
+	// calculate tax
+	if err := input.CalculateTax(tarifPajak); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menghitung potensi pajak: "+err.Error(), dataPotensiOp)
+	}
+
 	// Transaction save to db
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data ke db satu if karena result dipakai sekali, +error
 		// save potensi op
-		respExistingDetailPotensiOp, err := sdpotensiop.GetExisting(
-			input.DetailPotensiOp.Nama,
-			input.DetailPotensiOp.Alamat,
-			input.DetailPotensiOp.RtRw,
-			input.DetailPotensiOp.Kecamatan_Id,
-			input.DetailPotensiOp.Kelurahan_Id,
-			input.PotensiOp.Rekening_Id,
-			tx)
-		if err != nil && err.Error() != "record not found" {
-			return err
-		}
-		if respExistingDetailPotensiOp.Potensiop_Id != uuid.Nil {
-			input.PotensiOp.Id = respExistingDetailPotensiOp.Potensiop_Id
-		}
-
-		respPotensiOp, err := Create(input.PotensiOp, userId, tx)
+		potensiOpDto = input.GetPotensiOp()
+		respPotensiOp, err := Create(potensiOpDto, uint(userId), tx)
 		if err != nil {
 			return err
 		}
 		dataPotensiOp = respPotensiOp.(rp.OKSimple).Data.(m.PotensiOp)
 
-		// replace potensi op id
-		input.DetailPotensiOp.Potensiop_Id = dataPotensiOp.Id
-		input.Bapl.Potensiop_Id = dataPotensiOp.Id
-		for v := range input.PotensiPemilikWps {
-			input.PotensiPemilikWps[v].Potensiop_Id = dataPotensiOp.Id
+		respExistingDetailPotensiOp, err := sdpotensiop.GetExisting(
+			detailPotensiOpDto.Nama,
+			detailPotensiOpDto.Alamat,
+			detailPotensiOpDto.RtRw,
+			detailPotensiOpDto.Kecamatan_Id,
+			detailPotensiOpDto.Kelurahan_Id,
+			potensiOpDto.Rekening_Id,
+			tx)
+		if err != nil && err.Error() != "record not found" {
+			return err
 		}
-		for v := range input.PotensiNarahubungs {
-			input.PotensiNarahubungs[v].Potensiop_Id = dataPotensiOp.Id
-		}
-		for v := range input.DetailPajakDtos {
-			input.DetailPajakDtos[v].Potensiop_Id = dataPotensiOp.Id
+		if respExistingDetailPotensiOp.Potensiop_Id != uuid.Nil {
+			input.SetPotensiOpId(respExistingDetailPotensiOp.Potensiop_Id)
+			detailPotensiOpDto = input.GetDetailPotensiOp()
 		}
 
+		// replace potensi op id
+		input.ReplacePotensiOpId(dataPotensiOp.Id)
+		detailPotensiOpDto = input.GetDetailPotensiOp()
+
 		// save detail potensi op
-		_, err = sdpotensiop.Create(input.DetailPotensiOp, input.PotensiOp.Rekening_Id, tx)
+		_, err = sdpotensiop.Create(detailPotensiOpDto, dataPotensiOp.Rekening_Id, tx)
 		if err != nil {
 			return err
 		}
 
 		// save pemilik wps
-		_, err = sppemilikiwp.Create(input.PotensiPemilikWps, tx)
+		_, err = sppemilikiwp.Create(input.GetPotensiPemilikWps(), tx)
 		if err != nil {
 			return err
 		}
 
-		_, err = spnarahubung.Create(input.PotensiNarahubungs, tx)
+		_, err = spnarahubung.Create(input.GetPotensiNarahubungs(), tx)
 		if err != nil {
 			return err
 		}
 
-		_, err = sdetailobjek.Create(input.DetailPajakDtos, tx)
-		if err != nil {
+		if err := input.SaveDetailPotensiPajak(tx); err != nil {
 			return err
 		}
 
-		_, err = sbapl.Create(input.Bapl, userId, tx)
+		// _, err = sdetailobjek.Create(input.DetailPajakDtos, tx)
+		// if err != nil {
+		// 	return err
+		// }
+
+		_, err = sbapl.Create(input.GetBapl(), uint(userId), tx)
 		if err != nil {
 			return err
 		}
@@ -136,12 +159,12 @@ func UpdateTrx(id uuid.UUID, input m.UpdateDto, userId uint) (any, error) {
 			}
 		}
 
-		if len(input.DetailPajakDtos) > 0 {
-			_, err = sdetailobjek.Update(id, input.DetailPajakDtos, tx)
-			if err != nil {
-				return err
-			}
-		}
+		// if len(input.DetailPajakDtos) > 0 {
+		// 	_, err = sdetailobjek.Update(id, input.DetailPajakDtos, tx)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// }
 
 		_, err = sbapl.Update(id, input.Bapl, tx)
 		if err != nil {
