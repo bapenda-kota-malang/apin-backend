@@ -40,7 +40,7 @@ type OutputDto struct {
 // Creates pegawai data alongside with user data
 type CreateDto struct {
 	// for pegawai
-	Nama             string    `json:"nama" validate:"required;maxLength=100"`
+	Nama             string    `json:"nama" validate:"required;maxLength=100;alphabetspace"`
 	Nip              string    `json:"nip" validate:"required;maxLength=30"`
 	Jabatan_Id       int       `json:"jabatan_id" validate:"required;min=1"`
 	BidangKerja_Kode string    `json:"bidangKerja_kode"`
@@ -63,7 +63,7 @@ type CreateDto struct {
 // Creates pegawai data alongside with user data
 type UpdateDto struct {
 	// for pegawai
-	Nama             string    `json:"nama" validate:"required;maxLength=100"`
+	Nama             string    `json:"nama" validate:"required;maxLength=100;alphabetspace"`
 	Nip              string    `json:"nip" validate:"required;maxLength=30"`
 	Jabatan_Id       int       `json:"jabatan_id" validate:"required;min=1"`
 	BidangKerja_Kode string    `json:"bidangKerja_kode" validate:"required"`

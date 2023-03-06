@@ -46,6 +46,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/geojson"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/indukobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jalan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar"
@@ -81,7 +82,6 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/bapl"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailobjek"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/detailpotensiop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensinarahubung"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
@@ -229,13 +229,13 @@ func GetModelList() (data []interface{}) {
 		&detailpotensiop.DetailPotensiOp{},
 		&potensipemilikwp.PotensiPemilikWp{},
 		&potensinarahubung.PotensiNarahubung{},
-		&detailobjek.DetailPotensiAirTanah{},
-		&detailobjek.DetailPotensiHiburan{},
-		&detailobjek.DetailPotensiHotel{},
-		&detailobjek.DetailPotensiPPJ{},
-		&detailobjek.DetailPotensiParkir{},
-		&detailobjek.DetailPotensiReklame{},
-		&detailobjek.DetailPotensiResto{},
+		&potensiopwp.DetailPotensiAirTanah{},
+		&potensiopwp.DetailPotensiHiburan{},
+		&potensiopwp.DetailPotensiHotel{},
+		&potensiopwp.DetailPotensiPPJNonPLN{},
+		&potensiopwp.DetailPotensiParkir{},
+		&potensiopwp.DetailPotensiReklame{},
+		&potensiopwp.DetailPotensiResto{},
 		&reklas.Reklas{},
 		&njoptkpflag.NjoptkpFlag{},
 		&njoptkpflag.NjoptkpFlagDetail{},
@@ -502,5 +502,10 @@ func GetModelList() (data []interface{}) {
 	}
 	data = append(data, listModelRefUmum...)
 
+	listModelIndukObjekPajak := []interface{}{
+		&indukobjekpajak.IndukObjekPajak{},
+	}
+
+	data = append(data, listModelIndukObjekPajak...)
 	return data
 }
