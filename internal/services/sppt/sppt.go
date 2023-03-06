@@ -19,9 +19,8 @@ import (
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
 	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
 	sopp "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
+	srefbuku "github.com/bapenda-kota-malang/apin-backend/internal/services/referensibuku"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
-
-	pn "github.com/bapenda-kota-malang/apin-backend/internal/models/penetapan"
 )
 
 const source = "sppt"
@@ -484,7 +483,7 @@ func PenetapanMassal(input m.PenetapanMassalDto) (any, error) {
 	}
 
 	// get min max value referensi buku
-	minValue, maxValue, err := MinMaxValueReferensiBuku()
+	minValue, maxValue, err := srefbuku.MinMaxValueReferensiBuku()
 	if err != nil {
 		return sh.SetError("request", "penetapan-massal-sppt", source, "failed", "min max value referensi buku: "+err.Error(), data)
 	}
@@ -501,26 +500,6 @@ func PenetapanMassal(input m.PenetapanMassalDto) (any, error) {
 	}
 
 	return rp.OKSimple{Data: res}, nil
-}
-
-// TODO: This function should be move to ReferensiBuku Service!!
-func MinMaxValueReferensiBuku() (min []float64, max []float64, err error) {
-	var rfBuku []pn.ReferensiBuku
-	var minValue, maxValue []float64
-	rBuku := a.DB.Order("\"Id\" asc").Find(&rfBuku)
-
-	if rBuku.RowsAffected == 0 {
-		err = fmt.Errorf("data referensi buku tidak ada")
-		return
-	} else if rBuku.Error != nil {
-		return
-	}
-
-	for _, rb := range rfBuku {
-		minValue = append(minValue, *rb.NilaiMin)
-		maxValue = append(maxValue, *rb.NilaiMax)
-	}
-	return
 }
 
 // this function will call SP Penilaian Bumi and SP Penilaian Bangunan

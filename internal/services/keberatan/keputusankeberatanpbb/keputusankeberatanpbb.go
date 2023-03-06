@@ -12,6 +12,7 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
 	msksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	msppt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
+	srefbuku "github.com/bapenda-kota-malang/apin-backend/internal/services/referensibuku"
 	ssksk "github.com/bapenda-kota-malang/apin-backend/internal/services/sksk"
 	ssppt "github.com/bapenda-kota-malang/apin-backend/internal/services/sppt"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -51,7 +52,7 @@ func updateSpptSp(data m.KeputusanKeberatanPbb, tx *gorm.DB) error {
 	}
 
 	// get min max value referensi buku
-	minValue, maxValue, err := ssppt.MinMaxValueReferensiBuku()
+	minValue, maxValue, err := srefbuku.MinMaxValueReferensiBuku()
 	if err != nil {
 		return err
 	}

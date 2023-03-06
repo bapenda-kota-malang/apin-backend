@@ -130,7 +130,7 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 	}, nil
 }
 
-func CheckIsNpwpd(nama, alamat, rtRw *string, kecamatanId, kelurahanId *uint64, rekeningId uint, tx *gorm.DB) bool {
+func CheckIsNpwpd(nama, alamat, rtRw *string, kecamatanId, kelurahanId *uint64, rekeningId uint64, tx *gorm.DB) bool {
 	if tx == nil {
 		tx = a.DB
 	}
