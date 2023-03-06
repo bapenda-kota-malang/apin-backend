@@ -149,30 +149,6 @@ type DafnomOP struct {
 	Status_WP_Kode  *float64 `json:"status_WP_kode"`
 }
 
-type ReferensiBuku struct {
-	Id                uint64   `json:"id" gorm:"primaryKey"`
-	Kode              *string  `json:"kode" gorm:"type:varchar(1)"`
-	ThnAwal           *string  `json:"thnAwal" gorm:"type:varchar(4)"`
-	ThnAkhir          *string  `json:"thnAkhir" gorm:"type:varchar(4)"`
-	NilaiMin          *float64 `json:"nilaiMin"`
-	NilaiMax          *float64 `json:"nilaiMax"`
-	LuasMinTipe       *int     `json:"luasMinTipe"`
-	LuasMaxTipe       *int     `json:"luasMaxTipe"`
-	FaktorPembagiTipe *float64 `json:"faktorPembagiTipe"`
-	Status            *float64 `json:"STATUS"`
-	gh.DateModel
-}
-
-type NJOPTKP struct {
-	Id            uint64  `json:"id" gorm:"primaryKey"`
-	Provinsi_Kode string  `json:"provinsi_kode" gorm:"type:varchar(2)"`
-	Daerah_Kode   string  `json:"daerah_kode" gorm:"type:varchar(2)"`
-	ThnAwal       string  `json:"thnAwal" gorm:"type:varchar(4)"`
-	ThnAkhir      string  `json:"thnAkhir" gorm:"type:varchar(4)"`
-	NilaiNJOPTKP  float64 `json:"nilaiNJOPTKP"`
-	gh.DateModel
-}
-
 type NJKP struct {
 	Id             uint64  `json:"id" gorm:"primaryKey"`
 	IndeksRange    string  `json:"indeksRange" gorm:"type:varchar(2)"`
