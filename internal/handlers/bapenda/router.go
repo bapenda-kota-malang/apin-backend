@@ -409,7 +409,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", potensiopwp.Create)
 		r.Get("/", potensiopwp.GetList)
 		r.Get("/{id}", potensiopwp.GetDetail)
-		r.Patch("/{id}", potensiopwp.Update)
+		// r.Patch("/{id}", potensiopwp.Update)
 		r.Delete("/{id}", potensiopwp.Delete)
 	})
 
