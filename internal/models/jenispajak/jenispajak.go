@@ -13,20 +13,20 @@ type JenisPajak struct {
 }
 
 type CreateDto struct {
-	Kode        *string `json:"kode" gorm:"type:varchar(5)"`
-	Uraian      *string `json:"uraian" gorm:"type:varchar(100)"`
-	Rekening_Id *uint64 `json:"rekening_id"`
-	KodeBilling *string `json:"kodeBilling" gorm:"type:varchar(20)"`
-	KodeVAJatim *string `json:"kodeVAJatim" gorm:"type:varchar(100)"`
+	Kode        *string `json:"kode" validate:"kode"`
+	Uraian      *string `json:"uraian" validate:"uraian"`
+	Rekening_Id *uint64 `json:"rekening_id" validate:"rekening_id"`
+	KodeBilling *string `json:"kodeBilling" validate:"kodeBilling"`
+	KodeVAJatim *string `json:"kodeVAJatim" validate:"kodeVAJatim"`
 }
 
 type UpdateDto struct {
-	Id          uint64  `json:"id"`
-	Kode        *string `json:"kode"`
-	Uraian      *string `json:"uraian"`
-	Rekening_Id *uint64 `json:"rekening_id"`
-	KodeBilling *string `json:"kodeBilling"`
-	KodeVAJatim *string `json:"kodeVAJatim"`
+	Id          uint64  `json:"id" validate:"id"`
+	Kode        *string `json:"kode" validate:"kode"`
+	Uraian      *string `json:"uraian" validate:"uraian"`
+	Rekening_Id *uint64 `json:"rekening_id" validate:"rekening_id"`
+	KodeBilling *string `json:"kodeBilling" validate:"kodeBilling"`
+	KodeVAJatim *string `json:"kodeVAJatim" validate:"kodeVAJatim"`
 }
 
 type FilterDto struct {
