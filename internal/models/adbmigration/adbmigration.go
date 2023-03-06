@@ -474,13 +474,11 @@ func GetModelList() (data []interface{}) {
 	listModelPenetapanMassal := []interface{}{
 		&penetapan.PenerimaKompensasi{},
 		&penetapan.SubjekPajakNJOPTKP{},
-		&penetapan.Tarif{},
 		&penetapan.PenguranganPengenaanJPB{},
 		&penetapan.PenguranganPermanen{},
 		&penetapan.PenguranganPST{},
 		&penetapan.SubjekPajak{},
 		&penetapan.DafnomOP{},
-		&penetapan.ReferensiBuku{},
 	}
 	data = append(data, listModelPenetapanMassal...)
 
