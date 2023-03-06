@@ -256,6 +256,7 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 		Preload("Rekening").
 		Preload("ObjekPajak").
 		Preload("Npwpd").
+		Preload("Npwpd.PemilikWps").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -327,6 +328,8 @@ func GetDetail(id uuid.UUID, typeSpt string, userId uint) (any, error) {
 		baseQuery.Where("\"Spt\".\"Type\" = ?", typeSpt)
 	}
 	result := baseQuery.
+		Preload("Npwpd").
+		Preload("Npwpd.PemilikWps").
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {

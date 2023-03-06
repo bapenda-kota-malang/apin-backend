@@ -4,6 +4,7 @@ import (
 	"time"
 
 	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
@@ -40,6 +41,18 @@ type ObjekPajakPbb struct {
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip" gorm:"type:char(9)"`
 	PegawaiPerekam        *p.Pegawai        `json:"pegawaiPerekam,omitempty" gorm:"foreignKey:Perekam_Pegawai_Nip;references:Nip"`
 	UpdatedAt             *time.Time        `json:"updatedAt"`
+
+	Provinsi_Kode  *string `json:"provinsi_kode" gorm:"type:varchar(15)"`
+	Daerah_Kode    *string `json:"daerah_kode" gorm:"type:varchar(15)"`
+	Kecamatan_Kode *string `json:"kecamatan_kode" gorm:"type:varchar(15)"`
+	Kelurahan_Kode *string `json:"kelurahan_kode" gorm:"type:varchar(15)"`
+	Blok_Kode      *string `json:"blok_kode" gorm:"type:varchar(15)"`
+	NoUrut         *string `json:"noUrut" gorm:"type:varchar(15)"`
+	JenisOP        *string `json:"jenisOP" gorm:"type:varchar(15)"`
+
+	// relations
+	Kelurahan *areadivision.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Kode;references:Kode"`
+
 	// kelurahan
 	// sket
 	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`

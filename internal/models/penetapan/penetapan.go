@@ -44,18 +44,6 @@ type SubjekPajakNJOPTKP struct {
 	gh.DateModel
 }
 
-type Tarif struct {
-	Id            uint64   `json:"id" gorm:"primaryKey"`
-	Provinsi_Kode *string  `json:"provinsi_kode" gorm:"type:varchar(2)"`
-	Daerah_Kode   *string  `json:"daerah_kode" gorm:"type:varchar(2)"`
-	TahunAwal     *string  `json:"tahunAwal" gorm:"type:varchar(4)"`
-	TahunAkhir    *string  `json:"tahunAkhir" gorm:"type:varchar(4)"`
-	NJOPMix       *float64 `json:"NJOPMix"`
-	NJOPMax       *float64 `json:"NJOPMax"`
-	NilaiTarif    *float64 `json:"nilaiTarif"`
-	gh.DateModel
-}
-
 type PenguranganPengenaanJPB struct {
 	Id                     uint64   `json:"id" gorm:"primaryKey"`
 	Kanwil_Kode            string   `json:"kanwil_kode" gorm:"type:varchar(2)"`
@@ -159,20 +147,6 @@ type DafnomOP struct {
 	ThnPembentukan  *string  `json:"ThnPembentukan" gorm:"type:varchar(30)"`
 	TglPemutakhiran *string  `json:"TglPemutakhiran" gorm:"type:varchar(9)"`
 	Status_WP_Kode  *float64 `json:"status_WP_kode"`
-}
-
-type ReferensiBuku struct {
-	Id                uint64   `json:"id" gorm:"primaryKey"`
-	Kode              *string  `json:"kode" gorm:"type:varchar(1)"`
-	ThnAwal           *string  `json:"thnAwal" gorm:"type:varchar(4)"`
-	ThnAkhir          *string  `json:"thnAkhir" gorm:"type:varchar(4)"`
-	NilaiMin          *float64 `json:"nilaiMin"`
-	NilaiMax          *float64 `json:"nilaiMax"`
-	LuasMinTipe       *int     `json:"luasMinTipe"`
-	LuasMaxTipe       *int     `json:"luasMaxTipe"`
-	FaktorPembagiTipe *float64 `json:"faktorPembagiTipe"`
-	Status            *float64 `json:"STATUS"`
-	gh.DateModel
 }
 
 type ReportDataTable struct {
