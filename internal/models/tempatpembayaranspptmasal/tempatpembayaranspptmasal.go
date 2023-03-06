@@ -36,30 +36,30 @@ func (TempatPembayaranSPPTMasal) TableName() string {
 }
 
 type CreateDto struct {
-	Provinsi_Kode     *string `json:"provinsi_kode"`
-	Dati2_Kode        *string `json:"dati2_kode"`
-	Kecamatan_Kode    *string `json:"kecamatan_kode"`
-	Kelurahan_Kode    *string `json:"kelurahan_kode"`
-	Tahun             *string `json:"tahun"`
-	Kanwil_Kode       *string `json:"kanwil_kode"`
-	KPPBB_Kode        *string `json:"kppbb_kode"`
-	BankTunggal_Kode  *string `json:"banktunggal_kode"`
-	BankPersepsi_Kode *string `json:"bankpersepsi_kode"`
-	TP_Kode           *string `json:"tp_kode"`
+	Provinsi_Kode     string `json:"provinsi_kode" validate:"required"`
+	Dati2_Kode        string `json:"dati2_kode" validate:"required"`
+	Kecamatan_Kode    string `json:"kecamatan_kode" validate:"required"`
+	Kelurahan_Kode    string `json:"kelurahan_kode" validate:"required"`
+	Tahun             string `json:"tahun" validate:"required"`
+	Kanwil_Kode       string `json:"kanwil_kode" validate:"required"`
+	KPPBB_Kode        string `json:"kppbb_kode" validate:"required"`
+	BankTunggal_Kode  string `json:"banktunggal_kode" validate:"required"`
+	BankPersepsi_Kode string `json:"bankpersepsi_kode" validate:"required"`
+	TP_Kode           string `json:"tp_kode" validate:"required"`
 }
 
 type UpdateDto struct {
-	Id                *uint64 `json:"id"`
-	Provinsi_Kode     *string `json:"provinsi_kode"`
-	Dati2_Kode        *string `json:"dati2_kode"`
-	Kecamatan_Kode    *string `json:"kecamatan_kode"`
-	Kelurahan_Kode    *string `json:"kelurahan_kode"`
-	Tahun             *string `json:"tahun"`
-	Kanwil_Kode       *string `json:"kanwil_kode"`
-	KPPBB_Kode        *string `json:"kppbb_kode"`
-	BankTunggal_Kode  *string `json:"banktunggal_kode"`
-	BankPersepsi_Kode *string `json:"bankpersepsi_kode"`
-	TP_Kode           *string `json:"tp_kode"`
+	Id                uint64 `json:"id" validate:"required"`
+	Provinsi_Kode     string `json:"provinsi_kode" validate:"required"`
+	Dati2_Kode        string `json:"dati2_kode" validate:"required"`
+	Kecamatan_Kode    string `json:"kecamatan_kode" validate:"required"`
+	Kelurahan_Kode    string `json:"kelurahan_kode" validate:"required"`
+	Tahun             string `json:"tahun" validate:"required"`
+	Kanwil_Kode       string `json:"kanwil_kode" validate:"required"`
+	KPPBB_Kode        string `json:"kppbb_kode" validate:"required"`
+	BankTunggal_Kode  string `json:"banktunggal_kode" validate:"required"`
+	BankPersepsi_Kode string `json:"bankpersepsi_kode" validate:"required"`
+	TP_Kode           string `json:"tp_kode" validate:"required"`
 }
 
 type FilterDto struct {

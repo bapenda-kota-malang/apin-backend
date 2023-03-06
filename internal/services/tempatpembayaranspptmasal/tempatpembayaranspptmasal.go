@@ -16,10 +16,7 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaranspptmasal"
 )
 
-// /// Private funcs start here
 const source = "tempatpembayaranspptmasal"
-
-///// Exported funcs start here
 
 func Create(input m.CreateDto) (any, error) {
 	var data m.TempatPembayaranSPPTMasal
