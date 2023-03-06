@@ -20,7 +20,7 @@ SET row_security = off;
 -- Data for Name: Skpd; Type: TABLE DATA; Schema: public; Owner: dexwip
 --
 
-COPY public."Satuankerja" ("Id", "Kode", "Nama", "Alamat", "Telp") FROM stdin;
+COPY public."SatuanKerja" ("Id", "Kode", "Nama", "Alamat", "Telp") FROM stdin;
 112	1.20.08	Badan Pelayanan Pajak Daerah	Malang	\N
 \.
 

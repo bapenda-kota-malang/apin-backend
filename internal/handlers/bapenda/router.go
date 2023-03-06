@@ -19,6 +19,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/indukobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kanwil"
@@ -690,6 +691,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/kppbb", kppbb.Crud{})
 
 	rh.RegCrud(r, "/refumum", refumum.Crud{})
+
+	rh.RegCrud(r, "/indukobjekpajak", indukobjekpajak.Crud{})
 
 	return r
 }
