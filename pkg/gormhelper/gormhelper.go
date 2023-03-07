@@ -50,13 +50,13 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 			}
 
 			// check opt
-			vOpt := "="
+			vOpt := "eq"
 			o := iV.FieldByName(iTF.Name + "_Opt") // option
 			if o.IsValid() && o.Kind() == reflect.Ptr && o.Elem().IsValid() {
 				o = o.Elem()
 				vOpt = o.Interface().(string)
 			}
-			opts := []string{"=", "lt", "gt", "lte", "gte", "ne", "between", "left", "mid", "right"}
+			opts := []string{"eq", "lt", "gt", "lte", "gte", "ne", "left", "mid", "right", "between", "in"}
 			if ok := stringInSlice(vOpt, opts); !ok {
 				db.AddError(fmt.Errorf("field %s: opt undefined", iTF.Name))
 			}
@@ -67,6 +67,10 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 				refSource = strings.Replace(refSource, ".", "\".\"", -1)
 			} else {
 				refSource = iTF.Name
+			}
+
+			if iTF.Type.String() == "*[]string" {
+				vOpt = "in"
 			}
 
 			// add where query
