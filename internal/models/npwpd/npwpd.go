@@ -114,23 +114,24 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	User_Id           *uint64 `json:"user_id"`
-	JenisPajak        *string `json:"jenisPajak"`
-	Golongan          *int16  `json:"golongan"`
-	Nomor             *int    `json:"nomor"`
-	Npwpd             *string `json:"npwpd"`
-	TanggalPengukuhan *string `json:"tanggalPengukuhan"`
-	TanggalNpwpd      *string `json:"tanggalNpwpd"`
-	TanggalMulaiUsaha *string `json:"tanggalMulaiUsaha"`
-	LuasBangunan      *string `json:"luasBangunan"`
-	JamBukaUsaha      *string `json:"jamBukaUsaha"`
-	JamTutupUsaha     *string `json:"jamTutupUsaha"`
-	Pengunjung        *string `json:"pengunjung"`
-	OmsetOp           *string `json:"omsetOp"`
-	Rekening_Id       *uint64 `json:"rekening_id"`
-	Rekening_Objek    *string `json:"rekening_objek" refsource:"Rekening.Objek"`
-	Genset            *bool   `json:"genset"`
-	AirTanah          *bool   `json:"airTanah"`
+	User_Id           *uint64   `json:"user_id"`
+	JenisPajak        *string   `json:"jenisPajak"`
+	Golongan          *int16    `json:"golongan"`
+	Nomor             *int      `json:"nomor"`
+	Npwpd             *string   `json:"npwpd"`
+	TanggalPengukuhan *string   `json:"tanggalPengukuhan"`
+	TanggalNpwpd      *string   `json:"tanggalNpwpd"`
+	TanggalMulaiUsaha *string   `json:"tanggalMulaiUsaha"`
+	LuasBangunan      *string   `json:"luasBangunan"`
+	JamBukaUsaha      *string   `json:"jamBukaUsaha"`
+	JamTutupUsaha     *string   `json:"jamTutupUsaha"`
+	Pengunjung        *string   `json:"pengunjung"`
+	OmsetOp           *string   `json:"omsetOp"`
+	Rekening_Id       *uint64   `json:"rekening_id"`
+	Rekening_Objek    *string   `json:"rekening_objek" refsource:"Rekening.Objek"`
+	Rekening_ObjekS   *[]string `json:"rekening_objeks" refsource:"Rekening.Objek"`
+	Genset            *bool     `json:"genset"`
+	AirTanah          *bool     `json:"airTanah"`
 	// SuratIzinUsaha    *[]string     `json:"suratIzinUsaha"`
 	// LainLain          *[]string     `json:"lainLain"`
 	// FotoObjek         *[]string     `json:"fotoObjek"`
