@@ -62,5 +62,7 @@
 \i sqls/sp-PenilaianJPB16.sql
 \i sqls/sp-PenilaianBangunan.sql
 \i sqls/sp-PenetapanMassal.sql
+\i sqls/sp-PenentuanKelas.sql
+\i sqls/sp-NJOPTKPIndividu.sql
 
 -- new data

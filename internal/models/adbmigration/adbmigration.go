@@ -67,6 +67,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
@@ -87,6 +88,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/potensipemilikwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/ppat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibank"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/referensibuku"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/refumum"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reganggotaobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regfasilitasbangunan"
@@ -117,6 +119,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan"
 	suratdpemberitahuanetail "github.com/bapenda-kota-malang/apin-backend/internal/models/suratpemberitahuan/detail"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/targetrealisasi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarif"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaranspptmasal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 
@@ -474,11 +477,17 @@ func GetModelList() (data []interface{}) {
 	listModelPenetapanMassal := []interface{}{
 		&penetapan.PenerimaKompensasi{},
 		&penetapan.SubjekPajakNJOPTKP{},
+		&tarif.Tarif{},
 		&penetapan.PenguranganPengenaanJPB{},
 		&penetapan.PenguranganPermanen{},
 		&penetapan.PenguranganPST{},
 		&penetapan.SubjekPajak{},
 		&penetapan.DafnomOP{},
+		&referensibuku.ReferensiBuku{},
+		&njoptkp.NJOPTKP{},
+		&penetapan.NJKP{},
+		&penetapan.ParameterSPPTSTTSDHKP{},
+		&penetapan.RefThnNJKPNJOPTKPTarif{},
 	}
 	data = append(data, listModelPenetapanMassal...)
 
@@ -499,7 +508,7 @@ func GetModelList() (data []interface{}) {
 	listModelIndukObjekPajak := []interface{}{
 		&indukobjekpajak.IndukObjekPajak{},
 	}
-
 	data = append(data, listModelIndukObjekPajak...)
+
 	return data
 }
