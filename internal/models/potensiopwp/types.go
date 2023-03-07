@@ -20,7 +20,7 @@ type Input interface {
 	ReplacePotensiOpId(id uuid.UUID)
 	GetDetailPotensiPajak() interface{}
 	SaveDetailPotensiPajak(tx *gorm.DB) error
-	CalculateTax(tarifPajak tarifpajak.TarifPajak) error
+	CalculateTax(tarifPajak *tarifpajak.TarifPajak) (CreatePotensiOpDto, error)
 }
 
 type CreateDto struct {

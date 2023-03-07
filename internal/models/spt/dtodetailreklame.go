@@ -5,7 +5,7 @@ import (
 
 	mespt "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
+	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 	"gorm.io/datatypes"
@@ -42,7 +42,6 @@ func (input *CreateDetailReklameDto) ReplaceSptId(id uuid.UUID) {
 }
 
 func (input *CreateDetailReklameDto) CalculateTax(taxPercentage *float64) {
-	// TODO: CHANGE THIS CALCULATION PROCESS
 	tax := float64(0)
 	for v := range input.DataDetails {
 		// safe dereference for jumlah tahun, bulan, minggu, hari
@@ -64,16 +63,16 @@ func (input *CreateDetailReklameDto) CalculateTax(taxPercentage *float64) {
 		}
 		// calculate base on jenis masa pajak
 		switch input.DataDetails[v].TarifReklame.JenisMasa {
-		case tarifreklame.MasaPajakTahun:
+		case mtypes.MasaPajakTahun:
 			input.DataDetails[v].TarifTahun = tahun * *input.DataDetails[v].TarifReklame.Tarif
 			input.DataDetails[v].TarifBulan = bulan * (*input.DataDetails[v].TarifReklame.Tarif / 12)
-		case tarifreklame.MasaPajakBulan:
+		case mtypes.MasaPajakBulan:
 			input.DataDetails[v].TarifBulan = bulan * *input.DataDetails[v].TarifReklame.Tarif
-		case tarifreklame.MasaPajakHari:
+		case mtypes.MasaPajakHari:
 			input.DataDetails[v].TarifBulan *= bulan
 			input.DataDetails[v].TarifMinggu *= minggu
 			input.DataDetails[v].TarifHari *= hari
-		case tarifreklame.MasaPajakPenyelenggara:
+		case mtypes.MasaPajakPenyelenggara:
 			input.DataDetails[v].TarifHari = *input.DataDetails[v].TarifReklame.Tarif
 		}
 		// basic calculate tax

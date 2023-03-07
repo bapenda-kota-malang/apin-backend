@@ -65,20 +65,20 @@ type Spt struct {
 	BatalPenetapan   bool            `json:"batalPenetapan,omitempty"`
 	IdBT             *uint64         `json:"idBT,omitempty"`
 	// reklame
-	JenisMasaPajakReklame *JenisMasa `json:"jenisMasaPajakReklame,omitempty" gorm:"type:smallint"`
-	JumlahTahun           *float64   `json:"jumlahTahun,omitempty" gorm:"type:decimal"`
-	JumlahBulan           *float64   `json:"jumlahBulan,omitempty" gorm:"type:decimal"`
-	JumlahMinggu          *float64   `json:"jumlahMinggu,omitempty" gorm:"type:decimal"`
-	JumlahHari            *float64   `json:"jumlahHari,omitempty" gorm:"type:decimal"`
-	Gambar                *string    `json:"gambar,omitempty" gorm:"type:varchar(255)"`
-	KeteranganPajak       *string    `json:"keteranganPajak,omitempty" gorm:"type:varchar(255)"`
-	KoefisienPajak        *uint64    `json:"koefisienPajak,omitempty"`
-	NamaProduk            *string    `json:"productName,omitempty" gorm:"type:varchar(200)"`
-	NomorRegister         *string    `json:"registerNumber,omitempty" gorm:"type:varchar(100)"`
-	JudulReklame          *string    `json:"judulReklame,omitempty"`
-	NamaPenyewa           *string    `json:"namaPenyewa,omitempty"`
-	AlamatPenyewa         *string    `json:"alamatPenyewa,omitempty"`
-	VaJatim               *string    `json:"vaJatim,omitempty" gorm:"type:varchar(20)"`
+	JenisMasaPajakReklame *mt.JenisMasa `json:"jenisMasaPajakReklame,omitempty" gorm:"type:smallint"`
+	JumlahTahun           *float64      `json:"jumlahTahun,omitempty" gorm:"type:decimal"`
+	JumlahBulan           *float64      `json:"jumlahBulan,omitempty" gorm:"type:decimal"`
+	JumlahMinggu          *float64      `json:"jumlahMinggu,omitempty" gorm:"type:decimal"`
+	JumlahHari            *float64      `json:"jumlahHari,omitempty" gorm:"type:decimal"`
+	Gambar                *string       `json:"gambar,omitempty" gorm:"type:varchar(255)"`
+	KeteranganPajak       *string       `json:"keteranganPajak,omitempty" gorm:"type:varchar(255)"`
+	KoefisienPajak        *uint64       `json:"koefisienPajak,omitempty"`
+	NamaProduk            *string       `json:"productName,omitempty" gorm:"type:varchar(200)"`
+	NomorRegister         *string       `json:"registerNumber,omitempty" gorm:"type:varchar(100)"`
+	JudulReklame          *string       `json:"judulReklame,omitempty"`
+	NamaPenyewa           *string       `json:"namaPenyewa,omitempty"`
+	AlamatPenyewa         *string       `json:"alamatPenyewa,omitempty"`
+	VaJatim               *string       `json:"vaJatim,omitempty" gorm:"type:varchar(20)"`
 	// skpdkb
 	JenisKetetapan      *JenisKetetapan     `json:"jenisKetetapan,omitempty" gorm:"varchar(20)"`
 	DasarPengenaan      *string             `json:"dasarPengenaan,omitempty" gorm:"varchar(30)"`
