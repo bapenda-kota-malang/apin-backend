@@ -106,3 +106,15 @@ func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	result.Write(w)
 }
+
+func DownloadPdf(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+	result, err := s.DownloadPdf(id)
+	if err != nil {
+		return
+	}
+	hh.DataResponse(w, result, err)
+}

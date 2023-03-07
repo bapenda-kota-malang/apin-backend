@@ -4,6 +4,7 @@ package permohonan
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -697,4 +698,83 @@ func Delete(id int) (interface{}, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadPdf(id int) (interface{}, error) {
+	var (
+		data                  *m.PstPermohonan
+		permohonanBaru        *m.PstDataOPBaru
+		permohonanDetail      *m.PstDetail
+		permohonanPengurangan *m.PstPermohonanPengurangan
+		// pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
+		// pembatalanSppt        *m.PembatalanSppt
+		// keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+		// SPMKP                 *m.SPMKP
+		// SkSk                  *sksk.SkSk
+	)
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", data)
+	}
+	if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanDetail); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Detail", permohonanDetail)
+	}
+
+	if *data.BundelPelayanan == m.JenisPelayanan[0] {
+		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanBaru); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Baru", permohonanBaru)
+		}
+	} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
+		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanPengurangan); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+	}
+	// else if *data.BundelPelayanan == m.JenisPelayanan[2] {
+	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&pembetulanSpptSKPSTP); result.Error != nil {
+	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembetulan", pembetulanSpptSKPSTP)
+	// 	}
+	// } else if *data.BundelPelayanan == m.JenisPelayanan[3] {
+	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&pembatalanSppt); result.Error != nil {
+	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembatalan SPPT", pembatalanSppt)
+	// 	}
+	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&SkSk); result.Error != nil {
+	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembatalan SKP", SkSk)
+	// 	}
+	// } else if *data.BundelPelayanan == m.JenisPelayanan[8] {
+	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&SPMKP); result.Error != nil {
+	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data restitusi dan kompensasi", SPMKP)
+	// 	}
+	// } else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
+	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&keputusanKeberatanPbb); result.Error != nil {
+	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data keberatan", keputusanKeberatanPbb)
+	// 	}
+	// }
+
+	finalresult := data.SetPstPermohonanResponse()
+	finalresult.PstDataOPBaru = permohonanBaru
+	finalresult.PstDetail = permohonanDetail
+	finalresult.PstPermohonanPengurangan = permohonanPengurangan
+
+	uuid, err := sh.GetUuidv4()
+	if err != nil {
+		return nil, err
+	}
+	fileName := sh.GenerateFilename("permohonan", uuid, 0, "pdf")
+	p := &PermohonanPDF{
+		NoPelayanan: *finalresult.NoPelayanan,
+	}
+	if err := p.GeneratePdf(filepath.Join(sh.GetPdfPath(), fileName)); err != nil {
+		return nil, err
+	}
+	type r struct {
+		ID       int    `json:"id"`
+		FileName string `json:"fileName"`
+	}
+	_r := &r{
+		ID:       id,
+		FileName: fileName,
+	}
+	return rp.OKSimple{Data: _r}, nil
 }
