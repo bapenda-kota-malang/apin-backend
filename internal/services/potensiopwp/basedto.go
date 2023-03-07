@@ -62,8 +62,8 @@ func (s *DPBaseUsecase) SaveDetailPotensiPajak(tx *gorm.DB) error {
 	return nil
 }
 
-func (s *DPBaseUsecase) CalculateTax(tarifPajak tarifpajak.TarifPajak) error {
-	s.PotensiOp.TarifPajak_Id = tarifPajak.Id
+func (s *DPBaseUsecase) CalculateTax(tarifPajak *tarifpajak.TarifPajak) (potensiopwp.CreatePotensiOpDto, error) {
+	s.PotensiOp.TarifPajak_Id = &tarifPajak.Id
 	s.PotensiOp.JumlahPajak = *s.PotensiOp.OmsetOp * (*tarifPajak.TarifPersen / 100)
-	return nil
+	return s.PotensiOp, nil
 }

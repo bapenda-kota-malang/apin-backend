@@ -95,9 +95,9 @@ func taxProcess(rekeningId *uint64, omset *float64, input m.Input) error {
 				return err
 			}
 			dataReklame := resp.(rp.OKSimple).Data.(*mtarifreklame.TarifReklame)
-			if dataReklame.JenisMasa == mtarifreklame.MasaPajakHari {
+			if dataReklame.JenisMasa == mtypes.MasaPajakHari {
 				resp, err := starifreklame.GetList(mtarifreklame.FilterDto{
-					JenisMasa:    int16(mtarifreklame.MasaPajakHari),
+					JenisMasa:    int16(mtypes.MasaPajakHari),
 					JenisReklame: dataReklame.JenisReklame,
 				})
 				for _, vInner := range resp.(rp.OK).Data.([]mtarifreklame.TarifReklame) {

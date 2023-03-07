@@ -24,8 +24,8 @@ import (
 
 func CreateTrx(input m.Input, userId int) (any, error) {
 	var dataPotensiOp m.PotensiOp
+	var tarifPajak *mtp.TarifPajak
 
-	detailPotensiOpDto := input.GetDetailPotensiOp()
 	potensiOpDto := input.GetPotensiOp()
 
 	// get tarif pajak data for calculate tax
@@ -40,13 +40,12 @@ func CreateTrx(input m.Input, userId int) (any, error) {
 	if err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mencari tarif pajak: "+err.Error(), dataPotensiOp)
 	}
-	if len(rspTp.(rp.OK).Data.([]mtp.TarifPajak)) == 0 {
-		return sh.SetError("request", "create-data", source, "failed", "data tarif pajak tidak ditemukan", dataPotensiOp)
+	if len(rspTp.(rp.OK).Data.([]mtp.TarifPajak)) != 0 {
+		tarifPajak = &rspTp.(rp.OK).Data.([]mtp.TarifPajak)[0]
 	}
-	tarifPajak := rspTp.(rp.OK).Data.([]mtp.TarifPajak)[0]
 
 	// calculate tax
-	if err := input.CalculateTax(tarifPajak); err != nil {
+	if potensiOpDto, err = input.CalculateTax(tarifPajak); err != nil {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menghitung potensi pajak: "+err.Error(), dataPotensiOp)
 	}
 
@@ -54,13 +53,13 @@ func CreateTrx(input m.Input, userId int) (any, error) {
 	err = a.DB.Transaction(func(tx *gorm.DB) error {
 		// simpan data ke db satu if karena result dipakai sekali, +error
 		// save potensi op
-		potensiOpDto = input.GetPotensiOp()
 		respPotensiOp, err := Create(potensiOpDto, uint(userId), tx)
 		if err != nil {
 			return err
 		}
 		dataPotensiOp = respPotensiOp.(rp.OKSimple).Data.(m.PotensiOp)
 
+		detailPotensiOpDto := input.GetDetailPotensiOp()
 		respExistingDetailPotensiOp, err := sdpotensiop.GetExisting(
 			detailPotensiOpDto.Nama,
 			detailPotensiOpDto.Alamat,
