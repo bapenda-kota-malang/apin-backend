@@ -46,7 +46,7 @@ func GetList(input npwpd.FilterDto) (interface{}, error) {
 		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
 	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data: "+result.Error.Error(), data)
 	}
 
 	return rp.OK{
