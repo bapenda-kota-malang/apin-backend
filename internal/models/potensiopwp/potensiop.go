@@ -30,7 +30,7 @@ type PotensiOp struct {
 	Visitors       *string         `json:"visitors" gorm:"size:50"`
 	OmsetOp        float64         `json:"omsetOp"`
 	JumlahPajak    float64         `json:"jumlahPajak"`
-	TarifPajak_Id  uint64          `json:"tarifPajak_id"`
+	TarifPajak_Id  *uint64         `json:"tarifPajak_id"`
 	Genset         bool            `json:"genset"`
 	AirTanah       bool            `json:"airTanah"`
 	User_Id        uint64          `json:"user_id"`
@@ -71,7 +71,7 @@ type CreatePotensiOpDto struct {
 	Visitors       *string         `json:"visitors"`
 	OmsetOp        *float64        `json:"omsetOp" validate:"required"`
 	JumlahPajak    float64         `json:"jumlahPajak"`
-	TarifPajak_Id  uint64          `json:"-"`
+	TarifPajak_Id  *uint64         `json:"-"`
 	Genset         bool            `json:"genset"`
 	AirTanah       bool            `json:"airTanah"`
 	User_Id        uint64          `json:"user_id"`
