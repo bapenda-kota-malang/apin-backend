@@ -95,3 +95,13 @@ func PenetapanMassal(w http.ResponseWriter, r *http.Request) {
 	result, err := s.PenetapanMassal(data)
 	hh.DataResponse(w, result, err)
 }
+
+func Rincian(w http.ResponseWriter, r *http.Request) {
+	var data m.NopDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+		return
+	}
+
+	result, err := s.Rincian(data)
+	hh.DataResponse(w, result, err)
+}

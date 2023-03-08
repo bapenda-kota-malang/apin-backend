@@ -612,3 +612,51 @@ func SpPenetapan(input m.PenetapanMassalDto, data m.Sppt, tx *gorm.DB) (*m.SpPen
 
 	return rsltSp, nil
 }
+
+func Rincian(input m.NopDto) (any, error) {
+	var data m.Sppt
+	filter := m.Sppt{
+		Propinsi_Id:        input.Propinsi_Id,
+		Dati2_Id:           input.Dati2_Id,
+		Kecamatan_Id:       input.Kecamatan_Id,
+		Keluarahan_Id:      input.Keluarahan_Id,
+		Blok_Id:            input.Blok_Id,
+		NoUrut:             input.NoUrut,
+		JenisOP_Id:         input.JenisOP_Id,
+		TahunPajakskp_sppt: input.TahunPajakskp_sppt,
+	}
+
+	result := a.DB.Where(&filter).First(&data)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "data tidak ada", data)
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-by-nop", source, "failed", "gagal mendapatkan data: "+result.Error.Error(), data)
+	}
+
+	// get ObjekPajakBumi detail
+	opBumiData, err := getObjekPajakBumiDetail(filter)
+	if err != nil {
+		return nil, err
+	}
+	// get ObjekPajakBng detail
+	opBngData, err := getObjekPajakBangunanDetail(filter)
+	if err != nil {
+		return nil, err
+	}
+	// get ObjekPajakPBB detail
+	opPBBData, err := getObjekPajakPBBDetail(filter)
+	if err != nil {
+		return nil, err
+	}
+
+	rslt := t.II{
+		"sppt":   data,
+		"opBumi": opBumiData,
+		"opBng":  opBngData,
+		"opPBB":  opPBBData,
+	}
+
+	return rp.OKSimple{
+		Data: rslt,
+	}, nil
+}

@@ -240,6 +240,7 @@ func SetRoutes() http.Handler {
 	r.Patch("/sppt/cetakdaftartagihan", sppt.CetakDaftarTagihan)
 	r.Patch("/sppt/penilaian", sppt.Penilaian)
 	rh.RegCrud(r, "/sppt", sppt.Crud{})
+	r.Post("/sppt/rincian", sppt.Rincian)
 
 	r.Post("/sksk/cetak", sksk.Cetak)
 	rh.RegCrud(r, "/sksk", sksk.Crud{})

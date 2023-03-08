@@ -6,6 +6,7 @@ import (
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	opbg "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	opb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 )
@@ -83,4 +84,23 @@ func getObjekPajakBangunanDetail(data m.Sppt) (*opbg.ObjekPajakBangunan, error) 
 		return nil, err
 	}
 	return opBngData, nil
+}
+
+func getObjekPajakPBBDetail(data m.Sppt) (*oppbb.ObjekPajakPbb, error) {
+	var result *oppbb.ObjekPajakPbb
+
+	filter := oppbb.ObjekPajakPbb{
+		NopDetail: nop.NopDetail{
+			Provinsi_Kode:  data.Propinsi_Id,
+			Daerah_Kode:    data.Dati2_Id,
+			Kecamatan_Kode: data.Kecamatan_Id,
+			Kelurahan_Kode: data.Keluarahan_Id,
+			Blok_Kode:      data.Blok_Id,
+			NoUrut:         data.NoUrut,
+		},
+	}
+	if err := a.DB.Where(&filter).Order("\"Id\" desc").First(&result).Error; err != nil {
+		return nil, err
+	}
+	return result, nil
 }
