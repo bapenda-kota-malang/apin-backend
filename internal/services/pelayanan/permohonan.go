@@ -175,7 +175,7 @@ func GetNoUrut(input m.PermohonanRequestDto) string {
 		Order("\"NoUrutPelayanan\" desc").
 		First(&checkdataori)
 	if checkdataori.Id != 0 {
-		tempNoUrutOri, _ = strconv.Atoi(*checkdata.NoUrutPelayanan)
+		tempNoUrutOri, _ = strconv.Atoi(*checkdataori.NoUrutPelayanan)
 		tempNoUrutOri = tempNoUrutOri + 1
 	}
 

@@ -316,12 +316,14 @@ func GetDetailApproval(id int) (interface{}, error) {
 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", opbng)
 	} else if resBang.RowsAffected > 0 {
 		for _, bang := range opbng {
-			var tempBang *mropbng.CreateDto
+			var tempBang mropbng.CreateDto
 			var fasilitas mropbng.OPBngFasilitasBangunan
 
-			if err := sc.CopyWithOption(&tempBang, &opbng, sc.Option{IgnoreEmpty: true}); err != nil {
-				return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data data", oppbb)
-			}
+			// if err := sc.CopyWithOption(tempBang, bang, sc.Option{IgnoreEmpty: true}); err != nil {
+			// 	return sh.SetError("request", "get-data", source, "failed", "gagal mencopy data data", bang)
+			// }
+
+			tempBang = bang.RegObjekPajakBangunanTransform()
 
 			if result := a.DB.
 				Where("PstPermohonan_id", data.Id).
@@ -406,7 +408,7 @@ func GetDetailApproval(id int) (interface{}, error) {
 					case "10":
 						fasilitas.JpbApartemenACCentralLain = fas.JumlahSatuan
 					default:
-						return sh.SetError("request", "get-data", source, "failed", "kode fasilitas tidak ditemukan", fas.KodeFasilitas)
+						// return sh.SetError("request", "get-data", source, "failed", "kode fasilitas tidak ditemukan", fas.KodeFasilitas)
 					}
 				}
 			}
@@ -537,7 +539,7 @@ func GetDetailApproval(id int) (interface{}, error) {
 			}
 
 			tempBang.RegFasBangunan = &fasilitas
-			bangunans = append(bangunans, *tempBang)
+			bangunans = append(bangunans, tempBang)
 		}
 	}
 

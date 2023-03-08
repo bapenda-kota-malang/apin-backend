@@ -129,6 +129,7 @@ type PstPermohonanResponse struct {
 	TanggalTerima          *datatypes.Date `json:"tanggalTerima"`
 	NIP                    *string         `json:"nip"`
 	PenerimaanBerkas       *string         `json:"penerimaanBerkas"`
+	Status                 *string         `json:"status"`
 
 	PstDataOPBaru            *RegPstDataOPBaru            `json:"pstBaru"`
 	PstDetail                *RegPstDetail                `json:"pstDetil"`

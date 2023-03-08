@@ -34,6 +34,7 @@ type PstPermohonan struct {
 	TanggalTerima          *datatypes.Date `json:"tanggalTerima"`
 	NIP                    *string         `json:"nip" gorm:"type:varchar(9)"`
 	PenerimaanBerkas       *string         `json:"penerimaanBerkas" gorm:"type:varchar(50)"`
+	Status                 *string         `json:"status" gorm:"type:varchar(2)"`
 	gormhelper.DateModel
 }
 
@@ -63,6 +64,7 @@ type PermohonanRequestDto struct {
 	NamaPenerima          *string `json:"namaPenerima"`
 	NIPPenyerah           *string `json:"nipPenyerah"`
 	StatusSelesai         *int    `json:"statusSelesai"`
+	Status                *string `json:"status"`
 	TanggalPenyerahan     *string `json:"tanggalPenyerahan"`
 
 	PstOpjekPajakPBB *moppbb.CreateDto `json:"oppbb"`
@@ -124,6 +126,7 @@ type PstPermohonanResponse struct {
 	TanggalTerima          *datatypes.Date `json:"tanggalTerima"`
 	NIP                    *string         `json:"nip"`
 	PenerimaanBerkas       *string         `json:"penerimaanBerkas"`
+	Status                 *string         `json:"status"`
 
 	PstDataOPBaru            *PstDataOPBaru            `json:"pstBaru"`
 	PstDetail                *PstDetail                `json:"pstDetil"`
