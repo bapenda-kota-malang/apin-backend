@@ -40,10 +40,10 @@ type OutputDto struct {
 // Creates pegawai data alongside with user data
 type CreateDto struct {
 	// for pegawai
-	Nama             string    `json:"nama" validate:"required;maxLength=100"`
+	Nama             string    `json:"nama" validate:"required;maxLength=100;alphabetspace"`
 	Nip              string    `json:"nip" validate:"required;maxLength=30"`
 	Jabatan_Id       int       `json:"jabatan_id" validate:"required;min=1"`
-	BidangKerja_Kode string    `json:"bidangKerja_kode" validate:"required"`
+	BidangKerja_Kode string    `json:"bidangKerja_kode"`
 	StartDate        time.Time `json:"startDate"`
 	EndDate          time.Time `json:"endDate"`
 	// SatuanKerja_Id   int       `json:"satuanKerja_id"`
@@ -51,7 +51,7 @@ type CreateDto struct {
 
 	// user.Create	// using embed composition is not good since structvalidation inlcudes the parent namespace
 	// for user
-	User_Name        string    `json:"user_name" validate:"required"`
+	User_Name        string    `json:"user_name" validate:"required;alphanumeric"`
 	User_Password    string    `json:"user_password" validate:"required"`
 	User_Group_Id    int       `json:"user_group_id" validate:"required;min=1"`
 	User_Email       string    `json:"user_email" validate:"required; validemail"`
@@ -63,7 +63,7 @@ type CreateDto struct {
 // Creates pegawai data alongside with user data
 type UpdateDto struct {
 	// for pegawai
-	Nama             string    `json:"nama" validate:"required;maxLength=100"`
+	Nama             string    `json:"nama" validate:"required;maxLength=100;alphabetspace"`
 	Nip              string    `json:"nip" validate:"required;maxLength=30"`
 	Jabatan_Id       int       `json:"jabatan_id" validate:"required;min=1"`
 	BidangKerja_Kode string    `json:"bidangKerja_kode" validate:"required"`

@@ -22,23 +22,23 @@ type OutputDto struct {
 // create ppat data alongside with user data
 type CreateDto struct {
 	// for ppat
-	Nama   string `json:"nama" validate:"required"`
-	Alamat string `json:"alamat" validate:"required"`
-	Nik    string `json:"nik" validate:"required"`
+	Nama   string `json:"nama" validate:"required;maxLength=100;alphabetspace"`
+	Alamat string `json:"alamat" validate:"required;maxLength=200"`
+	Nik    string `json:"nik" validate:"required;nik"`
 
 	// for user
-	User_Name     string    `json:"user_name" validate:"required"`
+	User_Name     string    `json:"user_name" validate:"required;alphanumeric"`
 	User_Password string    `json:"user_password" validate:"required"`
-	User_Email    string    `json:"user_email" validate:"required; validemail"`
+	User_Email    string    `json:"user_email" validate:"required;validemail"`
 	User_Notes    string    `json:"user_notes"`
 	ValidPeriod   time.Time `json:"validPeriod"`
 }
 
 type UpdateDto struct {
 	// for ppat
-	Nama   string `json:"nama" validate:"required"`
+	Nama   string `json:"nama" validate:"required;alphabetspace"`
 	Alamat string `json:"alamat" validate:"required"`
-	Nik    string `json:"nik" validate:"required"`
+	Nik    string `json:"nik" validate:"required;nik"`
 
 	// for user
 	User_Email  string    `json:"user_email" validate:"required; validemail"`

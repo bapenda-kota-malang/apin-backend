@@ -44,18 +44,6 @@ type SubjekPajakNJOPTKP struct {
 	gh.DateModel
 }
 
-type Tarif struct {
-	Id            uint64   `json:"id" gorm:"primaryKey"`
-	Provinsi_Kode *string  `json:"provinsi_kode" gorm:"type:varchar(2)"`
-	Daerah_Kode   *string  `json:"daerah_kode" gorm:"type:varchar(2)"`
-	TahunAwal     *string  `json:"tahunAwal" gorm:"type:varchar(4)"`
-	TahunAkhir    *string  `json:"tahunAkhir" gorm:"type:varchar(4)"`
-	NJOPMix       *float64 `json:"NJOPMix"`
-	NJOPMax       *float64 `json:"NJOPMax"`
-	NilaiTarif    *float64 `json:"nilaiTarif"`
-	gh.DateModel
-}
-
 type PenguranganPengenaanJPB struct {
 	Id                     uint64   `json:"id" gorm:"primaryKey"`
 	Kanwil_Kode            string   `json:"kanwil_kode" gorm:"type:varchar(2)"`
@@ -161,17 +149,63 @@ type DafnomOP struct {
 	Status_WP_Kode  *float64 `json:"status_WP_kode"`
 }
 
-type ReferensiBuku struct {
-	Id                uint64   `json:"id" gorm:"primaryKey"`
-	Kode              *string  `json:"kode" gorm:"type:varchar(1)"`
-	ThnAwal           *string  `json:"thnAwal" gorm:"type:varchar(4)"`
-	ThnAkhir          *string  `json:"thnAkhir" gorm:"type:varchar(4)"`
-	NilaiMin          *float64 `json:"nilaiMin"`
-	NilaiMax          *float64 `json:"nilaiMax"`
-	LuasMinTipe       *int     `json:"luasMinTipe"`
-	LuasMaxTipe       *int     `json:"luasMaxTipe"`
-	FaktorPembagiTipe *float64 `json:"faktorPembagiTipe"`
-	Status            *float64 `json:"STATUS"`
+type NJKP struct {
+	Id             uint64  `json:"id" gorm:"primaryKey"`
+	IndeksRange    string  `json:"indeksRange" gorm:"type:varchar(2)"`
+	JNS_Range_Kode string  `json:"jns_range_kode" gorm:"type:varchar(1)"`
+	Provinsi_Kode  string  `json:"provinsi_kode" gorm:"type:varchar(2)"`
+	Daerah_Kode    string  `json:"daerah_kode" gorm:"type:varchar(2)"`
+	JPB_JPT_Kode   string  `json:"jpb_jpt_kode" gorm:"type:varchar(2)"`
+	UrutanNJKP     int     `json:"urutanNJKP"`
+	NJOPMin        float64 `json:"NJOPMin"`
+	NJOPMax        float64 `json:"NJOPMax"`
+	NilaiNJKP      float64 `json:"nilaiNJKP"`
+	gh.DateModel
+}
+
+type ParameterSPPTSTTSDHKP struct {
+	Id               uint64  `json:"id" gorm:"primaryKey"`
+	SPPTTerpisah     int     `json:"SPPTTerpisah"`
+	STTSTerpisah     int     `json:"STTSTerpisah"`
+	DHKPTerpisah     int     `json:"DHKPTerpisah"`
+	KelompokBuku     *string `json:"KelompokBuku" gorm:"type:varchar(2)"`
+	TahunPajakSPPT   int     `json:"TahunPajakSPPT"`
+	TahunPajakSTTS   int     `json:"TahunPajakSTTS"`
+	NamaKANWIL       *string `json:"NamaKANWIL" gorm:"type:varchar(30)"`
+	NamaKPPBB        *string `json:"NamaKPPBB" gorm:"type:varchar(30)"`
+	KotaTerbit       *string `json:"KotaTerbit" gorm:"type:varchar(30)"`
+	NamaKepalaKPPBB  *string `json:"NamaKepalaKPPBB" gorm:"type:varchar(30)"`
+	BarcodeSPPT      *string `json:"BarcodeSPPT" gorm:"type:varchar(50)"`
+	JnsBarcodeSPPT   *string `json:"JnsBarcodeSPPT" gorm:"type:varchar(2)"`
+	BarcodeSTTS      *string `json:"BarcodeSTTS" gorm:"type:varchar(50)"`
+	JnsBarcodeSTTS   *string `json:"JnsBarcodeSTTS" gorm:"type:varchar(2)"`
+	SPPTFormBaru     *string `json:"SPPTFormBaru" gorm:"type:varchar(2)"`
+	STTSFormBaru     *string `json:"STTSFormBaru" gorm:"type:varchar(2)"`
+	SPPTFormLama     *string `json:"SPPTFormLama" gorm:"type:varchar(2)"`
+	STTSFormLama     *string `json:"STTSFormLama" gorm:"type:varchar(2)"`
+	SuratHimbauan    *string `json:"SuratHimbauan" gorm:"type:varchar(2)"`
+	BukuHimbauan     *string `json:"BukuHimbauan" gorm:"type:varchar(2)"`
+	TunggakanTHNLalu int     `json:"TunggakanTHNLalu"`
+	SPPTPBBNOL       int     `json:"SPPTPBBNOL"`
+	PBBMinimal       int     `json:"PBBMinimal"`
+	TeksKANWIL       int     `json:"TeksKANWIL"`
+	TeksKPPBB        int     `json:"TeksKPPBB"`
+	TeksSPPT         int     `json:"TeksSPPT"`
+	TeksSTTS         int     `json:"TeksSTTS"`
+	TeksPratama      int     `json:"TeksPratama"`
+	Kakap            *string `json:"Kakap" gorm:"type:varchar(4)"`
+	gh.DateModel
+}
+
+type RefThnNJKPNJOPTKPTarif struct {
+	Id                uint64  `json:"id" gorm:"primaryKey"`
+	IndeksRange       string  `json:"indeksRange" gorm:"type:varchar(2)"`
+	JNS_Range_Kode    string  `json:"jns_range_kode" gorm:"type:varchar(1)"`
+	Provinsi_Kode     string  `json:"provinsi_kode" gorm:"type:varchar(2)"`
+	Daerah_Kode       string  `json:"daerah_kode" gorm:"type:varchar(2)"`
+	SK_NJOP_NJKP_Kode int     `json:"SK_NJOP_NJKP_Kode"`
+	RangeThnAwal      *string `json:"rangeThnAwal" gorm:"type:varchar(4)"`
+	RangeThnAkhir     *string `json:"rangeThnAkhir" gorm:"type:varchar(4)"`
 	gh.DateModel
 }
 

@@ -25,6 +25,8 @@ func optionString(col, option string, value interface{}) (whereString string, va
 	symbol := "="
 	valueFinal = value
 	switch option {
+	case "eq":
+		symbol = "="
 	case "left":
 		symbol = "LIKE"
 		valueFinal = fmt.Sprintf("%v%%", value)
@@ -46,12 +48,16 @@ func optionString(col, option string, value interface{}) (whereString string, va
 		symbol = "<>"
 	case "between":
 		symbol = "BETWEEN"
+	case "in":
+		symbol = "IN"
 	}
 
-	if symbol != "BETWEEN" {
+	if symbol == "BETWEEN" {
+		whereString = fmt.Sprintf("\"%s\" %s ? AND ?", col, symbol)
+	} else if symbol == "IN" {
 		whereString = fmt.Sprintf("\"%s\" %s ?", col, symbol)
 	} else {
-		whereString = fmt.Sprintf("\"%s\" %s ? AND ?", col, symbol)
+		whereString = fmt.Sprintf("\"%s\" %s ?", col, symbol)
 	}
 	return
 }

@@ -46,26 +46,13 @@ func GetList(input m.FilterDto) (any, error) {
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Preload("Kelurahan").
+		Preload("TempatPembayaran").
+		Preload("BankTunggal").
+		Preload("BankPersepsi").
 		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
-	}
-
-	// response
-	var response []m.ListDto
-	for _, v := range data {
-		var temp m.ListDto
-		if err := sc.Copy(&temp, &v); err != nil {
-			return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
-		}
-
-		if v.Kelurahan != nil {
-			temp.NamaKelurahan = &v.Kelurahan.Nama
-			temp.Kelurahan_Kode = &v.Kelurahan.Kode
-		}
-
-		response = append(response, temp)
 	}
 
 	meta := t.IS{
@@ -75,7 +62,7 @@ func GetList(input m.FilterDto) (any, error) {
 		"pageSize":     strconv.Itoa(pagination.PageSize),
 	}
 
-	if len(response) == 0 {
+	if len(data) == 0 {
 		return rp.OK{
 			Meta: meta,
 			Data: []string{},
@@ -84,7 +71,7 @@ func GetList(input m.FilterDto) (any, error) {
 
 	return rp.OK{
 		Meta: meta,
-		Data: response,
+		Data: data,
 	}, nil
 }
 
