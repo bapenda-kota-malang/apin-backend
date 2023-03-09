@@ -771,7 +771,7 @@ func Approval(kd string, auth int, input m.RequestApprovalPermohonan, tx *gorm.D
 	}, nil
 }
 
-func UpdateApproval(id int, auth int, input m.PermohonanRequestDto) (interface{}, error) {
+func UpdateApproval(id int, auth int, input m.PermohonanApprovalRequestDto) (interface{}, error) {
 	var (
 		err error
 
@@ -784,7 +784,7 @@ func UpdateApproval(id int, auth int, input m.PermohonanRequestDto) (interface{}
 		regPembetulanSpptSKPSTP  *m.RegPembetulanSpptSKPSTP
 		regKeputusanKeberatanPbb *m.RegKeputusanKeberatanPbb
 
-		regPermohonanDetailInput      *m.RegPstDetailInput
+		regPermohonanDetailInput      *m.RegPstDetail
 		regPermohonanBaruInput        *m.RegPstDataOPBaru
 		regPermohonanPenguranganInput *m.RegPstPermohonanPengurangan
 		regPembetulanSpptSKPSTPInput  *m.RegPembetulanSpptSKPSTP
@@ -796,7 +796,7 @@ func UpdateApproval(id int, auth int, input m.PermohonanRequestDto) (interface{}
 		// ropbng []mropbng.RegObjekPajakBangunan
 		ropfas []mropfas.RegFasilitasBangunan
 
-		opbng []mropbng.RegObjekPajakBangunan
+		opbng mropbng.RegObjekPajakBangunan
 		// opfas []mropfas.RegFasilitasBangunan
 
 		// areaCode    string
@@ -813,6 +813,7 @@ func UpdateApproval(id int, auth int, input m.PermohonanRequestDto) (interface{}
 	if result.RowsAffected == 0 {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data: "+err.Error(), data)
 	}
+	data.TahunPelayanan = input.TahunPajak
 
 	idPermohonan := data.Id
 
@@ -822,8 +823,10 @@ func UpdateApproval(id int, auth int, input m.PermohonanRequestDto) (interface{}
 			return errors.New("penyimpanan data permohonan gagal")
 		}
 
-		regPermohonanBaruInput, regPermohonanDetailInput, regPermohonanPenguranganInput, nop = data.SetDataPermohonanTransformer(input)
-		regPermohonanDetail = new(m.RegPstDetail)
+		regPermohonanBaruInput = input.PstDataOPBaru
+		regPermohonanDetailInput = input.PstDetail
+		regPermohonanPenguranganInput = input.PstPermohonanPengurangan
+		// nop = m.DecodeNOPPermohonan(input.NOP)
 
 		_ = a.DB.Where("PermohonanId", idPermohonan).First(&regPermohonanDetail)
 		if err := sc.CopyWithOption(&regPermohonanDetail, &regPermohonanDetailInput, sc.Option{IgnoreEmpty: true}); err != nil {
@@ -907,11 +910,11 @@ func UpdateApproval(id int, auth int, input m.PermohonanRequestDto) (interface{}
 		}
 
 		// rwppbb                 *rwppbb.RegWajibPajakPbb
-		_ = tx.Where("PstPermohonan_id", idPermohonan).Where("Id", roppbb.RegWajibPajakPbb_Id).First(&rwppbb)
+		_ = tx.Where("Id", roppbb.RegWajibPajakPbb_Id).First(&rwppbb)
 		if err := sc.CopyWithOption(&rwppbb, &input.PstOpjekPajakPBB.RegWajibPajakPbbs, sc.Option{IgnoreEmpty: true}); err != nil {
 			return errors.New("set data permohonan detail gagal")
 		}
-		if result := tx.Create(&rwppbb); result.Error != nil {
+		if result := tx.Save(&rwppbb); result.Error != nil {
 			return errors.New("penyimpanan data permohonan pengurangan gagal")
 		}
 
@@ -920,7 +923,7 @@ func UpdateApproval(id int, auth int, input m.PermohonanRequestDto) (interface{}
 		if err := sc.CopyWithOption(&roptnh, &input.PstOpjekPajakPBB.RegObjekPajakBumis, sc.Option{IgnoreEmpty: true}); err != nil {
 			return errors.New("set data permohonan detail gagal")
 		}
-		if result := tx.Create(&roptnh); result.Error != nil {
+		if result := tx.Save(&roptnh); result.Error != nil {
 			return errors.New("penyimpanan data permohonan pengurangan gagal")
 		}
 
@@ -929,7 +932,7 @@ func UpdateApproval(id int, auth int, input m.PermohonanRequestDto) (interface{}
 		if tempBangs != nil {
 			notNil := *tempBangs
 			for _, val := range notNil {
-				_ = a.DB.Where("PstPermohonan_id", idPermohonan).Where("NoBangunan", val.NoBangunan).Find(&opbng)
+				_ = a.DB.Where("PstPermohonan_id", idPermohonan).Where("NoBangunan", val.NoBangunan).First(&opbng)
 				if err := sc.CopyWithOption(&opbng, &val, sc.Option{IgnoreEmpty: true}); err != nil {
 					return errors.New("set data permohonan detail gagal")
 				}

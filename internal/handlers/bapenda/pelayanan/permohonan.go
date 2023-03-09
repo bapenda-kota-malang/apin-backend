@@ -117,7 +117,7 @@ func UpdateApprovalReg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data rm.PermohonanRequestDto
+	var data rm.PermohonanApprovalRequestDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}

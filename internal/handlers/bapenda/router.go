@@ -344,8 +344,8 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/permohonan-approval", func(r chi.Router) {
-		r.Patch("/{id}/ori", permohonan.UpdateApproval)
-		r.Patch("/{id}", permohonan.UpdateApprovalReg)
+		r.Patch("/{id}/reg", permohonan.UpdateApprovalReg)
+		r.Patch("/{id}", permohonan.UpdateApproval)
 	})
 
 	r.Route("/regpermohonan", func(r chi.Router) {
