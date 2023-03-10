@@ -33,6 +33,12 @@ type PstDetail struct {
 	gormhelper.DateModel
 }
 
+type GetByNoPelayananPstDetailDto struct {
+	TahunPelayanan  string `json:"tahunPelayanan" validate:"required"`
+	BundelPelayanan string `json:"jenisPelayanan" validate:"required"`
+	NoUrutPelayanan string `json:"noUrutPelayanan" validate:"required"`
+}
+
 type PstDetailInput struct {
 	Id                    uint64          `json:"id" gorm:"primaryKey;autoIncrement"`
 	PermohonanId          *uint64         `json:"permohonanId" gorm:"type:integer"`
