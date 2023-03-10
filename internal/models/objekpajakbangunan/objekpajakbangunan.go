@@ -7,7 +7,7 @@ import (
 	j "github.com/bapenda-kota-malang/apin-backend/internal/models/jpb"
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	p "github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
-	mopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
+	mropbng "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakbangunan"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
@@ -67,7 +67,7 @@ type CreateDto struct {
 	Nop                   *string           `json:"nop"`
 	FasilitasBangunans    *mf.CreateDto     `json:"fasilitasBangunan"`
 
-	RegFasBangunan *mopbng.OPBngFasilitasBangunan `json:"regFasBangunan"`
+	RegFasBangunan *mropbng.OPBngFasilitasBangunan `json:"regFasBangunan"`
 }
 
 type UpdateDto struct {
