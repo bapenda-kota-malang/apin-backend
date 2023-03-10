@@ -148,6 +148,7 @@ type OPBngFasilitasBangunan struct {
 	FBPKFireAI             *int `json:"fbPKFireAI"`
 	FBPABX                 *int `json:"fbPABX"`
 	FBSumur                *int `json:"fbSumur"`
+	FBDayaListrik          *int `json:"fbDayaListrik"`
 
 	JpbKlinikACCentralKamar    *int    `json:"jpbKlinikACCentralKamar"`
 	JpbKlinikACCentralRuang    *int    `json:"jpbKlinikACCentralRuang"`

@@ -395,6 +395,8 @@ func GetDetailApproval(id int) (interface{}, error) {
 						fasilitas.FBPABX = fas.JumlahSatuan
 					case "42":
 						fasilitas.FBSumur = fas.JumlahSatuan
+					case "44":
+						fasilitas.FBDayaListrik = fas.JumlahSatuan
 					case "07":
 						fasilitas.JpbKlinikACCentralKamar = fas.JumlahSatuan
 					case "08":
@@ -794,9 +796,8 @@ func UpdateApproval(id int, auth int, input m.PermohonanApprovalRequestDto) (int
 		rwppbb *mrwppbb.RegWajibPajakPbb
 		roptnh *mroptnh.RegObjekPajakBumi
 		// ropbng []mropbng.RegObjekPajakBangunan
-		ropfas []mropfas.RegFasilitasBangunan
+		ropfas *mropfas.RegFasilitasBangunan
 
-		opbng mropbng.RegObjekPajakBangunan
 		// opfas []mropfas.RegFasilitasBangunan
 
 		// areaCode    string
@@ -932,6 +933,7 @@ func UpdateApproval(id int, auth int, input m.PermohonanApprovalRequestDto) (int
 		if tempBangs != nil {
 			notNil := *tempBangs
 			for _, val := range notNil {
+				opbng := new(mropbng.RegObjekPajakBangunan)
 				_ = a.DB.Where("PstPermohonan_id", idPermohonan).Where("NoBangunan", val.NoBangunan).First(&opbng)
 				if err := sc.CopyWithOption(&opbng, &val, sc.Option{IgnoreEmpty: true}); err != nil {
 					return errors.New("set data permohonan detail gagal")
@@ -941,276 +943,486 @@ func UpdateApproval(id int, auth int, input m.PermohonanApprovalRequestDto) (int
 				}
 
 				// ropfas                 *ropfas.RegFasilitasBangunan
-				resFas := tx.
-					Where("PstPermohonan_id", idPermohonan).
-					Where("NoBangunan", val.NoBangunan).
-					Find(&ropfas)
-				if resFas.RowsAffected > 0 {
-					for _, dataFasBangunan := range ropfas {
-						dataFasBangunan.Provinsi_Kode = &nop.PermohonanProvinsiID
-						dataFasBangunan.Daerah_Kode = &nop.PermohonanKotaID
-						dataFasBangunan.Kecamatan_Kode = &nop.PermohonanKecamatanID
-						dataFasBangunan.Kelurahan_Kode = &nop.PermohonanKelurahanID
-						dataFasBangunan.NoUrut = &nop.NoUrutPemohon
-						dataFasBangunan.JenisOp = &nop.PemohonJenisOPID
-						dataFasBangunan.NoBangunan = val.NoBangunan
-						dataFasBangunan.PstPermohonan_id = &idPermohonan
+				dataFasBangunan := new(mropfas.RegFasilitasBangunan)
+				dataFasBangunan.Provinsi_Kode = &nop.PermohonanProvinsiID
+				dataFasBangunan.Daerah_Kode = &nop.PermohonanKotaID
+				dataFasBangunan.Kecamatan_Kode = &nop.PermohonanKecamatanID
+				dataFasBangunan.Kelurahan_Kode = &nop.PermohonanKelurahanID
+				dataFasBangunan.NoUrut = &nop.NoUrutPemohon
+				dataFasBangunan.JenisOp = &nop.PemohonJenisOPID
+				dataFasBangunan.NoBangunan = val.NoBangunan
+				dataFasBangunan.PstPermohonan_id = &idPermohonan
 
-						//create data fasilitas/jpb berdasar fasilitas/jpb di isi
-						if val.RegFasBangunan.FBJumlahACSplit != nil {
-							tempKodeFas = "01"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBJumlahACSplit
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBJumlahACWindow != nil {
-							tempKodeFas = "02"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBJumlahACWindow
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBIsACCentral != nil {
-							tempKodeFas = "11"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBIsACCentral
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBTipeLapisanKolam != nil {
-							tempKodeFas = strconv.Itoa(*val.RegFasBangunan.FBTipeLapisanKolam)
-							if val.RegFasBangunan.FBLuasKolamRenang != nil {
-								dataFasBangunan.KodeFasilitas = &tempKodeFas
-								dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLuasKolamRenang
-							}
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBHalamanBerat != nil {
-							tempKodeFas = "16"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBHalamanBerat
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBHalamanSendang != nil {
-							tempKodeFas = "15"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBHalamanSendang
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBHalamanRingan != nil {
-							tempKodeFas = "14"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBJumlahACSplit
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBHalamanLantai != nil {
-							tempKodeFas = "17"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBHalamanLantai
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBTenisLampuBeton != nil {
-							tempKodeFas = "18"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisLampuBeton
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBTenisTanpaLampuBeton != nil {
-							tempKodeFas = "21"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisTanpaLampuBeton
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBTenisAspal1 != nil {
-							tempKodeFas = "19"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisAspal1
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBTenisAspal2 != nil {
-							tempKodeFas = "22"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisAspal2
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBTenisLiatRumput1 != nil {
-							tempKodeFas = "20"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisLiatRumput1
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBTenisLiatRumput2 != nil {
-							tempKodeFas = "23"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisLiatRumput2
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBLiftPenumpang != nil {
-							tempKodeFas = "30"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLiftPenumpang
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBLiftKapsul != nil {
-							tempKodeFas = "31"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLiftKapsul
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBLiftBarang != nil {
-							tempKodeFas = "32"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLiftBarang
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBTangga80 != nil {
-							tempKodeFas = "33"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTangga80
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBTangga81 != nil {
-							tempKodeFas = "34"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTangga81
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBPagarBahan != nil {
-							tempKodeFas = strconv.Itoa(*val.RegFasBangunan.FBPagarBahan)
-							if val.RegFasBangunan.FBPagarPanjang != nil {
-								dataFasBangunan.KodeFasilitas = &tempKodeFas
-								dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPagarPanjang
-							}
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBPKHydrant != nil {
-							tempKodeFas = "37"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPKHydrant
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBPKSplinkler != nil {
-							tempKodeFas = "39"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPKSplinkler
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBPKFireAI != nil {
-							tempKodeFas = "38"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPKFireAI
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBPABX != nil {
-							tempKodeFas = "41"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPABX
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
-						if val.RegFasBangunan.FBSumur != nil {
-							tempKodeFas = "42"
-							dataFasBangunan.KodeFasilitas = &tempKodeFas
-							dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBSumur
-							errTemp = tx.Save(&dataFasBangunan).Error
-							if errTemp != nil {
-								return errTemp
-							}
-							dataFasBangunan.Id = dataFasBangunan.Id + 1
-						}
+				//create data fasilitas/jpb berdasar fasilitas/jpb di isi
+				if val.RegFasBangunan.FBJumlahACSplit != nil {
+					tempKodeFas = "01"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBJumlahACSplit
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBJumlahACWindow != nil {
+					tempKodeFas = "02"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBJumlahACWindow
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBIsACCentral != nil {
+					tempKodeFas = "11"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBIsACCentral
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBTipeLapisanKolam != nil {
+					tempKodeFas = strconv.Itoa(*val.RegFasBangunan.FBTipeLapisanKolam)
+					if val.RegFasBangunan.FBLuasKolamRenang != nil {
+						dataFasBangunan.KodeFasilitas = &tempKodeFas
+						dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLuasKolamRenang
+					}
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBHalamanBerat != nil {
+					tempKodeFas = "16"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBHalamanBerat
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBHalamanSendang != nil {
+					tempKodeFas = "15"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBHalamanSendang
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBHalamanRingan != nil {
+					tempKodeFas = "14"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBJumlahACSplit
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBHalamanLantai != nil {
+					tempKodeFas = "17"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBHalamanLantai
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBTenisLampuBeton != nil {
+					tempKodeFas = "18"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisLampuBeton
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBTenisTanpaLampuBeton != nil {
+					tempKodeFas = "21"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisTanpaLampuBeton
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBTenisAspal1 != nil {
+					tempKodeFas = "19"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisAspal1
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBTenisAspal2 != nil {
+					tempKodeFas = "22"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisAspal2
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBTenisLiatRumput1 != nil {
+					tempKodeFas = "20"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisLiatRumput1
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBTenisLiatRumput2 != nil {
+					tempKodeFas = "23"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTenisLiatRumput2
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBLiftPenumpang != nil {
+					tempKodeFas = "30"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLiftPenumpang
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBLiftKapsul != nil {
+					tempKodeFas = "31"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLiftKapsul
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBLiftBarang != nil {
+					tempKodeFas = "32"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBLiftBarang
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBTangga80 != nil {
+					tempKodeFas = "33"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTangga80
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBTangga81 != nil {
+					tempKodeFas = "34"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBTangga81
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBPagarBahan != nil {
+					tempKodeFas = strconv.Itoa(*val.RegFasBangunan.FBPagarBahan)
+					if val.RegFasBangunan.FBPagarPanjang != nil {
+						dataFasBangunan.KodeFasilitas = &tempKodeFas
+						dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPagarPanjang
+					}
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBPKHydrant != nil {
+					tempKodeFas = "37"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPKHydrant
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBPKSplinkler != nil {
+					tempKodeFas = "39"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPKSplinkler
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBPKFireAI != nil {
+					tempKodeFas = "38"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPKFireAI
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBPABX != nil {
+					tempKodeFas = "41"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBPABX
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBSumur != nil {
+					tempKodeFas = "42"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBSumur
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
+					}
+				}
+				if val.RegFasBangunan.FBDayaListrik != nil {
+					tempKodeFas = "44"
+					dataFasBangunan.KodeFasilitas = &tempKodeFas
+					dataFasBangunan.JumlahSatuan = val.RegFasBangunan.FBDayaListrik
+
+					_ = tx.
+						Where("PstPermohonan_id", idPermohonan).
+						Where("NoBangunan", val.NoBangunan).
+						Where("KodeFasilitas", tempKodeFas).
+						Find(&ropfas)
+					if err := sc.CopyWithOption(&ropfas, &dataFasBangunan, sc.Option{IgnoreEmpty: true}); err != nil {
+						return errors.New("set data fas bangunan gagal")
+					}
+					errTemp = tx.Save(&ropfas).Error
+					if errTemp != nil {
+						return errTemp
 					}
 				}
 
