@@ -170,3 +170,18 @@ type WpCreateDto struct {
 	Npwp           *string `json:"npwp"`
 	Pekerjaan      *string `json:"pekerjaan"`
 }
+
+type UpdateRtRwMassalDto struct {
+	Provinsi_Kode  *string `json:"provinsi_kode" validate:"required"`
+	Daerah_Kode    *string `json:"daerah_kode" validate:"required"`
+	Kecamatan_Kode *string `json:"kecamatan_kode" validate:"required"`
+	Kelurahan_Kode *string `json:"kelurahan_kode" validate:"required"`
+	Rt             *string `json:"rt" validate:"required"`
+	Rw             *string `json:"rw" validate:"required"`
+	AwalBlok_Kode  *string `json:"awalBlok_kode" validate:"required"`
+	AwalNoUrut     *string `json:"awalNoUrut" validate:"required"`
+	AwalJenisOp    *string `json:"awalJenisOp" validate:"required"`
+	AkhirBlok_Kode *string `json:"akhirBlok_kode" validate:"required"`
+	AkhirNoUrut    *string `json:"akhirNoUrut" validate:"required"`
+	AkhirJenisOp   *string `json:"akhirJenisOp" validate:"required"`
+}
