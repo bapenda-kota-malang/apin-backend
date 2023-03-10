@@ -12,6 +12,7 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jenispajak"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/konfigurasipajak"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
@@ -53,6 +54,24 @@ func GetList(input m.FilterDto) (any, error) {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data konfigurasi pajak", data)
 	}
 
+	var data2 []m.KonfigurasiPajak
+	for _, v := range data {
+		if v.Rekening != nil {
+			if v.Rekening.KodeJenisPajak != nil {
+				// find jenis pajak by kode jenis pajak
+				var jenisPajak jenispajak.JenisPajak
+				a.DB.Model(&jenisPajak).Where(`"Kode" = ?`, v.Rekening.KodeJenisPajak).First(&jenisPajak)
+
+				if jenisPajak.Id != 0 {
+					v.JenisPajak.ID = jenisPajak.Id
+					v.JenisPajak.Kode = jenisPajak.Kode
+					v.JenisPajak.Nama = jenisPajak.Uraian
+				}
+			}
+		}
+		data2 = append(data2, v)
+	}
+
 	return rp.OK{
 		Meta: t.IS{
 			"totalCount":   strconv.Itoa(int(count)),
@@ -60,7 +79,7 @@ func GetList(input m.FilterDto) (any, error) {
 			"page":         strconv.Itoa(pagination.Page),
 			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
-		Data: data,
+		Data: data2,
 	}, nil
 }
 
