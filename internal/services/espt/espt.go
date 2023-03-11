@@ -61,7 +61,8 @@ func GetList(input m.FilterDto, user_Id uint) (any, error) {
 	var count int64
 
 	var pagination gh.Pagination
-	baseQuery := a.DB.Model(&m.Espt{})
+	baseQuery := a.DB.Model(&m.Espt{}).
+		Joins("Rekening")
 	if user_Id != 0 {
 		baseQuery = baseQuery.Where(&m.Espt{LaporBy_User_Id: user_Id})
 	}
@@ -75,7 +76,7 @@ func GetList(input m.FilterDto, user_Id uint) (any, error) {
 		Preload("LaporUser", func(db *gorm.DB) *gorm.DB {
 			return db.Omit("Password")
 		}).
-		Joins("Rekening").
+		// Joins("Rekening").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
