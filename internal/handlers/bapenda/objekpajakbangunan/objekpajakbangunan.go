@@ -3,7 +3,6 @@ package objekpajakbangunan
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -13,7 +12,6 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbangunan"
 	hj "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/httpjson"
-	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
@@ -114,8 +112,13 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		}
 		input = &dataJpb16
 	default:
-		err = fmt.Errorf("jpb kode %s tidak diketahui", data.Jpb_Kode)
-		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
+		var dataJpb m.CreateDto
+		if hh.ValidateStructByIOR(w, r.Body, &dataJpb) == false {
+			return
+		}
+		// input = &dataJpb
+		// err = fmt.Errorf("jpb kode %s tidak diketahui", data.Jpb_Kode)
+		// hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
 	}
 	if err != nil {
 		return

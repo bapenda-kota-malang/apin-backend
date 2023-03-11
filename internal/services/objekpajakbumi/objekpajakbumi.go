@@ -169,13 +169,13 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 						dataBng.JenisTransaksi = opb.JenisTransaksi
 						// dataBng.JmlLantaiBng = opb.JmlLantaiBng
 						dataBng.Jpb_Kode = opb.Jpb_Kode
-						dataBng.KodeDinding = opb.KodeDinding
-						dataBng.KodeLangitLangit = opb.KodeLangitLangit
-						dataBng.KodeLantai = opb.KodeLantai
+						dataBng.JenisDinding = opb.JenisDinding
+						dataBng.JenisLangit = opb.JenisLangit
+						dataBng.JenisLantai = opb.JenisLantai
 						dataBng.Kondisi = opb.Kondisi
 						dataBng.LuasBangunan = opb.LuasBangunan
 						dataBng.NilaiSistem = opb.NilaiSistem
-						dataBng.NoFormulirSpop = opb.NoFormulirSpop
+						dataBng.NoFormulirLspop = opb.NoFormulirLspop
 						dataBng.Nop = opb.Nop
 						dataBng.TahunDibangun = opb.TahunDibangun
 						dataBng.TahunRenovasi = opb.TahunRenovasi

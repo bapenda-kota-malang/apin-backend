@@ -59,8 +59,8 @@ type ObjekPajakPbb struct {
 }
 
 type CreateDto struct {
-	nop.NopDetailCreateDto
-	WajibPajakPbb_Id      *uint64           `json:"wajibPajakPbb_id" validate:"required"`
+	nop.NopDetailCreateRequiredDto
+	WajibPajakPbb_Id      *uint64           `json:"wajibPajakPbb_id"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop" validate:"required"`
 	NoPersil              *string           `json:"noPersil"`
 	Jalan                 *string           `json:"jalan" validate:"required"`
@@ -73,12 +73,12 @@ type CreateDto struct {
 	TotalLuasBangunan     *int              `json:"totalLuasBangunan" validate:"required"`
 	StatusPeta            *int              `json:"statusPeta" validate:"required"`
 	JenisTransaksi        ot.JenisTransaksi `json:"jenisTransaksi" validate:"required"`
-	TanggalPendataan      *string           `json:"tanggalPendataan"`
-	Pendata_Pegawai_Nip   *string           `json:"pendata_pegawai_nip"`
+	TanggalPerekaman      *string           `json:"tanggalPerekaman"`
+	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip"`
+	TanggalPendataan      *string           `json:"tanggalPendataan" validate:"required"`
+	Pendata_Pegawai_Nip   *string           `json:"pendata_pegawai_nip" validate:"required"`
 	TanggalPemeriksaan    *string           `json:"tanggalPemeriksaan" validate:"required"`
 	Pemeriksa_Pegawai_Nip *string           `json:"pemeriksa_pegawai_nip" validate:"required"`
-	TanggalPerekaman      *string           `json:"tanggalPerekaman" validate:"required"`
-	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip" validate:"required"`
 	//data wajibpajakpbb
 	WajibPajakPbbs     WpCreateDto     `json:"wajibPajakPbb"`
 	ObjekPajakBumis    mopb.CreateDto  `json:"objekPajakBumi"`

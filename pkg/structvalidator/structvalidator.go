@@ -59,7 +59,7 @@ func Validate(input interface{}, nameSpaces ...string) map[string]ValidationErro
 	nameSpace := ""
 	if len(nameSpaces) > 0 {
 		if len(nameSpaces) > 1 && nameSpaces[1] != "" {
-			nameSpace += "(embedded:" + nameSpaces[0] + ")."
+			// nameSpace += "(embedded:" + nameSpaces[0] + ")." // drop the feature
 		} else {
 			nameSpace += nameSpaces[0] + "."
 		}
