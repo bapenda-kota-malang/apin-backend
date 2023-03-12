@@ -16,8 +16,11 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
+	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
 	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
+	os "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	sopp "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	srefbuku "github.com/bapenda-kota-malang/apin-backend/internal/services/referensibuku"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -611,4 +614,109 @@ func SpPenetapan(input m.PenetapanMassalDto, data m.Sppt, tx *gorm.DB) (*m.SpPen
 	}
 
 	return rsltSp, nil
+}
+
+func GetListCatatanPembayaranPbb(input m.FilterDto) (any, error) {
+	var data []m.Sppt
+	var count int64
+
+	nop := &m.Sppt{
+		Propinsi_Id:   input.Propinsi_Id,
+		Dati2_Id:      input.Dati2_Id,
+		Kecamatan_Id:  input.Kecamatan_Id,
+		Keluarahan_Id: input.Keluarahan_Id,
+		Blok_Id:       input.Blok_Id,
+		NoUrut:        input.NoUrut,
+		JenisOP_Id:    input.JenisOP_Id,
+	}
+
+	var pagination gh.Pagination
+	result := a.DB.
+		Model(&m.Sppt{}).
+		Where(nop).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "get-data-list", source, "failed", "data tidak ditemukan", data)
+	}
+
+	// get objek pajak pbb by nop
+	objekPajakPbb, _ := os.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
+
+	// get wajib pajak pbb by id
+	var m_wajibPajakPbb wajibpajakpbb.WajibPajakPbb
+	if objekPajakPbb.WajibPajakPbb_Id != nil {
+		a.DB.Model(&wajibpajakpbb.WajibPajakPbb{}).Where(`"Id = ?"`, objekPajakPbb.WajibPajakPbb_Id).First(&m_wajibPajakPbb)
+	}
+
+	// responses
+	var records m.ListCatatanPembayaranPbbResponse
+
+	var dataRecords []m.CatatanPembayaranPbbResponse
+	for _, v := range data {
+		// get pembayaran sppt
+		// var m_spptPembayaran sppt.pem
+		m_spptPembayaran, _ := FindSpptPembayaranByNop(v.Propinsi_Id, v.Dati2_Id, v.Kecamatan_Id, v.Keluarahan_Id, v.Blok_Id, v.NoUrut, v.JenisOP_Id, v.TahunPajakskp_sppt)
+
+		dataRecords = append(dataRecords, m.CatatanPembayaranPbbResponse{
+			Tahun: v.TahunPajakskp_sppt,
+			// TODO : jatuh tempo
+			JatuhTempo:   "",
+			Pbb:          v.PBBygHarusDibayar_sppt,
+			JumlahBayar:  m_spptPembayaran.JumlahSpptYgDibayar,
+			Ke:           m_spptPembayaran.PembayaranSpptKe,
+			TanggalBayar: m_spptPembayaran.TglPembayaranSppt,
+			TanggalRekam: m_spptPembayaran.CreatedAt,
+			Perekam:      m_spptPembayaran.NipRekamBayarSppt,
+			// TODO : need discussion about relation
+			Bank: "",
+		})
+	}
+
+	// response
+	records = m.ListCatatanPembayaranPbbResponse{
+		NamaWajibPajak:  m_wajibPajakPbb.Nama,
+		JalanObjekPajak: objekPajakPbb.Jalan,
+		JalanWajibPajak: m_wajibPajakPbb.Jalan,
+		BlokKavNo:       objekPajakPbb.BlokKavNo,
+		BlokKavNo2:      objekPajakPbb.BlokKavNo,
+		List:            dataRecords,
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: records,
+	}, nil
+}
+
+// find by nop
+func FindSpptPembayaranByNop(provinsiKode, daerahKode, kecamatanKode, kelurahanKode, blokKode, noUrut, jenisOp, tahunPajakSppt *string) (mp.SpptPembayaran, error) {
+	var data mp.SpptPembayaran
+	condition := &mp.SpptPembayaran{
+		Provinsi_Kd:    *provinsiKode,
+		Daerah_Kd:      *daerahKode,
+		Kecamatan_Kd:   *kecamatanKode,
+		Kelurahan_Kd:   *kelurahanKode,
+		Blok_Kd:        *blokKode,
+		NoUrut_Kd:      *noUrut,
+		JenisOp_Kd:     *jenisOp,
+		TahunPajakSppt: *tahunPajakSppt,
+	}
+	result := a.DB.Where(condition).First(&data)
+	if result.RowsAffected == 0 {
+		return data, nil
+	} else if result.Error != nil {
+		return data, result.Error
+	}
+	return data, nil
 }

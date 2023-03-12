@@ -24,6 +24,7 @@ import (
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	pmh "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	regpmh "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	msppt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
@@ -699,4 +700,22 @@ func PenilaianSppt(input []msppt.Sppt, tx *gorm.DB) (any, error) {
 
 	}
 	return rp.OKSimple{Data: data}, nil
+}
+
+func GetByNop(provinsiKode, daerahKode, kecamatanKode, kelurahanKode, blokKode, noUrut, jenisOp *string) (m.ObjekPajakPbb, error) {
+	var data m.ObjekPajakPbb
+	condition := nopSearcher(sppt.Sppt{
+		Propinsi_Id:   provinsiKode,
+		Dati2_Id:      daerahKode,
+		Kecamatan_Id:  kecamatanKode,
+		Keluarahan_Id: kelurahanKode,
+		Blok_Id:       blokKode,
+		NoUrut:        noUrut,
+		JenisOP_Id:    jenisOp,
+	})
+	result := a.DB.Where(condition).First(&data)
+	if result.Error != nil {
+		return data, result.Error
+	}
+	return data, nil
 }
