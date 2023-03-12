@@ -646,7 +646,10 @@ func GetListCatatanPembayaranPbb(input m.FilterDto) (any, error) {
 	}
 
 	// get objek pajak pbb by nop
-	objekPajakPbb, _ := os.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
+	objekPajakPbb, err := os.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
 
 	// get wajib pajak pbb by id
 	var m_wajibPajakPbb wajibpajakpbb.WajibPajakPbb
