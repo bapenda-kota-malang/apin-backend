@@ -630,6 +630,10 @@ func GetListCatatanPembayaranPbb(input m.FilterDto) (any, error) {
 		JenisOP_Id:    input.JenisOP_Id,
 	}
 
+	if nop.Propinsi_Id == nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "propinsi_id tidak boleh kosong", data)
+	}
+
 	var pagination gh.Pagination
 	result := a.DB.
 		Model(&m.Sppt{}).
@@ -654,7 +658,7 @@ func GetListCatatanPembayaranPbb(input m.FilterDto) (any, error) {
 	// get wajib pajak pbb by id
 	var m_wajibPajakPbb wajibpajakpbb.WajibPajakPbb
 	if objekPajakPbb.WajibPajakPbb_Id != nil {
-		a.DB.Model(&wajibpajakpbb.WajibPajakPbb{}).Where(`"Id = ?"`, objekPajakPbb.WajibPajakPbb_Id).First(&m_wajibPajakPbb)
+		a.DB.Model(&wajibpajakpbb.WajibPajakPbb{}).Where(`"Id" = ?`, *objekPajakPbb.WajibPajakPbb_Id).First(&m_wajibPajakPbb)
 	}
 
 	// responses
@@ -663,7 +667,6 @@ func GetListCatatanPembayaranPbb(input m.FilterDto) (any, error) {
 	var dataRecords []m.CatatanPembayaranPbbResponse
 	for _, v := range data {
 		// get pembayaran sppt
-		// var m_spptPembayaran sppt.pem
 		m_spptPembayaran, _ := FindSpptPembayaranByNop(v.Propinsi_Id, v.Dati2_Id, v.Kecamatan_Id, v.Keluarahan_Id, v.Blok_Id, v.NoUrut, v.JenisOP_Id, v.TahunPajakskp_sppt)
 
 		dataRecords = append(dataRecords, m.CatatanPembayaranPbbResponse{
