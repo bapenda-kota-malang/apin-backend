@@ -105,3 +105,13 @@ func Rincian(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Rincian(data)
 	hh.DataResponse(w, result, err)
 }
+
+func Salinan(w http.ResponseWriter, r *http.Request) {
+	var data m.SalinanDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+		return
+	}
+
+	result, err := s.Salinan(data)
+	hh.DataResponse(w, result, err)
+}

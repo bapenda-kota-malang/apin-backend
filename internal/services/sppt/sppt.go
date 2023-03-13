@@ -3,6 +3,7 @@ package sppt
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
@@ -626,12 +627,13 @@ func Rincian(input m.NopDto) (any, error) {
 		TahunPajakskp_sppt: input.TahunPajakskp_sppt,
 	}
 
-	result := a.DB.Where(&filter).First(&data)
-	if result.RowsAffected == 0 {
-		return sh.SetError("request", "get-data-by-nop", source, "failed", "data tidak ada", data)
-	} else if result.Error != nil {
-		return sh.SetError("request", "get-data-by-nop", source, "failed", "gagal mendapatkan data: "+result.Error.Error(), data)
-	}
+	a.DB.Where(&filter).First(&data)
+	// result := a.DB.Where(&filter).First(&data)
+	// if result.RowsAffected == 0 {
+	// 	return sh.SetError("request", "get-data-by-nop", source, "failed", "data tidak ada", data)
+	// } else if result.Error != nil {
+	// 	return sh.SetError("request", "get-data-by-nop", source, "failed", "gagal mendapatkan data: "+result.Error.Error(), data)
+	// }
 
 	// get ObjekPajakBumi detail
 	opBumiData, err := getObjekPajakBumiDetail(filter)
@@ -654,6 +656,48 @@ func Rincian(input m.NopDto) (any, error) {
 		"opBumi": opBumiData,
 		"opBng":  opBngData,
 		"opPBB":  opPBBData,
+	}
+
+	return rp.OKSimple{
+		Data: rslt,
+	}, nil
+}
+
+func Salinan(input m.SalinanDto) (any, error) {
+	nopRange := make(map[string]interface{})
+	var (
+		idx int = 0
+	)
+
+	for _, v := range input.NOPRange {
+		start, _ := strconv.Atoi(*v.Start.NoUrut)
+		end, _ := strconv.Atoi(*v.End.NoUrut)
+
+		var temp1 []any
+		for noUrut := start; noUrut <= end; noUrut++ {
+			length := 4 - int(len(fmt.Sprint(noUrut)))
+			temp := fmt.Sprint(strings.Repeat("0", length), noUrut)
+			gR, err := Rincian(m.NopDto{
+				Propinsi_Id:        input.Propinsi_Id,
+				Dati2_Id:           input.Dati2_Id,
+				Kecamatan_Id:       input.Kecamatan_Id,
+				Keluarahan_Id:      input.Keluarahan_Id,
+				Blok_Id:            v.Start.Blok_Id,
+				NoUrut:             &temp,
+				JenisOP_Id:         v.Start.JenisOP_Id,
+				TahunPajakskp_sppt: input.TahunPajakskp_sppt,
+			})
+
+			if err == nil {
+				temp1 = append(temp1, gR.(rp.OKSimple).Data)
+			}
+		}
+		nopRange[fmt.Sprintf("%d", idx)] = temp1
+		idx++
+	}
+
+	rslt := t.II{
+		"nop_range": nopRange,
 	}
 
 	return rp.OKSimple{
