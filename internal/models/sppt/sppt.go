@@ -271,3 +271,20 @@ type CatatanPembayaranPbbResponse struct {
 	Perekam      string         `json:"perekam"`
 	Bank         string         `json:"bank"`
 }
+
+type ListCatatanSejarahWPResponse struct {
+	AlamatObjekPajak *string             `json:"alamatObjekPajak"`
+	Kelurahan        *string             `json:"kelurahan"`
+	RT_RW            string              `json:"rt_rw"`
+	LuasTanah        *int                `json:"luasTanah"`
+	List             []SejarahWPResponse `json:"list"`
+}
+
+type SejarahWPResponse struct {
+	TahunPajak        *string         `json:"tahunPajak"`
+	TanggalCetak      *datatypes.Date `json:"tanggalCetak"`
+	TanggalJatuhTempo *datatypes.Date `json:"tanggalJatuhTempo"`
+	TanggalTerbit     *datatypes.Date `json:"tanggalTerbit"`
+	NamaWajibPajak    *string         `json:"namaWajibPajak"`
+	AlamatWajibPajak  *string         `json:"alamatWajibPajak"`
+}

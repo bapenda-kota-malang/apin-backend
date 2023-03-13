@@ -705,5 +705,9 @@ func SetRoutes() http.Handler {
 		r.Get("/", catatanpembayaranpbb.ListCatatanPembayaranPbb)
 	})
 
+	r.Route("/catatansejarahwp", func(r chi.Router) {
+		r.Get("/", sppt.ListCatataSejarahWp)
+	})
+
 	return r
 }
