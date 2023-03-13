@@ -344,6 +344,11 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", permohonan.Delete)
 	})
 
+	r.Route("/permohonan-approval", func(r chi.Router) {
+		r.Patch("/{id}/reg", permohonan.UpdateApprovalReg)
+		r.Patch("/{id}", permohonan.UpdateApproval)
+	})
+
 	r.Route("/regpermohonan", func(r chi.Router) {
 		r.Patch("/{id}/status", regpermohonan.UpdateStatus)
 		r.Post("/", regpermohonan.Create)

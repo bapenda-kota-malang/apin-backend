@@ -335,6 +335,8 @@ func GetDetail(id uuid.UUID, typeSpt string, userId uint) (any, error) {
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
+		Preload("DetailSptReklame.TarifReklame.KlasifikasiJalan").
+		Preload("DetailSptPln.JenisPPJ").
 		First(&data, "\"Spt\".\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil

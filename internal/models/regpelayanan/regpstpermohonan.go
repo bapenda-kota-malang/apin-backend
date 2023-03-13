@@ -69,6 +69,47 @@ type PermohonanRequestDto struct {
 	Status                *string `json:"status"`
 	User_ID               *uint64 `json:"user_ID"`
 	TanggalPenyerahan     *string `json:"tanggalPenyerahan"`
+
+	PstOpjekPajakPBB *mroppbb.CreateDto `json:"oppbb"`
+}
+
+type PermohonanApprovalRequestDto struct {
+	Id                    *uint64 `json:"id"`
+	KanwilId              *string `json:"kanwilId"`
+	KppbbId               *string `json:"kppbbId"`
+	NoPelayanan           *string `json:"noPelayanan"`
+	StatusKolektif        *string `json:"statusKolektif"`
+	NoSuratPermohonan     *string `json:"noSuratPermohonan"`
+	JenisPelayanan        *string `json:"jenisPelayanan"`
+	TanggalTerima         *string `json:"tanggalTerima"`
+	TanggalSelesai        *string `json:"tanggalSelesai"`
+	TanggalPermohonan     *string `json:"tanggalPermohonan"`
+	NOP                   *string `json:"nop"`
+	NamaWP                *string `json:"namaWP"`
+	LetakOP               *string `json:"letakOP"`
+	Keterangan            *string `json:"keterangan"`
+	TahunPajak            *string `json:"tahunPajak"`
+	PenerimaanBerkas      *string `json:"penerimaanBerkas"`
+	Catatan               *string `json:"catatan"`
+	NIP                   *string `json:"nip"`
+	JenisPengurangan      *string `json:"jenisPengurangan"`
+	AlasanPengurangan     *string `json:"alasanPengurangan"`
+	PersentasePengurangan *string `json:"persentasePengurangan"`
+	SeksiBerkasID         *string `json:"seksiBerkas"`
+	CatatanPenyerahan     *string `json:"catatanPenyerahan"`
+	NamaPenerima          *string `json:"namaPenerima"`
+	NIPPenyerah           *string `json:"nipPenyerah"`
+	StatusSelesai         *int    `json:"statusSelesai"`
+	Status                *string `json:"status"`
+	User_ID               *uint64 `json:"user_ID"`
+	TanggalPenyerahan     *string `json:"tanggalPenyerahan"`
+
+	PstDataOPBaru            *RegPstDataOPBaru            `json:"pstBaru"`
+	PstDetail                *RegPstDetail                `json:"pstDetil"`
+	PstPermohonanPengurangan *RegPstPermohonanPengurangan `json:"pstPengurangan"`
+	PstLampiran              *RegPstLampiran              `json:"pstLampiran"`
+
+	PstOpjekPajakPBB *mroppbb.CreateDto `json:"oppbb"`
 }
 
 type FilterDto struct {
@@ -127,6 +168,7 @@ type PstPermohonanResponse struct {
 	TanggalTerima          *datatypes.Date `json:"tanggalTerima"`
 	NIP                    *string         `json:"nip"`
 	PenerimaanBerkas       *string         `json:"penerimaanBerkas"`
+	Status                 *string         `json:"status"`
 
 	PstDataOPBaru            *RegPstDataOPBaru            `json:"pstBaru"`
 	PstDetail                *RegPstDetail                `json:"pstDetil"`
