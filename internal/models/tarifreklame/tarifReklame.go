@@ -11,7 +11,7 @@ type TarifReklame struct {
 	JenisReklame        *string                            `json:"jenisReklame" gorm:"type:varchar(200)"`
 	DasarPengenaan      *string                            `json:"dasarPengenaan" gorm:"type:varchar(100)"`
 	KlasifikasiJalan_Id *string                            `json:"klasifikasiJalan_id" gorm:"type:varchar(3)"`
-	KlasifikasiJalan    *klasifikasijalan.KlasifikasiJalan `json:"omitempty" gorm:"foreignKey:KlasifikasiJalan_Id"`
+	KlasifikasiJalan    *klasifikasijalan.KlasifikasiJalan `json:"klasifikasiJalan,omitempty" gorm:"foreignKey:KlasifikasiJalan_Id"`
 	MasaPajak           *string                            `json:"masaPajak,omitempty" gorm:"size:100"`
 	Tarif               *float64                           `json:"tarif" gorm:"type:decimal"`
 }

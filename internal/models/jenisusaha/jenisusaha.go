@@ -4,7 +4,7 @@ type JenisUsaha struct {
 	Id               uint64            `json:"id" gorm:"primaryKey"`
 	Kode             *string           `json:"kode" gorm:"type:varchar(5)"`
 	Uraian           *string           `json:"uraian" gorm:"type:varchar(100)"`
-	JenisUsahaDetail *JenisUsahaDetail `json:"jenisUsahaDetail,omitempty" gorm:"foreignKey:JenisUsaha_Id;references:Id"`
+	JenisUsahaDetail *JenisUsahaDetail `json:"jenisUsahaDetail,omitempty" gorm:"foreignKey:JenisUsaha_Id;references:Id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 type CreateDto struct {

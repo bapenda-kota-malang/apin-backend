@@ -8,15 +8,16 @@ import (
 )
 
 type FilterDto struct {
-	Npwpd_Id     *uint64         `json:"npwpd_id"`
-	LuasLokasi   *uint           `json:"luasLokasi"`
-	Omset        *float64        `json:"omset"`
-	JumlahPajak  *float64        `json:"jumlahPajak"`
-	JatuhTempo   *datatypes.Date `json:"jatuhTempo"`
-	PeriodeAwal  *datatypes.Date `json:"periodeAwal"`
-	PeriodeAkhir *datatypes.Date `json:"periodeAkhir"`
-	VerifyStatus *string         `json:"verifyStatus"`
-	CreatedAt    *time.Time      `json:"createdAt"`
+	Npwpd_Id       *uint64         `json:"npwpd_id"`
+	Rekening_Objek *string         `json:"rekening_objek" refsource:"Rekening.Objek"`
+	LuasLokasi     *uint           `json:"luasLokasi"`
+	Omset          *float64        `json:"omset"`
+	JumlahPajak    *float64        `json:"jumlahPajak"`
+	JatuhTempo     *datatypes.Date `json:"jatuhTempo"`
+	PeriodeAwal    *datatypes.Date `json:"periodeAwal"`
+	PeriodeAkhir   *datatypes.Date `json:"periodeAkhir"`
+	VerifyStatus   *string         `json:"verifyStatus"`
+	CreatedAt      *time.Time      `json:"createdAt"`
 	// fixed
 	Page     int   `json:"page"`
 	PageSize int64 `json:"page_size"`

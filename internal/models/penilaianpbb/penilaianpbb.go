@@ -24,8 +24,8 @@ type Penyusutan struct {
 type Fasilitas struct {
 	Id             uint64  `json:"id" gorm:"primaryKey"`
 	Fasilitas_Kode string  `json:"fasilitas_kode" gorm:"type:varchar(2)"`
-	Nama           *string `json:"nama" gorm:"type:varchar(20)"`
-	Satuan         *string `json:"satuan" gorm:"type:varchar(2)"`
+	Nama           *string `json:"nama" gorm:"type:varchar(50)"`
+	Satuan         *string `json:"satuan" gorm:"type:varchar(10)"`
 	Status         *string `json:"status" gorm:"type:varchar(1)"`
 	Ketergantungan *string `json:"ketergantungan" gorm:"type:varchar(1)"`
 	gh.DateModel
