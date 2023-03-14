@@ -24,6 +24,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kanwil"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/keberatan/keputusankeberatanpbb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/keberatan/pembetulankeberatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/njoptkp"
@@ -607,6 +608,14 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", keputusankeberatanpbb.Update)
 		r.Delete("/{id}", keputusankeberatanpbb.Delete)
 		r.Patch("/verify/{id}", keputusankeberatanpbb.Verify)
+	})
+
+	r.Route("/pembetulanskkeberatan", func(r chi.Router) {
+		r.Get("/", pembetulankeberatan.GetList)
+		r.Get("/{id}", pembetulankeberatan.GetDetail)
+		r.Post("/", pembetulankeberatan.Create)
+		r.Patch("/{id}", pembetulankeberatan.Update)
+		r.Delete("/{id}", pembetulankeberatan.Delete)
 	})
 
 	r.Route("/baplpengajuan", func(r chi.Router) {
