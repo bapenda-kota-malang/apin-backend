@@ -112,27 +112,7 @@ func GetDetail(id uuid.UUID, user_Id uint) (any, error) {
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
-	// if len(*data.DetailEsptAir) == 0 {
-	// 	data.DetailEsptAir = nil
-	// }
-	if len(*data.DetailEsptHotel) == 0 {
-		data.DetailEsptHotel = nil
-	}
-	// if len(*data.DetailEsptHiburan) == 0 {
-	// 	data.DetailEsptHiburan = nil
-	// }
-	if len(*data.DetailEsptParkir) == 0 {
-		data.DetailEsptParkir = nil
-	}
-	// if len(*data.DetailEsptResto) == 0 {
-	// 	data.DetailEsptResto = nil
-	// }
-	// if len(*data.DetailEsptPpjNonPln) == 0 {
-	// 	data.DetailEsptPpjNonPln = nil
-	// }
-	if len(*data.DetailEsptPpjPln) == 0 {
-		data.DetailEsptPpjPln = nil
-	}
+
 	return rp.OKSimple{
 		Data: data,
 	}, nil
