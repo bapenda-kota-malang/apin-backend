@@ -9,6 +9,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"gorm.io/datatypes"
 
+	ori "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	mroppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 )
 
@@ -103,11 +104,15 @@ type PermohonanApprovalRequestDto struct {
 	Status                *string `json:"status"`
 	User_ID               *uint64 `json:"user_ID"`
 	TanggalPenyerahan     *string `json:"tanggalPenyerahan"`
+	CatatanApproval       *string `json:"catatanApproval"`
+	Jabatan               *string `json:"jabatan"`
+	Divisi                *string `json:"divisi"`
 
 	PstDataOPBaru            *RegPstDataOPBaru            `json:"pstBaru"`
 	PstDetail                *RegPstDetail                `json:"pstDetil"`
 	PstPermohonanPengurangan *RegPstPermohonanPengurangan `json:"pstPengurangan"`
 	PstLampiran              *RegPstLampiran              `json:"pstLampiran"`
+	PstLogApproval           *[]ori.PstLogApproval        `json:"pstLogApproval"`
 
 	PstOpjekPajakPBB *mroppbb.CreateDto `json:"oppbb"`
 }
@@ -169,11 +174,13 @@ type PstPermohonanResponse struct {
 	NIP                    *string         `json:"nip"`
 	PenerimaanBerkas       *string         `json:"penerimaanBerkas"`
 	Status                 *string         `json:"status"`
+	CatatanApproval        *string         `json:"catatanApproval"`
 
 	PstDataOPBaru            *RegPstDataOPBaru            `json:"pstBaru"`
 	PstDetail                *RegPstDetail                `json:"pstDetil"`
 	PstPermohonanPengurangan *RegPstPermohonanPengurangan `json:"pstPengurangan"`
 	PstLampiran              *RegPstLampiran              `json:"pstLampiran"`
+	PstLogApproval           *[]ori.PstLogApproval        `json:"pstLogApproval"`
 
 	// PembetulanSpptSKPSTP     *PembetulanSpptSKPSTP     `json:"pembetulanSpptSKPSTP"`
 	// PembatalanSppt           *PembatalanSppt           `json:"pembatalanSppt"`
@@ -190,7 +197,11 @@ type RequestApprovalPermohonan struct {
 	NOP         *string `json:"nop"`
 	NIP         *string `json:"nip"`
 	Status      *string `json:"status"`
-	User_ID     *uint64 `json:"user_ID"`
+	User_ID     *uint64 `json:"user_id"`
+	Catatan     *string `json:"catatan"`
+	Keterangan  *string `json:"keterangan"`
+	Jabatan     *string `json:"jabatan"`
+	Divisi      *string `json:"divisi"`
 	gormhelper.DateModel
 }
 

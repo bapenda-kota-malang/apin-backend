@@ -239,11 +239,13 @@ func GetDetailApproval(id int) (interface{}, error) {
 		permohonanDetail      *m.RegPstDetail
 		permohonanPengurangan *m.RegPstPermohonanPengurangan
 		lampiran              *m.RegPstLampiran
-		oppbb                 *mroppbb.RegObjekPajakPbb
-		wppbb                 *mrwppbb.RegWajibPajakPbb
-		optnh                 *mroptnh.RegObjekPajakBumi
-		opbng                 []mropbng.RegObjekPajakBangunan
-		opfas                 []mropfas.RegFasilitasBangunan
+		approval              *[]ori.PstLogApproval
+
+		oppbb *mroppbb.RegObjekPajakPbb
+		wppbb *mrwppbb.RegWajibPajakPbb
+		optnh *mroptnh.RegObjekPajakBumi
+		opbng []mropbng.RegObjekPajakBangunan
+		opfas []mropfas.RegFasilitasBangunan
 
 		tempmroppbb mroppbb.CreateDto
 
@@ -261,7 +263,9 @@ func GetDetailApproval(id int) (interface{}, error) {
 	if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanDetail); result.Error != nil {
 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Detail", permohonanDetail)
 	}
+
 	_ = a.DB.Where("PermohonanId", data.Id).First(&lampiran)
+	_ = a.DB.Where("Permohonan_Id", data.Id).Find(&approval)
 
 	if *data.BundelPelayanan == m.JenisPelayanan[0] {
 		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanBaru); result.Error != nil {
@@ -309,6 +313,7 @@ func GetDetailApproval(id int) (interface{}, error) {
 	finalresult.PstPermohonanPengurangan = permohonanPengurangan
 	finalresult.PstLampiran = lampiran
 	finalresult.PstOpjekPajakPBB = &tempmroppbb
+	finalresult.PstLogApproval = approval
 
 	if resBang := a.DB.
 		Where("PstPermohonan_id", data.Id).
@@ -741,28 +746,50 @@ func Approval(kd string, auth int, input m.RequestApprovalPermohonan, tx *gorm.D
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.RegPstPermohonan
+	var (
+		data     *m.RegPstPermohonan
+		approval ori.PstLogApproval
+	)
+
 	result := tx.First(&data, "\"Id\" = ?", input.Id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
 
-	data.Status = input.Status
-
 	if kd == "00" && auth == 4 {
 		//baru
 	} else if kd == "01" && auth == 4 {
-		//diterima
-	} else if kd == "02" && auth == 4 {
-		//ditolak
+		//diterima staff
+	} else if kd == "03" && auth == 4 {
+		//diterima kabid
 	} else if auth == 0 {
 		//admin
 	} else {
 		return sh.SetError("request", "approval-data", source, "failed", "gagal melakukan approval data, user status tidak valid", data)
 	}
 
-	if result := tx.Save(&data); result.Error != nil {
-		return sh.SetError("request", "approval-data", source, "failed", "gagal melakukan approval data", data)
+	data.Status = input.Status
+
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		if result := tx.Save(&data); result.Error != nil {
+			return errors.New("penyimpanan data approval permohonan gagal")
+		}
+
+		approval = ori.PstLogApproval{
+			Permohonan_Id: input.Id,
+			User_id:       strconv.FormatUint(*input.User_ID, 10),
+			Catatan:       *input.Catatan,
+			Keterangan:    *input.Keterangan,
+			Status:        *input.Status,
+		}
+
+		if result := tx.Create(&approval); result.Error != nil {
+			return errors.New("penyimpanan data log approval permohonan gagal")
+		}
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data data: "+err.Error(), data)
 	}
 
 	return rp.OK{
@@ -813,6 +840,13 @@ func UpdateApproval(id int, auth int, input m.PermohonanApprovalRequestDto) (int
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data: "+err.Error(), data)
+	}
+
+	tempStatusApproval := input.Status
+	input.Status = nil
+
+	if err := sc.CopyWithOption(&data, &input, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyalin data: "+err.Error(), data)
 	}
 	data.TahunPelayanan = input.TahunPajak
 
@@ -1640,24 +1674,32 @@ func UpdateApproval(id int, auth int, input m.PermohonanApprovalRequestDto) (int
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data data: "+err.Error(), data)
 	}
 
-	tempApproval := m.RequestApprovalPermohonan{
-		NoPelayanan: data.NoPelayanan,
-		NOP:         input.NOP,
-		NIP:         input.NIP,
-		Status:      input.Status,
-		User_ID:     input.User_ID,
+	var (
+		resultApproval any
+		errApproval    error
+	)
+
+	tempAuth := strconv.Itoa(auth)
+	if tempStatusApproval != nil {
+		tempApproval := m.RequestApprovalPermohonan{
+			Id:          data.Id,
+			NoPelayanan: data.NoPelayanan,
+			NOP:         input.NOP,
+			NIP:         input.NIP,
+			Catatan:     input.CatatanApproval,
+			Jabatan:     &tempAuth,
+			Divisi:      input.Divisi,
+			Status:      tempStatusApproval,
+			User_ID:     input.User_ID,
+		}
+
+		resultApproval, errApproval = Approval(*input.Status, auth, tempApproval, a.DB)
+		if errApproval != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal melakukan approval data: "+errApproval.Error(), data)
+		}
 	}
 
-	resultApproval, errApproval := Approval(*input.Status, auth, tempApproval, a.DB)
-	if errApproval != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data data: "+errApproval.Error(), data)
-	}
-
-	// return rp.OKSimple{Data: data}, nil
 	return rp.OK{
-		// Meta: t.IS{
-		// 	"affected": strconv.Itoa(rowsAffected),
-		// },
 		Data: t.II{
 			"permohonan":     data,
 			"resultApproval": resultApproval,
