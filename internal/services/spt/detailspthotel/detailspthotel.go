@@ -15,12 +15,12 @@ import (
 
 const source = "detailSptHotel"
 
-func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
+func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
 
-	var data []m.DetailSptHotel
+	var data m.DetailSptHotel
 
 	//  copy input (payload) ke struct data jika tidak ada akan error
 	if err := sc.Copy(&data, &input); err != nil {

@@ -105,11 +105,11 @@ type Spt struct {
 	KabidUser        *user.User                   `json:"kabid,omitempty" gorm:"foreignKey:Kabid_User_Id"`
 	DetailSptAir     *mdsa.DetailSptAir           `json:"detailSptAir,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptHiburan *mdhiburan.DetailSptHiburan  `json:"detailSptHiburan,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptHotel   *[]mdsh.DetailSptHotel       `json:"detailSptHotel,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptParkir  *[]mdsp.DetailSptParkir      `json:"detailSptParkir,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptHotel   *mdsh.DetailSptHotel         `json:"detailSptHotel,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptParkir  []mdsp.DetailSptParkir       `json:"detailSptParkir,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptNonPln  *mdnonpln.DetailSptPpjNonPln `json:"detailSptPpjNonPln,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptPln     *[]mdpln.DetailSptPpjPln     `json:"detailSptPpjPln,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptReklame *[]mdsrek.DetailSptReklame   `json:"detailSptReklame,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptPln     []mdpln.DetailSptPpjPln      `json:"detailSptPpjPln,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptReklame []mdsrek.DetailSptReklame    `json:"detailSptReklame,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptResto   *mdsres.DetailSptResto       `json:"detailSptResto,omitempty" gorm:"foreignKey:Spt_Id"`
 	// JaminanBongkarReklame *[]mdsjbr.JaminanBongkarReklame `json:"jaminanBongkarReklame,omitempty" gorm:"foreignKey:Spt_Id"`
 	// Teguran     *teguran.Teguran `json:"teguran,omitempty" gorm:"foreignKey:Teguran_Id"`

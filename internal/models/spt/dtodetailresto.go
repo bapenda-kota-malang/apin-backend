@@ -33,7 +33,7 @@ func (input *CreateDetailRestoDto) DuplicateEspt(esptDetail *mespt.Espt) error {
 	if err := input.CreateDetailBaseDto.DuplicateEspt(esptDetail); err != nil {
 		return err
 	}
-	if err := copier.Copy(&input.DataDetails, &esptDetail); err != nil {
+	if err := copier.Copy(&input.DataDetails, &esptDetail.DetailEsptResto); err != nil {
 		return err
 	}
 	return nil
@@ -43,7 +43,7 @@ func (input *CreateDetailRestoDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *Skpdk
 	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
 		return err
 	}
-	if err := copier.Copy(&input.DataDetails, &sptDetail); err != nil {
+	if err := copier.Copy(&input.DataDetails, &sptDetail.DetailSptResto); err != nil {
 		return err
 	}
 	return nil
