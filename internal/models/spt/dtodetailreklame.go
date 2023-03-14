@@ -112,7 +112,7 @@ func (input *CreateDetailReklameDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *Skp
 	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
 		return err
 	}
-	if err := copier.Copy(&input.DataDetails, &sptDetail); err != nil {
+	if err := copier.Copy(&input.DataDetails, &sptDetail.DetailSptReklame); err != nil {
 		return err
 	}
 	return nil

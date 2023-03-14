@@ -37,7 +37,7 @@ func (input *CreateDetailHotelDto) DuplicateEspt(esptDetail *mespt.Espt) error {
 	if err := input.CreateDetailBaseDto.DuplicateEspt(esptDetail); err != nil {
 		return err
 	}
-	if err := copier.Copy(&input.DataDetails, &esptDetail); err != nil {
+	if err := copier.CopyWithOption(&input.DataDetails, &esptDetail.DetailEsptHotel, copier.Option{DeepCopy: true}); err != nil {
 		return err
 	}
 	return nil
@@ -47,7 +47,7 @@ func (input *CreateDetailHotelDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *Skpdk
 	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
 		return err
 	}
-	if err := copier.Copy(&input.DataDetails, &sptDetail); err != nil {
+	if err := copier.CopyWithOption(&input.DataDetails, &sptDetail.DetailSptHotel, copier.Option{DeepCopy: true}); err != nil {
 		return err
 	}
 	return nil

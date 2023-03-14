@@ -150,13 +150,13 @@ func TransformEspt(esptDetail *mespt.Espt) (input m.Input, err error) {
 		input = &m.CreateDetailAirDto{}
 	} else if esptDetail.DetailEsptHiburan != nil {
 		input = &m.CreateDetailHiburanDto{}
-	} else if esptDetail.DetailEsptParkir != nil {
+	} else if len(esptDetail.DetailEsptParkir) != 0 {
 		input = &m.CreateDetailParkirDto{}
 	} else if esptDetail.DetailEsptHotel != nil {
 		input = &m.CreateDetailHotelDto{}
 	} else if esptDetail.DetailEsptPpjNonPln != nil {
 		input = &m.CreateDetailPpjNonPlnDto{}
-	} else if esptDetail.DetailEsptPpjPln != nil {
+	} else if len(esptDetail.DetailEsptPpjPln) != 0 {
 		input = &m.CreateDetailPpjPlnDto{}
 	} else if esptDetail.DetailEsptResto != nil {
 		input = &m.CreateDetailRestoDto{}
