@@ -655,6 +655,39 @@ func UpdatePelayananWP(id int, input m.UpdateDto, from string, authInfo *auth.Au
 	}, nil
 }
 
+func UpdateRtRwMassal(input m.UpdateRtRwMassalDto) (any, error) {
+	var data []m.ObjekPajakPbb
+	result := a.DB.
+		Where("Provinsi_Kode", input.Provinsi_Kode).
+		Where("Daerah_Kode", input.Daerah_Kode).
+		Where("Kecamatan_Kode", input.Kecamatan_Kode).
+		Where("Kelurahan_Kode", input.Kelurahan_Kode).
+		Where("\"Blok_Kode\" BETWEEN ? AND ?", input.AwalBlok_Kode, input.AkhirBlok_Kode).
+		Where("NOT (\"Blok_Kode\" = ? AND \"NoUrut\" < ?)", input.AwalBlok_Kode, input.AwalNoUrut).
+		Where("NOT (\"Blok_Kode\" = ? AND \"NoUrut\" > ?)", input.AkhirBlok_Kode, input.AkhirNoUrut).
+		Where("\"JenisOp\" BETWEEN ? AND ?", input.AwalJenisOp, input.AkhirJenisOp).
+		Find(&data)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "update-data", source, "failed", "update rt rw massal error: data tidak ditemukan", data)
+	}
+
+	for i := 0; i < len(data); i++ {
+		data[i].Rt = input.Rt
+		data[i].Rw = input.Rw
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
 func Delete(id int, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB

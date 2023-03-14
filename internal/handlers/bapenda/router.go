@@ -640,6 +640,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", objekpajakpbb.Create)
 		r.Get("/", objekpajakpbb.GetList)
 		r.Get("/{id}", objekpajakpbb.GetDetail)
+		r.Patch("/rtrwmassal", objekpajakpbb.UpdateRtRwMassal)
 	})
 
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
