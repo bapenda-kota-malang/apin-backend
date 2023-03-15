@@ -12,10 +12,10 @@ import (
 
 type DPHiburanUsecase struct {
 	DPBaseUsecase
-	DetailPajakDtos m.CreateDtoDPHiburan
+	DetailPajakDtos []m.CreateDtoDPHiburan
 }
 
-func NewDPHiburanUsecase(baseDto DPBaseUsecase, detailPajakDto m.CreateDtoDPHiburan) m.Input {
+func NewDPHiburanUsecase(baseDto DPBaseUsecase, detailPajakDto []m.CreateDtoDPHiburan) m.Input {
 	return &DPHiburanUsecase{baseDto, detailPajakDto}
 }
 
@@ -28,7 +28,9 @@ func (s *DPHiburanUsecase) ReplacePotensiOpId(id uuid.UUID) {
 	for v := range s.PotensiNarahubungs {
 		s.PotensiNarahubungs[v].Potensiop_Id = id
 	}
-	s.DetailPajakDtos.Potensiop_Id = id
+	for v := range s.DetailPajakDtos {
+		s.DetailPajakDtos[v].Potensiop_Id = id
+	}
 }
 
 func (s *DPHiburanUsecase) GetDetailPotensiPajak() interface{} {

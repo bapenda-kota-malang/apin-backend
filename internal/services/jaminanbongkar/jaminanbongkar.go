@@ -98,7 +98,7 @@ func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJamb
 	}
 
 	detailSptReklameMap := make(map[uint64]mdsrek.DetailSptReklame)
-	for _, v := range *dataSpt.DetailSptReklame {
+	for _, v := range dataSpt.DetailSptReklame {
 		if _, ok := dataDetailsMap[v.Id]; !ok {
 			dataDetails = append(dataDetails, m.DetailJambong{DetailSptReklame_id: v.Id})
 		}

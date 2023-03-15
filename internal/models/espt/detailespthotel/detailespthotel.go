@@ -4,35 +4,36 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptair"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type DetailEsptHotel struct {
 	detailesptair.DetailEspt
-	GolonganKamar       *string  `json:"golonganKamar" gorm:"size:20"`
-	Tarif               *float32 `json:"tarif"`
-	JumlahKamar         *uint    `json:"jumlahKamar"`
-	JumlahKamarYangLaku *uint    `json:"jumlahKamarYangLaku"`
-	KasRegister         bool     `json:"kasRegister"`
-	Pembukuan           bool     `json:"pembukuan"`
+	GolonganKamar       *pq.StringArray  `json:"golonganKamar" gorm:"type:varchar[]"`
+	Tarif               *pq.Float32Array `json:"tarif" gorm:"type:numeric[]"`
+	JumlahKamar         *pq.Int32Array   `json:"jumlahKamar" gorm:"type:integer[]"`
+	JumlahKamarYangLaku *pq.Int32Array   `json:"jumlahKamarYangLaku" gorm:"type:integer[]"`
+	KasRegister         bool             `json:"kasRegister"`
+	Pembukuan           bool             `json:"pembukuan"`
 	gormhelper.DateModel
 }
 
 type CreateDto struct {
 	Espt_Id             uuid.UUID
-	GolonganKamar       *string  `json:"golonganKamar"`
-	Tarif               *float32 `json:"tarif"`
-	JumlahKamar         *uint    `json:"jumlahKamar"`
-	JumlahKamarYangLaku *uint    `json:"jumlahKamarYangLaku"`
-	KasRegister         bool     `json:"kasRegister" validate:"required"`
-	Pembukuan           bool     `json:"pembukuan" validate:"required"`
+	GolonganKamar       *pq.StringArray  `json:"golonganKamar"`
+	Tarif               *pq.Float32Array `json:"tarif"`
+	JumlahKamar         *pq.Int32Array   `json:"jumlahKamar"`
+	JumlahKamarYangLaku *pq.Int32Array   `json:"jumlahKamarYangLaku"`
+	KasRegister         bool             `json:"kasRegister" validate:"required"`
+	Pembukuan           bool             `json:"pembukuan" validate:"required"`
 }
 
 type UpdateDto struct {
-	Id                  uint     `json:"id"`
-	GolonganKamar       *string  `json:"golonganKamar"`
-	Tarif               *float32 `json:"tarif"`
-	JumlahKamar         *uint    `json:"jumlahKamar"`
-	JumlahKamarYangLaku *uint    `json:"jumlahKamarYangLaku"`
-	KasRegister         bool     `json:"kasRegister"`
-	Pembukuan           bool     `json:"pembukuan"`
+	Id                  uint             `json:"id"`
+	GolonganKamar       *pq.StringArray  `json:"golonganKamar"`
+	Tarif               *pq.Float32Array `json:"tarif"`
+	JumlahKamar         *pq.Int32Array   `json:"jumlahKamar"`
+	JumlahKamarYangLaku *pq.Int32Array   `json:"jumlahKamarYangLaku"`
+	KasRegister         *bool            `json:"kasRegister"`
+	Pembukuan           *bool            `json:"pembukuan"`
 }
