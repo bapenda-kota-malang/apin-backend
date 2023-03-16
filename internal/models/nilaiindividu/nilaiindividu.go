@@ -45,7 +45,14 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	nop.NopDetail
+	Provinsi_Kode          *string         `json:"provinsi_kode"`
+	Daerah_Kode            *string         `json:"daerah_kode"`
+	Kecamatan_Kode         *string         `json:"kecamatan_kode"`
+	Kelurahan_Kode         *string         `json:"kelurahan_kode"`
+	Blok_Kode              *string         `json:"blok_kode"`
+	NoUrut                 *string         `json:"noUrut"`
+	JenisOp                *string         `json:"jenisOp"`
+	Area_Kode              *string         `json:"area_kode"`
 	NoBangunan             *int            `json:"noBangunan"`
 	NoFormulir             *string         `json:"noFormulir"`
 	NilaiIndividu          *float32        `json:"nilaiIndividu"`
@@ -54,6 +61,17 @@ type FilterDto struct {
 	TglPemeriksaanIndividu *datatypes.Date `json:"tglPemeriksaanIndividu"`
 	NipPemeriksaanIndividu *string         `json:"nipPemeriksaanIndividu"`
 	NipCreate              *string         `json:"nipCreate"`
+	BlokNOP                *string         `json:"blok_nop"`
 	Page                   int             `json:"page"`
 	PageSize               int             `json:"page_size"`
+}
+
+// response
+type ListResponse struct {
+	BlokNOP         string   `json:"blok_nop"`
+	LetakObjekPajak *string  `json:"letak_objek_pajak"`
+	NamaWP          *string  `json:"nama_wp"`
+	NoBng           *int     `json:"no_bng"`
+	NilaiSistem     *int     `json:"nilai_sistem"`
+	NilaiIndividu   *float32 `json:"nilai_individu"`
 }

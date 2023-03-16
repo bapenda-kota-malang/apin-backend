@@ -159,6 +159,7 @@ func GetList(input m.FilterDto) (any, error) {
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
+		Preload("Rekening").
 		Preload("PotensiPemilikWp").
 		Preload("DetailPotensiOp.Kecamatan").
 		Preload("DetailPotensiOp.Kelurahan").
@@ -198,7 +199,7 @@ func GetDetail(id uuid.UUID) (any, error) {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
 
-	dataBapl := *data.Bapl
+	dataBapl := data.Bapl
 	for i := 0; i < len(dataBapl); i++ {
 		if dataBapl[i].Petugas_Pegawai_Id == nil {
 			continue
@@ -212,7 +213,7 @@ func GetDetail(id uuid.UUID) (any, error) {
 		}
 		dataBapl[i].Petugas = dataPetugas
 	}
-	data.Bapl = &dataBapl
+	data.Bapl = dataBapl
 
 	return rp.OKSimple{
 		Data: data,

@@ -24,9 +24,11 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kanwil"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/keberatan/keputusankeberatanpbb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/keberatan/pembetulankeberatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/njoptkp"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pelayanan/pstdetail"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penetapanmassal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/referensibuku"
@@ -240,6 +242,8 @@ func SetRoutes() http.Handler {
 	r.Patch("/sppt/cetakdaftartagihan", sppt.CetakDaftarTagihan)
 	r.Patch("/sppt/penilaian", sppt.Penilaian)
 	rh.RegCrud(r, "/sppt", sppt.Crud{})
+	r.Post("/sppt/rincian", sppt.Rincian)
+	r.Post("/sppt/salinan", sppt.Salinan)
 
 	r.Post("/sksk/cetak", sksk.Cetak)
 	rh.RegCrud(r, "/sksk", sksk.Crud{})
@@ -608,6 +612,14 @@ func SetRoutes() http.Handler {
 		r.Patch("/verify/{id}", keputusankeberatanpbb.Verify)
 	})
 
+	r.Route("/pembetulanskkeberatan", func(r chi.Router) {
+		r.Get("/", pembetulankeberatan.GetList)
+		r.Get("/{id}", pembetulankeberatan.GetDetail)
+		r.Post("/", pembetulankeberatan.Create)
+		r.Patch("/{id}", pembetulankeberatan.Update)
+		r.Delete("/{id}", pembetulankeberatan.Delete)
+	})
+
 	r.Route("/baplpengajuan", func(r chi.Router) {
 		r.Post("/", baplpengajuan.Create)
 		r.Get("/", baplpengajuan.GetList)
@@ -640,6 +652,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", objekpajakpbb.Create)
 		r.Get("/", objekpajakpbb.GetList)
 		r.Get("/{id}", objekpajakpbb.GetDetail)
+		r.Patch("/rtrwmassal", objekpajakpbb.UpdateRtRwMassal)
 	})
 
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
@@ -699,6 +712,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/indukobjekpajak", indukobjekpajak.Crud{})
 
 	rh.RegCrud(r, "/njoptkp", njoptkp.Crud{})
+
+	r.Get("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
 
 	return r
 }

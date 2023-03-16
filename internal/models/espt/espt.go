@@ -47,10 +47,10 @@ type Espt struct {
 	VerifyUser          *user.User                    `json:"verifyUser,omitempty" gorm:"foreignKey:VerifyBy_User_Id"`
 	DetailEsptAir       *mdair.DetailEsptAir          `json:"detailEsptAir,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptHiburan   *mdhib.DetailEsptHiburan      `json:"detailEsptHiburan,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptHotel     *[]mdhot.DetailEsptHotel      `json:"detailEsptHotel,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptParkir    *[]mdpar.DetailEsptParkir     `json:"detailEsptParkir,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptHotel     *mdhot.DetailEsptHotel        `json:"detailEsptHotel,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptParkir    []mdpar.DetailEsptParkir      `json:"detailEsptParkir,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptPpjNonPln *mdnonpln.DetailEsptPpjNonPln `json:"detailEsptPpjNonPln,omitempty" gorm:"foreignKey:Espt_Id"`
-	DetailEsptPpjPln    *[]mdpln.DetailEsptPpjPln     `json:"detailEsptPpjPln,omitempty" gorm:"foreignKey:Espt_Id"`
+	DetailEsptPpjPln    []mdpln.DetailEsptPpjPln      `json:"detailEsptPpjPln,omitempty" gorm:"foreignKey:Espt_Id"`
 	DetailEsptResto     *mdres.DetailEsptResto        `json:"detailEsptResto,omitempty" gorm:"foreignKey:Espt_Id"`
 	gormhelper.DateModel
 }

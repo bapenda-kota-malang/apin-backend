@@ -248,3 +248,23 @@ type PenetapanMassalDto struct {
 type SpPenetapanMassal struct {
 	PenetepanMassal *float64 `gorm:"column:penetapan_massal"`
 }
+
+type NOPDetail struct {
+	Blok_Id    *string `json:"blok_Id"`
+	NoUrut     *string `json:"noUrut"`
+	JenisOP_Id *string `json:"jenisOP_Id"`
+}
+
+type NOPRange struct {
+	Start *NOPDetail `json:"start"`
+	End   *NOPDetail `json:"end"`
+}
+
+type SalinanDto struct {
+	Propinsi_Id        *string     `json:"propinsi_Id"`
+	Dati2_Id           *string     `json:"dati2_Id"`
+	Kecamatan_Id       *string     `json:"kecamatan_Id"`
+	Keluarahan_Id      *string     `json:"keluarahan_Id"`
+	TahunPajakskp_sppt *string     `json:"tahunPajakskp_sppt"`
+	NOPRange           []*NOPRange `json:"nop_range"`
+}
