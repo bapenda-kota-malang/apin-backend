@@ -1,6 +1,8 @@
 package sppt
 
 import (
+	"time"
+
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"gorm.io/datatypes"
 )
@@ -247,6 +249,44 @@ type PenetapanMassalDto struct {
 
 type SpPenetapanMassal struct {
 	PenetepanMassal *float64 `gorm:"column:penetapan_massal"`
+}
+
+type ListCatatanPembayaranPbbResponse struct {
+	NamaWajibPajak  *string                        `json:"namaWajibPajak"`
+	JalanObjekPajak *string                        `json:"jalanObjekPajak"`
+	JalanWajibPajak *string                        `json:"jalanWajibPajak"`
+	BlokKavNo       *string                        `json:"blokKavNo"`
+	BlokKavNo2      *string                        `json:"blokKavNo2"`
+	List            []CatatanPembayaranPbbResponse `json:"list"`
+}
+
+type CatatanPembayaranPbbResponse struct {
+	Tahun        *string        `json:"tahun"`
+	JatuhTempo   string         `json:"jatuhTempo"`
+	Pbb          *int           `json:"pbb"`
+	JumlahBayar  int64          `json:"jumlahBayar"`
+	Ke           uint8          `json:"ke"`
+	TanggalBayar datatypes.Date `json:"tanggalBayar"`
+	TanggalRekam time.Time      `json:"tanggalRekam"`
+	Perekam      string         `json:"perekam"`
+	Bank         string         `json:"bank"`
+}
+
+type ListCatatanSejarahWPResponse struct {
+	AlamatObjekPajak *string             `json:"alamatObjekPajak"`
+	Kelurahan        *string             `json:"kelurahan"`
+	RT_RW            string              `json:"rt_rw"`
+	LuasTanah        *int                `json:"luasTanah"`
+	List             []SejarahWPResponse `json:"list"`
+}
+
+type SejarahWPResponse struct {
+	TahunPajak        *string         `json:"tahunPajak"`
+	TanggalCetak      *datatypes.Date `json:"tanggalCetak"`
+	TanggalJatuhTempo *datatypes.Date `json:"tanggalJatuhTempo"`
+	TanggalTerbit     *datatypes.Date `json:"tanggalTerbit"`
+	NamaWajibPajak    *string         `json:"namaWajibPajak"`
+	AlamatWajibPajak  *string         `json:"alamatWajibPajak"`
 }
 
 type NOPDetail struct {
