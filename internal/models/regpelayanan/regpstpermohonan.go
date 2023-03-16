@@ -181,6 +181,7 @@ type PstPermohonanResponse struct {
 	PstPermohonanPengurangan *RegPstPermohonanPengurangan `json:"pstPengurangan"`
 	PstLampiran              *RegPstLampiran              `json:"pstLampiran"`
 	PstLogApproval           *[]ori.PstLogApproval        `json:"pstLogApproval"`
+	PstLogApprovalRes        *ori.ResponsePSTLogApproval  `json:"pstLogApprovalRes"`
 
 	// PembetulanSpptSKPSTP     *PembetulanSpptSKPSTP     `json:"pembetulanSpptSKPSTP"`
 	// PembatalanSppt           *PembatalanSppt           `json:"pembatalanSppt"`
