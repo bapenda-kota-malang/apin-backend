@@ -44,6 +44,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/espt/detailesptresto"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/geojson"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/group"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/indukobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
@@ -187,7 +188,7 @@ func GetModelList() (data []interface{}) {
 	listModelManagementUser := []interface{}{
 		&mu.User{},
 		&mut.UserToken{},
-		// &group.Group{},
+		&group.Group{},
 		&menu.Menu{},
 		&pegawai.Pegawai{},
 		&ppat.Ppat{},
@@ -226,7 +227,7 @@ func GetModelList() (data []interface{}) {
 	data = append(data, listModelNpwpd...)
 
 	listModelPendataan := []interface{}{
-		// &potensiopwp.PotensiOp{},
+		&potensiopwp.PotensiOp{},
 		&bapl.PotensiBapl{},
 		&detailpotensiop.DetailPotensiOp{},
 		&potensipemilikwp.PotensiPemilikWp{},
