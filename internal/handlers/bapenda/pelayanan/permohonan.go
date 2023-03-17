@@ -109,7 +109,7 @@ func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=list_permohonan.xlsx")
+	w.Header().Set("Content-Disposition", "attachment; filename=list-permohonan.xlsx")
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	result.Write(w)
 }
@@ -140,7 +140,7 @@ func DownloadPdf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// set header response
-	w.Header().Set("Content-Disposition", "attachment; filename=report.pdf")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=report-permohonan-%d.pdf", id))
 	w.Header().Set("Content-Type", "application/pdf")
 	w.Header().Set("Content-Length", strconv.Itoa(len(fileContent)))
 
