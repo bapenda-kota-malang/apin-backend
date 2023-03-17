@@ -11,6 +11,7 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bankpersepsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bapenagihan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/catatanpembayaranpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datanir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetablok"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetaznt"
@@ -713,6 +714,13 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/njoptkp", njoptkp.Crud{})
 
+	r.Route("/catatanpembayaranpbb", func(r chi.Router) {
+		r.Get("/", catatanpembayaranpbb.ListCatatanPembayaranPbb)
+	})
+
+	r.Route("/catatansejarahwp", func(r chi.Router) {
+		r.Get("/", sppt.ListCatataSejarahWp)
+	})
 	r.Get("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
 
 	return r
