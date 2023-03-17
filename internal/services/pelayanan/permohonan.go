@@ -4,6 +4,12 @@ package permohonan
 import (
 	"errors"
 	"fmt"
+	mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	skec "github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
+	skel "github.com/bapenda-kota-malang/apin-backend/internal/services/kelurahan"
+	rpth "github.com/bapenda-kota-malang/apin-backend/pkg/reporthelper"
+	strh "github.com/bapenda-kota-malang/apin-backend/pkg/stringhelper"
+	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -14,14 +20,6 @@ import (
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 
-	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
-	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
-	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
-	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
-
 	mopfas "github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
 	mopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	moptnh "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
@@ -31,6 +29,13 @@ import (
 	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	mwppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
+	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	// oppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	// wppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 )
@@ -700,6 +705,11 @@ func Delete(id int) (interface{}, error) {
 	}, nil
 }
 
+type ResponseFile struct {
+	ID       int    `json:"id"`
+	FileName string `json:"fileName"`
+}
+
 func DownloadPdf(id int) (interface{}, error) {
 	var (
 		data                  *m.PstPermohonan
@@ -718,6 +728,7 @@ func DownloadPdf(id int) (interface{}, error) {
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", data)
 	}
+
 	if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanDetail); result.Error != nil {
 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Detail", permohonanDetail)
 	}
@@ -731,50 +742,87 @@ func DownloadPdf(id int) (interface{}, error) {
 			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
 		}
 	}
-	// else if *data.BundelPelayanan == m.JenisPelayanan[2] {
-	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&pembetulanSpptSKPSTP); result.Error != nil {
-	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembetulan", pembetulanSpptSKPSTP)
-	// 	}
-	// } else if *data.BundelPelayanan == m.JenisPelayanan[3] {
-	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&pembatalanSppt); result.Error != nil {
-	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembatalan SPPT", pembatalanSppt)
-	// 	}
-	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&SkSk); result.Error != nil {
-	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pembatalan SKP", SkSk)
-	// 	}
-	// } else if *data.BundelPelayanan == m.JenisPelayanan[8] {
-	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&SPMKP); result.Error != nil {
-	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data restitusi dan kompensasi", SPMKP)
-	// 	}
-	// } else if *data.BundelPelayanan == m.JenisPelayanan[5] || *data.BundelPelayanan == m.JenisPelayanan[6] {
-	// 	if result := a.DB.Where("PermohonanId", data.Id).First(&keputusanKeberatanPbb); result.Error != nil {
-	// 		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data keberatan", keputusanKeberatanPbb)
-	// 	}
-	// }
 
-	finalresult := data.SetPstPermohonanResponse()
-	finalresult.PstDataOPBaru = permohonanBaru
-	finalresult.PstDetail = permohonanDetail
-	finalresult.PstPermohonanPengurangan = permohonanPengurangan
+	dataDetail, err := GetDetail(id)
+	finalresultTmp := dataDetail.(rp.OKSimple).Data.(m.PstPermohonanResponse)
+
+	idKel, err1 := strconv.Atoi(*finalresultTmp.PstDetail.PermohonanKelurahanID)
+	idKec, err2 := strconv.Atoi(*finalresultTmp.PstDetail.PermohonanKecamatanID)
+	var (
+		dataKelurahan = &mad.Kelurahan{}
+		dataKecamatan = &mad.Kecamatan{}
+	)
+	if err1 == nil {
+		tmpKel, _ := skel.GetDetail(idKel)
+		dataKelurahan = tmpKel.(rp.OKSimple).Data.(*mad.Kelurahan)
+	}
+	if err2 == nil {
+		tmpKec, _ := skec.GetDetail(idKec)
+		dataKecamatan = tmpKec.(rp.OKSimple).Data.(*mad.Kecamatan)
+	}
+	var rawNop = strh.NullToAny(finalresultTmp.NOP, "-")
+	var rawJP = strh.NullToAny(finalresultTmp.BundelPelayanan, "-")
+	var dataJP = m.FindJenisPelayananByID(rawJP)
+	var rawBerkas = strh.NullToAny(finalresultTmp.PenerimaanBerkas, "-")
+	var listBerkas = strings.Split(rawBerkas, ",")
+
+	var jpList = []*rpth.TCheckList{}
+	for id, jp := range m.JenisBerkasPermohonan {
+		var newVal = &rpth.TCheckList{
+			Nomer:  strconv.Itoa(id + 1),
+			Text:   jp,
+			Status: "",
+		}
+		jpList = append(jpList, newVal)
+	}
+	print(jpList)
+	for _, berkas := range listBerkas {
+		idxBerkas, error := strconv.Atoi(strh.IsNumeric(berkas))
+
+		if error == nil {
+			jpList[idxBerkas].Status = "x"
+		}
+	}
+	var nopDot = m.DecodeNOPPermohonan(&rawNop).GetNopDotFormat()
+	var finalresult = map[string]interface{}{
+		"Data": map[string]string{
+			"noPelayanan":       strh.NullToAny(finalresultTmp.NoPelayanan, "-"),
+			"nop":               rawNop,
+			"bundlePelayanan":   strh.NullToAny(finalresultTmp.BundelPelayanan, "-"),
+			"noUrutPelayanan":   strh.NullToAny(finalresultTmp.NoUrutPelayanan, "-"),
+			"noSuratPermohonan": strh.NullToAny(finalresultTmp.NoSuratPermohonan, "-"),
+			"namaWP":            strh.NullToAny(finalresultTmp.NamaPemohon, "-"),
+			"letakOP":           strh.NullToAny(finalresultTmp.AlamatPemohon, "-"),
+			"keterangan":        strh.NullToAny(finalresultTmp.Keterangan, "-"),
+			"catatan":           strh.NullToAny(finalresultTmp.CatatanPermohonan, "-"),
+			"nip":               strh.NullToAny(finalresultTmp.NIP, "-"),
+		},
+		"Custom": map[string]string{
+			"NOP":            nopDot,
+			"Kelurahan":      strh.NullToAny(&dataKelurahan.Nama, "-"),
+			"Kecamatan":      strh.NullToAny(&dataKecamatan.Nama, "-"),
+			"JenisPelayanan": strh.NullToAny(&dataJP.Name, "-"),
+			"TglSelesai":     th.GetDateFromUTCDatetime(finalresultTmp.PstDetail.TanggalSelesai),
+			"TglPelayanan":   th.GetDateFromUTCDatetime(finalresultTmp.PstDetail.TanggalPenyerahan),
+		},
+		"Checklist": map[string][]*rpth.TCheckList{
+			"JenisBerkas": jpList,
+		},
+	}
 
 	uuid, err := sh.GetUuidv4()
 	if err != nil {
 		return nil, err
 	}
 	fileName := sh.GenerateFilename("permohonan", uuid, 0, "pdf")
-	p := &PermohonanPDF{
-		NoPelayanan: *finalresult.NoPelayanan,
-	}
-	if err := p.GeneratePdf(filepath.Join(sh.GetPdfPath(), fileName)); err != nil {
+
+	outFile := filepath.Join(sh.GetPdfPath(), fileName)
+	if err := GeneratePdf(outFile, finalresult); err != nil {
 		return nil, err
 	}
-	type r struct {
-		ID       int    `json:"id"`
-		FileName string `json:"fileName"`
-	}
-	_r := &r{
+	_r := &ResponseFile{
 		ID:       id,
-		FileName: fileName,
+		FileName: outFile,
 	}
 	return rp.OKSimple{Data: _r}, nil
 }

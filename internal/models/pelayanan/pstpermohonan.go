@@ -16,8 +16,45 @@ import (
 )
 
 var (
-	JenisPelayanan = [...]string{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"}
+	JenisPelayanan     = [...]string{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"}
+	JenisPelayananList = []TJenisPelayanan{
+		{"01", "Pendaftaran Data Baru"},
+		{"02", "Mutasi Objek Pajak/Subjek"},
+		{"03", "Pembetulan SPPT/SKP/STP"},
+		{"04", "Pembatalan SPPT/SKP"},
+		{"05", "Salinan SPPT/SKP"},
+		{"06", "Keberatan Penunjukan WP"},
+		{"07", "Keberatan Atas Pajak Terhutang"},
+		{"08", "Pengurangan Atas Besarnya Pajak Terhutang"},
+		{"09", "Restitusi dan Kompensasi"},
+		{"10", "Pengurangan Denda Administrasi"},
+		{"11", "Penentuan Kembali Tanggal Jatuh Tempo"},
+		{"12", "Penundaan Tanggal Jatuh Tempo SPOP"},
+		{"13", "Pemberian Informasi PBB"},
+	}
+	JenisBerkasPermohonan = [...]string{
+		"Pengajuan Permohonan",
+		"Surat Kuasa",
+		"Fotocopy KTP",
+		"Fotocopy Sertifikat Tanah",
+		"Asli SPPT",
+		"Fotocopy IMB",
+		"Fotocopy Akte Jual Beli",
+		"Fotocopy SK Pensiun",
+		"Fotocopy SPPT / STTS",
+		"Asli STTS",
+		"Fotocopy SK Pengurangan",
+		"Fotocopy SK Keberatan",
+		"Fotocopy SKKPP PBB",
+		"Fotocopy SPMKP PBB",
+		"Lain-lain",
+	}
 )
+
+type TJenisPelayanan struct {
+	ID   string
+	Name string
+}
 
 type PstPermohonan struct {
 	Id                     uint64          `json:"id" gorm:"primaryKey;autoIncrement"`
@@ -154,6 +191,14 @@ type PstPermohonanResponse struct {
 	PstJpb               *any                       `json:"pstJpb"`
 }
 
+func FindJenisPelayananByID(id string) *TJenisPelayanan {
+	for i := range JenisPelayananList {
+		if JenisPelayananList[i].ID == id {
+			return &JenisPelayananList[i]
+		}
+	}
+	return &TJenisPelayanan{}
+}
 func DecodeNOPPermohonan(nop *string) *PermohonanNOP {
 	if nop != nil {
 		var tempNOP string
@@ -170,6 +215,11 @@ func DecodeNOPPermohonan(nop *string) *PermohonanNOP {
 		return &result
 	}
 	return nil
+}
+
+func (i PermohonanNOP) GetNopDotFormat() string {
+	result := fmt.Sprintf("%s.%s.%s.%s.%s.%s.%s", i.PermohonanProvinsiID, i.PermohonanKotaID, i.PermohonanKecamatanID, i.PermohonanKelurahanID, i.PermohonanBlokID, i.NoUrutPemohon, i.PemohonJenisOPID)
+	return result
 }
 
 func (i PstPermohonan) GetDataPermohonanNoPelayanan() string {

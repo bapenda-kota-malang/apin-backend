@@ -2,19 +2,14 @@ package permohonan
 
 import (
 	"bytes"
+	wkhtmltopdf "github.com/SebastiaanKlippert/go-wkhtmltopdf"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/pdf"
 	"html/template"
 	"os"
 	"path/filepath"
-
-	"github.com/SebastiaanKlippert/go-wkhtmltopdf"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/pdf"
 )
 
-type PermohonanPDF struct {
-	NoPelayanan string
-}
-
-func (p *PermohonanPDF) GeneratePdf(outFile string) error {
+func GeneratePdf(outFile string, p interface{}) error {
 	pdfg, err := pdf.NewPdfg(wkhtmltopdf.PageSizeA4, wkhtmltopdf.OrientationPortrait, false)
 	if err != nil {
 		return err
