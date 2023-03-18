@@ -260,7 +260,17 @@ func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
 			"C": "Pemohon",
 			"D": "NPWPD",
 			"E": "Nama Usaha",
-			"F": "Status",
+			"F": "Nominal Ketetapan",
+			"G": "Persentase Keberatan",
+			"H": "Kasubid",
+			"I": "Verifikasi Kasubid",
+			"J": "Kabid",
+			"K": "Verifikasi Kabid",
+			"L": "Kaban",
+			"M": "Verifikasi Kaban",
+			"N": "Petugas",
+			"O": "Verifikasi Petugas",
+			"P": "Status",
 		})
 		for i, v := range data {
 			n := i + 1
@@ -278,9 +288,89 @@ func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
 					}
 					return ""
 				}(),
-				"D": "", 
-				"E": "",
-				"F": v.Status,
+				"D": func() string {
+					if v.Spt != nil && v.Spt.Npwpd != nil && v.Spt.Npwpd.Npwpd != nil {
+						return *v.Spt.Npwpd.Npwpd
+					}
+					return ""
+				}(),
+				"E": func() string {
+					if v.Spt != nil && v.Spt.Npwpd != nil && v.Spt.Npwpd.ObjekPajak != nil {
+						return *v.Spt.Npwpd.ObjekPajak.Nama
+					}
+					return ""
+				}(),
+				"F": func() float64 {
+					if v.NominalKetetapan != nil {
+						return *v.NominalKetetapan
+					}
+					return 0
+				}(),
+				"G": func() float64 {
+					if v.PersentaseKeberatan != nil {
+						return *v.PersentaseKeberatan
+					}
+					return 0
+				}(),
+				"H": func() string {
+					if v.KasubidUser != nil {
+						return v.KasubidUser.Name
+					}
+					return ""
+				}(),
+				"I": func() string {
+					if v.TanggalVerifKasubid != nil {
+						return v.TanggalVerifKasubid.Format("2006-01-02")
+					}
+					return ""
+				}(),
+				"J": func() string {
+					if v.KabidUser != nil {
+						return v.KabidUser.Name
+					}
+					return ""
+				}(),
+				"K": func() string {
+					if v.TanggalVerifKabid != nil {
+						return v.TanggalVerifKabid.Format("2006-01-02")
+					}
+					return ""
+				}(),
+				"L": func() string {
+					if v.KabanUser != nil {
+						return v.KabanUser.Name
+					}
+					return ""
+				}(),
+				"M": func() string {
+					if v.TanggalVerifKaban != nil {
+						return v.TanggalVerifKaban.Format("2006-01-02")
+					}
+					return ""
+				}(),
+				"N": func() string {
+					if v.PetugasUser != nil {
+						return v.PetugasUser.Name
+					}
+					return ""
+				}(),
+				"O": func() string {
+					if v.TanggalVerifPetugas != nil {
+						return v.TanggalVerifPetugas.Format("2006-01-02")
+					}
+					return ""
+				}(),
+				"P": func() string {
+					if v.Status == 0 {
+						return "Baru"
+					} else if v.Status == 1 || v.Status == 2 {
+						return "Disetujui"
+					} else if v.Status == 3 || v.Status == 4 {
+						return "Ditolak"
+					}
+
+					return "Tidak Diketahui"
+				}(),
 			})
 		}
 		return tmp
