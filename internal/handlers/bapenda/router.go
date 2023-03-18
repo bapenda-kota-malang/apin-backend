@@ -561,6 +561,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetList)
 		r.Get("/{id}", pengurangan.GetDetail)
 		r.Post("/", pengurangan.Create)
+		r.Patch("/{id}", pengurangan.Update)
 		r.Patch("/verify/{id}", pengurangan.Verify)
 	})
 

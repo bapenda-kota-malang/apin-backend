@@ -3,6 +3,7 @@ package baplpengajuan
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 
 	mk "github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
@@ -28,7 +29,7 @@ type PengajuanBapl struct {
 	DokumenLainnya             *string        `json:"dokumenLainnya"`
 	gh.DateModel
 	JenisTransaksi int                       `json:"jenisTransaksi"`
-	Pengurangan_Id *uint64                   `json:"pengurangan_id"`
+	Pengurangan_Id *uuid.UUID                `json:"pengurangan_id"`
 	Keberatan      *mk.Keberatan             `json:"keberatan,omitempty" gorm:"foreignKey:Keberatan_Id"`
 	Npwpd          *mn.Npwpd                 `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
 	KasubidUser    *mu.User                  `json:"kasubidUser,omitempty" gorm:"foreignKey:VerifKasubid_User_Id"`
