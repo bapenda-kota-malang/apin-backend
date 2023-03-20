@@ -122,7 +122,10 @@ type NopDetail struct {
 	NoUrut         *string       `json:"noUrut" gorm:"type:char(4)"`
 	JenisOp        *string       `json:"jenisOp" gorm:"type:char(1)"`
 	Area_Kode      *string       `json:"area_kode" gorm:"char(10)"`
-	Kelurahan      *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Area_Kode;references:Kode"`
+	Provinsi       *ad.Provinsi  `json:"provinsi,omitempty" gorm:"-"`
+	Daerah         *ad.Daerah    `json:"daerah,omitempty" gorm:"-"`
+	Kecamatan      *ad.Kecamatan `json:"kecamatan,omitempty" gorm:"-"`
+	Kelurahan      *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"-"`
 }
 
 type NopDetailCreateDto struct {

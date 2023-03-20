@@ -82,13 +82,15 @@ func Create(input m.CreateDto, from string, authInfo *auth.AuthInfo) (any, error
 
 		// process calculation
 		respDataSppt, err := ssspt.GetByNop(
-			*data.PermohonanProvinsiID,
-			*data.PermohonanKotaID,
-			*data.PermohonanKecamatanID,
-			*data.PermohonanKelurahanID,
-			*data.PermohonanBlokID,
-			*data.NoUrutPemohon,
-			*data.PemohonJenisOPID)
+			data.PermohonanProvinsiID,
+			data.PermohonanKotaID,
+			data.PermohonanKecamatanID,
+			data.PermohonanKelurahanID,
+			data.PermohonanBlokID,
+			data.NoUrutPemohon,
+			data.PemohonJenisOPID,
+			data.TahunPajakSppt,
+		)
 		if err != nil {
 			return fmt.Errorf("get data sppt from nop: %w", err)
 		}

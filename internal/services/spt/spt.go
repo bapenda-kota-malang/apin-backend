@@ -198,10 +198,11 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 		opts = "="
 	}
 
-	if input.JatuhTempo == nil && input.JenisKetetapan_Opt == nil || *input.JenisKetetapan_Opt == "IS NULL" {
-		dataDateNow := datatypes.Date(time.Now())
-		input.JatuhTempo = &dataDateNow
-	}
+	// TODO: hapus filter date now ini
+	// if input.JatuhTempo == nil && input.JenisKetetapan_Opt == nil || *input.JenisKetetapan_Opt == "IS NULL" {
+	// 	dataDateNow := datatypes.Date(time.Now())
+	// 	input.JatuhTempo = &dataDateNow
+	// }
 
 	if input.JenisKetetapan_Opt != nil && (*input.JenisKetetapan_Opt == "IS NOT NULL" || *input.JenisKetetapan_Opt == "IS NULL") {
 		baseQuery.Where(fmt.Sprintf("\"JenisKetetapan\" %s", *input.JenisKetetapan_Opt))
@@ -251,9 +252,11 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 	input.JatuhTempo_Opt = &opts
 	result := baseQuery.
 		Select("\"Spt\".*").
+		Joins("Rekening").
 		Preload("Rekening").
 		Preload("ObjekPajak").
 		Preload("Npwpd").
+		Preload("Npwpd.PemilikWps").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -325,11 +328,15 @@ func GetDetail(id uuid.UUID, typeSpt string, userId uint) (any, error) {
 		baseQuery.Where("\"Spt\".\"Type\" = ?", typeSpt)
 	}
 	result := baseQuery.
+		Preload("Npwpd").
+		Preload("Npwpd.PemilikWps").
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
+		Preload("DetailSptReklame.TarifReklame.KlasifikasiJalan").
+		Preload("DetailSptPln.JenisPPJ").
 		First(&data, "\"Spt\".\"Id\" = ?", id.String())
 	if result.RowsAffected == 0 {
 		return nil, nil

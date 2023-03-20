@@ -39,7 +39,8 @@ func GetList(input npwpd.FilterDto) (interface{}, error) {
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
-		Preload("ObjekPajak").
+		Joins("Rekening").
+		// Preload("ObjekPajak").
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").
 		Scopes(gh.Filter(input)).
@@ -47,7 +48,7 @@ func GetList(input npwpd.FilterDto) (interface{}, error) {
 		Scopes(gh.Paginate(input, &pagination)).
 		Find(&data)
 	if result.Error != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data: "+result.Error.Error(), data)
 	}
 
 	return rp.OK{

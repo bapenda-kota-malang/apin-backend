@@ -37,7 +37,7 @@ func (input *CreateDetailPpjNonPlnDto) DuplicateEspt(esptDetail *mespt.Espt) err
 	if err := input.CreateDetailBaseDto.DuplicateEspt(esptDetail); err != nil {
 		return err
 	}
-	if err := copier.Copy(&input.DataDetails, &esptDetail); err != nil {
+	if err := copier.Copy(&input.DataDetails, &esptDetail.DetailEsptPpjNonPln); err != nil {
 		return err
 	}
 	return nil
@@ -47,7 +47,7 @@ func (input *CreateDetailPpjNonPlnDto) SkpdkbDuplicate(sptDetail *Spt, skpdkb *S
 	if err := input.CreateDetailBaseDto.SkpdkbDuplicate(sptDetail, skpdkb); err != nil {
 		return err
 	}
-	if err := copier.Copy(&input.DataDetails, &sptDetail); err != nil {
+	if err := copier.Copy(&input.DataDetails, &sptDetail.DetailSptNonPln); err != nil {
 		return err
 	}
 	return nil

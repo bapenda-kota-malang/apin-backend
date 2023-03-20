@@ -17,7 +17,7 @@ func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.Create(data)
+	result, err := s.Create(data, nil)
 	hh.DataResponse(w, result, err)
 }
 

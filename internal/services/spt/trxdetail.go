@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
 
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar"
+	mjambong "github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mdair "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	mdhiburan "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -95,9 +95,9 @@ func taxProcess(rekeningId *uint64, omset *float64, input m.Input) error {
 				return err
 			}
 			dataReklame := resp.(rp.OKSimple).Data.(*mtarifreklame.TarifReklame)
-			if dataReklame.JenisMasa == mtarifreklame.MasaPajakHari {
+			if dataReklame.JenisMasa == mtypes.MasaPajakHari {
 				resp, err := starifreklame.GetList(mtarifreklame.FilterDto{
-					JenisMasa:    int16(mtarifreklame.MasaPajakHari),
+					JenisMasa:    int16(mtypes.MasaPajakHari),
 					JenisReklame: dataReklame.JenisReklame,
 				})
 				for _, vInner := range resp.(rp.OK).Data.([]mtarifreklame.TarifReklame) {
@@ -150,13 +150,13 @@ func TransformEspt(esptDetail *mespt.Espt) (input m.Input, err error) {
 		input = &m.CreateDetailAirDto{}
 	} else if esptDetail.DetailEsptHiburan != nil {
 		input = &m.CreateDetailHiburanDto{}
-	} else if esptDetail.DetailEsptParkir != nil {
+	} else if len(esptDetail.DetailEsptParkir) != 0 {
 		input = &m.CreateDetailParkirDto{}
 	} else if esptDetail.DetailEsptHotel != nil {
 		input = &m.CreateDetailHotelDto{}
 	} else if esptDetail.DetailEsptPpjNonPln != nil {
 		input = &m.CreateDetailPpjNonPlnDto{}
-	} else if esptDetail.DetailEsptPpjPln != nil {
+	} else if len(esptDetail.DetailEsptPpjPln) != 0 {
 		input = &m.CreateDetailPpjPlnDto{}
 	} else if esptDetail.DetailEsptResto != nil {
 		input = &m.CreateDetailRestoDto{}
@@ -211,88 +211,106 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 			if err != nil {
 				return err
 			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.(mdair.DetailSptAir)
-				data.DetailSptAir = &details
+			if respDetails == nil {
+				break
 			}
+			details := respDetails.(rp.OKSimple).Data.(mdair.DetailSptAir)
+			data.DetailSptAir = &details
 		case mdhiburan.CreateDto:
 			respDetails, err := sdhiburan.Create(dataDetails, tx)
 			if err != nil {
 				return err
 			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.(mdhiburan.DetailSptHiburan)
-				data.DetailSptHiburan = &details
+			if respDetails == nil {
+				break
 			}
-		case []mdhotel.CreateDto:
+			details := respDetails.(rp.OKSimple).Data.(mdhiburan.DetailSptHiburan)
+			data.DetailSptHiburan = &details
+		case mdhotel.CreateDto:
 			respDetails, err := sdhotel.Create(dataDetails, tx)
 			if err != nil {
 				return err
 			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.([]mdhotel.DetailSptHotel)
-				data.DetailSptHotel = &details
+			if respDetails == nil {
+				break
 			}
+			details := respDetails.(rp.OKSimple).Data.(mdhotel.DetailSptHotel)
+			data.DetailSptHotel = &details
 		case []mdparkir.CreateDto:
 			respDetails, err := sdparkir.Create(dataDetails, tx)
 			if err != nil {
 				return err
 			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.([]mdparkir.DetailSptParkir)
-				data.DetailSptParkir = &details
+			if respDetails == nil {
+				break
 			}
+			details := respDetails.(rp.OKSimple).Data.([]mdparkir.DetailSptParkir)
+			data.DetailSptParkir = details
 		case mdnonpln.CreateDto:
 			respDetails, err := sdnonpln.Create(dataDetails, tx)
 			if err != nil {
 				return err
 			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.(mdnonpln.DetailSptPpjNonPln)
-				data.DetailSptNonPln = &details
+			if respDetails == nil {
+				break
 			}
+			details := respDetails.(rp.OKSimple).Data.(mdnonpln.DetailSptPpjNonPln)
+			data.DetailSptNonPln = &details
 		case []mdpln.CreateDto:
 			respDetails, err := sdpln.Create(dataDetails, tx)
 			if err != nil {
 				return err
 			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.([]mdpln.DetailSptPpjPln)
-				data.DetailSptPln = &details
+			if respDetails == nil {
+				break
 			}
+			details := respDetails.(rp.OKSimple).Data.([]mdpln.DetailSptPpjPln)
+			data.DetailSptPln = details
 		case []mdreklame.CreateDto:
 			// TODO: REKLAME PROCESS
 			respDetails, err := sdreklame.Create(dataDetails, tx)
 			if err != nil {
 				return err
 			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.([]mdreklame.DetailSptReklame)
-				data.DetailSptReklame = &details
+			if respDetails == nil {
+				break
 			}
+			details := respDetails.(rp.OKSimple).Data.([]mdreklame.DetailSptReklame)
+			data.DetailSptReklame = details
+
+			if reklameDto, ok := input.(*m.CreateDetailReklameDto); ok && reklameDto.JaminanBongkar != nil {
+				var jambongDto mjambong.CreateDto
+				if err := sc.Copy(&jambongDto, &reklameDto.JaminanBongkar); err != nil {
+					return err
+				}
+				if len(data.DetailSptReklame) != len(*reklameDto.JaminanBongkar.DetailsJambong) {
+					return fmt.Errorf("data detail spt dan detail jambong tidak valid")
+				}
+				for i, v := range *reklameDto.JaminanBongkar.DetailsJambong {
+					jambongDto.DetailsJambong = append(jambongDto.DetailsJambong, mjambong.DetailJambongCreateDto{
+						DetailSptReklame_id: details[i].Id,
+						TarifJambong_Id:     &v,
+					})
+				}
+				jambongDto.Spt_Id = &data.Id
+				_, err := sjambong.Create(jambongDto, opts["userId"].(uint), tx)
+				if err != nil {
+					return err
+				}
+			}
+
 		case mdresto.CreateDto:
 			respDetails, err := sdresto.Create(dataDetails, tx)
 			if err != nil {
 				return err
 			}
-			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.(mdresto.DetailSptResto)
-				data.DetailSptResto = &details
+			if respDetails == nil {
+				break
 			}
+			details := respDetails.(rp.OKSimple).Data.(mdresto.DetailSptResto)
+			data.DetailSptResto = &details
 		default:
 			return fmt.Errorf("data details unknown")
-		}
-
-		if reklameDto, ok := input.(*m.CreateDetailReklameDto); ok && reklameDto.JaminanBongkar != nil {
-			var jambongDto jaminanbongkar.CreateDto
-			if err := sc.Copy(&jambongDto, &reklameDto.JaminanBongkar); err != nil {
-				return err
-			}
-			jambongDto.Spt_Id = &data.Id
-			_, err := sjambong.Create(jambongDto, opts["userId"].(uint), tx)
-			if err != nil {
-				return err
-			}
 		}
 
 		return nil
@@ -352,23 +370,19 @@ func UpdateDetail(id uuid.UUID, input m.Input, opts map[string]interface{}) (int
 				details := respDetails.(rp.OKSimple).Data.(mdhiburan.DetailSptHiburan)
 				data.DetailSptHiburan = &details
 			}
-		case []mdhotel.UpdateDto:
-			var detailList []mdhotel.DetailSptHotel
-			for i := range dataReal {
-				id := 0
-				if dataReal[i].Id != 0 {
-					id = int(dataReal[i].Id)
-				}
-				respDetails, err := sdhotel.Update(id, dataReal[i], tx)
-				if err != nil {
-					return err
-				}
-				if respDetails != nil {
-					details := respDetails.(rp.OKSimple).Data.(mdhotel.DetailSptHotel)
-					detailList = append(detailList, details)
-				}
+		case mdhotel.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
 			}
-			data.DetailSptHotel = &detailList
+			respDetails, err := sdhotel.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdhotel.DetailSptHotel)
+				data.DetailSptHotel = &details
+			}
 		case []mdparkir.UpdateDto:
 			var detailList []mdparkir.DetailSptParkir
 			for i := range dataReal {
@@ -385,7 +399,7 @@ func UpdateDetail(id uuid.UUID, input m.Input, opts map[string]interface{}) (int
 					detailList = append(detailList, details)
 				}
 			}
-			data.DetailSptParkir = &detailList
+			data.DetailSptParkir = detailList
 		case mdnonpln.UpdateDto:
 			id := 0
 			if dataReal.Id != 0 {
@@ -415,7 +429,7 @@ func UpdateDetail(id uuid.UUID, input m.Input, opts map[string]interface{}) (int
 					detailList = append(detailList, details)
 				}
 			}
-			data.DetailSptPln = &detailList
+			data.DetailSptPln = detailList
 		case mdresto.UpdateDto:
 			id := 0
 			if dataReal.Id != 0 {

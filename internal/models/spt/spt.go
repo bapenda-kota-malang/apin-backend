@@ -65,19 +65,20 @@ type Spt struct {
 	BatalPenetapan   bool            `json:"batalPenetapan,omitempty"`
 	IdBT             *uint64         `json:"idBT,omitempty"`
 	// reklame
-	JumlahTahun     *float64 `json:"jumlahTahun,omitempty" gorm:"type:decimal"`
-	JumlahBulan     *float64 `json:"jumlahBulan,omitempty" gorm:"type:decimal"`
-	JumlahMinggu    *float64 `json:"jumlahMinggu,omitempty" gorm:"type:decimal"`
-	JumlahHari      *float64 `json:"jumlahHari,omitempty" gorm:"type:decimal"`
-	Gambar          *string  `json:"gambar,omitempty" gorm:"type:varchar(255)"`
-	KeteranganPajak *string  `json:"keteranganPajak,omitempty" gorm:"type:varchar(255)"`
-	KoefisienPajak  *uint64  `json:"koefisienPajak,omitempty"`
-	NamaProduk      *string  `json:"productName,omitempty" gorm:"type:varchar(200)"`
-	NomorRegister   *string  `json:"registerNumber,omitempty" gorm:"type:varchar(100)"`
-	JudulReklame    *string  `json:"judulReklame,omitempty"`
-	NamaPenyewa     *string  `json:"namaPenyewa,omitempty"`
-	AlamatPenyewa   *string  `json:"alamatPenyewa,omitempty"`
-	VaJatim         *string  `json:"vaJatim,omitempty" gorm:"type:varchar(20)"`
+	JenisMasaPajakReklame *mt.JenisMasa `json:"jenisMasaPajakReklame,omitempty" gorm:"type:smallint"`
+	JumlahTahun           *float64      `json:"jumlahTahun,omitempty" gorm:"type:decimal"`
+	JumlahBulan           *float64      `json:"jumlahBulan,omitempty" gorm:"type:decimal"`
+	JumlahMinggu          *float64      `json:"jumlahMinggu,omitempty" gorm:"type:decimal"`
+	JumlahHari            *float64      `json:"jumlahHari,omitempty" gorm:"type:decimal"`
+	Gambar                *string       `json:"gambar,omitempty" gorm:"type:varchar(255)"`
+	KeteranganPajak       *string       `json:"keteranganPajak,omitempty" gorm:"type:varchar(255)"`
+	KoefisienPajak        *uint64       `json:"koefisienPajak,omitempty"`
+	NamaProduk            *string       `json:"productName,omitempty" gorm:"type:varchar(200)"`
+	NomorRegister         *string       `json:"registerNumber,omitempty" gorm:"type:varchar(100)"`
+	JudulReklame          *string       `json:"judulReklame,omitempty"`
+	NamaPenyewa           *string       `json:"namaPenyewa,omitempty"`
+	AlamatPenyewa         *string       `json:"alamatPenyewa,omitempty"`
+	VaJatim               *string       `json:"vaJatim,omitempty" gorm:"type:varchar(20)"`
 	// skpdkb
 	JenisKetetapan      *JenisKetetapan     `json:"jenisKetetapan,omitempty" gorm:"varchar(20)"`
 	DasarPengenaan      *string             `json:"dasarPengenaan,omitempty" gorm:"varchar(30)"`
@@ -104,11 +105,11 @@ type Spt struct {
 	KabidUser        *user.User                   `json:"kabid,omitempty" gorm:"foreignKey:Kabid_User_Id"`
 	DetailSptAir     *mdsa.DetailSptAir           `json:"detailSptAir,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptHiburan *mdhiburan.DetailSptHiburan  `json:"detailSptHiburan,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptHotel   *[]mdsh.DetailSptHotel       `json:"detailSptHotel,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptParkir  *[]mdsp.DetailSptParkir      `json:"detailSptParkir,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptHotel   *mdsh.DetailSptHotel         `json:"detailSptHotel,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptParkir  []mdsp.DetailSptParkir       `json:"detailSptParkir,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptNonPln  *mdnonpln.DetailSptPpjNonPln `json:"detailSptPpjNonPln,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptPln     *[]mdpln.DetailSptPpjPln     `json:"detailSptPpjPln,omitempty" gorm:"foreignKey:Spt_Id"`
-	DetailSptReklame *[]mdsrek.DetailSptReklame   `json:"detailSptReklame,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptPln     []mdpln.DetailSptPpjPln      `json:"detailSptPpjPln,omitempty" gorm:"foreignKey:Spt_Id"`
+	DetailSptReklame []mdsrek.DetailSptReklame    `json:"detailSptReklame,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptResto   *mdsres.DetailSptResto       `json:"detailSptResto,omitempty" gorm:"foreignKey:Spt_Id"`
 	// JaminanBongkarReklame *[]mdsjbr.JaminanBongkarReklame `json:"jaminanBongkarReklame,omitempty" gorm:"foreignKey:Spt_Id"`
 	// Teguran     *teguran.Teguran `json:"teguran,omitempty" gorm:"foreignKey:Teguran_Id"`

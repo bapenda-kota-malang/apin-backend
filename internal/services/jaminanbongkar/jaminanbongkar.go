@@ -15,10 +15,11 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
+	mspt "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambong"
 	mtjrek "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambongrek"
+	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
@@ -52,12 +53,16 @@ func calcLuas(data mdsrek.DetailSptReklame) (luas float64) {
 
 func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJambong, typeProcess string, userId uint) error {
 	// get data spt with detail and tarif reklame
-	var dataSpt spt.Spt
+	var dataSpt mspt.Spt
 	result := tx.Preload("DetailSptReklame.TarifReklame").First(&dataSpt, "\"Id\" = ?", data.Spt_Id.String())
 	if result.RowsAffected == 0 {
 		return fmt.Errorf("data spt not found")
 	} else if result.Error != nil {
 		return fmt.Errorf("gagal mengambil data spt: %w", result.Error)
+	}
+
+	if dataSpt.JenisMasaPajakReklame == nil {
+		return fmt.Errorf("tidak ada data spt reklame jenis masa")
 	}
 
 	if dataSpt.DetailSptReklame == nil {
@@ -76,7 +81,8 @@ func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJamb
 	data.Nominal = data.BiayaPemutusan
 
 	var dataTjrek *mtjrek.TarifJambongRek
-	if data.JenisReklame == m.ReklameInsidentil {
+	switch *dataSpt.JenisMasaPajakReklame {
+	case mtypes.MasaPajakBulan, mtypes.MasaPajakHari, mtypes.MasaPajakPenyelenggara:
 		var err error
 		dataTjrek, err = getTjRek(tx, "Insidentil", nil)
 		if err != nil {
@@ -92,7 +98,7 @@ func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJamb
 	}
 
 	detailSptReklameMap := make(map[uint64]mdsrek.DetailSptReklame)
-	for _, v := range *dataSpt.DetailSptReklame {
+	for _, v := range dataSpt.DetailSptReklame {
 		if _, ok := dataDetailsMap[v.Id]; !ok {
 			dataDetails = append(dataDetails, m.DetailJambong{DetailSptReklame_id: v.Id})
 		}
@@ -106,7 +112,8 @@ func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJamb
 		sptReklame := detailSptReklameMap[dataDetails[i].DetailSptReklame_id]
 
 		// Insidentil
-		if data.JenisReklame == m.ReklameInsidentil {
+		switch *dataSpt.JenisMasaPajakReklame {
+		case mtypes.MasaPajakBulan, mtypes.MasaPajakHari, mtypes.MasaPajakPenyelenggara:
 			data.Nominal += (sptReklame.JumlahRp * (*dataTjrek.Nominal / float64(100)))
 			continue
 		}

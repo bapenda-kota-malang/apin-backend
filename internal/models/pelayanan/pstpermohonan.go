@@ -6,11 +6,7 @@ import (
 	"strings"
 	"time"
 
-	mopfas "github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
-	mopbng "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
-	moptnh "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	moppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
-	mwppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"gorm.io/datatypes"
 )
@@ -75,6 +71,7 @@ type PstPermohonan struct {
 	TanggalTerima          *datatypes.Date `json:"tanggalTerima"`
 	NIP                    *string         `json:"nip" gorm:"type:varchar(9)"`
 	PenerimaanBerkas       *string         `json:"penerimaanBerkas" gorm:"type:varchar(50)"`
+	Status                 *string         `json:"status" gorm:"type:varchar(2)"`
 	gormhelper.DateModel
 }
 
@@ -104,7 +101,10 @@ type PermohonanRequestDto struct {
 	NamaPenerima          *string `json:"namaPenerima"`
 	NIPPenyerah           *string `json:"nipPenyerah"`
 	StatusSelesai         *int    `json:"statusSelesai"`
+	Status                *string `json:"status"`
 	TanggalPenyerahan     *string `json:"tanggalPenyerahan"`
+
+	PstOpjekPajakPBB *moppbb.CreateDto `json:"oppbb"`
 }
 
 type FilterDto struct {
@@ -172,10 +172,12 @@ type PstPermohonanResponse struct {
 	TanggalTerima          *datatypes.Date `json:"tanggalTerima"`
 	NIP                    *string         `json:"nip"`
 	PenerimaanBerkas       *string         `json:"penerimaanBerkas"`
+	Status                 *string         `json:"status"`
 
 	PstDataOPBaru            *PstDataOPBaru            `json:"pstBaru"`
 	PstDetail                *PstDetail                `json:"pstDetil"`
 	PstPermohonanPengurangan *PstPermohonanPengurangan `json:"pstPengurangan"`
+	PstLampiran              *PstLampiran              `json:"pstLampiran"`
 
 	// PembetulanSpptSKPSTP     *PembetulanSpptSKPSTP     `json:"pembetulanSpptSKPSTP"`
 	// PembatalanSppt           *PembatalanSppt           `json:"pembatalanSppt"`
@@ -183,12 +185,7 @@ type PstPermohonanResponse struct {
 	// SPMKP                    *SPMKP                    `json:"spmkp"`
 	// SkSk                     *SkSk                     `json:"sksk"`
 
-	PstOpjekPajakPBB     *moppbb.ObjekPajakPbb      `json:"pstOpjekPajakPBB"`
-	PstWajibPajakPBB     *mwppbb.WajibPajakPbb      `json:"pstWajibPajakPBB"`
-	PstOPBumi            *moptnh.ObjekPajakBumi     `json:"pstOPBumi"`
-	PstOPBangunan        *mopbng.ObjekPajakBangunan `json:"pstOPBangunan"`
-	PstFasilitasBangunan *mopfas.FasilitasBangunan  `json:"pstFasilitasBangunan"`
-	PstJpb               *any                       `json:"pstJpb"`
+	PstOpjekPajakPBB *moppbb.CreateDto `json:"oppbb"`
 }
 
 func FindJenisPelayananByID(id string) *TJenisPelayanan {

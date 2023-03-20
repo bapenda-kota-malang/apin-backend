@@ -86,14 +86,38 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	var dataFasBangunan fasbng.FasilitasBangunan
 	var dataBng bng.CreateDto
 	var dataBangunan bng.ObjekPajakBangunan
+	var result *gorm.DB
 	if tx == nil {
 		tx = a.DB
 	}
 	var data m.ObjekPajakBumi
 	// var dataNop pel.PermohonanNOP
-	result := tx.First(&data, id)
-	if result.RowsAffected == 0 {
-		return nil, nil
+
+	if id != 0 {
+		if input.Nop != nil {
+			if *input.Nop != "" {
+				dataNop := *DecodeNOP(input.Nop)
+				result = tx.
+					Where("Provinsi_Kode", &dataNop.PermohonanProvinsiID).
+					Where("Daerah_Kode", &dataNop.PermohonanKotaID).
+					Where("Kecamatan_Kode", &dataNop.PermohonanKecamatanID).
+					Where("Kelurahan_Kode", &dataNop.PermohonanKelurahanID).
+					Where("Blok_Kode", &dataNop.PermohonanBlokID).
+					Where("NoUrut", &dataNop.NoUrutPemohon).
+					Where("JenisOp", &dataNop.PemohonJenisOPID).
+					First(&data, id)
+				if result.RowsAffected == 0 {
+					return nil, nil
+				}
+			}
+		} else {
+			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", input)
+		}
+	} else {
+		result = tx.First(&data)
+		if result.RowsAffected == 0 {
+			return nil, nil
+		}
 	}
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)

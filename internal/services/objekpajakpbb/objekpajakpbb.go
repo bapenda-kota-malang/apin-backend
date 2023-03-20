@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/kelurahan"
 	sc "github.com/jinzhu/copier"
 	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
@@ -11,17 +14,19 @@ import (
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
+	excelhelper "github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	maop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	pmh "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	regpmh "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	msppt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	mwp "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
@@ -33,6 +38,24 @@ import (
 )
 
 const source = "objekpajakpbb"
+
+func getAreaData(data m.ObjekPajakPbb) (*areadivision.Kecamatan, *areadivision.Kelurahan, error) {
+	kecamatanKode := fmt.Sprintf("%s%s%s", *data.Provinsi_Kode, *data.Daerah_Kode, *data.Kecamatan_Kode)
+	kecamatanKodeInt, _ := strconv.Atoi(kecamatanKode)
+	resKec, err := kecamatan.GetDetailByCode(kecamatanKodeInt)
+	if resKec == nil || err != nil {
+		return nil, nil, err
+	}
+
+	// data kelurahan
+	kelurahanKode := fmt.Sprintf("%s%s", kecamatanKode, *data.Kelurahan_Kode)
+	kelurahanKodeInt, _ := strconv.Atoi(kelurahanKode)
+	resKel, err := kelurahan.GetDetailByCode(kelurahanKodeInt)
+	if resKel == nil || err != nil {
+		return nil, nil, err
+	}
+	return resKec.(rp.OKSimple).Data.(*areadivision.Kecamatan), resKel.(rp.OKSimple).Data.(*areadivision.Kelurahan), nil
+}
 
 func Create(input m.CreateDto) (any, error) {
 	var data m.ObjekPajakPbb
@@ -81,7 +104,7 @@ func Create(input m.CreateDto) (any, error) {
 	if input.NopBersama != nil {
 		// copy data anggota objek pajak
 		if err := sc.Copy(&dataAnggotaObjekPajak, input.AnggotaObjekPajaks); err != nil {
-			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload anggota objek pajak", input.AnggotaObjekPajaks)
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload anggota objek pajak: "+err.Error(), input.AnggotaObjekPajaks)
 		}
 
 		// data induk objek
@@ -287,15 +310,20 @@ func Create(input m.CreateDto) (any, error) {
 	}, nil
 }
 
-func GetList(input m.FilterDto, refId int) (any, error) {
+func GetList(input m.FilterDto, refId int, user_id *int) (any, error) {
 	var data []m.ObjekPajakPbb
+	var dataWp []mwp.WajibPajakPbb
 	var count int64
 
 	var pagination gh.Pagination
 	baseQuery := a.DB.Model(&m.ObjekPajakPbb{})
 
 	// if refId not 0 then this function called from handler wp that need data to be filtered based from auth login
-	if refId != 0 {
+
+	if user_id != nil {
+		baseQuery = baseQuery.
+			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\" AND \"WajibPajakPbb\".\"User_ID\" = ?", user_id)
+	} else if refId != 0 {
 		baseQuery = baseQuery.
 			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\"").
 			Joins("JOIN \"WajibPajak\" ON \"WajibPajakPbb\".\"Nik\" = \"WajibPajak\".\"Nik\" AND \"WajibPajak\".\"Id\" = ?", refId)
@@ -310,6 +338,26 @@ func GetList(input m.FilterDto, refId int) (any, error) {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
 
+	for i := 0; i < len(data); i++ {
+		kecamatan, kelurahan, err := getAreaData(data[i])
+		if err != nil {
+			return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data[i])
+		}
+		data[i].Kecamatan = kecamatan
+		data[i].Kelurahan = kelurahan
+
+		resWpPbb, err := swp.GetDetail(int(*data[i].WajibPajakPbb_Id))
+		if err != nil {
+			return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data[i])
+		}
+		if resWpPbb == nil {
+			continue
+		}
+		dataWpTmp := resWpPbb.(rp.OKSimple).Data.(*mwp.WajibPajakPbb)
+		dataWpTmp.ObjekPajakPbbs = &[]m.ObjekPajakPbb{data[i]}
+		dataWp = append(dataWp, *dataWpTmp)
+	}
+
 	return rp.OK{
 		Meta: t.IS{
 			"totalCount":   strconv.Itoa(int(count)),
@@ -317,17 +365,23 @@ func GetList(input m.FilterDto, refId int) (any, error) {
 			"page":         strconv.Itoa(pagination.Page),
 			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
-		Data: data,
+		Data: dataWp,
 	}, nil
 }
 
-func GetDetail(id int, refId int) (any, error) {
-	var data *m.ObjekPajakPbb
+func GetDetail(id int, refId int, user_id *int) (any, error) {
+	var (
+		data   *m.ObjekPajakPbb
+		datawp *mwp.WajibPajakPbb
+	)
 
 	baseQuery := a.DB.Model(&m.ObjekPajakPbb{})
 
 	// if refId not 0 then this function called from handler wp that need data to be filtered based from auth login
-	if refId != 0 {
+	if user_id != nil {
+		baseQuery = baseQuery.
+			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\" AND \"WajibPajakPbb\".\"User_ID\" = ?", user_id)
+	} else if refId != 0 {
 		baseQuery = baseQuery.
 			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\"").
 			Joins("JOIN \"WajibPajak\" ON \"WajibPajakPbb\".\"Nik\" = \"WajibPajak\".\"Nik\" AND \"WajibPajak\".\"Id\" = ?", refId)
@@ -340,9 +394,32 @@ func GetDetail(id int, refId int) (any, error) {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
 
+	kecamatan, kelurahan, err := getAreaData(*data)
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+	}
+	data.Kecamatan = kecamatan
+	data.Kelurahan = kelurahan
+
+	resWpPbb, err := swp.GetDetail(int(*data.WajibPajakPbb_Id))
+	if resWpPbb == nil || err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+	}
+	datawp = resWpPbb.(rp.OKSimple).Data.(*mwp.WajibPajakPbb)
+	datawp.ObjekPajakPbbs = &[]m.ObjekPajakPbb{*data}
+
 	return rp.OKSimple{
-		Data: data,
+		Data: datawp,
 	}, nil
+	// if user_id != nil {
+	// 	// var tempData []m.ObjekPajakPbb
+	// 	// tempData = append(tempData, *data)
+	// 	// datawp.ObjekPajakPbbs = &tempData
+	// } else {
+	// 	return rp.OKSimple{
+	// 		Data: data,
+	// 	}, nil
+	// }
 }
 
 func GetDetailbyField(field string, value string) (any, error) {
@@ -354,6 +431,13 @@ func GetDetailbyField(field string, value string) (any, error) {
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
+
+	kecamatan, kelurahan, err := getAreaData(*data)
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+	}
+	data.Kecamatan = kecamatan
+	data.Kelurahan = kelurahan
 
 	return rp.OKSimple{
 		Data: data,
@@ -378,6 +462,13 @@ func GetDetailbyNop(nop pmh.PermohonanNOP) (any, error) {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
 
+	kecamatan, kelurahan, err := getAreaData(*data)
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+	}
+	data.Kecamatan = kecamatan
+	data.Kelurahan = kelurahan
+
 	return rp.OKSimple{
 		Data: data,
 	}, nil
@@ -401,6 +492,13 @@ func GetRegDetailbyNop(nop regpmh.PermohonanNOP) (any, error) {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
 
+	kecamatan, kelurahan, err := getAreaData(*data)
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data)
+	}
+	data.Kecamatan = kecamatan
+	data.Kelurahan = kelurahan
+
 	return rp.OKSimple{
 		Data: data,
 	}, nil
@@ -420,6 +518,168 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	}
 
 	if result := tx.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func UpdatePelayananWP(id int, input m.UpdateDto, from string, authInfo *auth.AuthInfo, tx *gorm.DB) (any, error) {
+	if tx == nil {
+		tx = a.DB
+	}
+
+	var data *m.ObjekPajakPbb
+	var datawp mwp.WajibPajakPbb
+	var dataWajibPajakPbb mwp.UpdateDto
+	var dataObjekPajakBumi mopb.UpdateDto
+	// var dataOpb *mopb.ObjekPajakBumi
+	var respDataWajibPajakPbb interface{}
+	var respDataObjekPajakBumi interface{}
+	var resp t.II
+	var kode string
+
+	if input.Nop != nil {
+		var resultNop []string
+		resultNop, kode = sh.NopParser(*input.Nop)
+		if input.Provinsi_Kode == nil {
+			input.Provinsi_Kode = &resultNop[0]
+			input.Daerah_Kode = &resultNop[1]
+			input.Kecamatan_Kode = &resultNop[2]
+			input.Kelurahan_Kode = &resultNop[3]
+			input.Blok_Kode = &resultNop[4]
+			input.NoUrut = &resultNop[5]
+			input.JenisOp = &resultNop[6]
+		}
+	} else if input.Provinsi_Kode != nil {
+		kode = fmt.Sprintf("%s%s%s%s", *input.Provinsi_Kode, *input.Daerah_Kode, *input.Kecamatan_Kode, *input.Kelurahan_Kode)
+	} else {
+		return sh.SetError("request", "update-data", source, "failed", "data nop tidak ditemukan", input)
+	}
+
+	result := tx.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if err := sc.CopyWithOption(&data, &input, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	}
+
+	// copy data wajibpajakPbb
+	resultWp := tx.First(&datawp, data.WajibPajakPbb_Id)
+	if resultWp.RowsAffected > 0 {
+		if err := sc.Copy(&dataWajibPajakPbb, datawp); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg wajibpajakpbb", input.WajibPajakPbbs)
+		}
+	}
+	if err := sc.CopyWithOption(&dataWajibPajakPbb, input.WajibPajakPbbs, sc.Option{IgnoreEmpty: true}); err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg wajibpajakpbb", input.WajibPajakPbbs)
+	}
+	tempUID := uint64(authInfo.User_Id)
+	dataWajibPajakPbb.User_ID = &tempUID
+
+	// copy data objek pajak bumi
+	if input.ObjekPajakBumis != nil {
+		if err := sc.Copy(&dataObjekPajakBumi, input.ObjekPajakBumis); err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload reg objek pajak bumi", input.ObjekPajakBumis)
+		}
+		dataObjekPajakBumi.Provinsi_Kode = input.Provinsi_Kode
+		dataObjekPajakBumi.Daerah_Kode = input.Daerah_Kode
+		dataObjekPajakBumi.Kecamatan_Kode = input.Kecamatan_Kode
+		dataObjekPajakBumi.Kelurahan_Kode = input.Kelurahan_Kode
+		dataObjekPajakBumi.Blok_Kode = input.Blok_Kode
+		dataObjekPajakBumi.NoUrut = input.NoUrut
+		dataObjekPajakBumi.JenisOp = input.JenisOp
+		dataObjekPajakBumi.Area_Kode = &kode
+	}
+
+	if input.TanggalPemeriksaan != nil {
+		data.TanggalPemeriksaan = th.ParseTime(input.TanggalPemeriksaan)
+	}
+	if input.TanggalPendataan != nil {
+		data.TanggalPendataan = th.ParseTime(input.TanggalPendataan)
+	}
+	if input.TanggalPerekaman != nil {
+		data.TanggalPerekaman = th.ParseTime(input.TanggalPerekaman)
+	}
+
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		// create data wajibpajakpbb
+		resultWajibPajakPbb, err := swp.Update(int(*data.WajibPajakPbb_Id), dataWajibPajakPbb, tx)
+		if err != nil {
+			return err
+		}
+		respDataWajibPajakPbb = resultWajibPajakPbb
+
+		// create data objekpajakpbb
+		if result := tx.Save(&data); result.Error != nil {
+			return result.Error
+		}
+
+		if input.ObjekPajakBumis != nil {
+			// create data objek pajak bumi
+			resultObjekPajakBumi, err := sopb.Update(0, dataObjekPajakBumi, tx)
+			if err != nil {
+				return err
+			}
+			respDataObjekPajakBumi = resultObjekPajakBumi
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), data)
+	}
+
+	if input.ObjekPajakBumis != nil {
+		resp = t.II{
+			"regObjekPajakPbb":  data,
+			"regWajibPajakPbb":  respDataWajibPajakPbb.(rp.OK).Data,
+			"regObjekPajakBumi": respDataObjekPajakBumi.(rp.OK).Data,
+		}
+	} else {
+		resp = t.II{
+			"regObjekPajakPbb":  data,
+			"regWajibPajakPbb":  respDataWajibPajakPbb.(rp.OK).Data,
+			"regObjekPajakBumi": nil,
+		}
+	}
+	return rp.OK{
+		Meta: t.IS{
+			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: resp,
+	}, nil
+}
+
+func UpdateRtRwMassal(input m.UpdateRtRwMassalDto) (any, error) {
+	var data []m.ObjekPajakPbb
+	result := a.DB.
+		Where("Provinsi_Kode", input.Provinsi_Kode).
+		Where("Daerah_Kode", input.Daerah_Kode).
+		Where("Kecamatan_Kode", input.Kecamatan_Kode).
+		Where("Kelurahan_Kode", input.Kelurahan_Kode).
+		Where("\"Blok_Kode\" BETWEEN ? AND ?", input.AwalBlok_Kode, input.AkhirBlok_Kode).
+		Where("NOT (\"Blok_Kode\" = ? AND \"NoUrut\" < ?)", input.AwalBlok_Kode, input.AwalNoUrut).
+		Where("NOT (\"Blok_Kode\" = ? AND \"NoUrut\" > ?)", input.AkhirBlok_Kode, input.AkhirNoUrut).
+		Where("\"JenisOp\" BETWEEN ? AND ?", input.AwalJenisOp, input.AkhirJenisOp).
+		Find(&data)
+	if result.RowsAffected == 0 {
+		return sh.SetError("request", "update-data", source, "failed", "update rt rw massal error: data tidak ditemukan", data)
+	}
+
+	for i := 0; i < len(data); i++ {
+		data[i].Rt = input.Rt
+		data[i].Rw = input.Rw
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
 	}
 
@@ -475,6 +735,24 @@ func PenilaianSppt(input []msppt.Sppt, tx *gorm.DB) (any, error) {
 
 	}
 	return rp.OKSimple{Data: data}, nil
+}
+
+func GetByNop(provinsiKode, daerahKode, kecamatanKode, kelurahanKode, blokKode, noUrut, jenisOp *string) (m.ObjekPajakPbb, error) {
+	var data m.ObjekPajakPbb
+	condition := nopSearcher(sppt.Sppt{
+		Propinsi_Id:   provinsiKode,
+		Dati2_Id:      daerahKode,
+		Kecamatan_Id:  kecamatanKode,
+		Keluarahan_Id: kelurahanKode,
+		Blok_Id:       blokKode,
+		NoUrut:        noUrut,
+		JenisOP_Id:    jenisOp,
+	})
+	result := a.DB.Where(condition).First(&data)
+	if result.Error != nil {
+		return data, result.Error
+	}
+	return data, nil
 }
 
 func DownloadExcelList(input m.FilterDto, refId int) (*excelize.File, error) {

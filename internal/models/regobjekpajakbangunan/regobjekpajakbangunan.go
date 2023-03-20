@@ -39,7 +39,7 @@ type RegObjekPajakBangunan struct {
 	TanggalPerekaman      *time.Time        `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip" gorm:"type:char(9)"`
 	Perekam_Pegawai       *p.Pegawai        `json:"perekam_pegawai,omitempty" gorm:"foreignKey:Perekam_Pegawai_Nip;references:Nip"`
-	// jumlah lantai
+	JmlLantaiBng          *int              `json:"jmlLantaiBng"`
 	gh.DateModel
 }
 
@@ -148,6 +148,7 @@ type OPBngFasilitasBangunan struct {
 	FBPKFireAI             *int `json:"fbPKFireAI"`
 	FBPABX                 *int `json:"fbPABX"`
 	FBSumur                *int `json:"fbSumur"`
+	FBDayaListrik          *int `json:"fbDayaListrik"`
 
 	JpbKlinikACCentralKamar    *int    `json:"jpbKlinikACCentralKamar"`
 	JpbKlinikACCentralRuang    *int    `json:"jpbKlinikACCentralRuang"`
@@ -166,4 +167,49 @@ type OPBngFasilitasBangunan struct {
 	JpbProdDaya                *int    `json:"jpbProdDaya"`
 	JpbProdKeliling            *int    `json:"jpbProdKeliling"`
 	JpbProdLuas                *int    `json:"jpbProdLuas"`
+
+	KelasBangunan *string `json:"kelasBangunan"`
+}
+
+func (i RegObjekPajakBangunan) RegObjekPajakBangunanTransform() CreateDto {
+	var tempTglPendataan string
+	if i.TanggalPendataan != nil {
+		tempTglPendataan = (*time.Time)(i.TanggalPendataan).String()
+	}
+	var tempTglPemeriksaan string
+	if i.TanggalPemeriksaan != nil {
+		tempTglPemeriksaan = (*time.Time)(i.TanggalPemeriksaan).String()
+	}
+	var tempTglPerekaman string
+	if i.TanggalPerekaman != nil {
+		tempTglPerekaman = (*time.Time)(i.TanggalPerekaman).String()
+	}
+	result := CreateDto{
+		PstPermohonan_id:      i.PstPermohonan_id,
+		NoBangunan:            i.NoBangunan,
+		Jpb_Kode:              i.Jpb_Kode,
+		NoFormulirSpop:        i.NoFormulirSpop,
+		TahunDibangun:         i.TahunDibangun,
+		TahunRenovasi:         i.TahunRenovasi,
+		LuasBangunan:          i.LuasBangunan,
+		Kondisi:               i.Kondisi,
+		JenisKonstruksi:       i.JenisKonstruksi,
+		JenisAtap:             i.JenisAtap,
+		KodeDinding:           i.KodeDinding,
+		KodeLantai:            i.KodeLantai,
+		KodeLangitLangit:      i.KodeLangitLangit,
+		NilaiSistem:           i.NilaiSistem,
+		JenisTransaksi:        i.JenisTransaksi,
+		TanggalPendataan:      &tempTglPendataan,
+		Pendata_Pegawai_Nip:   i.Pendata_Pegawai_Nip,
+		TanggalPemeriksaan:    &tempTglPemeriksaan,
+		Pemeriksa_Pegawai_Nip: i.Pemeriksa_Pegawai_Nip,
+		TanggalPerekaman:      &tempTglPerekaman,
+		Perekam_Pegawai_Nip:   i.Perekam_Pegawai_Nip,
+		Nop:                   nil,
+		JmlLantaiBng:          i.JmlLantaiBng,
+		RegFasilitasBangunans: nil,
+		RegFasBangunan:        nil,
+	}
+	return result
 }

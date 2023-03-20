@@ -403,7 +403,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 
 						dataRJpb.JenisHotel = (bng.JenisHotel)(strconv.Itoa(*val.JpbHotelJenis))
 						if val.JpbHotelBintang != nil {
-							dataRJpb.JumlahBintang = (bng.JumlahBintang)(strconv.Itoa(*val.JpbHotelJenis))
+							dataRJpb.JumlahBintang = (bng.JumlahBintang)(strconv.Itoa(*val.JpbHotelBintang))
 						}
 						if val.JpbHotelJmlKamar != nil {
 							dataRJpb.JumlahKamar = val.JpbHotelJmlKamar
@@ -456,7 +456,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 							}
 							dataFasBangunan.Id = dataFasBangunan.Id + 1
 
-							dataRJpb.LuasApartAcCentral = val.JpbHotelACCentralRuang
+							dataRJpb.LuasApartAcCentral = val.JpbApartemenACCentralKamar
 						}
 						if val.JpbApartemenACCentralLain != nil {
 							tempKodeFas = "10"
@@ -468,7 +468,7 @@ func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 							}
 							dataFasBangunan.Id = dataFasBangunan.Id + 1
 
-							dataRJpb.LuasRuangLainAcCentral = val.JpbHotelACCentralRuang
+							dataRJpb.LuasRuangLainAcCentral = val.JpbApartemenACCentralLain
 						}
 
 						errTemp = tx.Create(&dataRJpb).Error

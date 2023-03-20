@@ -7,6 +7,7 @@ import (
 
 type SptStatus string
 type JenisKetetapan string
+type JenisMasa uint8
 
 const (
 	StatusBelumLunas          SptStatus = "00" //belum lunas
@@ -22,6 +23,7 @@ const (
 
 	JenisKetetapanSkpdkb  JenisKetetapan = "skpdkb"
 	JenisKetetapanSkpdkbt JenisKetetapan = "skpdkbt"
+	JenisKetetapanSkpd    JenisKetetapan = "skpd"
 
 	TbpStatusFilterBaru       uint8 = 1 // baru
 	TbpStatusFilterPembayaran uint8 = 2 // Pembayaran
@@ -29,6 +31,16 @@ const (
 	TbpStatusFilterLunas      uint8 = 4 // Lunas
 	TbpStatusFilterJatuhTempo uint8 = 5 // Jatuh Tempo
 	TbpStatusFilterPenetapan  uint8 = 6 // Penetapan
+
+	// Jenis Masa Pajak Reklame
+	// Tetap (1 Tahun)
+	JenisMasaTetap JenisMasa = 1
+	// 2 Insidentil 1 Bulan
+	JenisMasaInsidentil1Bulan JenisMasa = 2
+	// 3 Insidentil 1 Hari
+	JenisMasaInsidentil1Hari JenisMasa = 3
+	// 4 Insidentil 1 Kali Penyelenggaraan
+	JenisMasaInsidentil1Penyelenggaraan JenisMasa = 4
 )
 
 type Input interface {

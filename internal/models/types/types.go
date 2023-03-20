@@ -8,6 +8,7 @@ type Golongan int16
 type Status int16 // StatusNpwdp
 type StatusBL int16
 type StatusVerifikasi uint8
+type JenisMasa int16
 
 const (
 	PeruntukanNonNiaga    Peruntukan = "NON NIAGA"
@@ -39,4 +40,9 @@ const (
 	StatusVerifikasiDisetujuiKabid   StatusVerifikasi = 2 // DisetujuiKabid
 	StatusVerifikasiDitolakKasubid   StatusVerifikasi = 3 // DitolakKasubid
 	StatusVerifikasiDitolakKabid     StatusVerifikasi = 4 // DitolakKabid
+
+	MasaPajakTahun         JenisMasa = 1 //masa pajak tetap 1 tahun
+	MasaPajakBulan         JenisMasa = 2 //masa pajak insidentil 1 bulan
+	MasaPajakHari          JenisMasa = 3 //masa pajak insidentil 1 hari
+	MasaPajakPenyelenggara JenisMasa = 4 //masa pajak insidentil 1 kali penyelenggaraan
 )

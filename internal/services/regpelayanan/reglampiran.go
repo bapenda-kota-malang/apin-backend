@@ -1,6 +1,7 @@
 package regpermohonan
 
 import (
+	"strconv"
 	"strings"
 	"sync"
 
@@ -12,6 +13,11 @@ import (
 )
 
 func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (data m.RegPstLampiran, err error) {
+	var (
+		fileName string
+		path     string
+		extFile  string
+	)
 	// TODO: lampiran section
 	id, err := sh.GetUuidv4()
 	if err != nil {
@@ -25,13 +31,15 @@ func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 	var errChan = make(chan error, 16)
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	fileName, path, extFile, _, err := sh.FilePreProcess(*input.LampiranKTP, "lampiranKTP", userId, id)
-	if err != nil {
-		return
+	if input.LampiranKTP != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranKTP, "lampiranKTP", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranKTP, fileName, path, extFile, errChan)
+		data.LampiranKTP = &fileName
 	}
-	go sh.BulkSaveFile(&wg, *input.LampiranKTP, fileName, path, extFile, errChan)
-	data.LampiranKTP = &fileName
 
 	if input.LampiranAkte != nil {
 		wg.Add(1)
@@ -206,14 +214,14 @@ func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 	if input.LampiranSppt != nil {
 		tempSPPT := *input.LampiranSppt
 		var tempResult []string
-		for _, item := range tempSPPT {
+		for i, item := range tempSPPT {
 			wg.Add(1)
 			fileName, path, extFile, _, err = sh.FilePreProcess(item, "lampiranSppt", userId, id)
 			if err != nil {
 				return
 			}
 			go sh.BulkSaveFile(&wg, item, fileName, path, extFile, errChan)
-			tempResult = append(tempResult, fileName)
+			tempResult = append(tempResult, strconv.Itoa(i)+"-"+fileName)
 		}
 		joinResult := strings.Join(tempResult, ", ")
 		data.LampiranSppt = &joinResult

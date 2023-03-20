@@ -25,7 +25,7 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.GetList(input, 0)
+	result, err := s.GetList(input, 0, nil)
 	hh.DataResponse(w, result, err)
 }
 
@@ -35,7 +35,17 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.GetDetail(id, 0)
+	result, err := s.GetDetail(id, 0, nil)
+	hh.DataResponse(w, result, err)
+}
+
+func UpdateRtRwMassal(w http.ResponseWriter, r *http.Request) {
+	var data m.UpdateRtRwMassalDto
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+		return
+	}
+
+	result, err := s.UpdateRtRwMassal(data)
 	hh.DataResponse(w, result, err)
 }
 
