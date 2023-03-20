@@ -65,3 +65,19 @@ func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Delete(id, nil)
 	hh.DataResponse(w, result, err)
 }
+
+func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+
+	result, err := s.DownloadExcelList(input)
+	if err != nil {
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=list_dbkb_jpb_16.xlsx")
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+	result.Write(w)
+}

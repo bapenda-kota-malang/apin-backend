@@ -6,11 +6,13 @@ import (
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
@@ -70,6 +72,65 @@ func GetList(input m.FilterDto) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
+	var data []m.UndanganPemeriksaan
+	result := a.DB.
+		Model(&m.UndanganPemeriksaan{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		Preload("Npwpd.ObjekPajak").
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data undangan pemeriksaan", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "NPWD",
+			"C": "Nama Usaha",
+			"D": "No Surat Pemberitahuan",
+			"E": "Tanggal Pemeriksaan",
+			"F": "Status",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": func() string {
+					if v.Npwpd != nil && v.Npwpd.Npwpd != nil {
+						return *v.Npwpd.Npwpd
+					}
+					return ""
+				}(),
+				"C": func() string {
+					if v.Npwpd != nil && v.Npwpd.ObjekPajak != nil {
+						return *v.Npwpd.ObjekPajak.Nama
+					}
+					return ""
+				}(),
+				"D": *v.NoSuratUndangan,
+				"E": func() string {
+					if v.Tanggal != nil {
+						return v.Tanggal.Format("2006-01-02")
+					}
+					return ""
+				}(),
+				"F": func() string {
+					s := []string{"Belum Terbit", "Terbit", "Selesai"}
+					return s[v.Status]
+				}(),
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
 }
 
 func GetDetail(id int) (any, error) {

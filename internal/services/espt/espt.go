@@ -4,10 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -15,6 +17,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
@@ -91,6 +94,72 @@ func GetList(input m.FilterDto, user_Id uint) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto, user_Id uint) (*excelize.File, error) {
+	var data []m.Espt
+
+	baseQuery := a.DB.Model(&m.Espt{})
+	if user_Id != 0 {
+		baseQuery = baseQuery.Where(&m.Espt{LaporBy_User_Id: user_Id})
+	}
+
+	result := baseQuery.
+		Scopes(gh.Filter(input)).
+		Joins("Npwpd").
+		// Joins("ObjekPajak").
+		Preload("LaporUser", func(db *gorm.DB) *gorm.DB {
+			return db.Omit("Password")
+		}).
+		Joins("Rekening").
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "Nomor",
+			"C": "Tanggal",
+			"D": "Masa Pajak",
+			"E": "Jatuh Tempo",
+			"F": "Pajak/Retribusi",
+			"G": "NPWPD",
+			"H": "Nama WP",
+			"I": "Jumlah Pajak",
+			"J": "Status",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": func() string {
+					s := strings.Split(v.Id.String(), "-")
+					return s[4]
+				}(),
+				"C": func() string {
+					return v.CreatedAt.Format("2006-01-02")
+				}(),
+				"D": func() string {
+					// start, _ := time.Parse("2006-01-02", v.PeriodeAwal.GormDataType())
+					return v.PeriodeAwal.GormDataType() + " s/d " + v.PeriodeAkhir.GormDataType()
+				}(),
+				"E": func() string {
+					return v.JatuhTempo.GormDataType()
+				}(),
+				"F": "",
+				"G": *v.Npwpd.Npwpd,
+				"H": v.LaporUser.Name,
+				"I": v.TarifPajak_Id,
+				"J": v.VerifyStatus,
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
 }
 
 func GetDetail(id uuid.UUID, user_Id uint) (any, error) {

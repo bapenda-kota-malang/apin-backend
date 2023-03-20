@@ -89,3 +89,19 @@ func GetListSspdDetail(w http.ResponseWriter, r *http.Request) {
 	result, err := sd.GetListSspdDetail(input)
 	hh.DataResponse(w, result, err)
 }
+
+func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterDto
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
+		return
+	}
+
+	result, err := s.DownloadExcelList(input, nil)
+	if err != nil {
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=list_sspd.xlsx")
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+	result.Write(w)
+}

@@ -48,3 +48,19 @@ func UpdateRtRwMassal(w http.ResponseWriter, r *http.Request) {
 	result, err := s.UpdateRtRwMassal(data)
 	hh.DataResponse(w, result, err)
 }
+
+func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+
+	result, err := s.DownloadExcelList(input, 0)
+	if err != nil {
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=list_spop_lspop.xlsx")
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+	result.Write(w)
+}

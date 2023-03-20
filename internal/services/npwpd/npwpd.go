@@ -17,10 +17,12 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -58,6 +60,166 @@ func GetList(input npwpd.FilterDto) (interface{}, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input npwpd.FilterDto) (*excelize.File, error) {
+	var data []npwpd.Npwpd
+
+	result := a.DB.
+		Model(&npwpd.Npwpd{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		Preload("ObjekPajak").
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "Assessment",
+			"C": "Golongan",
+			"D": "Nomor",
+			"E": "NPWPD/RD",
+			"F": "Jenis Usaha",
+			"G": "Nama WP",
+			"H": "Nama Pemilik",
+			"I": "Kecamatan",
+			"J": "Kelurahan",
+			"K": "Tgl NPWD",
+			"L": "Status",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": func() string {
+					if v.JenisPajak == mt.JenisPajakSA {
+						return "SA"
+					} else if v.JenisPajak == mt.JenisPajakOA {
+						return "OA"
+					} else {
+						return ""
+					}
+				}(),
+				"C": func() string {
+					if v.Golongan == 1 {
+						return "Orang Pribadi"
+					} else {
+						return "Badan"
+					}
+				}(),
+				"D": func() string {
+					s := strconv.Itoa(v.Nomor)
+					if v.Nomor < 10 {
+						return "000" + s
+					} else if v.Nomor < 100 {
+						return "00" + s
+					} else if v.Nomor < 1000 {
+						return "0" + s
+					} else {
+						return s
+					}
+				}(),
+				"E": *v.Npwpd,
+				"F": *v.Rekening.Nama,
+				"G": *v.ObjekPajak.Nama,
+				"H": *v.PemilikWps[0].Nama,
+				"I": v.ObjekPajak.Kecamatan.Nama,
+				"J": v.ObjekPajak.Kelurahan.Nama,
+				"K": func() string {
+					if v.TanggalNpwpd == nil {
+						return ""
+					}
+					return v.TanggalNpwpd.Format("2006-01-02")
+				}(),
+				"L": func() string {
+					if v.Status == 0 {
+						return "Baru"
+					} else if v.Status == 1 || v.Status == 2 {
+						return "Disetujui"
+					} else if v.Status == 3 || v.Status == 4 {
+						return "Ditolak"
+					} else {
+						return "Tidak Diketahui"
+					}
+				}(),
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List Pend. Wajib Pajak")
+}
+
+func DownloadExcelSpec(input npwpd.FilterDto, tp string) (*excelize.File, error) {
+	var data []npwpd.Npwpd
+
+	result := a.DB.
+		Model(&npwpd.Npwpd{}).
+		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
+			return tx.Omit("Password")
+		}).
+		Preload("ObjekPajak").
+		Preload("ObjekPajak.Kecamatan").
+		Preload("ObjekPajak.Kelurahan").
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData []interface{}
+	if tp == "lapbphtb" {
+		excelData = func() []interface{} {
+			var tmp []interface{}
+			tmp = append(tmp, map[string]interface{}{
+				"A": "No",
+				"B": "Tanggal",
+				"C": "NOP",
+				"D": "NO SSPD",
+				"E": "Nama WP",
+				"F": "Payment Point",
+				"G": "Jumlah Disetor",
+			})
+			for i, _ := range data {
+				n := i + 1
+				tmp = append(tmp, map[string]interface{}{
+					"A": n,
+				})
+			}
+			return tmp
+		}()
+	} else if tp == "pemsspd" {
+		excelData = func() []interface{} {
+			var tmp []interface{}
+			tmp = append(tmp, map[string]interface{}{
+				"A": "No",
+				"B": "No Pelayanan",
+				"C": "No SSPD",
+				"D": "Nama WP",
+				"E": "Alamat OP",
+				"F": "Jumlah Disetor",
+				"G": "Tanggal",
+			})
+			for i, _ := range data {
+				n := i + 1
+				tmp = append(tmp, map[string]interface{}{
+					"A": n,
+				})
+			}
+			return tmp
+		}()
+	}
+
+	return excelhelper.ExportList(excelData, "List Pend. Wajib Pajak")
 }
 
 func GetDetail(r *http.Request, regID int) (interface{}, error) {

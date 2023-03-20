@@ -21,6 +21,22 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+
+	result, err := s.DownloadExcelList(input, 0)
+	if err != nil {
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=list_espt.xlsx")
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+	result.Write(w)
+}
+
 func GetDetail(w http.ResponseWriter, r *http.Request) {
 	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
 	if !pass {
