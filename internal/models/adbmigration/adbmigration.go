@@ -297,6 +297,7 @@ func GetModelList() (data []interface{}) {
 	data = append(data, listModelPenetapan...)
 
 	listModelPengajuan := []interface{}{
+		&pengurangan.RefPengurangan{},
 		&pengurangan.Pengurangan{},
 		&pengurangan.PenguranganDendaADM{},
 		&pengurangan.PenguranganJPB{},
@@ -336,6 +337,7 @@ func GetModelList() (data []interface{}) {
 		&pstpermohonan.PstDataOPBaru{},
 		&pstpermohonan.PstPermohonanPengurangan{},
 		// &pstpermohonan.KeputusanKeberatanPbb{},
+		&pstpermohonan.PstLogApproval{},
 		&pstpermohonan.PembatalanSppt{},
 		&pstpermohonan.PembetulanSpptSKPSTP{},
 		&pstpermohonan.PstLampiran{},

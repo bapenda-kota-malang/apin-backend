@@ -1,0 +1,343 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Report Permohonan</title>
+    <style type="text/css">
+        body, td, th {
+            font-size: 12px;
+            font-family: Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", monospace;
+        }
+    </style>
+</head>
+
+<body>
+<!--	Section 1-->
+<div>
+    <table width="100%" border="0" cellspacing="0">
+        <tbody>
+        <tr>
+            <td width="43%">FORMULIR PELAYANAN WAJIB PAJAK PBB</td>
+            <td width="31%">1. NOMOR PELAYANAN</td>
+            <td width="2%">:</td>
+            <td width="24%">{{.Data.noPelayanan}}</td>
+        </tr>
+        <tr>
+            <td><div style="border-top: dashed 1px black;margin: 5px; height: 5px;width: 90%"> &nbsp; </div></td>
+            <td>2. TANGGAL PELAYANAN</td>
+            <td>:</td>
+            <td>{{.Custom.TglPelayanan}}</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>3. TGL. SELESAI (Perkiraan)</td>
+            <td>:</td>
+            <td>{{.Custom.TglSelesai}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<!--	End Section 1-->
+<div style="border-top: dashed 1px black;margin: 5px; height: 5px"> &nbsp; </div>
+<!--Section 2-->
+<div>
+    <table width="100%" border="0">
+        <tbody>
+        <tr>
+            <td width="3%">4.</td>
+            <td width="25%">JENIS PELAYANAN</td>
+            <td width="2%">:</td>
+            <td width="70%">{{.Custom.JenisPelayanan}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<!--	End section 2-->
+<div style="border-top: dashed 1px black;margin: 5px; height: 5px"> &nbsp; </div>
+<!--	Section 3-->
+<div>
+    <div>
+        <table width="100%" border="0">
+            <tbody>
+            <tr>
+                <td width="3%">5.</td>
+                <td width="25%">NOP</td>
+                <td width="2%">:</td>
+                <td width="70%">{{.Custom.NOP}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- End section 3-->
+<div style="border-top: dashed 1px black;margin: 5px; height: 5px"> &nbsp; </div>
+<!--	section 4-->
+<div>
+    <p style="text-align: center">A. DATA WAJIB/OBJEK PAJAK DAN KETERANGAN </p>
+</div>
+<div style="border-top: dashed 1px black;  height: 5px"> &nbsp; </div>
+<div>
+    <table width="100%" border="0">
+        <tbody>
+        <tr>
+            <td width="3%">6.</td>
+            <td width="25%">NAMA PEMOHON</td>
+            <td width="2%">:</td>
+            <td width="70%">{{.Data.namaWP}}</td>
+        </tr>
+        <tr>
+            <td width="3%">&nbsp;</td>
+            <td width="25%">ALAMAT PEMOHON</td>
+            <td width="2%">:</td>
+            <td width="70%">{{.Data.letakOP}}</td>
+        </tr>
+        <tr>
+            <td width="3%">7.</td>
+            <td width="25%">LETAK OBJEK PAJAK</td>
+            <td width="2%">:</td>
+            <td class="tb">{{.Data.letakOP}}</td>
+        </tr>
+        <tr>
+            <td width="3%">&nbsp;</td>
+            <td width="25%">KELURAHAN</td>
+            <td width="2%">:</td>
+            <td width="70%">{{.Custom.Kelurahan}}</td>
+        </tr>
+        <tr>
+            <td width="3%">&nbsp;</td>
+            <td width="25%">KECAMATAN</td>
+            <td width="2%">:</td>
+            <td width="70%">{{.Custom.Kecamatan}}</td>
+        </tr>
+        <tr>
+            <td width="3%">8.</td>
+            <td width="25%">KETERANGAN</td>
+            <td width="2%">:</td>
+            <td width="70%" rowspan="2" align="left" valign="top">{{.Data.keterangan}}</td>
+        </tr>
+        <tr>
+            <td width="3%">&nbsp;</td>
+            <td width="25%">&nbsp;</td>
+            <td width="2%">&nbsp;</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<!--	end section 4-->
+<div style="border-top: dashed 1px black;  height: 5px"> &nbsp; </div>
+<!--	section 5-->
+<div>
+    <div>
+        <p style="text-align: center">B. PENERIMAAN BERKAS</p>
+    </div>
+    <div style="border-top: dashed 1px black;  height: 5px"> &nbsp; </div>
+    <table width="100%" border="0">
+        <tbody>
+        <tr>
+            <td width="3%">9.</td>
+            <td width="25%">DOKUMEN DILAMPIRKAN</td>
+            <td width="2%">:</td>
+            <td width="70%">{{.Custom.NOP}}</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td colspan="3"><table width="100%" border="0">
+                <tbody>
+                <tr>
+                    <td width="33%"><table width="100%" border="0">
+                        <tbody>
+                        {{range $index, $jp := slice .Checklist.JenisBerkas 0 5}}
+                        <tr>
+                            {{if eq  $jp.Status ""}}
+                            <td width="11%">[&nbsp;&nbsp;]</td>
+                            {{else}}
+                            <td width="11%">[{{$jp.Status}}]</td>
+                            {{end}}
+                            <td width="10%">{{$jp.Nomer}}.</td>
+                            <td width="79%">{{$jp.Text}}</td>
+                        </tr>
+                        {{end}}
+                        </tbody>
+                    </table></td>
+                    <td width="33%"><table width="100%" border="0">
+                        <tbody>
+                        {{range $index, $jp := slice .Checklist.JenisBerkas 5 10}}
+                        <tr>
+                            {{if eq  $jp.Status ""}}
+                            <td width="11%">[&nbsp;]</td>
+                            {{else}}
+                            <td width="11%">[{{$jp.Status}}]</td>
+                            {{end}}
+                            <td width="10%">{{$jp.Nomer}}.</td>
+                            <td width="79%">{{$jp.Text}}</td>
+                        </tr>
+                        {{end}}
+                        </tbody>
+                    </table></td>
+                    <td width="33%"><table width="100%" border="0">
+                        <tbody>
+                        {{range $index, $jp := slice .Checklist.JenisBerkas 10}}
+                        <tr>
+                            {{if eq  $jp.Status ""}}
+                            <td width="11%">[&nbsp;&nbsp;]</td>
+                            {{else}}
+                            <td width="11%">[{{$jp.Status}}]</td>
+                            {{end}}
+                            <td width="10%">{{$jp.Nomer}}.</td>
+                            <td width="79%">{{$jp.Text}}</td>
+                        </tr>
+                        {{end}}
+                        </tbody>
+                    </table></td>
+                </tr>
+                </tbody>
+            </table></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<!--	end section 5-->
+
+<div style=";margin: 5px; height: 5px"> &nbsp; </div>
+<!--	section 6-->
+<div>
+    <table width="100%" border="0">
+        <tbody>
+        <tr>
+            <td width="3%">10.</td>
+            <td width="25%">CATATAN</td>
+            <td width="2%">:</td>
+            <td width="70%"></td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td colspan="3">{{.Data.catatan}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<!--	end section 6-->
+<!--	section 7-->
+
+<table width="100%" border="0">
+    <tbody>
+    <tr>
+        <td width="3%">11.</td>
+        <td width="32%">PETUGAS PENERIMA BERKAS</td>
+        <td width="1%">:</td>
+        <td width="33%">{{.Custom.NOP}}</td>
+        <td width="31%">NIP. {{.Data.nip}} </td>
+    </tr>
+    </tbody>
+</table>
+
+<!--	end section 7-->
+
+<table width="100%" border="0">
+    <tbody>
+    <tr>
+        <td width="16%" height="27" align="center" valign="middle">
+            <div style="border-top: dashed 1px black;margin-top: 10px;height:  5px "> &nbsp; </div></td>
+        <td width="12%" align="center" valign="middle"> Gunting Disini</td>
+        <td width="72%" align="center" valign="middle"><div style="border-top: dashed 1px black;margin-top: 10px;height:  5px "> &nbsp; </div>
+
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!--	secction 8-->
+
+<table width="100%" border="0">
+    <tbody>
+    <tr>
+        <td width="4%">12.</td>
+        <td width="10%">NOP</td>
+        <td width="2%">:</td>
+        <td width="34%">{{.Custom.NOP}}</td>
+        <td width="3%">14. </td>
+        <td width="27%">NOMOR PELAYANAN </td>
+        <td width="3%">: </td>
+        <td width="17%">{{.Data.noPelayanan}}</td>
+    </tr>
+    <tr>
+        <td width="4%">&nbsp;</td>
+        <td width="10%">&nbsp;</td>
+        <td width="2%">&nbsp;</td>
+        <td width="34%">&nbsp;</td>
+        <td width="3%">15. </td>
+        <td width="27%">TANGGAL PELAYANAN</td>
+        <td width="3%">: </td>
+        <td width="17%">{{.Custom.TglPelayanan}}</td>
+    </tr>
+    <tr>
+        <td colspan="4" rowspan="3">DINAS BADAN PENDAPATAN DAERAH<br>
+            PERKANTORAN TERPADU JL MAYJEND SUNGKONO,<br>
+            MALANG</td>
+        <td width="3%" height="16">16. </td>
+        <td width="27%">TGL. SELESAI (Perkiraan) </td>
+        <td width="3%">: </td>
+        <td width="17%">{{.Custom.TglSelesai}}</td>
+    </tr>
+    <tr>
+        <td width="3%">&nbsp;</td>
+        <td width="27%">&nbsp;</td>
+        <td width="3%">&nbsp;</td>
+        <td width="17%">&nbsp;</td>
+    </tr>
+    <tr>
+        <td width="3%">17. </td>
+        <td width="27%">PETUGAS PENERIMA BERKAS</td>
+        <td width="3%">: </td>
+        <td width="17%">{{.Data.noPelayanan}}</td>
+    </tr>
+    <tr>
+        <td colspan="4" rowspan="4" align="center" valign="middle"><div>
+            <div style="border-top: dashed 1px black;margin: 5px; height: 5px; width: 40%"> &nbsp; </div>
+            TANDA PENDAFTARAN<br>
+            PELAYANAN PBB
+            <div style="border-top: dashed 1px black;margin: 5px; height: 5px; width: 40%"> &nbsp; </div>
+        </div></td>
+        <td colspan="4">&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="4">&nbsp;</td>
+    </tr>
+    <tr>
+        <td height="16" colspan="4">{{.Custom.NOP}} </td>
+    </tr>
+    <tr>
+        <td height="16" colspan="4">NIP. {{.Data.nip}} </td>
+    </tr>
+    <tr>
+        <td width="4%">18.</td>
+        <td width="10%">URUSAN</td>
+        <td width="2%">:</td>
+        <td colspan="5">{{.Data.catatan}}</td>
+    </tr>
+    </tbody>
+</table>
+<!--	end section 8-->
+
+<div style="border-top: dashed 1px black;margin: 5px; height: 5px"> &nbsp; </div>
+<!--	section 9-->
+<div>
+    <table width="100%" border="0">
+        <tbody>
+        <tr>
+            <td width="4%">19.</td>
+            <td width="10%">CATATAN</td>
+            <td width="2%">:</td>
+            <td width="84%" rowspan="2" align="left" valign="top">{{.Data.catatan}}</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<!--	end section 9-->
+</body>
+</html>

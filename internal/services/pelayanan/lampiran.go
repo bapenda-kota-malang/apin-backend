@@ -282,6 +282,26 @@ func CreateLampiran(input m.PstLampiranCreateDTO, userId uint, tx *gorm.DB) (dat
 		data.LampiranHakMilik = &fileName
 	}
 
+	if input.LampiranLhp != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranLhp, "lampiranLhp", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranSkkpPbb, fileName, path, extFile, errChan)
+		data.LampiranSkkpPbb = &fileName
+	}
+
+	if input.LampiranTelaah != nil {
+		wg.Add(1)
+		fileName, path, extFile, _, err = sh.FilePreProcess(*input.LampiranTelaah, "lampiranTelaah", userId, id)
+		if err != nil {
+			return
+		}
+		go sh.BulkSaveFile(&wg, *input.LampiranSkkpPbb, fileName, path, extFile, errChan)
+		data.LampiranSkkpPbb = &fileName
+	}
+
 	if err = sc.Copy(&data, &input); err != nil {
 		return
 	}

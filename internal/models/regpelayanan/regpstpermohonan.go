@@ -120,7 +120,7 @@ type PermohonanApprovalRequestDto struct {
 type FilterDto struct {
 	StatusKolektif    *string         `json:"statusKolektif"`
 	NoSuratPermohonan *string         `json:"noSuratPermohonan"`
-	JenisPelayanan    *string         `json:"jenisPelayanan"`
+	BundelPelayanan   *[]string       `json:"jenisPelayanan"`
 	TanggalTerima     *datatypes.Date `json:"tanggalTerima"`
 	TanggalSelesai    *datatypes.Date `json:"tanggalSelesai"`
 	TanggalPermohonan *datatypes.Date `json:"tanggalPermohonan"`
@@ -181,6 +181,7 @@ type PstPermohonanResponse struct {
 	PstPermohonanPengurangan *RegPstPermohonanPengurangan `json:"pstPengurangan"`
 	PstLampiran              *RegPstLampiran              `json:"pstLampiran"`
 	PstLogApproval           *[]ori.PstLogApproval        `json:"pstLogApproval"`
+	PstLogApprovalRes        *ori.ResponsePSTLogApproval  `json:"pstLogApprovalRes"`
 
 	// PembetulanSpptSKPSTP     *PembetulanSpptSKPSTP     `json:"pembetulanSpptSKPSTP"`
 	// PembatalanSppt           *PembatalanSppt           `json:"pembatalanSppt"`

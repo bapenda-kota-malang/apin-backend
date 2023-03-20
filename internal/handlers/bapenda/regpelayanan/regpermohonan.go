@@ -45,6 +45,28 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func GetListApproval(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+	var tempResult []string
+	bp := hh.ValidateString(w, r, "bp")
+	if bp != "" {
+		if bp == "spop" {
+			tempResult = []string{"01", "02", "03"}
+		} else if bp == "keberatan" {
+			tempResult = []string{"06", "07"}
+		} else if bp == "pengurangan" {
+			tempResult = []string{"08", "10"}
+		}
+		input.BundelPelayanan = &tempResult
+	}
+
+	result, err := s.GetList(input)
+	hh.DataResponse(w, result, err)
+}
+
 func GetStatusNOP(w http.ResponseWriter, r *http.Request) {
 	nop := hh.ValidateString(w, r, "id")
 	if nop == "" {

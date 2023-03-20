@@ -36,6 +36,8 @@ type RegPstLampiran struct {
 	LampiranLetakOP         *string   `json:"lampiranLetakOP" gorm:"TEXT"`
 	LampiranHakMilik        *string   `json:"lampiranHakMilik" gorm:"TEXT"`
 	LampiranFotoOP          *string   `json:"lampiranFotoOP" gorm:"TEXT"`
+	LampiranLhp             *string   `json:"lampiranLhp" gorm:"TEXT"`
+	LampiranTelaah          *string   `json:"lampiranTelaah" gorm:"TEXT"`
 	PermohonanNOP
 	gormhelper.DateModel
 }
@@ -69,6 +71,8 @@ type RegPstLampiranCreateDTO struct {
 	LampiranLetakOP         *string   `json:"lampiranLetakOP"`
 	LampiranHakMilik        *string   `json:"lampiranHakMilik"`
 	LampiranFotoOP          *[]string `json:"lampiranFotoOP"`
+	LampiranLhp             *string   `json:"lampiranLhp"`
+	LampiranTelaah          *string   `json:"lampiranTelaah"`
 	PermohonanNOP
 	gormhelper.DateModel
 }
@@ -103,6 +107,8 @@ type RegPstLampiranUpdateDTO struct {
 	LampiranLetakOP         *string   `json:"lampiranLetakOP"`
 	LampiranHakMilik        *string   `json:"lampiranHakMilik"`
 	LampiranFotoOP          *[]string `json:"lampiranFotoOP"`
+	LampiranLhp             *string   `json:"lampiranLhp"`
+	LampiranTelaah          *string   `json:"lampiranTelaah"`
 	PermohonanNOP
 	gormhelper.DateModel
 }

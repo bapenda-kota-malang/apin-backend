@@ -60,6 +60,7 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 	ref := t.II{}
 	ref_type := ""
 	jabatan_id := 0
+	bidangKerja_Kode := ""
 	if user.Position == 1 {
 		var refData pm.Pegawai
 		if err := getAndCheck(result, &refData, pm.Pegawai{Id: user.Ref_Id}); err != nil {
@@ -71,6 +72,7 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 		ref["nama"] = refData.Nama
 		ref["nip"] = refData.Nip
 		ref["jabatan_id"] = refData.Jabatan_Id
+		ref["bidangKerja_kode"] = refData.BidangKerja_Kode
 		jabatan_id = refData.Jabatan_Id
 	} else if user.Position == 2 {
 		var refData am.Ppat
@@ -107,6 +109,7 @@ func GenToken(input um.LoginDto) (interface{}, error) {
 	atClaims["user_id"] = user.Id
 	atClaims["ref_id"] = user.Ref_Id
 	atClaims["jabatan_id"] = jabatan_id
+	atClaims["bidangKerja_kode"] = bidangKerja_Kode
 	atClaims["exp"] = atExpires
 	atClaims["uuid"] = aUuid
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)

@@ -11,6 +11,7 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bankpersepsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bapenagihan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/catatanpembayaranpbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datanir"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetablok"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/datapetaznt"
@@ -99,6 +100,7 @@ import (
 	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penagihan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pengurangan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pengurangan/refpengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penilaian"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/potensiopwp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/ppat"
@@ -251,39 +253,55 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/bphtbsptpd", bphtbsptpd.Crud{})
 
 	rh.RegCrud(r, "/kelastanah", kelastanah.Crud{})
+	r.Get("/kelastanah/download/excel", kelastanah.DownloadExcelList)
 
 	rh.RegCrud(r, "/kelasbangunan", kelasbangunan.Crud{})
+	r.Get("/kelasbangunan/download/excel", kelasbangunan.DownloadExcelList)
 
 	r.Get("/nop-bynopstr/{nop}", nop.GetDetailByNopString)
 	rh.RegCrud(r, "/nop", nop.Crud{})
 
 	rh.RegCrud(r, "/dbkbjpb2", dbkbjpb2.Crud{})
+	r.Get("/dbkbjpb2/download/excel", dbkbjpb2.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb3", dbkbjpb3.Crud{})
+	r.Get("/dbkbjpb3/download/excel", dbkbjpb3.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb4", dbkbjpb4.Crud{})
+	r.Get("/dbkbjpb4/download/excel", dbkbjpb4.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb5", dbkbjpb5.Crud{})
+	r.Get("/dbkbjpb5/download/excel", dbkbjpb5.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb6", dbkbjpb6.Crud{})
+	r.Get("/dbkbjpb6/download/excel", dbkbjpb6.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb7", dbkbjpb7.Crud{})
+	r.Get("/dbkbjpb7/download/excel", dbkbjpb7.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb8", dbkbjpb8.Crud{})
+	r.Get("/dbkbjpb8/download/excel", dbkbjpb8.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb9", dbkbjpb9.Crud{})
+	r.Get("/dbkbjpb9/download/excel", dbkbjpb9.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb12", dbkbjpb12.Crud{})
+	r.Get("/dbkbjpb12/download/excel", dbkbjpb12.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb13", dbkbjpb13.Crud{})
+	r.Get("/dbkbjpb13/download/excel", dbkbjpb13.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb14", dbkbjpb14.Crud{})
+	r.Get("/dbkbjpb14/download/excel", dbkbjpb14.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb15", dbkbjpb15.Crud{})
+	r.Get("/dbkbjpb15/download/excel", dbkbjpb15.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbjpb16", dbkbjpb16.Crud{})
+	r.Get("/dbkbjpb16/download/excel", dbkbjpb16.DownloadExcelList)
 
 	rh.RegCrud(r, "/dbkbmezanin", dbkbmezanin.Crud{})
+	r.Get("/dbkbmezanin/download/excel", dbkbmezanin.DownloadExcelList)
 
 	rh.RegCrud(r, "/nilaiindividu", nilaiindividu.Crud{})
 
@@ -296,6 +314,7 @@ func SetRoutes() http.Handler {
 
 	r.Route("/bphtbsptpd-approval", func(r chi.Router) {
 		r.Get("/{tp}", bphtbsptpd.GetListVerifikasi)
+		r.Get("/{tp}/download/excel", bphtbsptpd.DownloadExcelListVerifikasi)
 		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
 	})
 
@@ -345,9 +364,12 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", permohonan.GetDetail)
 		r.Patch("/{id}", permohonan.Update)
 		r.Delete("/{id}", permohonan.Delete)
+		r.Get("/download/excel", permohonan.DownloadExcelList)
+		r.Get("/download/pdf/{id}", permohonan.DownloadPdf)
 	})
 
 	r.Route("/permohonan-approval", func(r chi.Router) {
+		r.Get("/{bp}", regpermohonan.GetListApproval)
 		r.Patch("/{id}/reg", permohonan.UpdateApprovalReg)
 		r.Patch("/{id}", permohonan.UpdateApproval)
 	})
@@ -386,6 +408,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", user.Update)
 		r.Delete("/{id}", user.Delete)
 		r.Patch("/{id}/verifikasi", user.Verifikasi)
+		r.Get("/download/excel", user.DownloadExcelList)
 	})
 
 	r.Route("/group", func(r chi.Router) {
@@ -394,6 +417,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", group.GetDetail)
 		r.Patch("/{id}", group.Update)
 		r.Delete("/{id}", group.Delete)
+		r.Get("/download/excel", group.DownloadExcelList)
 	})
 
 	r.Get("/npwpd-byno/{no}", npwpd.GetDetailByNoNPWPD)
@@ -403,6 +427,8 @@ func SetRoutes() http.Handler {
 		r.Post("/", npwpd.Create)
 		r.Patch("/{id}", npwpd.Update)
 		r.Delete("/{id}", npwpd.Delete)
+		r.Get("/download/excel", npwpd.DownloadExcelList)
+		r.Get("/download/excel/{type}", npwpd.DownloadExcelSpec)
 	})
 
 	r.Route("/regnpwpd", func(r chi.Router) {
@@ -411,6 +437,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", regnpwpd.GetDetail)
 		r.Delete("/{id}", regnpwpd.Delete)
 		r.Patch("/{id}", regnpwpd.Update)
+		r.Get("/download/excel", regnpwpd.DownloadExcelList)
 	})
 
 	r.Route("/potensiopwp", func(r chi.Router) {
@@ -419,6 +446,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", potensiopwp.GetDetail)
 		// r.Patch("/{id}", potensiopwp.Update)
 		r.Delete("/{id}", potensiopwp.Delete)
+		r.Get("/download/excel", potensiopwp.DownloadExcelList)
 	})
 
 	r.Route("/provinsi", func(r chi.Router) {
@@ -502,6 +530,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", espt.GetList)
 		r.Get("/{id}", espt.GetDetail)
 		r.Patch("/{id}/verify", espt.Verify)
+		r.Get("/download/excel", espt.DownloadExcelList)
 	})
 
 	r.Route("/sspd", func(r chi.Router) {
@@ -512,6 +541,7 @@ func SetRoutes() http.Handler {
 		r.Delete("/{id}", sspd.Delete)
 		r.Patch("/{id}/cancel", sspd.Cancel)
 		r.Get("/sspddetail", sspd.GetListSspdDetail)
+		r.Get("/download/excel", sspd.DownloadExcelList)
 	})
 
 	r.Route("/sinkronisasi", func(r chi.Router) {
@@ -528,6 +558,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", sts.Create)
 		r.Patch("/{id}", sts.Update)
 		r.Delete("/{id}", sts.Delete)
+		r.Get("/download/excel", sts.DownloadExcelList)
 	})
 
 	r.Route("/undanganpemeriksaan", func(r chi.Router) {
@@ -537,6 +568,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", undanganpemeriksaan.Update)
 		r.Patch("/updatestatusterbit", undanganpemeriksaan.UpdateStatusTerbit)
 		r.Delete("/{id}", undanganpemeriksaan.Delete)
+		r.Get("/download/excel", undanganpemeriksaan.DownloadExcelList)
 	})
 
 	r.Route("/suratpemberitahuan", func(r chi.Router) {
@@ -546,6 +578,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/", suratpemberitahuan.UpdateBulk)
 		r.Patch("/{id}", suratpemberitahuan.UpdateSingle)
 		r.Delete("/{id}", suratpemberitahuan.Delete)
+		r.Get("/download/excel", suratpemberitahuan.DownloadExcelList)
 	})
 
 	r.Route("/bapenagihan", func(r chi.Router) {
@@ -555,13 +588,21 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", bapenagihan.Update)
 		r.Patch("/verify/{id}", bapenagihan.Verify)
 		r.Delete("/{id}", bapenagihan.Delete)
+		r.Get("/download/excel", bapenagihan.DownloadExcelList)
 	})
 
 	r.Route("/pengurangan", func(r chi.Router) {
 		r.Get("/", pengurangan.GetList)
 		r.Get("/{id}", pengurangan.GetDetail)
 		r.Post("/", pengurangan.Create)
+		r.Patch("/{id}", pengurangan.Update)
 		r.Patch("/verify/{id}", pengurangan.Verify)
+	})
+
+	r.Route("/refpengurangan", func(r chi.Router) {
+		r.Get("/", refpengurangan.GetList)
+		r.Get("/{id}", refpengurangan.GetDetail)
+		r.Patch("/verify/{id}", refpengurangan.Verify)
 	})
 
 	r.Route("/pengurangandendaadm", func(r chi.Router) {
@@ -601,6 +642,7 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", keberatan.GetDetail)
 		r.Post("/", keberatan.Create)
 		r.Patch("/verify/{id}", keberatan.Verify)
+		r.Get("/download/excel", keberatan.DownloadExcelList)
 	})
 
 	r.Route("/keputusankeberatanpbb", func(r chi.Router) {
@@ -652,6 +694,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", objekpajakpbb.Create)
 		r.Get("/", objekpajakpbb.GetList)
 		r.Get("/{id}", objekpajakpbb.GetDetail)
+		r.Get("/download/excel", objekpajakpbb.DownloadExcelList)
 		r.Get("/nop-terbesar", objekpajakpbb.GetNopTerbesar)
 		r.Patch("/rtrwmassal", objekpajakpbb.UpdateRtRwMassal)
 	})
@@ -714,6 +757,13 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/njoptkp", njoptkp.Crud{})
 
+	r.Route("/catatanpembayaranpbb", func(r chi.Router) {
+		r.Get("/", catatanpembayaranpbb.ListCatatanPembayaranPbb)
+	})
+
+	r.Route("/catatansejarahwp", func(r chi.Router) {
+		r.Get("/", sppt.ListCatataSejarahWp)
+	})
 	r.Get("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
 
 	return r

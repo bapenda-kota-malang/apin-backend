@@ -3,6 +3,7 @@ package baplpengajuan
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 
 	mk "github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
@@ -26,14 +27,14 @@ type PengajuanBapl struct {
 	EntryBy_User_Id            *uint64        `json:"entryBy_user_id"`
 	Dokumentasi                string         `json:"dokumentasi"`
 	DokumenLainnya             *string        `json:"dokumenLainnya"`
+	JenisTransaksi             int            `json:"jenisTransaksi"`
+	Pengurangan_Id             *uuid.UUID     `json:"pengurangan_id" gorm:"type:uuid"`
 	gh.DateModel
-	JenisTransaksi int                       `json:"jenisTransaksi"`
-	Pengurangan_Id *uint64                   `json:"pengurangan_id"`
-	Keberatan      *mk.Keberatan             `json:"keberatan,omitempty" gorm:"foreignKey:Keberatan_Id"`
-	Npwpd          *mn.Npwpd                 `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
-	KasubidUser    *mu.User                  `json:"kasubidUser,omitempty" gorm:"foreignKey:VerifKasubid_User_Id"`
-	User           *mu.User                  `json:"user,omitempty" gorm:"foreignKey:EntryBy_User_Id"`
-	Pengurangan    *mpengurangan.Pengurangan `json:"pengurangan,omitempty" gorm:"foreignKey:Pengurangan_Id"`
+	Keberatan   *mk.Keberatan             `json:"keberatan,omitempty" gorm:"foreignKey:Keberatan_Id"`
+	Npwpd       *mn.Npwpd                 `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
+	KasubidUser *mu.User                  `json:"kasubidUser,omitempty" gorm:"foreignKey:VerifKasubid_User_Id"`
+	User        *mu.User                  `json:"user,omitempty" gorm:"foreignKey:EntryBy_User_Id"`
+	Pengurangan *mpengurangan.Pengurangan `json:"pengurangan,omitempty" gorm:"foreignKey:Pengurangan_Id"`
 }
 
 type CreateDto struct {

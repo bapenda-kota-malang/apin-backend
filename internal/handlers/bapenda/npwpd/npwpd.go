@@ -1,6 +1,7 @@
 package npwpd
 
 import (
+	"fmt"
 	"net/http"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
@@ -71,4 +72,51 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 	result, err := s.Delete(id)
 	hh.DataResponse(w, result, err)
+}
+
+func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterDto
+	if hh.ValidateStructByURL(w, *r.URL, &input) == false {
+		return
+	}
+
+	result, err := s.DownloadExcelList(input)
+	if err != nil {
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=list_pend_wajib_pajak.xlsx")
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+	result.Write(w)
+}
+
+func DownloadExcelSpec(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterDto
+	if !hh.ValidateStructByURL(w, *r.URL, &input) {
+		return
+	}
+
+	tp := hh.ValidateString(w, r, "type")
+	if tp == "" {
+		return
+	}
+
+	result, err := s.DownloadExcelSpec(input, tp)
+	if err != nil {
+		return
+	}
+
+	name := ""
+	if tp == "lapbphtb" {
+		name = "laporan_bphtb"
+	} else if tp == "pemsspd" {
+		name = "pembayaran_sspd"
+	} else {
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=list_%s.xlsx", name))
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+	result.Write(w)
 }

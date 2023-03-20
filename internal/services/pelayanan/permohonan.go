@@ -37,8 +37,20 @@ import (
 	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	skepkebpbb "github.com/bapenda-kota-malang/apin-backend/internal/services/keberatan/keputusankeberatanpbb"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
+
 	// oppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	// wppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
+	"path/filepath"
+
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
+	"github.com/xuri/excelize/v2"
+
+	mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	skec "github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
+	skel "github.com/bapenda-kota-malang/apin-backend/internal/services/kelurahan"
+	rpth "github.com/bapenda-kota-malang/apin-backend/pkg/reporthelper"
+	strh "github.com/bapenda-kota-malang/apin-backend/pkg/stringhelper"
+	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 )
 
 // /// Private funcs start here
@@ -1026,7 +1038,7 @@ func GetDetailApproval(id int) (interface{}, error) {
 	return rp.OKSimple{Data: finalresult}, nil
 }
 
-func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangunan string, tx *gorm.DB) (any, error) {
+func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -1254,7 +1266,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan2 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan2 = mopbng.KelasBangunan(*jpbreg.KelasBangunan2)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1305,7 +1317,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan4 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan4 = mopbng.KelasBangunan(*jpbreg.KelasBangunan4)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1331,7 +1343,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan5 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan5 = mopbng.KelasBangunan(*jpbreg.KelasBangunan5)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1357,7 +1369,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan6 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan6 = mopbng.KelasBangunan(*jpbreg.KelasBangunan6)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1433,7 +1445,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan9 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan9 = mopbng.KelasBangunan(*jpbreg.KelasBangunan9)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1484,7 +1496,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan13 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan13 = mopbng.KelasBangunan(*jpbreg.KelasBangunan13)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1560,7 +1572,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan16 = mopbng.KelasBangunan(kelasbangunan)
+					// jpbres.KelasBangunan16 = mopbng.KelasBangunan(jpbreg.KelasBangunan16)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -2428,4 +2440,166 @@ func UpdateApproval(id int, input m.PermohonanRequestDto) (interface{}, error) {
 	// 		"permohonanDetail": permohonanDetail,
 	// 	},
 	// }, nil
+}
+
+func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
+	var data []m.DownloadListDTO
+	result := a.DB.Model(&m.PstPermohonan{}).
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "Status Kolektif",
+			"C": "Nama",
+			"D": "Jenis Pelayanan",
+			"E": "NOP",
+			"F": "Tanggal",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": *v.StatusKolektif,
+				"C": *v.NamaPemohon,
+				"D": *v.BundelPelayanan,
+				"E": *v.NOP,
+				"F": func() string {
+					t, _ := time.Parse(time.RFC3339, *v.TanggalTerima)
+					s := t.Format("2006-01-02")
+					return s
+				}(),
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List Permohonan")
+}
+
+type ResponseFile struct {
+	ID       int    `json:"id"`
+	FileName string `json:"fileName"`
+}
+
+func DownloadPdf(id int) (interface{}, error) {
+	var (
+		data                  *m.PstPermohonan
+		permohonanBaru        *m.PstDataOPBaru
+		permohonanDetail      *m.PstDetail
+		permohonanPengurangan *m.PstPermohonanPengurangan
+		// pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
+		// pembatalanSppt        *m.PembatalanSppt
+		// keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+		// SPMKP                 *m.SPMKP
+		// SkSk                  *sksk.SkSk
+	)
+	result := a.DB.First(&data, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data", data)
+	}
+
+	if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanDetail); result.Error != nil {
+		return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Detail", permohonanDetail)
+	}
+
+	if *data.BundelPelayanan == m.JenisPelayanan[0] {
+		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanBaru); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data NOP Baru", permohonanBaru)
+		}
+	} else if *data.BundelPelayanan == m.JenisPelayanan[7] || *data.BundelPelayanan == m.JenisPelayanan[9] {
+		if result := a.DB.Where("PermohonanId", data.Id).First(&permohonanPengurangan); result.Error != nil {
+			return sh.SetError("request", "get-data", source, "failed", "gagal mengambil data pengurangan", permohonanPengurangan)
+		}
+	}
+
+	dataDetail, err := GetDetail(id)
+	finalresultTmp := dataDetail.(rp.OKSimple).Data.(m.PstPermohonanResponse)
+
+	idKel, err1 := strconv.Atoi(*finalresultTmp.PstDetail.PermohonanKelurahanID)
+	idKec, err2 := strconv.Atoi(*finalresultTmp.PstDetail.PermohonanKecamatanID)
+	var (
+		dataKelurahan = &mad.Kelurahan{}
+		dataKecamatan = &mad.Kecamatan{}
+	)
+	if err1 == nil {
+		tmpKel, _ := skel.GetDetail(idKel)
+		dataKelurahan = tmpKel.(rp.OKSimple).Data.(*mad.Kelurahan)
+	}
+	if err2 == nil {
+		tmpKec, _ := skec.GetDetail(idKec)
+		dataKecamatan = tmpKec.(rp.OKSimple).Data.(*mad.Kecamatan)
+	}
+	var rawNop = strh.NullToAny(finalresultTmp.NOP, "-")
+	var rawJP = strh.NullToAny(finalresultTmp.BundelPelayanan, "-")
+	var dataJP = m.FindJenisPelayananByID(rawJP)
+	var rawBerkas = strh.NullToAny(finalresultTmp.PenerimaanBerkas, "-")
+	var listBerkas = strings.Split(rawBerkas, ",")
+
+	var jpList = []*rpth.TCheckList{}
+	for id, jp := range m.JenisBerkasPermohonan {
+		var newVal = &rpth.TCheckList{
+			Nomer:  strconv.Itoa(id + 1),
+			Text:   jp,
+			Status: "",
+		}
+		jpList = append(jpList, newVal)
+	}
+	print(jpList)
+	for _, berkas := range listBerkas {
+		idxBerkas, error := strconv.Atoi(strh.IsNumeric(berkas))
+
+		if error == nil {
+			jpList[idxBerkas].Status = "x"
+		}
+	}
+	var nopDot = m.DecodeNOPPermohonan(&rawNop).GetNopDotFormat()
+	var finalresult = map[string]interface{}{
+		"Data": map[string]string{
+			"noPelayanan":       strh.NullToAny(finalresultTmp.NoPelayanan, "-"),
+			"nop":               rawNop,
+			"bundlePelayanan":   strh.NullToAny(finalresultTmp.BundelPelayanan, "-"),
+			"noUrutPelayanan":   strh.NullToAny(finalresultTmp.NoUrutPelayanan, "-"),
+			"noSuratPermohonan": strh.NullToAny(finalresultTmp.NoSuratPermohonan, "-"),
+			"namaWP":            strh.NullToAny(finalresultTmp.NamaPemohon, "-"),
+			"letakOP":           strh.NullToAny(finalresultTmp.AlamatPemohon, "-"),
+			"keterangan":        strh.NullToAny(finalresultTmp.Keterangan, "-"),
+			"catatan":           strh.NullToAny(finalresultTmp.CatatanPermohonan, "-"),
+			"nip":               strh.NullToAny(finalresultTmp.NIP, "-"),
+		},
+		"Custom": map[string]string{
+			"NOP":            nopDot,
+			"Kelurahan":      strh.NullToAny(&dataKelurahan.Nama, "-"),
+			"Kecamatan":      strh.NullToAny(&dataKecamatan.Nama, "-"),
+			"JenisPelayanan": strh.NullToAny(&dataJP.Name, "-"),
+			"TglSelesai":     th.GetDateFromUTCDatetime(finalresultTmp.PstDetail.TanggalSelesai),
+			"TglPelayanan":   th.GetDateFromUTCDatetime(finalresultTmp.PstDetail.TanggalPenyerahan),
+		},
+		"Checklist": map[string][]*rpth.TCheckList{
+			"JenisBerkas": jpList,
+		},
+	}
+
+	uuid, err := sh.GetUuidv4()
+	if err != nil {
+		return nil, err
+	}
+	fileName := sh.GenerateFilename("permohonan", uuid, 0, "pdf")
+
+	outFile := filepath.Join(sh.GetPdfPath(), fileName)
+	if err := GeneratePdf(outFile, finalresult); err != nil {
+		return nil, err
+	}
+	_r := &ResponseFile{
+		ID:       id,
+		FileName: outFile,
+	}
+	return rp.OKSimple{Data: _r}, nil
 }
