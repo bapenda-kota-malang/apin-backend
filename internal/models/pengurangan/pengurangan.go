@@ -10,8 +10,8 @@ import (
 )
 
 type Pengurangan struct {
-	Id                uuid.UUID        `json:"id" gorm:"primaryKey;default:uuid_generate_v4()"`
-	Spt_Id            uuid.UUID        `json:"spt_id" gorm:"type:uuid"`
+	Id                uuid.UUID        `json:"id" gorm:"primaryKey;type:uuid;default:uuid_generate_v4()"`
+	Spt_Id            uuid.UUID        `json:"spt_id" gorm:"type:uuid;not null"`
 	NamaPemohon       string           `json:"namaPemohon" gorm:"not null"`
 	AlamatPemohon     string           `json:"alamatPemohon" gorm:"not null"`
 	TelpPemohon       *string          `json:"telpPemohon"`
@@ -90,7 +90,7 @@ type CreateDto struct {
 
 // create pengurangan data from ref pengurangan by pegawai / staff
 type CreateFromRefDto struct {
-	RefPengurangan_Id  uuid.UUID         `json:"refPengurangan_id" validate:"required"`
+	RefPengurangan_Id  *uuid.UUID        `json:"refPengurangan_id" validate:"required"`
 	JenisPengurangan   *JenisPengurangan `json:"jenisPengurangan" validate:"required"`
 	KeteranganPetugas  *string           `json:"keteranganPetugas"`
 	AlasanDitolakStaff *string           `json:"alasanDitolakStaff"`
@@ -169,5 +169,10 @@ type FilterDto struct {
 }
 
 type VerifyDto struct {
-	Status int `json:"status" validate:"min=1;max=2"`
+	Lhp              *string           `json:"lhp" validate:"base64=pdf;b64size=1025"`
+	TelaahStaff      *string           `json:"telaahStaff" validate:"base64=pdf;b64size=1025"`
+	StatusVerifikasi *StatusVerifikasi `json:"statusVerifikasi" validate:"required"`
+	Persentase       *int8             `json:"persentase"`
+	Keterangan       *string           `json:"keterangan"`
+	AlasanDitolak    *string           `json:"alasanDitolak"`
 }

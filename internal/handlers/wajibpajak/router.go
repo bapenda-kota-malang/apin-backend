@@ -165,9 +165,9 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/refpengurangan", func(r chi.Router) {
-		r.Post("/", pengurangan.GetList)
-		r.Get("/", pengurangan.GetDetail)
-		r.Get("/{id}", pengurangan.Create)
+		r.Post("/", pengurangan.Create)
+		r.Get("/", pengurangan.GetList)
+		r.Get("/{id}", pengurangan.GetDetail)
 	})
 
 	r.Route("/keberatan", func(r chi.Router) {

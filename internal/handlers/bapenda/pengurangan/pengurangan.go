@@ -70,6 +70,6 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-	result, err := s.Verify(id, input, uint64(authInfo.User_Id))
+	result, err := s.Verify(id, input, uint64(authInfo.User_Id), authInfo.Jabatan_Id)
 	hh.DataResponse(w, result, err)
 }

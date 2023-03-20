@@ -189,7 +189,7 @@ func Update(id int, input m.UpdateDto) (any, error) {
 	if result := a.DB.First(&mad.Kelurahan{}, data.Kelurahan_Id); result.RowsAffected == 0 {
 		return nil, nil
 	}
-	if result := a.DB.First(&mad.Daerah{}, data.Kota_id); result.RowsAffected == 0 {
+	if result := a.DB.First(&mad.Daerah{}, data.Kota_Id); result.RowsAffected == 0 {
 		return nil, nil
 	}
 	if result := a.DB.First(&mad.Provinsi{}, data.Provinsi_Id); result.RowsAffected == 0 {

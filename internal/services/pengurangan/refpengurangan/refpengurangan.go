@@ -2,12 +2,16 @@ package refpengurangan
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"sync"
 	"time"
 
+	mjabatan "github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
+	sjabatan "github.com/bapenda-kota-malang/apin-backend/internal/services/jabatan"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -28,17 +32,8 @@ func Create(input m.CreateDtoRefPengurangan, user_Id uint64) (any, error) {
 		wg                 sync.WaitGroup
 	)
 
-	// TODO: FILTER USER ID TO EXECUTE THIS FUNCTION
-	// resp, err := suser.GetJabatanPegawai(uint(user_Id))
-	// if err != nil {
-	// 	return sh.SetError("request", "create-data", source, "failed", "gagal data pegawai: "+err.Error(), nil)
-	// }
-	// if ok := strings.Contains(strings.ToUpper(resp.(string)), "PETUGAS"); !ok {
-	// 	return sh.SetError("request", "create-data", source, "failed", "pegawai bukan petugas, sehingga tidak bisa membuat data baru", nil)
-	// }
-
 	var dataSpt spt.Spt
-	resCheckSpt := a.DB.First(&dataSpt, "\"Id\" = ?", input.Spt_Id.String())
+	resCheckSpt := a.DB.Joins("JOIN \"Npwpd\" ON \"Spt\".\"Npwpd_Id\" = \"Npwpd\".\"Id\" AND \"Npwpd\".\"User_Id\" = ?", user_Id).First(&dataSpt, "\"Spt\".\"Id\" = ?", input.Spt_Id.String())
 	if resCheckSpt.RowsAffected == 0 {
 		return nil, errors.New("tidak ditemukan data spt")
 	}
@@ -206,5 +201,90 @@ func Update(id uuid.UUID, input m.UpdateDto, userId uint64) (any, error) {
 	}
 	return rp.OKSimple{
 		Data: data,
+	}, nil
+}
+
+func Verify(id uuid.UUID, input m.VerifyDtoRefPengurangan, userId uint64, jabatanId int) (any, error) {
+	respJabatan, err := sjabatan.GetDetail(jabatanId)
+	if err != nil {
+		return nil, err
+	}
+	dataJabatan := respJabatan.(rp.OKSimple).Data.(*mjabatan.Jabatan)
+	// TODO: check jabatan case
+	if dataJabatan.Nama == nil {
+		return nil, nil
+	}
+
+	var dataRefPengurangan m.RefPengurangan
+	if result := a.DB.Preload("Pemohon").First(&dataRefPengurangan, "\"Id\" = ?", id.String()); result.RowsAffected == 0 {
+		return nil, fmt.Errorf("data RefPengurangan tidak ditemukan")
+	}
+	if dataRefPengurangan.Pengurangan_Id != nil || dataRefPengurangan.Status == m.StatusDitolak {
+		return nil, fmt.Errorf("data RefPengurangan telah diverifikasi")
+	}
+	var resp interface{}
+	resp = dataRefPengurangan
+
+	now := time.Now()
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
+		switch *input.Status {
+		case m.StatusDiproses, m.StatusDiterima:
+			var dataWp wajibpajak.WajibPajak
+			if res := tx.Preload(clause.Associations).First(&dataWp, dataRefPengurangan.Pemohon.Ref_Id); res.Error != nil {
+				return fmt.Errorf("data wajib pajak tidak ditemukan")
+			}
+			dataPengurangan := m.Pengurangan{
+				JenisPengurangan:      *input.JenisPengurangan,
+				KeteranganPetugas:     input.KeteranganPetugas,
+				VerifyPetugas_User_Id: &userId,
+				TanggalVerifPetugas:   &now,
+			}
+
+			if err := sc.Copy(&dataPengurangan, &dataRefPengurangan); err != nil {
+				return err
+			}
+
+			dataPengurangan.Id = uuid.Nil
+			dataPengurangan.NamaPemohon = dataWp.Nama
+			dataPengurangan.AlamatPemohon = fmt.Sprintf(
+				"%s,%s,%s,%s,%s,%s",
+				dataWp.Alamat,
+				dataWp.RtRw,
+				dataWp.Kelurahan.Nama,
+				dataWp.Kecamatan.Nama,
+				dataWp.Kota.Nama,
+				dataWp.Provinsi.Nama,
+			)
+			dataPengurangan.TelpPemohon = &dataWp.Telp
+			if err := tx.Create(&dataPengurangan).Error; err != nil {
+				return err
+			}
+			dataRefPengurangan.Pengurangan_Id = &dataPengurangan.Id
+			resp = t.II{
+				"refPengurangan": dataRefPengurangan,
+				"pengurangan":    dataPengurangan,
+			}
+		case m.StatusDitolak:
+			if input.AlasanDitolakStaff == nil {
+				return errors.New("ketika menolak harus dengan alasan")
+			}
+			dataRefPengurangan.Status = *input.Status
+			dataRefPengurangan.AlasanPenolakanStaff = input.AlasanDitolakStaff
+		default:
+			return errors.New("invalid data status")
+		}
+		dataRefPengurangan.KeteranganStaff = input.KeteranganPetugas
+		dataRefPengurangan.TanggalVerifPetugas = &now
+		dataRefPengurangan.VerifyPetugas_User_Id = &userId
+		if err := tx.Save(&dataRefPengurangan).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "create-data", source, "failed", "gagal pengurangan dari ref pengurangan: "+err.Error(), dataRefPengurangan)
+	}
+	return rp.OKSimple{
+		Data: resp,
 	}, nil
 }

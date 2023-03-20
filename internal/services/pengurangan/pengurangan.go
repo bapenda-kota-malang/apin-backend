@@ -3,16 +3,13 @@ package pengurangan
 import (
 	"fmt"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
 	mjabatan "github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
 	sjabatan "github.com/bapenda-kota-malang/apin-backend/internal/services/jabatan"
-	suser "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -122,74 +119,6 @@ func Create(input m.CreateDto, user_Id uint64) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal menyimpan data: "+err.Error(), dataPengurangan)
 	}
 
-	return rp.OKSimple{
-		Data: dataPengurangan,
-	}, nil
-}
-
-func CreateFromRefPengurangan(input m.CreateFromRefDto, userId uint64, jabatanId int) (any, error) {
-	respJabatan, err := sjabatan.GetDetail(jabatanId)
-	if err != nil {
-		return nil, err
-	}
-	dataJabatan := respJabatan.(rp.OKSimple).Data.(*mjabatan.Jabatan)
-	// TODO: check jabatan case
-	if dataJabatan.Nama == nil {
-		return nil, nil
-	}
-
-	now := time.Now()
-	dataPengurangan := m.Pengurangan{
-		JenisPengurangan:      *input.JenisPengurangan,
-		KeteranganPetugas:     input.KeteranganPetugas,
-		VerifyPetugas_User_Id: &userId,
-		TanggalVerifPetugas:   &now,
-	}
-	var dataRefPengurangan m.RefPengurangan
-	if result := a.DB.Preload("Pemohon").First(&dataRefPengurangan, "\"Id\" = ?", input.RefPengurangan_Id.String()); result.RowsAffected == 0 {
-		return nil, fmt.Errorf("data RefPengurangan tidak ditemukan")
-	}
-	var dataWp wajibpajak.WajibPajak
-	if res := a.DB.Preload(clause.Associations).First(&dataWp, dataRefPengurangan.Pemohon.Ref_Id); res.Error != nil {
-		return nil, fmt.Errorf("data wajib pajak tidak ditemukan")
-	}
-
-	if err := sc.Copy(&dataPengurangan, &dataRefPengurangan); err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload ref pengurangan", dataRefPengurangan)
-	}
-	dataPengurangan.Id = uuid.Nil
-	dataPengurangan.NamaPemohon = dataWp.Nama
-	dataPengurangan.AlamatPemohon = fmt.Sprintf(
-		"%s, %s, %s,%s,%s,%s",
-		dataWp.Alamat,
-		dataWp.RtRw,
-		dataWp.Kelurahan.Nama,
-		dataWp.Kecamatan.Nama,
-		dataWp.Kota.Nama,
-		dataWp.Provinsi.Nama,
-	)
-	dataPengurangan.TelpPemohon = &dataWp.Telp
-	err = a.DB.Transaction(func(tx *gorm.DB) error {
-		dataRefPengurangan.TanggalVerifPetugas = &now
-		dataRefPengurangan.VerifyPetugas_User_Id = &userId
-		dataRefPengurangan.Status = *input.Status
-		switch *input.Status {
-		case m.StatusDiproses:
-			if err := a.DB.Create(&dataPengurangan).Error; err != nil {
-				return err
-			}
-			dataRefPengurangan.Pengurangan_Id = &dataPengurangan.Id
-		case m.StatusDitolak:
-			dataRefPengurangan.AlasanPenolakanStaff = input.AlasanDitolakStaff
-		}
-		if err := a.DB.Save(&dataRefPengurangan).Error; err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return sh.SetError("request", "create-data", source, "failed", "gagal pengurangan dari ref pengurangan: "+err.Error(), dataRefPengurangan)
-	}
 	return rp.OKSimple{
 		Data: dataPengurangan,
 	}, nil
@@ -325,22 +254,146 @@ func Update(id uuid.UUID, input m.UpdateDto, user_Id uint64) (any, error) {
 	}, nil
 }
 
-func Verify(id uuid.UUID, input m.VerifyDto, userId uint64) (any, error) {
-	//ambil data based on id
-	var data *m.Pengurangan
+func Verify(id uuid.UUID, input m.VerifyDto, userId uint64, jabatanId int) (any, error) {
+	switch *input.StatusVerifikasi {
+	case m.StatusVerifikasiDitolak:
+		if input.AlasanDitolak == nil {
+			return nil, fmt.Errorf("jika menolak harus dengan alasan")
+		}
+	case m.StatusVerifikasiDisetujui:
+		if input.Persentase == nil {
+			return nil, fmt.Errorf("jika menyetujui harus dengan persentase")
+		}
+	default:
+		return nil, fmt.Errorf("status verifikasi tidak diketahui")
+	}
 
-	result := a.DB.First(&data, id)
-	if result.Error != nil {
+	respJabatan, err := sjabatan.GetDetail(jabatanId)
+	if err != nil {
+		return nil, err
+	}
+	dataJabatan := respJabatan.(rp.OKSimple).Data.(*mjabatan.Jabatan)
+	// TODO: check jabatan case
+	if dataJabatan.Nama == nil {
+		return nil, nil
+	}
+
+	//ambil data based on id
+	var data m.Pengurangan
+	if result := a.DB.First(&data, "\"Id\" = ?", id.String()); result.Error != nil {
 		return sh.SetError("request", "verify-data", source, "failed", "gagal mengambil data pengurangan", data)
 	}
-	//ambil nama jabatan based on userId
-	resp, err := suser.GetJabatanPegawai(uint(userId))
-	if err != nil {
-		return sh.SetError("request", "verify-data", source, "failed", "gagal data pegawai: "+err.Error(), data)
+	var dataRefPengurangan *m.RefPengurangan
+	if result := a.DB.Where("Pengurangan_Id", id.String()).First(&dataRefPengurangan); result.Error != nil {
+		return sh.SetError("request", "verify-data", source, "failed", "gagal mengambil data pengurangan", data)
 	}
-	jabatan := strings.ToUpper(resp.(string))
-	userRole := ""
-	fmt.Println(jabatan)
+
+	now := time.Now()
+	switch *dataJabatan.Nama {
+	case "analis":
+		if input.Lhp == nil {
+			return nil, fmt.Errorf("harus mengupload file lhp")
+		}
+		var errChan = make(chan error)
+		fileName, path, extFile, _, err := sh.FilePreProcess(*input.Lhp, source+"Lhp", uint(userId), data.Id)
+		if err != nil {
+			return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+		}
+		if data.Lhp == nil {
+			go sh.SaveFile(*input.Lhp, fileName, path, extFile, errChan)
+		} else {
+			go sh.ReplaceFile(*data.Lhp, *input.Lhp, fileName, path, extFile, errChan)
+		}
+		if err := <-errChan; err != nil {
+			return sh.SetError("request", "create-data", source, "failed", "replace image: "+err.Error(), data)
+		}
+		input.Lhp = &fileName
+		if input.TelaahStaff != nil {
+			fileName, path, extFile, _, err := sh.FilePreProcess(*input.TelaahStaff, source+"TelaahStaff", uint(userId), data.Id)
+			if err != nil {
+				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
+			}
+			if data.TelaahStaff == nil {
+				go sh.SaveFile(*input.TelaahStaff, fileName, path, extFile, errChan)
+			} else {
+				go sh.ReplaceFile(*data.TelaahStaff, *input.TelaahStaff, fileName, path, extFile, errChan)
+			}
+			if err := <-errChan; err != nil {
+				return sh.SetError("request", "create-data", source, "failed", "replace image: "+err.Error(), data)
+			}
+			input.TelaahStaff = &fileName
+		}
+		data.StatusAnalis = input.StatusVerifikasi
+		data.Posisi = m.PosisiVerifikasiAnalis
+		data.KeteranganAnalis = input.Keterangan
+		data.TanggalVerifAnalis = &now
+		data.VerifyAnalis_User_Id = &userId
+		if dataRefPengurangan != nil {
+			dataRefPengurangan.TanggalVerifAnalis = &now
+			dataRefPengurangan.VerifyAnalis_User_Id = &userId
+		}
+		if *input.StatusVerifikasi == m.StatusVerifikasiDitolak {
+			data.AlasanDitolakAnalis = input.AlasanDitolak
+			data.Status = m.StatusDitolak
+			if dataRefPengurangan != nil {
+				dataRefPengurangan.AlasanPenolakanStaff = input.AlasanDitolak
+				dataRefPengurangan.Status = m.StatusDitolak
+			}
+			break
+		}
+		data.PersentaseAnalis = input.Persentase
+	case "kasubid":
+		data.StatusKasubid = input.StatusVerifikasi
+		data.Posisi = m.PosisiVerifikasiKasubid
+		data.KeteranganKasubid = input.Keterangan
+		data.TanggalVerifKasubid = &now
+		data.VerifyKasubid_User_Id = &userId
+		if *input.StatusVerifikasi == m.StatusVerifikasiDitolak {
+			data.AlasanDitolakKasubid = input.AlasanDitolak
+			data.Status = m.StatusDitolak
+		} else {
+			data.PersentaseKasubid = input.Persentase
+		}
+	case "kabid":
+		data.StatusKabid = input.StatusVerifikasi
+		data.Posisi = m.PosisiVerifikasikabid
+		data.KeteranganKabid = input.Keterangan
+		data.TanggalVerifKabid = &now
+		data.VerifyKabid_User_Id = &userId
+		if *input.StatusVerifikasi == m.StatusVerifikasiDitolak {
+			data.AlasanDitolakKabid = input.AlasanDitolak
+			data.Status = m.StatusDitolak
+		} else {
+			data.PersentaseKabid = input.Persentase
+		}
+	case "sekban":
+		data.StatusSekban = input.StatusVerifikasi
+		data.Posisi = m.PosisiVerifikasiSekban
+		data.KeteranganSekban = input.Keterangan
+		data.TanggalVerifSekban = &now
+		data.VerifySekban_User_Id = &userId
+		if *input.StatusVerifikasi == m.StatusVerifikasiDitolak {
+			data.AlasanDitolakSekban = input.AlasanDitolak
+			data.Status = m.StatusDitolak
+		} else {
+			data.PersentaseSekban = input.Persentase
+		}
+	case "kaban":
+		data.StatusKaban = input.StatusVerifikasi
+		data.Posisi = m.PosisiVerifikasiKaban
+		data.KeteranganKaban = input.Keterangan
+		data.TanggalVerifKaban = &now
+		data.VerifyKaban_User_Id = &userId
+		data.Status = m.StatusDiterima
+		if *input.StatusVerifikasi == m.StatusVerifikasiDitolak {
+			data.AlasanDitolakKaban = input.AlasanDitolak
+			data.Status = m.StatusDitolak
+		} else {
+			data.PersentaseKaban = input.Persentase
+		}
+	default:
+		return nil, fmt.Errorf("jabatan tidak diketahui")
+	}
 
 	//validasi status dan jabatan yg mengolah data
 	// if petugas := strings.Contains(jabatan, "PETUGAS"); petugas {
@@ -399,12 +452,19 @@ func Verify(id uuid.UUID, input m.VerifyDto, userId uint64) (any, error) {
 	// 	userRole = "kaban"
 	// }
 
-	if userRole == "" {
-		return sh.SetError("request", "verify-data", source, "failed", "pegawai bukan kabid, kasubid, kaban maupun petugas", data)
-	}
-
-	if result := a.DB.Save(&data); result.Error != nil {
-		return sh.SetError("request", "verify-data", source, "failed", "gagal menyimpan data pengurangan", data)
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
+		if result := tx.Save(&data); result.Error != nil {
+			return result.Error
+		}
+		if dataRefPengurangan != nil {
+			if result := tx.Save(&dataRefPengurangan); result.Error != nil {
+				return result.Error
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return sh.SetError("request", "verify-data", source, "failed", "gagal verifikasi pengurangan: "+err.Error(), data)
 	}
 	return rp.OKSimple{
 		Data: data,

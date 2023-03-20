@@ -19,7 +19,10 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 	result, err := s.Create(input, uint64(authInfo.User_Id))
-	hh.DataResponse(w, result, fmt.Errorf("gagal membuat pengajuan pengurangan baru: %w", err))
+	if err != nil {
+		err = fmt.Errorf("gagal membuat pengajuan pengurangan baru: %w", err)
+	}
+	hh.DataResponse(w, result, err)
 }
 
 func GetList(w http.ResponseWriter, r *http.Request) {

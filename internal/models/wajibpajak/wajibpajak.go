@@ -15,7 +15,7 @@ type WajibPajak struct {
 	Alamat       string        `json:"alamat"`
 	Provinsi_Id  uint          `json:"provinsi_id"`
 	Provinsi     adm.Provinsi  `gorm:"foreignKey:Provinsi_Id"`
-	Kota_id      uint          `json:"kota_id"`
+	Kota_Id      uint          `json:"kota_id"`
 	Kota         adm.Daerah    `gorm:"foreignKey:Kota_Id"`
 	Kecamatan_Id uint          `json:"kecamatan_id"`
 	Kecamatan    adm.Kecamatan `gorm:"foreignKey:Kecamatan_Id"`
