@@ -349,6 +349,7 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Route("/permohonan-approval", func(r chi.Router) {
+		r.Get("/{bp}", regpermohonan.GetListApproval)
 		r.Patch("/{id}/reg", permohonan.UpdateApprovalReg)
 		r.Patch("/{id}", permohonan.UpdateApproval)
 	})

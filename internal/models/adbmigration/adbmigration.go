@@ -336,6 +336,7 @@ func GetModelList() (data []interface{}) {
 		&pstpermohonan.PstDataOPBaru{},
 		&pstpermohonan.PstPermohonanPengurangan{},
 		// &pstpermohonan.KeputusanKeberatanPbb{},
+		&pstpermohonan.PstLogApproval{},
 		&pstpermohonan.PembatalanSppt{},
 		&pstpermohonan.PembetulanSpptSKPSTP{},
 		&pstpermohonan.PstLampiran{},
