@@ -48,3 +48,13 @@ func UpdateRtRwMassal(w http.ResponseWriter, r *http.Request) {
 	result, err := s.UpdateRtRwMassal(data)
 	hh.DataResponse(w, result, err)
 }
+
+func GetNopTerbesar(w http.ResponseWriter, r *http.Request) {
+	var data m.ObjekPajakPbb
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.GetNopTerbesar(data)
+	hh.DataResponse(w, result, err)
+}
