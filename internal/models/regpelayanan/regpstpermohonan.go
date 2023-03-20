@@ -120,7 +120,7 @@ type PermohonanApprovalRequestDto struct {
 type FilterDto struct {
 	StatusKolektif    *string         `json:"statusKolektif"`
 	NoSuratPermohonan *string         `json:"noSuratPermohonan"`
-	JenisPelayanan    *string         `json:"jenisPelayanan"`
+	BundelPelayanan   *[]string       `json:"jenisPelayanan"`
 	TanggalTerima     *datatypes.Date `json:"tanggalTerima"`
 	TanggalSelesai    *datatypes.Date `json:"tanggalSelesai"`
 	TanggalPermohonan *datatypes.Date `json:"tanggalPermohonan"`
