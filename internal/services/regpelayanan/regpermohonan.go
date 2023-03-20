@@ -29,6 +29,7 @@ import (
 	mrwppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/regwajibpajakpbb"
 	muser "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	oppbb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
+	sori "github.com/bapenda-kota-malang/apin-backend/internal/services/pelayanan"
 )
 
 // /// Private funcs start here
@@ -784,7 +785,7 @@ func Delete(id int) (interface{}, error) {
 	}, nil
 }
 
-func Approval(kd string, auth int, input m.RequestApprovalPermohonan, tx *gorm.DB) (any, error) {
+func Approval(kd string, auth int, input m.RequestApprovalPermohonan, idata m.PermohonanApprovalRequestDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -799,13 +800,21 @@ func Approval(kd string, auth int, input m.RequestApprovalPermohonan, tx *gorm.D
 	}
 
 	if kd == "00" && auth == 4 {
-		//baru
-	} else if kd == "01" && auth == 4 {
 		//diterima staff
-	} else if kd == "03" && auth == 4 {
+	} else if kd == "01" && auth == 3 {
+		//diterima kasubid
+	} else if kd == "02" && auth == 2 {
 		//diterima kabid
-	} else if auth == 2 {
-		//admin
+		_, errResult := sori.CopyDataReg(input.Id, *input.NOP, *idata.JenisPengurangan, tx)
+		if errResult != nil {
+			return sh.SetError("request", "approval-data", source, "failed", "gagal melakukan approval data, user status tidak valid", idata)
+		}
+	} else if kd == "03" && auth == 4 {
+		//ditolak
+	} else if kd == "04" && auth == 2 {
+		//diterima sekban
+	} else if kd == "05" && auth == 1 {
+		//diterima kaban
 	} else {
 		return sh.SetError("request", "approval-data", source, "failed", "gagal melakukan approval data, user status tidak valid", data)
 	}
@@ -1752,7 +1761,7 @@ func UpdateApproval(id int, auth int, input m.PermohonanApprovalRequestDto) (int
 			User_ID:     input.User_ID,
 		}
 
-		resultApproval, errApproval = Approval(*tempStatusApproval, auth, tempApproval, a.DB)
+		resultApproval, errApproval = Approval(*tempStatusApproval, auth, tempApproval, input, a.DB)
 		if errApproval != nil {
 			return sh.SetError("request", "create-data", source, "failed", "gagal melakukan approval data: "+errApproval.Error(), data)
 		}

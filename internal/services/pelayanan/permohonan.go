@@ -1026,7 +1026,7 @@ func GetDetailApproval(id int) (interface{}, error) {
 	return rp.OKSimple{Data: finalresult}, nil
 }
 
-func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangunan string, tx *gorm.DB) (any, error) {
+func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -1254,7 +1254,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan2 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan2 = mopbng.KelasBangunan(*jpbreg.KelasBangunan2)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1305,7 +1305,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan4 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan4 = mopbng.KelasBangunan(*jpbreg.KelasBangunan4)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1331,7 +1331,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan5 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan5 = mopbng.KelasBangunan(*jpbreg.KelasBangunan5)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1357,7 +1357,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan6 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan6 = mopbng.KelasBangunan(*jpbreg.KelasBangunan6)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1433,7 +1433,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan9 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan9 = mopbng.KelasBangunan(*jpbreg.KelasBangunan9)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1484,7 +1484,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan13 = mopbng.KelasBangunan(kelasbangunan)
+					jpbres.KelasBangunan13 = mopbng.KelasBangunan(*jpbreg.KelasBangunan13)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
@@ -1560,7 +1560,7 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, kelasbangu
 					jpbres.NoUrut = &nop.NoUrutPemohon
 					jpbres.JenisOp = &nop.PemohonJenisOPID
 					jpbres.Area_Kode = &areaCode
-					jpbres.KelasBangunan16 = mopbng.KelasBangunan(kelasbangunan)
+					// jpbres.KelasBangunan16 = mopbng.KelasBangunan(jpbreg.KelasBangunan16)
 
 					if result := tx.Create(&jpbres); result.Error != nil {
 						return errors.New("penyimpanan data gagal")
