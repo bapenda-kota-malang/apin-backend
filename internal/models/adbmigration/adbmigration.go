@@ -297,6 +297,7 @@ func GetModelList() (data []interface{}) {
 	data = append(data, listModelPenetapan...)
 
 	listModelPengajuan := []interface{}{
+		&pengurangan.RefPengurangan{},
 		&pengurangan.Pengurangan{},
 		&pengurangan.PenguranganDendaADM{},
 		&pengurangan.PenguranganJPB{},

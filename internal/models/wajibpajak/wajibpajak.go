@@ -3,26 +3,26 @@ package wajibpajak
 import (
 	"time"
 
-	// adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 )
 
 type WajibPajak struct {
-	Id          int    `json:"id" gorm:"primaryKey"`
-	Nik         string `json:"nik" gorm:"size:255;unique"`
-	Nama        string `json:"nama" gorm:"size:100"`
-	Alamat      string `json:"alamat"`
-	Provinsi_Id uint   `json:"provinsi_id"`
-	// Provinsi     adm.Provinsi  `gorm:"foreignKey:Provinsi_Id"`
-	Kota_id uint `json:"kota_id"`
-	// Daerah       adm.Daerah    `gorm:"foreignKey:Kota_Id"`
-	Kecamatan_Id uint `json:"kecamatan_id"`
-	// Kecamatan    adm.Kecamatan `gorm:"foreignKey:Kecamatan_Id"`
-	Kelurahan_Id uint `json:"kelurahan_id"`
-	// Kelurahan    adm.Kelurahan `gorm:"foreignKey:Kelurahan_Id"`
-	Telp    string `json:"telp" gorm:"size:20"`
-	KodePos string `json:"kodePos" gorm:"size:50"`
+	Id           int           `json:"id" gorm:"primaryKey"`
+	Nik          string        `json:"nik" gorm:"size:255;unique"`
+	Nama         string        `json:"nama" gorm:"size:100"`
+	Alamat       string        `json:"alamat"`
+	Provinsi_Id  uint          `json:"provinsi_id"`
+	Provinsi     adm.Provinsi  `gorm:"foreignKey:Provinsi_Id"`
+	Kota_Id      uint          `json:"kota_id"`
+	Kota         adm.Daerah    `gorm:"foreignKey:Kota_Id"`
+	Kecamatan_Id uint          `json:"kecamatan_id"`
+	Kecamatan    adm.Kecamatan `gorm:"foreignKey:Kecamatan_Id"`
+	Kelurahan_Id uint          `json:"kelurahan_id"`
+	Kelurahan    adm.Kelurahan `gorm:"foreignKey:Kelurahan_Id"`
+	Telp         string        `json:"telp" gorm:"size:20"`
+	KodePos      string        `json:"kodePos" gorm:"size:50"`
 	// Email        string    `json:"email" gorm:"size:100;unique"`
 	RtRw         string    `json:"rtRw" gorm:"size:10"`
 	FotoKtp      string    `json:"fotoKtp" gorm:"size:255"`
