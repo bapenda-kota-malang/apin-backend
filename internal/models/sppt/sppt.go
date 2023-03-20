@@ -1,6 +1,8 @@
 package sppt
 
 import (
+	"time"
+
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	"gorm.io/datatypes"
 )
@@ -247,4 +249,62 @@ type PenetapanMassalDto struct {
 
 type SpPenetapanMassal struct {
 	PenetepanMassal *float64 `gorm:"column:penetapan_massal"`
+}
+
+type ListCatatanPembayaranPbbResponse struct {
+	NamaWajibPajak  *string                        `json:"namaWajibPajak"`
+	JalanObjekPajak *string                        `json:"jalanObjekPajak"`
+	JalanWajibPajak *string                        `json:"jalanWajibPajak"`
+	BlokKavNo       *string                        `json:"blokKavNo"`
+	BlokKavNo2      *string                        `json:"blokKavNo2"`
+	List            []CatatanPembayaranPbbResponse `json:"list"`
+}
+
+type CatatanPembayaranPbbResponse struct {
+	Tahun        *string        `json:"tahun"`
+	JatuhTempo   string         `json:"jatuhTempo"`
+	Pbb          *int           `json:"pbb"`
+	JumlahBayar  int64          `json:"jumlahBayar"`
+	Ke           uint8          `json:"ke"`
+	TanggalBayar datatypes.Date `json:"tanggalBayar"`
+	TanggalRekam time.Time      `json:"tanggalRekam"`
+	Perekam      string         `json:"perekam"`
+	Bank         string         `json:"bank"`
+}
+
+type ListCatatanSejarahWPResponse struct {
+	AlamatObjekPajak *string             `json:"alamatObjekPajak"`
+	Kelurahan        *string             `json:"kelurahan"`
+	RT_RW            string              `json:"rt_rw"`
+	LuasTanah        *int                `json:"luasTanah"`
+	List             []SejarahWPResponse `json:"list"`
+}
+
+type SejarahWPResponse struct {
+	TahunPajak        *string         `json:"tahunPajak"`
+	TanggalCetak      *datatypes.Date `json:"tanggalCetak"`
+	TanggalJatuhTempo *datatypes.Date `json:"tanggalJatuhTempo"`
+	TanggalTerbit     *datatypes.Date `json:"tanggalTerbit"`
+	NamaWajibPajak    *string         `json:"namaWajibPajak"`
+	AlamatWajibPajak  *string         `json:"alamatWajibPajak"`
+}
+
+type NOPDetail struct {
+	Blok_Id    *string `json:"blok_Id"`
+	NoUrut     *string `json:"noUrut"`
+	JenisOP_Id *string `json:"jenisOP_Id"`
+}
+
+type NOPRange struct {
+	Start *NOPDetail `json:"start"`
+	End   *NOPDetail `json:"end"`
+}
+
+type SalinanDto struct {
+	Propinsi_Id        *string     `json:"propinsi_Id"`
+	Dati2_Id           *string     `json:"dati2_Id"`
+	Kecamatan_Id       *string     `json:"kecamatan_Id"`
+	Keluarahan_Id      *string     `json:"keluarahan_Id"`
+	TahunPajakskp_sppt *string     `json:"tahunPajakskp_sppt"`
+	NOPRange           []*NOPRange `json:"nop_range"`
 }

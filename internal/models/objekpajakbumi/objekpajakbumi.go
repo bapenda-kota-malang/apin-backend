@@ -27,7 +27,7 @@ type CreateDto struct {
 	JenisBumi       JenisBumi `json:"jenisBumi"`
 	NilaiSistemBumi *int      `json:"nilaiSistemBumi"`
 
-	// RegObjekPajakBangunans *[]mopbng.CreateDto `json:"regObjekPajakBng"`
+	ObjekPajakBangunans *[]mopbng.CreateDto `json:"regObjekPajakBng"`
 }
 
 type DataDto struct {

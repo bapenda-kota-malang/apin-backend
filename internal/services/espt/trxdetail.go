@@ -148,13 +148,13 @@ func CreateDetail(input m.Input, user_Id uint) (interface{}, error) {
 				details := respDetails.(rp.OKSimple).Data.(mdhib.DetailEsptHiburan)
 				data.DetailEsptHiburan = &details
 			}
-		case []mdhot.CreateDto:
+		case mdhot.CreateDto:
 			respDetails, err := shot.Create(dataReal, tx)
 			if err != nil {
 				return err
 			}
 			if respDetails != nil {
-				details := respDetails.(rp.OKSimple).Data.([]mdhot.DetailEsptHotel)
+				details := respDetails.(rp.OKSimple).Data.(mdhot.DetailEsptHotel)
 				data.DetailEsptHotel = &details
 			}
 		case []mdpar.CreateDto:
@@ -164,7 +164,7 @@ func CreateDetail(input m.Input, user_Id uint) (interface{}, error) {
 			}
 			if respDetails != nil {
 				details := respDetails.(rp.OKSimple).Data.([]mdpar.DetailEsptParkir)
-				data.DetailEsptParkir = &details
+				data.DetailEsptParkir = details
 			}
 		case mdnonpln.CreateDto:
 			respDetails, err := snonpln.Create(dataReal, tx)
@@ -182,7 +182,7 @@ func CreateDetail(input m.Input, user_Id uint) (interface{}, error) {
 			}
 			if respDetails != nil {
 				details := respDetails.(rp.OKSimple).Data.([]mdpln.DetailEsptPpjPln)
-				data.DetailEsptPpjPln = &details
+				data.DetailEsptPpjPln = details
 			}
 		case mdres.CreateDto:
 			respDetails, err := sres.Create(dataReal, tx)
@@ -258,23 +258,19 @@ func UpdateDetail(id uuid.UUID, input m.Input, user_Id uint) (interface{}, error
 				details := respDetails.(rp.OKSimple).Data.(mdhib.DetailEsptHiburan)
 				data.DetailEsptHiburan = &details
 			}
-		case []mdhot.UpdateDto:
-			var detailList []mdhot.DetailEsptHotel
-			for i := range dataReal {
-				id := 0
-				if dataReal[i].Id != 0 {
-					id = int(dataReal[i].Id)
-				}
-				respDetails, err := shot.Update(id, dataReal[i], tx)
-				if err != nil {
-					return err
-				}
-				if respDetails != nil {
-					details := respDetails.(rp.OKSimple).Data.(mdhot.DetailEsptHotel)
-					detailList = append(detailList, details)
-				}
+		case mdhot.UpdateDto:
+			id := 0
+			if dataReal.Id != 0 {
+				id = int(dataReal.Id)
 			}
-			data.DetailEsptHotel = &detailList
+			respDetails, err := shot.Update(id, dataReal, tx)
+			if err != nil {
+				return err
+			}
+			if respDetails != nil {
+				details := respDetails.(rp.OKSimple).Data.(mdhot.DetailEsptHotel)
+				data.DetailEsptHotel = &details
+			}
 		case []mdpar.UpdateDto:
 			var detailList []mdpar.DetailEsptParkir
 			for i := range dataReal {
@@ -291,7 +287,7 @@ func UpdateDetail(id uuid.UUID, input m.Input, user_Id uint) (interface{}, error
 					detailList = append(detailList, details)
 				}
 			}
-			data.DetailEsptParkir = &detailList
+			data.DetailEsptParkir = detailList
 		case mdnonpln.UpdateDto:
 			id := 0
 			if dataReal.Id != 0 {
@@ -321,7 +317,7 @@ func UpdateDetail(id uuid.UUID, input m.Input, user_Id uint) (interface{}, error
 					detailList = append(detailList, details)
 				}
 			}
-			data.DetailEsptPpjPln = &detailList
+			data.DetailEsptPpjPln = detailList
 		case mdres.UpdateDto:
 			id := 0
 			if dataReal.Id != 0 {

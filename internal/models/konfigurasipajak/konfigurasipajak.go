@@ -12,6 +12,15 @@ type KonfigurasiPajak struct {
 	Sa          *string            `json:"sa"`
 	UrlDaftarOa *string            `json:"urlDaftarOa" gorm:"type:varchar(100)"`
 	UrlDaftarSa *string            `json:"urlDaftarSa" gorm:"type:varchar(100)"`
+
+	// optional
+	JenisPajak JenisPajak `json:"jenisPajak,omitempty" gorm:"-"`
+}
+
+type JenisPajak struct {
+	ID   uint64  `json:"id" gorm:"-"`
+	Kode *string `json:"kode" gorm:"-"`
+	Nama *string `json:"nama" gorm:"-"`
 }
 
 type CreateDto struct {

@@ -61,7 +61,8 @@ func GetList(input m.FilterDto, user_Id uint) (any, error) {
 	var count int64
 
 	var pagination gh.Pagination
-	baseQuery := a.DB.Model(&m.Espt{})
+	baseQuery := a.DB.Model(&m.Espt{}).
+		Joins("Rekening")
 	if user_Id != 0 {
 		baseQuery = baseQuery.Where(&m.Espt{LaporBy_User_Id: user_Id})
 	}
@@ -75,7 +76,7 @@ func GetList(input m.FilterDto, user_Id uint) (any, error) {
 		Preload("LaporUser", func(db *gorm.DB) *gorm.DB {
 			return db.Omit("Password")
 		}).
-		Joins("Rekening").
+		// Joins("Rekening").
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
@@ -111,27 +112,7 @@ func GetDetail(id uuid.UUID, user_Id uint) (any, error) {
 	} else if result.Error != nil {
 		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
 	}
-	// if len(*data.DetailEsptAir) == 0 {
-	// 	data.DetailEsptAir = nil
-	// }
-	if len(*data.DetailEsptHotel) == 0 {
-		data.DetailEsptHotel = nil
-	}
-	// if len(*data.DetailEsptHiburan) == 0 {
-	// 	data.DetailEsptHiburan = nil
-	// }
-	if len(*data.DetailEsptParkir) == 0 {
-		data.DetailEsptParkir = nil
-	}
-	// if len(*data.DetailEsptResto) == 0 {
-	// 	data.DetailEsptResto = nil
-	// }
-	// if len(*data.DetailEsptPpjNonPln) == 0 {
-	// 	data.DetailEsptPpjNonPln = nil
-	// }
-	if len(*data.DetailEsptPpjPln) == 0 {
-		data.DetailEsptPpjPln = nil
-	}
+
 	return rp.OKSimple{
 		Data: data,
 	}, nil
@@ -195,7 +176,15 @@ func Update(id uuid.UUID, input any, userId uint, tx *gorm.DB) (any, error) {
 	var data m.Espt
 
 	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
-	dataRow := tx.First(&data, "\"Id\" = ?", id.String()).RowsAffected
+	dataRow := tx.
+		Preload("DetailEsptAir").
+		Preload("DetailEsptHiburan").
+		Preload("DetailEsptHotel").
+		Preload("DetailEsptParkir").
+		Preload("DetailEsptPpjNonPln").
+		Preload("DetailEsptPpjPln").
+		Preload("DetailEsptResto").
+		First(&data, "\"Id\" = ?", id.String()).RowsAffected
 	if dataRow == 0 {
 		return nil, errors.New("data tidak dapat ditemukan")
 	}
@@ -241,32 +230,33 @@ func Update(id uuid.UUID, input any, userId uint, tx *gorm.DB) (any, error) {
 	}
 
 	// simpan data ke db satu if karena result dipakai sekali, +error
-	if result := tx.Save(&data); result.Error != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
-	}
-
-	// if verify, clone data to spt table with detail
-	if _, ok := input.(m.VerifyDto); ok && data.VerifyStatus == m.StatusDisetujui {
-		respDetail, err := GetDetail(data.Id, 0)
-		if err != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	err := tx.Transaction(func(tx *gorm.DB) error {
+		if result := tx.Save(&data); result.Error != nil {
+			return result.Error
 		}
 
-		esptDetail := respDetail.(rp.OKSimple).Data.(*m.Espt)
-		inputSpt, err := sspt.TransformEspt(esptDetail)
-		if err != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
-		}
+		// if verify, clone data to spt table with detail
+		if _, ok := input.(m.VerifyDto); ok && data.VerifyStatus == m.StatusDisetujui {
+			inputSpt, err := sspt.TransformEspt(&data)
+			if err != nil {
+				return err
+			}
 
-		opts := make(map[string]interface{})
-		opts["userId"] = uint(userId)
-		opts["newFile"] = false
-		opts["baseUri"] = "sptpd"
+			opts := make(map[string]interface{})
+			opts["userId"] = uint(userId)
+			opts["newFile"] = false
+			opts["baseUri"] = "sptpd"
 
-		_, err = sspt.CreateDetail(inputSpt, opts, tx)
-		if err != nil {
-			return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+			_, err = sspt.CreateDetail(inputSpt, opts, tx)
+			if err != nil {
+				return err
+			}
 		}
+		return nil
+	})
+
+	if err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal memperbarui data: "+err.Error(), data)
 	}
 
 	return rp.OK{

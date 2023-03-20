@@ -19,6 +19,7 @@ import (
 	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambong"
 	mtjrek "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambongrek"
+	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
@@ -81,7 +82,7 @@ func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJamb
 
 	var dataTjrek *mtjrek.TarifJambongRek
 	switch *dataSpt.JenisMasaPajakReklame {
-	case mspt.JenisMasaInsidentil1Penyelenggaraan, mspt.JenisMasaInsidentil1Bulan, mspt.JenisMasaInsidentil1Hari:
+	case mtypes.MasaPajakBulan, mtypes.MasaPajakHari, mtypes.MasaPajakPenyelenggara:
 		var err error
 		dataTjrek, err = getTjRek(tx, "Insidentil", nil)
 		if err != nil {
@@ -97,7 +98,7 @@ func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJamb
 	}
 
 	detailSptReklameMap := make(map[uint64]mdsrek.DetailSptReklame)
-	for _, v := range *dataSpt.DetailSptReklame {
+	for _, v := range dataSpt.DetailSptReklame {
 		if _, ok := dataDetailsMap[v.Id]; !ok {
 			dataDetails = append(dataDetails, m.DetailJambong{DetailSptReklame_id: v.Id})
 		}
@@ -112,7 +113,7 @@ func processData(tx *gorm.DB, data *m.JaminanBongkar, dataDetails []m.DetailJamb
 
 		// Insidentil
 		switch *dataSpt.JenisMasaPajakReklame {
-		case mspt.JenisMasaInsidentil1Penyelenggaraan, mspt.JenisMasaInsidentil1Bulan, mspt.JenisMasaInsidentil1Hari:
+		case mtypes.MasaPajakBulan, mtypes.MasaPajakHari, mtypes.MasaPajakPenyelenggara:
 			data.Nominal += (sptReklame.JumlahRp * (*dataTjrek.Nominal / float64(100)))
 			continue
 		}

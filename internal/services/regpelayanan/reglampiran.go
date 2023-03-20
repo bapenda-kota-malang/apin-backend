@@ -1,6 +1,7 @@
 package regpermohonan
 
 import (
+	"strconv"
 	"strings"
 	"sync"
 
@@ -213,14 +214,14 @@ func UploadLampiran(input m.RegPstLampiranCreateDTO, userId uint, tx *gorm.DB) (
 	if input.LampiranSppt != nil {
 		tempSPPT := *input.LampiranSppt
 		var tempResult []string
-		for _, item := range tempSPPT {
+		for i, item := range tempSPPT {
 			wg.Add(1)
 			fileName, path, extFile, _, err = sh.FilePreProcess(item, "lampiranSppt", userId, id)
 			if err != nil {
 				return
 			}
 			go sh.BulkSaveFile(&wg, item, fileName, path, extFile, errChan)
-			tempResult = append(tempResult, fileName)
+			tempResult = append(tempResult, strconv.Itoa(i)+"-"+fileName)
 		}
 		joinResult := strings.Join(tempResult, ", ")
 		data.LampiranSppt = &joinResult

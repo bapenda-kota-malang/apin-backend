@@ -7,7 +7,7 @@ import (
 
 type CreateDetailHotelDto struct {
 	CreateDetailBaseDto
-	DataDetails []detailespthotel.CreateDto `json:"dataDetails" validate:"required"`
+	DataDetails detailespthotel.CreateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input *CreateDetailHotelDto) GetDetails() interface{} {
@@ -15,18 +15,21 @@ func (input *CreateDetailHotelDto) GetDetails() interface{} {
 }
 
 func (input *CreateDetailHotelDto) LenDetails() int {
-	return len(input.DataDetails)
+	newEmpty := detailespthotel.CreateDto{}
+	lenData := 1
+	if input.DataDetails == newEmpty {
+		lenData = 0
+	}
+	return lenData
 }
 
-func (input CreateDetailHotelDto) ReplaceEsptId(id uuid.UUID) {
-	for i := range input.DataDetails {
-		input.DataDetails[i].Espt_Id = id
-	}
+func (input *CreateDetailHotelDto) ReplaceEsptId(id uuid.UUID) {
+	input.DataDetails.Espt_Id = id
 }
 
 type UpdateDetailHotelDto struct {
 	UpdateDetailBaseDto
-	DataDetails []detailespthotel.UpdateDto `json:"dataDetails" validate:"required"`
+	DataDetails detailespthotel.UpdateDto `json:"dataDetails" validate:"required"`
 }
 
 func (input *UpdateDetailHotelDto) GetDetails() interface{} {
@@ -34,5 +37,10 @@ func (input *UpdateDetailHotelDto) GetDetails() interface{} {
 }
 
 func (input *UpdateDetailHotelDto) LenDetails() int {
-	return len(input.DataDetails)
+	newEmpty := detailespthotel.UpdateDto{}
+	lenData := 1
+	if input.DataDetails == newEmpty {
+		lenData = 0
+	}
+	return lenData
 }

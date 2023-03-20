@@ -7,9 +7,10 @@ import (
 )
 
 type RegJpb4 struct {
-	Id               uint64  `json:"id" gorm:"primarykey;autoIncrement"`
-	PstPermohonan_id *uint64 `json:"pstPermohonan_id"`
-	NoBangunan       *int    `json:"noBangunan"`
+	Id               uint64         `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id *uint64        `json:"pstPermohonan_id"`
+	NoBangunan       *int           `json:"noBangunan"`
+	KelasBangunan4   *KelasBangunan `json:"kelasBangunan4" gorm:"type:char(1)"`
 	gh.DateModel
 }
 

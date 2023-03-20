@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	mhda "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
 	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
@@ -56,7 +57,7 @@ func (s *DPAirTanahUsecase) SaveDetailPotensiPajak(tx *gorm.DB) error {
 	return nil
 }
 
-func (s *DPAirTanahUsecase) CalculateTax(tarifPajak mtp.TarifPajak) error {
+func (s *DPAirTanahUsecase) CalculateTax(tarifPajak *mtp.TarifPajak) (potensiopwp.CreatePotensiOpDto, error) {
 	// harga dasar air
 	tarifAir := float64(0)
 	omsetOpt := "lte"
@@ -69,11 +70,11 @@ func (s *DPAirTanahUsecase) CalculateTax(tarifPajak mtp.TarifPajak) error {
 			BatasBawah_Opt: &omsetOpt,
 		})
 		if err != nil {
-			return err
+			return m.CreatePotensiOpDto{}, err
 		}
 		hdairs := resphdair.(rp.OK).Data.([]mhda.HargaDasarAir)
 		if len(hdairs) == 0 {
-			return errors.New("harga dasar air not found")
+			return m.CreatePotensiOpDto{}, errors.New("harga dasar air not found")
 		}
 		hdair := hdairs[len(hdairs)-1]
 		s.DetailPajakDtos.HargaDasarAir_Id = hdair.Id
@@ -83,11 +84,12 @@ func (s *DPAirTanahUsecase) CalculateTax(tarifPajak mtp.TarifPajak) error {
 			tarifAir = *hdair.TarifMataAir
 		}
 	default:
-		return errors.New("unknown peruntukan air")
+		return m.CreatePotensiOpDto{}, errors.New("unknown peruntukan air")
 	}
 
 	// calculate tax
+	s.PotensiOp.TarifPajak_Id = &tarifPajak.Id
 	s.PotensiOp.JumlahPajak = *s.PotensiOp.OmsetOp * (*tarifPajak.TarifPersen / 100) * tarifAir
 
-	return nil
+	return s.PotensiOp, nil
 }

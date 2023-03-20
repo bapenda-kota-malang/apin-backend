@@ -7,11 +7,12 @@ import (
 )
 
 type RegJpb5 struct {
-	Id                     uint64  `json:"id" gorm:"primarykey;autoIncrement"`
-	PstPermohonan_id       *uint64 `json:"pstPermohonan_id"`
-	NoBangunan             *int    `json:"noBangunan"`
-	LuasKamarAcCentral     *int    `json:"luasKamarAcCentral"`
-	LuasRuangLainAcCentral *int    `json:"luasRuangLainAcCentral"`
+	Id                     uint64         `json:"id" gorm:"primarykey;autoIncrement"`
+	PstPermohonan_id       *uint64        `json:"pstPermohonan_id"`
+	NoBangunan             *int           `json:"noBangunan"`
+	LuasKamarAcCentral     *int           `json:"luasKamarAcCentral"`
+	LuasRuangLainAcCentral *int           `json:"luasRuangLainAcCentral"`
+	KelasBangunan5         *KelasBangunan `json:"kelasBangunan5" gorm:"type:char(1)"`
 	gh.DateModel
 }
 

@@ -6,7 +6,7 @@ type Group struct {
 	Description string `json:"description" gorm:"size:1000"`
 	Access      string `json:"access"`
 	Status      byte   `json:"status"`
-	Position    string `json:"position"`
+	Position    int    `json:"position"`
 }
 
 type CreateDto struct {
