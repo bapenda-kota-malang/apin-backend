@@ -15,7 +15,7 @@ type Pengurangan struct {
 	NamaPemohon       string           `json:"namaPemohon" gorm:"not null"`
 	AlamatPemohon     string           `json:"alamatPemohon" gorm:"not null"`
 	TelpPemohon       *string          `json:"telpPemohon"`
-	JenisPengurangan  JenisPengurangan `json:"jenisPengurangan" gorm:"not null"`
+	JenisPengurangan  JenisPengurangan `json:"jenisPengurangan" gorm:"not null;comment:1 jumlah pajak; 2 denda"`
 	AlasanPengurangan *string          `json:"alasanPengurangan"`
 	SuratPermohonan   string           `json:"suratPermohonan" gorm:"size:2048;not null"`
 	FotoKtp           string           `json:"fotoKtp" gorm:"size:2048;not null"`
@@ -24,39 +24,39 @@ type Pengurangan struct {
 	TelaahStaff       *string          `json:"telaahStaff" gorm:"size:2048"`
 	DokumenLainnya    *string          `json:"dokumenLainnya" gorm:"size:2048"`
 	TanggalPengajuan  time.Time        `json:"tanggalPengajuan"`
-	Posisi            PosisiVerifikasi `json:"posisi"`
-	Status            Status           `json:"status"`
+	Posisi            PosisiVerifikasi `json:"posisi" gorm:"comment:0: Staff; 1: Analis; 2:Kasubid; 3:Kabid; 4:Sekban; 5 Kaban"`
+	Status            Status           `json:"status" gorm:"comment:0: Proses; 1:Diterima; 2:Ditolak"`
 	PctPermohonan     float64          `json:"pctPermohonan"`
 	// verifikasi berjenjang
 	VerifyPetugas_User_Id *uint64           `json:"verifPetugas_user_id"`
 	KeteranganPetugas     *string           `json:"keteranganPetugas"`
 	TanggalVerifPetugas   *time.Time        `json:"tanggalVerifPetugas"`
 	VerifyAnalis_User_Id  *uint64           `json:"verifyAnalis_user_id"`
-	StatusAnalis          *StatusVerifikasi `json:"statusAnalis"`
+	StatusAnalis          *StatusVerifikasi `json:"statusAnalis" gorm:"comment:0: Disetujui; 1:Ditolak"`
 	PersentaseAnalis      *int8             `json:"persentaseAnalis"`
 	KeteranganAnalis      *string           `json:"keteranganAnalis"`
 	AlasanDitolakAnalis   *string           `json:"alasanDitolakAnalis"`
 	TanggalVerifAnalis    *time.Time        `json:"tanggalVerifAnalis"`
 	VerifyKasubid_User_Id *uint64           `json:"verifyKasubid_user_id"`
-	StatusKasubid         *StatusVerifikasi `json:"statusKasubid"`
+	StatusKasubid         *StatusVerifikasi `json:"statusKasubid" gorm:"comment:0: Disetujui; 1:Ditolak"`
 	PersentaseKasubid     *int8             `json:"persentaseKasubid"`
 	KeteranganKasubid     *string           `json:"keteranganKasubid"`
 	AlasanDitolakKasubid  *string           `json:"alasanDitolakKasubid"`
 	TanggalVerifKasubid   *time.Time        `json:"tanggalVerifKasubid"`
 	VerifyKabid_User_Id   *uint64           `json:"verifyKabid_user_id"`
-	StatusKabid           *StatusVerifikasi `json:"statusKabid"`
+	StatusKabid           *StatusVerifikasi `json:"statusKabid" gorm:"comment:0: Disetujui; 1:Ditolak"`
 	PersentaseKabid       *int8             `json:"persentaseKabid"`
 	KeteranganKabid       *string           `json:"keteranganKabid"`
 	AlasanDitolakKabid    *string           `json:"alasanDitolakKabid"`
 	TanggalVerifKabid     *time.Time        `json:"tanggalVerifKabid"`
 	VerifySekban_User_Id  *uint64           `json:"verifySekban_user_id"`
-	StatusSekban          *StatusVerifikasi `json:"statusSekban"`
+	StatusSekban          *StatusVerifikasi `json:"statusSekban" gorm:"comment:0: Disetujui; 1:Ditolak"`
 	PersentaseSekban      *int8             `json:"persentaseSekban"`
 	KeteranganSekban      *string           `json:"keteranganSekban"`
 	AlasanDitolakSekban   *string           `json:"alasanDitolakSekban"`
 	TanggalVerifSekban    *time.Time        `json:"tanggalVerifSekban"`
 	VerifyKaban_User_Id   *uint64           `json:"verifyKaban_user_id"`
-	StatusKaban           *StatusVerifikasi `json:"statusKaban"`
+	StatusKaban           *StatusVerifikasi `json:"statusKaban" gorm:"comment:0: Disetujui; 1:Ditolak"`
 	PersentaseKaban       *int8             `json:"persentaseKaban"`
 	KeteranganKaban       *string           `json:"keteranganKaban"`
 	AlasanDitolakKaban    *string           `json:"alasanDitolakKaban"`
@@ -115,57 +115,57 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	Spt_Id                          *uuid.UUID       `json:"spt_id"`
-	NamaPemohon                     string           `json:"namaPemohon"`
-	AlamatPemohon                   string           `json:"alamatPemohon"`
-	TelpPemohon                     *string          `json:"telpPemohon"`
-	JenisPengurangan                JenisPengurangan `json:"jenisPengurangan"`
-	AlasanPengurangan               *string          `json:"alasanPengurangan"`
-	LaporanKeuangan                 *string          `json:"laporanKeuangan"`
-	DokumenLainnya                  *string          `json:"dokumenLainnya"`
-	SuratPermohonan                 *string          `json:"suratPermohonan"`
-	FotoKtp                         *string          `json:"fotoKtp"`
-	Lhp                             *string          `json:"lhp"`
-	TelaahStaff                     *string          `json:"telaahStaff"`
-	TanggalPengajuan                *time.Time       `json:"tanggalPengajuan"`
-	Posisi                          PosisiVerifikasi `json:"posisi"`
-	Status                          Status           `json:"status"`
-	PersentasePermohonanPengurangan *float64         `json:"persentasePermohonanPengurangan"`
-	VerifyPetugas_User_Id           *uint64          `json:"verifPetugas_user_id"`
-	KeteranganPetugas               *string          `json:"keteranganPetugas"`
-	TanggalVerifPetugas             *time.Time       `json:"tanggalVerifPetugas"`
-	VerifyAnalis_User_Id            *uint64          `json:"verifyAnalis_user_id"`
-	StatusAnalis                    StatusVerifikasi `json:"statusAnalis"`
-	PersentaseAnalis                *int8            `json:"persentaseAnalis"`
-	KeteranganAnalis                *string          `json:"keteranganAnalis"`
-	AlasanDitolakAnalis             *string          `json:"alasanDitolakAnalis"`
-	TanggalVerifAnalis              *time.Time       `json:"tanggalVerifAnalis"`
-	VerifyKasubid_User_Id           *uint64          `json:"verifyKasubid_user_id"`
-	StatusKasubid                   StatusVerifikasi `json:"statusKasubid"`
-	PersentaseKasubid               *int8            `json:"persentaseKasubid"`
-	KeteranganKasubid               *string          `json:"keteranganKasubid"`
-	AlasanDitolakKasubid            *string          `json:"alasanDitolakKasubid"`
-	TanggalVerifKasubid             *time.Time       `json:"tanggalVerifKasubid"`
-	VerifyKabid_User_Id             *uint64          `json:"verifyKabid_user_id"`
-	StatusKabid                     StatusVerifikasi `json:"statusKabid"`
-	PersentaseKabid                 *int8            `json:"persentaseKabid"`
-	KeteranganKabid                 *string          `json:"keteranganKabid"`
-	AlasanDitolakKabid              *string          `json:"alasanDitolakKabid"`
-	TanggalVerifKabid               *time.Time       `json:"tanggalVerifKabid"`
-	VerifySekban_User_Id            *uint64          `json:"verifySekban_user_id"`
-	StatusSekban                    StatusVerifikasi `json:"statusSekban"`
-	PersentaseSekban                *int8            `json:"persentaseSekban"`
-	KeteranganSekban                *string          `json:"keteranganSekban"`
-	AlasanDitolakSekban             *string          `json:"alasanDitolakSekban"`
-	TanggalVerifSekban              *time.Time       `json:"tanggalVerifSekban"`
-	VerifyKaban_User_Id             *uint64          `json:"verifyKaban_user_id"`
-	StatusKaban                     StatusVerifikasi `json:"statusKaban"`
-	PersentaseKaban                 *int8            `json:"persentaseKaban"`
-	KeteranganKaban                 *string          `json:"keteranganKaban"`
-	AlasanDitolakKaban              *string          `json:"alasanDitolakKaban"`
-	TanggalVerifKaban               *time.Time       `json:"tanggalVerifKaban"`
-	Page                            int              `json:"page"`
-	PageSize                        int              `json:"page_size"`
+	Spt_Id                *uuid.UUID       `json:"spt_id"`
+	NamaPemohon           string           `json:"namaPemohon"`
+	AlamatPemohon         string           `json:"alamatPemohon"`
+	TelpPemohon           *string          `json:"telpPemohon"`
+	JenisPengurangan      JenisPengurangan `json:"jenisPengurangan"`
+	AlasanPengurangan     *string          `json:"alasanPengurangan"`
+	LaporanKeuangan       *string          `json:"laporanKeuangan"`
+	DokumenLainnya        *string          `json:"dokumenLainnya"`
+	SuratPermohonan       *string          `json:"suratPermohonan"`
+	FotoKtp               *string          `json:"fotoKtp"`
+	Lhp                   *string          `json:"lhp"`
+	TelaahStaff           *string          `json:"telaahStaff"`
+	TanggalPengajuan      *time.Time       `json:"tanggalPengajuan"`
+	Posisi                PosisiVerifikasi `json:"posisi"`
+	Status                Status           `json:"status"`
+	PctPermohonan         *float64         `json:"pctPermohonan"`
+	VerifyPetugas_User_Id *uint64          `json:"verifPetugas_user_id"`
+	KeteranganPetugas     *string          `json:"keteranganPetugas"`
+	TanggalVerifPetugas   *time.Time       `json:"tanggalVerifPetugas"`
+	VerifyAnalis_User_Id  *uint64          `json:"verifyAnalis_user_id"`
+	StatusAnalis          StatusVerifikasi `json:"statusAnalis"`
+	PersentaseAnalis      *int8            `json:"persentaseAnalis"`
+	KeteranganAnalis      *string          `json:"keteranganAnalis"`
+	AlasanDitolakAnalis   *string          `json:"alasanDitolakAnalis"`
+	TanggalVerifAnalis    *time.Time       `json:"tanggalVerifAnalis"`
+	VerifyKasubid_User_Id *uint64          `json:"verifyKasubid_user_id"`
+	StatusKasubid         StatusVerifikasi `json:"statusKasubid"`
+	PersentaseKasubid     *int8            `json:"persentaseKasubid"`
+	KeteranganKasubid     *string          `json:"keteranganKasubid"`
+	AlasanDitolakKasubid  *string          `json:"alasanDitolakKasubid"`
+	TanggalVerifKasubid   *time.Time       `json:"tanggalVerifKasubid"`
+	VerifyKabid_User_Id   *uint64          `json:"verifyKabid_user_id"`
+	StatusKabid           StatusVerifikasi `json:"statusKabid"`
+	PersentaseKabid       *int8            `json:"persentaseKabid"`
+	KeteranganKabid       *string          `json:"keteranganKabid"`
+	AlasanDitolakKabid    *string          `json:"alasanDitolakKabid"`
+	TanggalVerifKabid     *time.Time       `json:"tanggalVerifKabid"`
+	VerifySekban_User_Id  *uint64          `json:"verifySekban_user_id"`
+	StatusSekban          StatusVerifikasi `json:"statusSekban"`
+	PersentaseSekban      *int8            `json:"persentaseSekban"`
+	KeteranganSekban      *string          `json:"keteranganSekban"`
+	AlasanDitolakSekban   *string          `json:"alasanDitolakSekban"`
+	TanggalVerifSekban    *time.Time       `json:"tanggalVerifSekban"`
+	VerifyKaban_User_Id   *uint64          `json:"verifyKaban_user_id"`
+	StatusKaban           StatusVerifikasi `json:"statusKaban"`
+	PersentaseKaban       *int8            `json:"persentaseKaban"`
+	KeteranganKaban       *string          `json:"keteranganKaban"`
+	AlasanDitolakKaban    *string          `json:"alasanDitolakKaban"`
+	TanggalVerifKaban     *time.Time       `json:"tanggalVerifKaban"`
+	Page                  int              `json:"page"`
+	PageSize              int              `json:"page_size"`
 }
 
 type VerifyDto struct {

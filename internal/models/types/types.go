@@ -9,6 +9,7 @@ type Status int16 // StatusNpwdp
 type StatusBL int16
 type StatusVerifikasi uint8
 type JenisMasa int16
+type LevelJabatan uint8
 
 const (
 	PeruntukanNonNiaga    Peruntukan = "NON NIAGA"
@@ -45,4 +46,17 @@ const (
 	MasaPajakBulan         JenisMasa = 2 //masa pajak insidentil 1 bulan
 	MasaPajakHari          JenisMasa = 3 //masa pajak insidentil 1 hari
 	MasaPajakPenyelenggara JenisMasa = 4 //masa pajak insidentil 1 kali penyelenggaraan
+
+	// Level Jabatan Kaban
+	LevelJabatanKaban LevelJabatan = 1
+	// Level Jabatan Sekban
+	LevelJabatanSekban LevelJabatan = 2
+	// Level Jabatan Kabid
+	LevelJabatanKabid LevelJabatan = 3
+	// Level Jabatan Kasubid atau Kasubag
+	LevelJabatanKasubidKasubag LevelJabatan = 4
+	// Level Jabatan Analis
+	LevelJabatanAnalis LevelJabatan = 5
+	// Level Jabatan Staff
+	LevelJabatanStaff LevelJabatan = 6
 )

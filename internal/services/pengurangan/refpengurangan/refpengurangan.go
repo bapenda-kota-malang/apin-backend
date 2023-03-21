@@ -7,14 +7,15 @@ import (
 	"sync"
 	"time"
 
-	mjabatan "github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
+	mbidangkerja "github.com/bapenda-kota-malang/apin-backend/internal/models/bidangkerja"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajak"
-	sjabatan "github.com/bapenda-kota-malang/apin-backend/internal/services/jabatan"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/google/uuid"
@@ -158,9 +159,7 @@ func GetDetail(id uuid.UUID, userid uint) (any, error) {
 	var data *m.RefPengurangan
 
 	baseQuery := a.DB.Model(&m.RefPengurangan{}).
-		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
-			return tx.Omit("Password")
-		}).
+		Preload(clause.Associations, gormhelper.OmitPassword()).
 		Preload("Spt.Npwpd.ObjekPajak")
 
 	if userid != 0 {
@@ -183,7 +182,7 @@ func Update(id uuid.UUID, input m.UpdateDto, userId uint64) (any, error) {
 	//ambil data based on id
 	var data *m.RefPengurangan
 
-	if result := a.DB.Preload("Pemohon").First(&data, "\"Id\" = ?", id.String()); result.RowsAffected == 0 {
+	if result := a.DB.Preload("Pemohon", gormhelper.OmitPassword()).First(&data, "\"Id\" = ?", id.String()); result.RowsAffected == 0 {
 		return nil, nil
 	}
 	//ambil nama jabatan based on userId
@@ -204,40 +203,52 @@ func Update(id uuid.UUID, input m.UpdateDto, userId uint64) (any, error) {
 	}, nil
 }
 
-func Verify(id uuid.UUID, input m.VerifyDtoRefPengurangan, userId uint64, jabatanId int) (any, error) {
-	respJabatan, err := sjabatan.GetDetail(jabatanId)
-	if err != nil {
-		return nil, err
+func Verify(id uuid.UUID, input m.VerifyDtoRefPengurangan, userId uint64, bidangKerjaKode string) (any, error) {
+	var dataBidangKerja mbidangkerja.BidangKerja
+	if res := a.DB.Model(mbidangkerja.BidangKerja{}).Where("Kode", bidangKerjaKode).First(&dataBidangKerja); res.Error != nil {
+		return nil, fmt.Errorf("failed auth bidang kerja: %w", res.Error)
 	}
-	dataJabatan := respJabatan.(rp.OKSimple).Data.(*mjabatan.Jabatan)
-	// TODO: check jabatan case
-	if dataJabatan.Nama == nil {
-		return nil, nil
+
+	if dataBidangKerja.Level != types.LevelJabatanStaff {
+		return nil, errors.New("hanya staff yang bisa verifikasi")
 	}
 
 	var dataRefPengurangan m.RefPengurangan
-	if result := a.DB.Preload("Pemohon").First(&dataRefPengurangan, "\"Id\" = ?", id.String()); result.RowsAffected == 0 {
-		return nil, fmt.Errorf("data RefPengurangan tidak ditemukan")
+	if result := a.DB.Preload("Pemohon", gormhelper.OmitPassword()).First(&dataRefPengurangan, "\"Id\" = ?", id.String()); result.RowsAffected == 0 {
+		return nil, errors.New("data RefPengurangan tidak ditemukan")
 	}
 	if dataRefPengurangan.Pengurangan_Id != nil || dataRefPengurangan.Status == m.StatusDitolak {
-		return nil, fmt.Errorf("data RefPengurangan telah diverifikasi")
+		return nil, errors.New("data RefPengurangan telah diverifikasi")
 	}
 	var resp interface{}
 	resp = dataRefPengurangan
 
 	now := time.Now()
-	err = a.DB.Transaction(func(tx *gorm.DB) error {
-		switch *input.Status {
-		case m.StatusDiproses, m.StatusDiterima:
+	err := a.DB.Transaction(func(tx *gorm.DB) error {
+		dataRefPengurangan.KeteranganStaff = input.KeteranganPetugas
+		dataRefPengurangan.TanggalVerifPetugas = &now
+		dataRefPengurangan.VerifyPetugas_User_Id = &userId
+		switch *input.StatusVerifikasi {
+		case m.StatusVerifikasiDisetujui:
 			var dataWp wajibpajak.WajibPajak
 			if res := tx.Preload(clause.Associations).First(&dataWp, dataRefPengurangan.Pemohon.Ref_Id); res.Error != nil {
 				return fmt.Errorf("data wajib pajak tidak ditemukan")
 			}
 			dataPengurangan := m.Pengurangan{
-				JenisPengurangan:      *input.JenisPengurangan,
-				KeteranganPetugas:     input.KeteranganPetugas,
-				VerifyPetugas_User_Id: &userId,
-				TanggalVerifPetugas:   &now,
+				JenisPengurangan:  *input.JenisPengurangan,
+				NamaPemohon:       dataWp.Nama,
+				TelpPemohon:       &dataWp.Telp,
+				Posisi:            m.PosisiVerifikasiStaff,
+				KeteranganPetugas: input.KeteranganPetugas,
+				AlamatPemohon: fmt.Sprintf(
+					"%s,%s,%s,%s,%s,%s",
+					dataWp.Alamat,
+					dataWp.RtRw,
+					dataWp.Kelurahan.Nama,
+					dataWp.Kecamatan.Nama,
+					dataWp.Kota.Nama,
+					dataWp.Provinsi.Nama,
+				),
 			}
 
 			if err := sc.Copy(&dataPengurangan, &dataRefPengurangan); err != nil {
@@ -245,17 +256,6 @@ func Verify(id uuid.UUID, input m.VerifyDtoRefPengurangan, userId uint64, jabata
 			}
 
 			dataPengurangan.Id = uuid.Nil
-			dataPengurangan.NamaPemohon = dataWp.Nama
-			dataPengurangan.AlamatPemohon = fmt.Sprintf(
-				"%s,%s,%s,%s,%s,%s",
-				dataWp.Alamat,
-				dataWp.RtRw,
-				dataWp.Kelurahan.Nama,
-				dataWp.Kecamatan.Nama,
-				dataWp.Kota.Nama,
-				dataWp.Provinsi.Nama,
-			)
-			dataPengurangan.TelpPemohon = &dataWp.Telp
 			if err := tx.Create(&dataPengurangan).Error; err != nil {
 				return err
 			}
@@ -264,18 +264,15 @@ func Verify(id uuid.UUID, input m.VerifyDtoRefPengurangan, userId uint64, jabata
 				"refPengurangan": dataRefPengurangan,
 				"pengurangan":    dataPengurangan,
 			}
-		case m.StatusDitolak:
+		case m.StatusVerifikasiDitolak:
 			if input.AlasanDitolakStaff == nil {
 				return errors.New("ketika menolak harus dengan alasan")
 			}
-			dataRefPengurangan.Status = *input.Status
+			dataRefPengurangan.Status = m.StatusDitolak
 			dataRefPengurangan.AlasanPenolakanStaff = input.AlasanDitolakStaff
 		default:
 			return errors.New("invalid data status")
 		}
-		dataRefPengurangan.KeteranganStaff = input.KeteranganPetugas
-		dataRefPengurangan.TanggalVerifPetugas = &now
-		dataRefPengurangan.VerifyPetugas_User_Id = &userId
 		if err := tx.Save(&dataRefPengurangan).Error; err != nil {
 			return err
 		}
