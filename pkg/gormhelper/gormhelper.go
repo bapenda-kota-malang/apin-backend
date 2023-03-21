@@ -139,6 +139,13 @@ func Paginate(input interface{}, p *Pagination) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
+// Return function to omit password when query data
+func OmitPassword() func(db *gorm.DB) *gorm.DB {
+	return func(tx *gorm.DB) *gorm.DB {
+		return tx.Omit("Password")
+	}
+}
+
 func StringToDate(str string) *time.Time {
 	layoutISO := "2006-01-02"
 	t, err := time.Parse(layoutISO, str)
