@@ -695,6 +695,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", objekpajakpbb.GetList)
 		r.Get("/{id}", objekpajakpbb.GetDetail)
 		r.Get("/download/excel", objekpajakpbb.DownloadExcelList)
+		r.Get("/nop-terbesar", objekpajakpbb.GetNopTerbesar)
 		r.Patch("/rtrwmassal", objekpajakpbb.UpdateRtRwMassal)
 	})
 

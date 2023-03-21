@@ -64,3 +64,13 @@ func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	result.Write(w)
 }
+
+func GetNopTerbesar(w http.ResponseWriter, r *http.Request) {
+	var data m.ObjekPajakPbb
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.GetNopTerbesar(data)
+	hh.DataResponse(w, result, err)
+}
