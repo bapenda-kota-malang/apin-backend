@@ -160,6 +160,30 @@ func GetDetail(id int) (interface{}, error) {
 	}, nil
 }
 
+func GetByNopDanSk(input m.FilterNopSkDtoKepKebPbb) (any, error) {
+	var data *m.KeputusanKeberatanPbb
+	result := a.DB.Debug().Model(&m.KeputusanKeberatanPbb{}).
+		Where("PermohonanProvinsiID", input.PermohonanProvinsiID).
+		Where("PermohonanKotaID", input.PermohonanKotaID).
+		Where("PermohonanKecamatanID", input.PermohonanKecamatanID).
+		Where("PermohonanKelurahanID", input.PermohonanKelurahanID).
+		Where("PermohonanBlokID", input.PermohonanBlokID).
+		Where("NoUrutPemohon", input.NoUrutPemohon).
+		Where("PemohonJenisOPID", input.PemohonJenisOPID).
+		Where("JnsSK", input.JnsSK).
+		Where("NoSK", input.NoSK).
+		First(&data)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
 func Update(id int, input m.UpdateDtoKepKebPbb, tx *gorm.DB) (interface{}, error) {
 	if tx == nil {
 		tx = a.DB

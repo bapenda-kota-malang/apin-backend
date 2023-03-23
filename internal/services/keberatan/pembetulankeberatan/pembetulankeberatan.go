@@ -40,21 +40,21 @@ func Create(input m.InputPembetulanSkKeberatan) (any, error) {
 	dataPstDetail := respPstDetail.(rp.OKSimple).Data.(mpst.PstDetail)
 
 	// check data inside tabel keputusan keberatan pbb, use nop and no sk lama
-	respKepKebPbb, err := skepkebpbb.GetList(m.FilterDtoKepKebPbb{
-		PermohonanProvinsiID:  dataPstDetail.PermohonanProvinsiID,
-		PermohonanKotaID:      dataPstDetail.PermohonanKotaID,
-		PermohonanKecamatanID: dataPstDetail.PermohonanKecamatanID,
-		PermohonanKelurahanID: dataPstDetail.PermohonanKelurahanID,
-		PermohonanBlokID:      dataPstDetail.PermohonanBlokID,
-		NoUrutPemohon:         dataPstDetail.NoUrutPemohon,
-		PemohonJenisOPID:      dataPstDetail.PemohonJenisOPID,
-		JnsSK:                 input.JenisSKLama,
-		NoSK:                  input.NoSkLama,
+	respKepKebPbb, err := skepkebpbb.GetByNopDanSk(m.FilterNopSkDtoKepKebPbb{
+		PermohonanProvinsiID:  *dataPstDetail.PermohonanProvinsiID,
+		PermohonanKotaID:      *dataPstDetail.PermohonanKotaID,
+		PermohonanKecamatanID: *dataPstDetail.PermohonanKecamatanID,
+		PermohonanKelurahanID: *dataPstDetail.PermohonanKelurahanID,
+		PermohonanBlokID:      *dataPstDetail.PermohonanBlokID,
+		NoUrutPemohon:         *dataPstDetail.NoUrutPemohon,
+		PemohonJenisOPID:      *dataPstDetail.PemohonJenisOPID,
+		JnsSK:                 *input.JenisSKLama,
+		NoSK:                  *input.NoSkLama,
 	})
-	if err != nil || len(respKepKebPbb.(rp.OK).Data.([]m.KeputusanKeberatanPbb)) == 0 {
+	dataKepKebPbb := respKepKebPbb.(rp.OK).Data.(*m.KeputusanKeberatanPbb)
+	if err != nil || dataKepKebPbb == nil {
 		return nil, err
 	}
-	dataKepKebPbb := respKepKebPbb.(rp.OK).Data.([]m.KeputusanKeberatanPbb)[0]
 
 	dataPemKeb := m.PembetulanKeberatan{
 		Kanwil_Kd:                   *dataKepKebPbb.KanwilId,
