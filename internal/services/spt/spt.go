@@ -250,7 +250,7 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 		input.StatusData = nil
 	}
 	input.JatuhTempo_Opt = &opts
-	result := baseQuery.
+	result := baseQuery.Debug().
 		Select("\"Spt\".*").
 		Joins("Rekening").
 		Preload("Rekening").

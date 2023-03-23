@@ -15,13 +15,14 @@ type RefPengurangan struct {
 	Pengurangan_Id        *uuid.UUID `json:"-" gorm:"type:uuid"`
 	Pemohon_User_Id       uint64     `json:"pemohon_user_id"`
 	NominalKetetapan_Spt  float64    `json:"nominalKetetapan_spt" gorm:"not null"`
+	PctPermohonan         float64    `json:"pctPermohonan"`
 	AlasanPengurangan     *string    `json:"alasanPengurangan"`
 	SuratPermohonan       string     `json:"suratPermohonan" gorm:"size:2048"`
 	FotoKtp               string     `json:"fotoKtp" gorm:"size:2048"`
 	LaporanKeuangan       string     `json:"laporanKeuangan" gorm:"size:2048"`
 	DokumenLainnya        *string    `json:"dokumenLainnya" gorm:"size:2048"`
 	TanggalPengajuan      time.Time  `json:"tanggalPengajuan"`
-	Status                Status     `json:"status"`
+	Status                Status     `json:"status" gorm:"comment:0: Proses; 1:Diterima; 2:Ditolak"`
 	KeteranganStaff       *string    `json:"KeteranganStaff"`
 	AlasanPenolakanStaff  *string    `json:"alasanPenolakanStaff"`
 	VerifyPetugas_User_Id *uint64    `json:"verifPetugas_user_id"`
@@ -51,6 +52,7 @@ type RefPengurangan struct {
 type CreateDtoRefPengurangan struct {
 	Spt_Id            uuid.UUID `json:"spt_id" validate:"required"`
 	AlasanPengurangan *string   `json:"alasanPengurangan"`
+	PctPermohonan     *float64  `json:"pctPermohonan" validate:"required"`
 	SuratPermohonan   string    `json:"suratPermohonan" validate:"required;base64=pdf;b64size=1025"`
 	FotoKtp           string    `json:"fotoKtp" validate:"required;base64=image;b64size=1025"`
 	LaporanKeuangan   string    `json:"laporanKeuangan" validate:"required;base64=pdf;b64size=1025"`
@@ -69,7 +71,7 @@ type VerifyDtoRefPengurangan struct {
 	JenisPengurangan   *JenisPengurangan `json:"jenisPengurangan" validate:"required"`
 	KeteranganPetugas  *string           `json:"keteranganPetugas"`
 	AlasanDitolakStaff *string           `json:"alasanDitolakStaff"`
-	Status             *Status           `json:"status" validate:"required"`
+	StatusVerifikasi   *StatusVerifikasi `json:"statusVerifikasi" validate:"required"`
 }
 
 type FilterDtoRefPengurangan struct {
@@ -92,4 +94,6 @@ type FilterDtoRefPengurangan struct {
 	TanggalVerifSekban    *time.Time `json:"tanggalVerifSekban"`
 	VerifyKaban_User_Id   *uint64    `json:"verifyKaban_user_id"`
 	TanggalVerifKaban     *time.Time `json:"tanggalVerifKaban"`
+	Page                  int        `json:"page"`
+	PageSize              int        `json:"page_size"`
 }

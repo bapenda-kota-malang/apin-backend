@@ -795,3 +795,25 @@ func DownloadExcelList(input m.FilterDto, refId int) (*excelize.File, error) {
 	}()
 	return excelhelper.ExportList(excelData, "List")
 }
+
+func GetNopTerbesar(input m.ObjekPajakPbb) (any, error) {
+	var data *m.ObjekPajakPbb
+
+	result := a.DB.
+		Where("Provinsi_Kode", input.Provinsi_Kode).
+		Where("Daerah_Kode", input.Daerah_Kode).
+		Where("Kecamatan_Kode", input.Kecamatan_Kode).
+		Where("Kelurahan_Kode", input.Kelurahan_Kode).
+		Where("Blok_Kode", input.Blok_Kode).
+		Order("\"NoUrut\" DESC").
+		First(&data)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-nop-terbesar", source, "failed", "gagal mengambil data nop", data)
+	}
+
+	return rp.OKSimple{
+		Data: data.NoUrut,
+	}, nil
+}

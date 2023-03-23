@@ -649,6 +649,7 @@ func SetRoutes() http.Handler {
 	r.Route("/keputusankeberatanpbb", func(r chi.Router) {
 		r.Get("/", keputusankeberatanpbb.GetList)
 		r.Get("/{id}", keputusankeberatanpbb.GetDetail)
+		r.Post("/bynopsk", keputusankeberatanpbb.GetByNopDanSk)
 		r.Post("/", keputusankeberatanpbb.Create)
 		r.Patch("/{id}", keputusankeberatanpbb.Update)
 		r.Delete("/{id}", keputusankeberatanpbb.Delete)
@@ -696,6 +697,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", objekpajakpbb.GetList)
 		r.Get("/{id}", objekpajakpbb.GetDetail)
 		r.Get("/download/excel", objekpajakpbb.DownloadExcelList)
+		r.Get("/nop-terbesar", objekpajakpbb.GetNopTerbesar)
 		r.Patch("/rtrwmassal", objekpajakpbb.UpdateRtRwMassal)
 	})
 
@@ -764,7 +766,8 @@ func SetRoutes() http.Handler {
 	r.Route("/catatansejarahwp", func(r chi.Router) {
 		r.Get("/", sppt.ListCatataSejarahWp)
 	})
-	r.Get("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
+
+	r.Post("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
 
 	return r
 }

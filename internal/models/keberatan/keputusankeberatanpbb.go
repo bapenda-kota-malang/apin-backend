@@ -128,6 +128,18 @@ type UpdateDtoKepKebPbb struct {
 	NIPPencetak           *string         `json:"nipPencetak"`
 }
 
+type FilterNopSkDtoKepKebPbb struct {
+	PermohonanProvinsiID  string `json:"provinsiKode" validate:"required"`
+	PermohonanKotaID      string `json:"daerahKode" validate:"required"`
+	PermohonanKecamatanID string `json:"kecamatanKode" validate:"required"`
+	PermohonanKelurahanID string `json:"kelurahanKode" validate:"required"`
+	PermohonanBlokID      string `json:"blokKode" validate:"required"`
+	NoUrutPemohon         string `json:"noUrutKode" validate:"required"`
+	PemohonJenisOPID      string `json:"jenisOP" validate:"required"`
+	JnsSK                 string `json:"jnsSK" validate:"required"`
+	NoSK                  string `json:"noSK" validate:"required"`
+}
+
 type VerifyDtoKepKebPbb struct {
 	JnsKeputusan *JnsKeputusan `json:"jnsKeputusan" validate:"required"`
 }

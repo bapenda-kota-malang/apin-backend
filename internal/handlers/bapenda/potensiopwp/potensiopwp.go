@@ -1,11 +1,11 @@
 package potensiopwp
 
-import (
+import ( 
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
+	"strconv" 
 	"strings"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
@@ -154,7 +154,7 @@ func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename=list_daftar_potensi_opwp_baru.xlsx")
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	result.Write(w)
-}
+} 
 
 func DownloadPdf(w http.ResponseWriter, r *http.Request) {
 	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
@@ -201,4 +201,4 @@ func DownloadPdf(w http.ResponseWriter, r *http.Request) {
 	// selesaikan response
 	w.WriteHeader(http.StatusOK)
 
-}
+}  
