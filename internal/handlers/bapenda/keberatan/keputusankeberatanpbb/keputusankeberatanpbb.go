@@ -57,6 +57,16 @@ func GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func GetByNopDanSk(w http.ResponseWriter, r *http.Request) {
+	var input m.FilterNopSkDtoKepKebPbb
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
+		return
+	}
+
+	result, err := s.GetByNopDanSk(input)
+	hh.DataResponse(w, result, err)
+}
+
 func Update(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
