@@ -3,11 +3,13 @@ package sptpd
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"crypto/rand"
 
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -26,6 +28,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 )
@@ -199,6 +202,131 @@ func GetList(input m.FilterDto, auth int, tp string) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelListVerifikasi(input m.FilterDto, auth int, tp string) (*excelize.File, error) {
+	var data []m.BphtbSptpd
+
+	queryBase := a.DB.Model(&m.BphtbSptpd{})
+
+	if (auth == 0 || auth == 4) && tp == "ver" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"02", "03", "04", "05", "06", "07", "08", "21"})
+	} else if auth == 3 && tp == "ver" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"04", "05", "06", "07", "08", "21"})
+	} else if auth == 2 && tp == "ver" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"06", "07", "08", "21"})
+	} else if (auth == 0 || auth == 4) && tp == "byr" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"08", "10", "12", "22"})
+	} else if (auth == 0 || auth == 4) && tp == "val" {
+		queryBase = queryBase.Where("\"Status\" IN ?", []string{"10", "13", "14", "20"})
+	}
+
+	result := queryBase.
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData []interface{}
+
+	if tp == "byr" {
+		excelData = func() []interface{} {
+			var tmp []interface{}
+			tmp = append(tmp, map[string]interface{}{
+				"A": "No",
+				"B": "No Pelayanan",
+				"C": "No SSPD",
+				"D": "Nama WP",
+				"E": "Alamat OP",
+				"F": "Jumlah Setor",
+				"G": "Tanggal",
+			})
+			for i, v := range data {
+				n := i + 1
+				tmp = append(tmp, map[string]interface{}{
+					"A": n,
+					"B": func() string {
+						if v.NoPelayanan != nil {
+							return *v.NoPelayanan
+						}
+						return ""
+					}(),
+					"C": func() string {
+						if v.NoDokumen != nil {
+							return *v.NoDokumen
+						}
+						return ""
+					}(),
+					"D": func() string {
+						if v.NamaWp != nil {
+							return *v.NamaWp
+						}
+						return ""
+					}(),
+					"E": func() string {
+						if v.NOPAlamat != nil {
+							return *v.NOPAlamat
+						}
+						return ""
+					}(),
+					"F": func() string {
+						return strconv.FormatFloat(v.JumlahSetor, 'f', 0, 64)
+					}(),
+					"G": "-",
+				})
+			}
+			return tmp
+		}()
+	} else {
+		excelData = func() []interface{} {
+			var tmp []interface{}
+			tmp = append(tmp, map[string]interface{}{
+				"A": "No",
+				"B": "Tanggal Pengajuan",
+				"C": "No Pelayanan",
+				"D": "Nama Wajib Pajak",
+				"E": "NOP Alamat OP",
+				"F": "Jumlah Setor",
+				"G": "Status",
+			})
+			for i, v := range data {
+				n := i + 1
+				tmp = append(tmp, map[string]interface{}{
+					"A": n,
+					"B": func() string {
+						t, _ := v.Tanggal.Value()
+						return t.(time.Time).Format("2006-01-02")
+					}(),
+					"C": func() string {
+						if v.NoPelayanan != nil {
+							return *v.NoPelayanan
+						}
+						return ""
+					}(),
+					"D": func() string {
+						if v.NamaWp != nil {
+							return *v.NamaWp
+						}
+						return ""
+					}(),
+					"E": func() string {
+						if v.Alamat != nil {
+							return *v.Alamat
+						}
+						return ""
+					}(),
+					"F": func() string {
+						return strconv.FormatFloat(v.JumlahSetor, 'f', 0, 64)
+					}(),
+					"G": v.Status,
+				})
+			}
+			return tmp
+		}()
+	}
+	return excelhelper.ExportList(excelData, "List")
 }
 
 func GetDetail(id uuid.UUID) (any, error) {

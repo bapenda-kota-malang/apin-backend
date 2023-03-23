@@ -217,11 +217,16 @@ func ExtractToken(r *http.Request, tokenType TokenType) (*AuthInfo, error) {
 		if err != nil {
 			return nil, err
 		}
+		bidangKerjaKode, ok := claims["bidangKerja_kode"].(string)
+		if !ok {
+			return nil, errors.New("bidang kerja kode claims invalid")
+		}
 		return &AuthInfo{
-			Uuid:       accessUuid,
-			User_Id:    int(user_id),
-			Ref_Id:     int(ref_id),
-			Jabatan_Id: int(jabatan_id),
+			Uuid:             accessUuid,
+			User_Id:          int(user_id),
+			Ref_Id:           int(ref_id),
+			Jabatan_Id:       int(jabatan_id),
+			BidangKerja_Kode: bidangKerjaKode,
 		}, nil
 	}
 	return nil, err

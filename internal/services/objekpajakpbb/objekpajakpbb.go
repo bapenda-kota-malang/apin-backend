@@ -8,11 +8,13 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/kelurahan"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	excelhelper "github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
@@ -751,4 +753,67 @@ func GetByNop(provinsiKode, daerahKode, kecamatanKode, kelurahanKode, blokKode, 
 		return data, result.Error
 	}
 	return data, nil
+}
+
+func DownloadExcelList(input m.FilterDto, refId int) (*excelize.File, error) {
+	var data []m.ObjekPajakPbb
+	baseQuery := a.DB.Model(&m.ObjekPajakPbb{})
+
+	// if refId not 0 then this function called from handler wp that need data to be filtered based from auth login
+	if refId != 0 {
+		baseQuery = baseQuery.
+			Joins("JOIN \"WajibPajakPbb\" ON \"WajibPajakPbb\".\"Id\" = \"ObjekPajakPbb\".\"WajibPajakPbb_Id\"").
+			Joins("JOIN \"WajibPajak\" ON \"WajibPajakPbb\".\"Nik\" = \"WajibPajak\".\"Nik\" AND \"WajibPajak\".\"Id\" = ?", refId)
+	}
+
+	result := baseQuery.
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "NOP",
+			"C": "Nama WP",
+			"D": "Lokasi",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": fmt.Sprintf("%s%s%s%s%s%s%s", *v.Provinsi_Kode, *v.Daerah_Kode, *v.Kecamatan_Kode, *v.Kelurahan_Kode, *v.Blok_Kode, *v.NoUrut, *v.JenisOp),
+				"C": "",
+				"D": "",
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
+}
+
+func GetNopTerbesar(input m.ObjekPajakPbb) (any, error) {
+	var data *m.ObjekPajakPbb
+
+	result := a.DB.
+		Where("Provinsi_Kode", input.Provinsi_Kode).
+		Where("Daerah_Kode", input.Daerah_Kode).
+		Where("Kecamatan_Kode", input.Kecamatan_Kode).
+		Where("Kelurahan_Kode", input.Kelurahan_Kode).
+		Where("Blok_Kode", input.Blok_Kode).
+		Order("\"NoUrut\" DESC").
+		First(&data)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-nop-terbesar", source, "failed", "gagal mengambil data nop", data)
+	}
+
+	return rp.OKSimple{
+		Data: data.NoUrut,
+	}, nil
 }
