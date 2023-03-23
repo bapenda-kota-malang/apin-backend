@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 	"github.com/go-chi/chi/v5"
@@ -127,8 +128,9 @@ func GetDetailPembayaran(w http.ResponseWriter, r *http.Request) {
 	if no == "" {
 		return
 	}
+	no = strings.Replace(no, "_", ".", -1)
 
-	result, err := s.GetDetailbyField("Sptpd_Id", no)
+	result, err := s.GetDetailbyField("NoDokumen", no)
 	hh.DataResponse(w, result, err)
 }
 
