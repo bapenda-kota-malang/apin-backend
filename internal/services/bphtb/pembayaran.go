@@ -5,6 +5,7 @@ import (
 
 	sc "github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	// "github.com/bapenda-kota-malang/apin-backend/internal/handlers/main/auth"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
@@ -34,7 +35,7 @@ func CreatePembayaran(input m.RequestPembayaranBphtb, tx *gorm.DB) (any, error) 
 	return rp.OKSimple{Data: data}, nil
 }
 
-func GetListPembayaran(input m.FilterDto) (any, error) {
+func GetListPembayaran(input m.RequestPembayaranBphtb) (any, error) {
 	var (
 		data  []m.PembayaranBphtb
 		count int64
@@ -42,7 +43,7 @@ func GetListPembayaran(input m.FilterDto) (any, error) {
 
 	var pagination gh.Pagination
 	result := a.DB.
-		Model(&m.PembayaranBphtb{}).
+		Model(&m.PembayaranBphtb{}).Preload(clause.Associations).
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).

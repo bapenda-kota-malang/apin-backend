@@ -34,7 +34,7 @@ func (c Crud) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c Crud) GetList(w http.ResponseWriter, r *http.Request) {
-	var input m.FilterDto
+	var input m.RequestPembayaranBphtb
 	if !hh.ValidateStructByURL(w, *r.URL, &input) {
 		return
 	}

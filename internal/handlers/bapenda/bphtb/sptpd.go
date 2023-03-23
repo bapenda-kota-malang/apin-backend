@@ -86,6 +86,16 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	hh.DataResponse(w, result, err)
 }
 
+func GetDetailPembayaran(w http.ResponseWriter, r *http.Request) {
+	no := hh.ValidateString(w, r, "no")
+	if no == "" {
+		return
+	}
+
+	result, err := s.GetDetailbyField("Sptpd_Id", no)
+	hh.DataResponse(w, result, err)
+}
+
 func Approval(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	authInfo, ok := ctx.Value("authInfo").(*auth.AuthInfo)

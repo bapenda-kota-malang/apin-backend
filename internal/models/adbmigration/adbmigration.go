@@ -419,6 +419,7 @@ func GetModelList() (data []interface{}) {
 	listModelBphtbSptpd := []interface{}{
 		&bphtb.BphtbSptpd{},
 		&bphtb.Lampiran{},
+		&bphtb.PembayaranBphtb{},
 	}
 	data = append(data, listModelBphtbSptpd...)
 

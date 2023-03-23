@@ -252,7 +252,7 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/bphtbsptpd", bphtbsptpd.Crud{})
 
-	rh.RegCrud(r, "/bphtbpembayaran", bphtbpembayaran.Crud{})
+	rh.RegCrud(r, "/pembayaranbphtb", bphtbpembayaran.Crud{})
 
 	rh.RegCrud(r, "/kelastanah", kelastanah.Crud{})
 
@@ -301,6 +301,10 @@ func SetRoutes() http.Handler {
 	r.Route("/bphtbsptpd-approval", func(r chi.Router) {
 		r.Get("/{tp}", bphtbsptpd.GetListVerifikasi)
 		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
+	})
+
+	r.Route("/pembayaran-bphtb", func(r chi.Router) {
+		r.Get("/{no}", bphtbsptpd.GetDetailPembayaran)
 	})
 
 	r.Route("/kelastanah-kode", func(r chi.Router) {
