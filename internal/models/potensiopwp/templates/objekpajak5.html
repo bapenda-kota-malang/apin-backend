@@ -1,0 +1,272 @@
+<!doctype html> 
+<html> 
+    <head> 
+        <meta charset="utf-8"/> 
+        <title>Untitled Document</title>         
+    </head>     
+    <body> 
+        <!--	header-->         
+        <div style="border-bottom: double thick black; font-size: 10pt; font-family: arial;"> 
+            <table width="100%" border="0"> 
+                <tbody> 
+                    <tr> 
+                        <td width="10%" rowspan="4">
+                            <div>
+                                <img src="data:image/png;base64,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" width="90" height="83"/>
+                            </div>
+                        </td>                         
+                        <td width="90%" align="center" valign="middle">
+                            <div style="font-size: 16pt;">
+                                <strong>PEMERINTAH KOTA MALANG</strong>
+                            </div>
+                        </td>                         
+                    </tr>                     
+                    <tr> 
+                        <td align="center" valign="middle"><strong style="font-size: 18pt;">BADAN PENDAPATAN DAERAH</strong></td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="center" valign="middle"><strong>Perkantoran Terpadu Pemerintah Kota Malang</strong></td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="center" valign="middle">JL. Mayjen Sungkono  Gedung B Lantai I Telp. (0341) 751532 Kel. Arjowinangun Malang 65132</td> 
+                    </tr>                     
+                </tbody>                 
+            </table>
+        </div>         
+        <!--	header end -->         
+        <!--	content-->         
+        <div style="margin: 0px  30px   ; text-align: center;"> 
+            <table width="100%" border="0"> 
+                <tbody> 
+                    <tr>
+                      <td colspan="7" align="center" valign="middle">&nbsp;</td>
+                    </tr>
+                    <tr> 
+                        <td colspan="7" align="center" valign="middle"><strong style="font-size: 14pt"> <u>Berita  Acara Peninjauan Lapangan </u></strong> </td> 
+                    </tr>                     
+                    <tr> 
+                        <td colspan="7" align="center" valign="middle">Nomor  :          increment 5 digit / 35.73.504 /  PD/........./ 2022</td> 
+                    </tr>                     
+                    <tr> 
+                        <td colspan="7">&nbsp;</td> 
+                    </tr>                     
+                    <tr> 
+                        <td colspan="7" align="left" valign="top">Pada hari {{ .Custom.Hari }}  tanggal  {{ .Custom.Tanggal }}  pukul {{ .Custom.Pukul }}  telah  dilakukan peninjauan lapangan terhadap wajib pajak {{ .Data.NamaUsaha }}</td> 
+                    </tr>                          
+                    <tr> 
+                        <td width="4%" align="left" valign="top">&nbsp;</td> 
+                        <td colspan="2" align="left" valign="top">Nama Wajib Pajak</td> 
+                        <td width="2%" align="left" valign="top">:</td> 
+                        <td colspan="3" align="left" valign="top">{{ .Data.NamaWP }}</td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td colspan="2" align="left" valign="top">Alamat</td> 
+                        <td align="left" valign="top">:</td> 
+                        <td colspan="3" align="left" valign="top">{{ .Data.AlamatWP }}</td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td colspan="2" align="left" valign="top">Nama Usaha</td> 
+                        <td align="left" valign="top">:</td> 
+                        <td colspan="3" align="left" valign="top">{{ .Data.NamaUsaha }}</td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td colspan="2" align="left" valign="top">Alamat Usaha</td> 
+                        <td align="left" valign="top">:</td> 
+                        <td colspan="3" align="left" valign="top">{{ .Data.AlamatUsaha }}</td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td colspan="2" align="left" valign="top">Phone </td> 
+                        <td align="left" valign="top">:</td> 
+                        <td colspan="3" align="left" valign="top">{{ .Data.Phone }}</td> 
+                    </tr>                         
+                    <tr> 
+                        <td colspan="7" align="left" valign="top">Hasil  Peninjauan Lapangan :</td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td align="left" valign="top">1.</td> 
+                        <td align="left" valign="top">Mulai Buka Usaha</td> 
+                        <td align="left" valign="top">:</td> 
+                        <td colspan="3" align="left" valign="top">&nbsp;</td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td align="left" valign="top">2.</td> 
+                        <td align="left" valign="top">Luas Bangunan</td> 
+                        <td align="left" valign="top">:</td> 
+                        <td colspan="3" align="left" valign="top">{{ .Data.LuasBangunan }}</td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td align="left" valign="top">3.</td> 
+                        <td align="left" valign="top">Jam Operasional</td> 
+                        <td align="left" valign="top">:</td> 
+                        <td colspan="3" align="left" valign="top">Pukul{{ .Data.MulaiBuka }} WIB  s/d {{ .Data.MulaiTutup }} WIB</td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td align="left" valign="top">4.</td> 
+                        <td align="left" valign="top">Kapasitas yang tersedia </td> 
+                        <td align="left" valign="top">:</td>
+                        <td colspan="3" align="left" valign="top">
+                            {{range $index, $kp := slice .ListItem.Kapasitas 0}}
+                            {{$kp.Title}}  {{$kp.Value}} {{$kp.Unit}} &nbsp; &nbsp;&nbsp;&nbsp;
+                            {{end}}
+                        </td>
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td align="left" valign="top">5.</td> 
+                        <td align="left" valign="top">Tarip / Harga tiket masuk</td> 
+                        <td align="left" valign="top">:</td>
+                        <td colspan="3" align="left" valign="top">
+                            {{range $index, $kp := slice .ListItem.Tarif 0}}
+                            {{$kp.Title}}  {{$kp.Value}} {{$kp.Unit}} &nbsp; &nbsp;&nbsp;&nbsp;
+                            {{end}}
+                        </td>
+                    </tr>
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td align="left" valign="top">6.</td> 
+                        <td align="left" valign="top">Rata–rata Pengunjung</td> 
+                        <td align="left" valign="top">:</td> 
+                        <td colspan="3" align="left" valign="top">{{ .Data.RataRataPengunjung }}</td> 
+                    </tr>                     
+                    <tr style="display:none"> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td align="left" valign="top">7.</td> 
+                        <td colspan="3" align="left" valign="top">Apakah telah menerapkan Pajak pada konsumen       : </td> 
+                        <td width="19%" align="left" valign="top">a. Ya</td> 
+                        <td width="14%" align="left" valign="top">b.</td> 
+                    </tr>                  
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td align="left" valign="top">8.</td> 
+                        <td align="left" valign="top">Fasilitas Penerangan</td> 
+                        <td align="left" valign="top">:</td> 
+                        <td width="31%" align="left" valign="top">{{ .Data.FasilitasPenerangan }}</td> 
+                        <td colspan="2" align="left" valign="top"> </td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="left" valign="top">&nbsp;</td> 
+                        <td width="2%" align="left" valign="top">9.</td> 
+                        <td width="28%" align="left" valign="top">Kebutuhan Air Memakai </td> 
+                        <td align="left" valign="top">:</td> 
+                        <td align="left" valign="top">{{ .Data.KebutuhanAir }}</td> 
+                        <td colspan="2" align="left" valign="top"> </td> 
+                    </tr>                    
+                    <tr> 
+                        <td height="23">&nbsp;</td> 
+                        <td colspan="2">&nbsp;</td> 
+                        <td>&nbsp;</td> 
+                        <td colspan="3">&nbsp;</td> 
+                    </tr>                     
+                    <tr> 
+                        <td colspan="7" align="left" valign="top">Demikian Berita Acara Peninjauan Lapangan  ini dibuat untuk dipergunakan sebagai bahan pertimbangan.</td> 
+                    </tr>                     
+                </tbody>                 
+            </table>             
+        </div>         
+        <!--	content end -->         
+        <!--	footer-->         
+        <div style="margin: 0px 30px;  "> 
+            <table width="100%" border="0"> 
+                <tbody> 
+                    <tr>
+                      <td>&nbsp;</td>
+                      <td colspan="3">&nbsp;</td>
+                      <td>&nbsp;</td>
+                    </tr>
+                    <tr> 
+                        <td>&nbsp;</td> 
+                        <td colspan="3">&nbsp;</td> 
+                        <td>Malang, </td> 
+                    </tr>                     
+                    <tr> 
+                        <td>&nbsp;</td> 
+                        <td colspan="3">&nbsp;</td> 
+                        <td>Wajib  Pajak / Yang Mewakili</td> 
+                    </tr>                     
+                    <tr> 
+                        <td>&nbsp;</td> 
+                        <td colspan="3">&nbsp;</td> 
+                        <td>&nbsp;</td> 
+                    </tr>                     
+                    <tr> 
+                        <td>&nbsp;</td> 
+                        <td colspan="3">&nbsp;</td> 
+                        <td>&nbsp;</td> 
+                    </tr>                     
+                    <tr> 
+                        <td width="39%" align="center" valign="top">Mengetahui</td> 
+                        <td colspan="3">&nbsp;</td> 
+                        <td width="43%" align="left" valign="middle">
+                            <div style="height: 5px;border-top: dotted medium black;width: 90%">&nbsp;</div>
+                        </td>                         
+                    </tr>                     
+                    <tr> 
+                        <td align="center" valign="top"> Kepala Bidang Pajak Daerah </td> 
+                        <td width="7%" align="right" valign="top">&nbsp;</td> 
+                        <td colspan="2" align="right" valign="middle">Koordinator :</td> 
+                        <td align="left" valign="top">
+                            <div style="height: 5px;border-top: dotted medium black;margin-top:10px;width: 90%">&nbsp;</div>
+                        </td>                         
+                    </tr>                     
+                    <tr>
+                      <td align="center" valign="top">&nbsp;</td>
+                      <td align="right" valign="top">&nbsp;</td>
+                      <td colspan="3" align="left" valign="top">&nbsp;</td>
+                    </tr>
+                    <tr> 
+                        <td align="center" valign="top">&nbsp;</td> 
+                        <td align="right" valign="top">&nbsp;</td> 
+                        <td colspan="3" align="left" valign="top">&nbsp;</td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="center" valign="top"><strong><u>SUKO KURNIANTO, SE, M.PA</u></strong></td> 
+                        <td align="right" valign="top">&nbsp;</td> 
+                        <td colspan="3" align="left" valign="top">Petugas Operasi Peningkatan Pajak</td> 
+                    </tr>                     
+                    <tr> 
+                        <td align="center" valign="top"><strong>NIP. </strong><strong>19750917 199803 1 004</strong></td> 
+                        <td>&nbsp;</td> 
+                        <td width="4%" align="right" valign="middle">1.</td> 
+                        <td colspan="2">
+                            <div style="height: 5px;border-top: dotted medium black;margin-top:10px;width: 90%">&nbsp;</div>
+                        </td>                         
+                    </tr>                     
+                    <tr> 
+                        <td align="center" valign="top">&nbsp;</td> 
+                        <td>&nbsp;</td> 
+                        <td align="right" valign="middle">2.</td> 
+                        <td colspan="2">
+                            <div style="height: 5px;border-top: dotted medium black;margin-top:10px;width: 90%">&nbsp;</div>
+                        </td>                         
+                    </tr>                     
+                    <tr> 
+                        <td align="center" valign="top">&nbsp;</td> 
+                        <td>&nbsp;</td> 
+                        <td align="right" valign="middle">3.</td> 
+                        <td colspan="2">
+                            <div style="height: 5px;border-top: dotted medium black;margin-top:10px;width: 90%">&nbsp;</div>
+                        </td>                         
+                    </tr>                     
+                    <tr> 
+                        <td align="center" valign="top">&nbsp;</td> 
+                        <td>&nbsp;</td> 
+                        <td align="right" valign="middle">4.</td> 
+                        <td colspan="2">
+                            <div style="height: 5px;border-top: dotted medium black;margin-top:10px;width: 90%">&nbsp;</div>
+                        </td>                         
+                    </tr>                     
+                </tbody>                 
+            </table>             
+        </div>         
+        <!--	footer end-->         
+    </body>     
+</html>

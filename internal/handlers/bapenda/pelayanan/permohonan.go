@@ -151,6 +151,7 @@ func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	result.Write(w)
 }
+
 func DownloadPdf(w http.ResponseWriter, r *http.Request) {
 	id := hh.ValidateAutoInc(w, r, "id")
 	if id < 1 {
@@ -162,6 +163,10 @@ func DownloadPdf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fName := result.(rp.OKSimple).Data.(*s.ResponseFile).FileName
+	if fName == "" {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	file, err := os.Open(fName)
 	if err != nil {

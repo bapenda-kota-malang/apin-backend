@@ -2,11 +2,15 @@ package potensiopwp
 
 import (
 	"errors"
-	"regexp"
-	"strconv"
-
+	"fmt"
+	rpth "github.com/bapenda-kota-malang/apin-backend/pkg/reporthelper"
+	strh "github.com/bapenda-kota-malang/apin-backend/pkg/stringhelper"
+	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"path/filepath"
+	"regexp"
+	"strconv"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -466,4 +470,160 @@ func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
 		return tmp
 	}()
 	return excelhelper.ExportList(excelData, "List")
+}
+
+type ResponseFile struct {
+	ID       uuid.UUID `json:"id"`
+	FileName string    `json:"fileName"`
+}
+
+func DownloadPdf(id uuid.UUID) (interface{}, error) {
+
+	dataDetail, err := GetDetail(id)
+	if err != nil {
+		return sh.SetError("request", "download-pdf", source, "failed", "gagal mengambil data ", dataDetail)
+	}
+	finalresultTmp := dataDetail.(rp.OKSimple).Data.(*m.PotensiOp)
+
+	var KpList = []*rpth.TCItemList{}
+	var TrList = []*rpth.TCItemList{}
+
+	DetailPotensiAirTanah := &m.DetailPotensiAirTanah{}
+	DetailPotensiHiburans := []m.DetailPotensiHiburan{}
+	DetailPotensiHotels := []m.DetailPotensiHotel{}
+	DetailPotensiParkirs := []m.DetailPotensiParkir{}
+	DetailPotensiPPJNonPLN := &m.DetailPotensiPPJNonPLN{}
+	DetailPotensiReklames := []m.DetailPotensiReklame{}
+	DetailPotensiResto := &m.DetailPotensiResto{}
+
+	if finalresultTmp.DetailPotensiAirTanah != nil {
+		DetailPotensiAirTanah = finalresultTmp.DetailPotensiAirTanah
+	}
+
+	DetailPotensiHiburans = append(DetailPotensiHiburans, m.DetailPotensiHiburan{})
+	if len(finalresultTmp.DetailPotensiHiburans) != 0 {
+		DetailPotensiHiburans = finalresultTmp.DetailPotensiHiburans
+		for _, hiburan := range DetailPotensiHiburans {
+			KpList = append(KpList, &rpth.TCItemList{
+				Title: fmt.Sprintf("%d Orang", hiburan.Kapasitas),
+				Value: fmt.Sprintf("Tarif Rp %s Jumlah %s", strh.NullToAny(&hiburan.Tarif, "-"), strh.NullToAny(&hiburan.Jumlah, "-")),
+				Unit:  "buah",
+			})
+		}
+	}
+
+	DetailPotensiHotels = append(DetailPotensiHotels, m.DetailPotensiHotel{})
+	if len(finalresultTmp.DetailPotensiHotels) != 0 {
+		DetailPotensiHotels = finalresultTmp.DetailPotensiHotels
+		for _, hotel := range DetailPotensiHotels {
+			KpList = append(KpList, &rpth.TCItemList{
+				Title: fmt.Sprintf("%s Orang", strh.NullToAny(&hotel.Kapasitas, "0")),
+				Value: fmt.Sprintf("Tarif Rp %s Jumlah %s", strh.NullToAny(&hotel.TarifFasilitas, "-"), strh.NullToAny(&hotel.JumlahFasilitas, "-")),
+				Unit:  "Kamar",
+			})
+		}
+	}
+	DetailPotensiParkirs = append(DetailPotensiParkirs, m.DetailPotensiParkir{})
+	if len(finalresultTmp.DetailPotensiParkirs) != 0 {
+		DetailPotensiParkirs = finalresultTmp.DetailPotensiParkirs
+		for _, parkir := range DetailPotensiParkirs {
+			var jenis = "Motor"
+			if parkir.JenisKendaraan == 2 {
+				jenis = "Mobil"
+			}
+			TrList = append(TrList, &rpth.TCItemList{
+				Title: jenis,
+				Value: strh.FloatToAny(&parkir.Tarif, "-"),
+				Unit:  "Rp. ",
+			})
+		}
+	}
+
+	if finalresultTmp.DetailPotensiPPJNonPLN != nil {
+		DetailPotensiPPJNonPLN = finalresultTmp.DetailPotensiPPJNonPLN
+	}
+
+	DetailPotensiReklames = append(DetailPotensiReklames, m.DetailPotensiReklame{})
+	if len(finalresultTmp.DetailPotensiReklames) != 0 {
+		DetailPotensiReklames = finalresultTmp.DetailPotensiReklames
+	}
+
+	if finalresultTmp.DetailPotensiResto != nil {
+		DetailPotensiResto = finalresultTmp.DetailPotensiResto
+
+		KpList = append(KpList, &rpth.TCItemList{
+			Title: "Meja",
+			Value: strconv.Itoa(int(DetailPotensiResto.JumlahMeja)),
+			Unit:  "buah",
+		})
+
+		KpList = append(KpList, &rpth.TCItemList{
+			Title: "Kursi",
+			Value: strconv.Itoa(int(DetailPotensiResto.JumlahKursi)),
+			Unit:  "buah",
+		})
+
+		TrList = append(TrList, &rpth.TCItemList{
+			Title: "Makanan",
+			Value: strh.NullToAny(&DetailPotensiResto.RentangHargaMakanan, "-"),
+			Unit:  "Rp. ",
+		})
+
+		TrList = append(TrList, &rpth.TCItemList{
+			Title: "Minuman",
+			Value: strh.NullToAny(&DetailPotensiResto.RentangHargaMinuman, "-"),
+			Unit:  "Rp. ",
+		})
+	}
+
+	tanggalTinjau, hariTinjau, waktuTinjau := th.GetAllFormatTime(finalresultTmp.StartDate)
+	finalresult := map[string]interface{}{
+		"Data": map[string]string{
+			"NamaWP":      strh.NullToAny(&finalresultTmp.PotensiPemilikWp[0].Nama, "-"),
+			"AlamatWP":    strh.NullToAny(&finalresultTmp.PotensiPemilikWp[0].Alamat, "-"),
+			"NamaUsaha":   strh.NullToAny(&finalresultTmp.DetailPotensiOp.Nama, "-"),
+			"AlamatUsaha": strh.NullToAny(&finalresultTmp.DetailPotensiOp.Alamat, "-"),
+			"Phone":       strh.NullToAny(finalresultTmp.DetailPotensiOp.Telp, "-"),
+
+			"MulaiBuka":              strh.NullToAny(finalresultTmp.JamBuka, "-"),
+			"MulaiTutup":             strh.NullToAny(finalresultTmp.JamTutup, "-"),
+			"NamaWPLap":              strh.NullToAny(&finalresultTmp.DetailPotensiOp.Nama, "-"),
+			"LuasBangunan":           strh.NullToAny(finalresultTmp.LuasBangunan, "-"),
+			"RataRataPengunjung":     strh.FloatToAny(&finalresultTmp.OmsetOp, "-"),
+			"PenerapanPajakKonsumen": strh.FloatToAny(finalresultTmp.PajakKonsumenPct, "-"),
+			"KebutuhanAir":           strh.BoolToAny(&finalresultTmp.AirTanah, "Air Tanah", "PDAM"),
+			"DiameterPipa":           strh.NullToAny(&DetailPotensiAirTanah.DiameterPipa, "-"),
+			"JumlahTitik":            strh.NullToAny(&DetailPotensiAirTanah.JumlahSumber, "-"),
+			"FasilitasPenerangan":    strh.BoolToAny(&finalresultTmp.Genset, "Genset", "PLN"),
+			"JmlGenset":              strh.NullToAny(&DetailPotensiPPJNonPLN.Jumlah, "-"),
+			"JenisUsaha":             strh.NullToAny(finalresultTmp.Rekening.JenisUsaha, "-"),
+			"KapasitasDaya":          strh.NullToAny(&DetailPotensiPPJNonPLN.KapasitasDaya, "-"),
+			"KapasitasMax":           "-",
+		},
+		"Custom": map[string]string{
+			"Hari":    hariTinjau,
+			"Tanggal": tanggalTinjau,
+			"Pukul":   waktuTinjau,
+		},
+		"ListItem": map[string][]*rpth.TCItemList{
+			"Kapasitas": KpList,
+			"Tarif":     TrList,
+		},
+	}
+
+	_, err = sh.GetUuidv4()
+	if err != nil {
+		return nil, err
+	}
+	fileName := sh.GenerateFilename(fmt.Sprintf("potensiopwp_%s", strh.NullToAny(finalresultTmp.Rekening.JenisUsaha, "")), id, 0, "pdf")
+
+	outFile := filepath.Join(sh.GetPdfPath(), fileName)
+	if err := GeneratePdf(outFile, finalresult, strh.NullToAny(finalresultTmp.Rekening.Objek, "01")); err != nil {
+		return nil, err
+	}
+	_r := &ResponseFile{
+		ID:       id,
+		FileName: outFile,
+	}
+	return rp.OKSimple{Data: _r}, nil
 }
