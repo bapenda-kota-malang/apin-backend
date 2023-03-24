@@ -5,3 +5,9 @@ type TCheckList struct {
 	Text   string
 	Status string
 }
+
+type TCItemList struct {
+	Title string
+	Value string
+	Unit  string
+}

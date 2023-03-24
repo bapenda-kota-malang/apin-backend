@@ -454,6 +454,7 @@ func SetRoutes() http.Handler {
 		// r.Patch("/{id}", potensiopwp.Update)
 		r.Delete("/{id}", potensiopwp.Delete)
 		r.Get("/download/excel", potensiopwp.DownloadExcelList)
+		r.Get("/download/pdf/{id}", potensiopwp.DownloadPdf)
 	})
 
 	r.Route("/provinsi", func(r chi.Router) {

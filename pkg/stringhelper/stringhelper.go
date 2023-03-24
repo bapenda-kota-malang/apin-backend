@@ -2,6 +2,7 @@ package stringhelper
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -42,4 +43,20 @@ func NullToAny(s *string, anyVal string) string {
 		return anyVal
 	}
 	return *s
+}
+
+func BoolToAny(s *bool, anyTrueVal string, anyFalseVal string) string {
+	if s == nil {
+		return anyFalseVal
+	}
+	if *s {
+		return anyTrueVal
+	}
+	return anyFalseVal
+}
+func FloatToAny(s *float64, anyVal string) string {
+	if s == nil {
+		return anyVal
+	}
+	return strconv.FormatFloat(*s, 'f', 2, 64)
 }
