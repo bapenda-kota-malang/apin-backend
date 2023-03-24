@@ -46,6 +46,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/baplpengajuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bidangkerja"
 	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtbpembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb12"
@@ -252,6 +253,8 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/bphtbsptpd", bphtbsptpd.Crud{})
 
+	rh.RegCrud(r, "/pembayaranbphtb", bphtbpembayaran.Crud{})
+
 	rh.RegCrud(r, "/kelastanah", kelastanah.Crud{})
 	r.Get("/kelastanah/download/excel", kelastanah.DownloadExcelList)
 
@@ -316,6 +319,10 @@ func SetRoutes() http.Handler {
 		r.Get("/{tp}", bphtbsptpd.GetListVerifikasi)
 		r.Get("/{tp}/download/excel", bphtbsptpd.DownloadExcelListVerifikasi)
 		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
+	})
+
+	r.Route("/pembayaran-bphtb", func(r chi.Router) {
+		r.Get("/{no}", bphtbsptpd.GetDetailPembayaran)
 	})
 
 	r.Route("/kelastanah-kode", func(r chi.Router) {

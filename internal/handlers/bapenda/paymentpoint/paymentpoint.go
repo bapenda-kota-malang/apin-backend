@@ -29,6 +29,8 @@ func (c Crud) GetList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	tempDelStatus := false
+	input.IsDeleted = &tempDelStatus
 	result, err := s.GetList(input)
 	hh.DataResponse(w, result, err)
 }

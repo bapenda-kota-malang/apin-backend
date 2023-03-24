@@ -7,6 +7,7 @@ import (
 type PaymentPoint struct {
 	Id uint64 `json:"id" gorm:"primaryKey"`
 	gh.DateModel
+	Id_PP       *string `json:"id_pp"`
 	User_Id     *uint64 `json:"user_id"`
 	Nama        *string `json:"nama"`
 	Alamat      *string `json:"alamat"`
@@ -16,6 +17,7 @@ type PaymentPoint struct {
 }
 
 type CreateDto struct {
+	Id_PP       *string `json:"id_pp"`
 	User_Id     *uint64 `json:"user_id"`
 	Nama        *string `json:"nama"`
 	Alamat      *string `json:"alamat"`
@@ -26,6 +28,7 @@ type CreateDto struct {
 
 type UpdateDto struct {
 	Id          *uint64 `json:"id"`
+	Id_PP       *string `json:"id_pp"`
 	User_Id     *uint64 `json:"user_id"`
 	Nama        *string `json:"nama"`
 	Alamat      *string `json:"alamat"`
@@ -35,6 +38,7 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
+	Id_PP       *string `json:"id_pp"`
 	User_Id     *uint64 `json:"user_id"`
 	Nama        *string `json:"nama"`
 	Alamat      *string `json:"alamat"`
