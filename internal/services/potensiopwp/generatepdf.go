@@ -2,11 +2,12 @@ package potensiopwp
 
 import (
 	"bytes"
-	wkhtmltopdf "github.com/SebastiaanKlippert/go-wkhtmltopdf"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/pdf"
 	"html/template"
 	"os"
 	"path/filepath"
+
+	wkhtmltopdf "github.com/SebastiaanKlippert/go-wkhtmltopdf"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/pdf"
 )
 
 func GeneratePdf(outFile string, p interface{}, kodeObjek string) error {
@@ -15,10 +16,11 @@ func GeneratePdf(outFile string, p interface{}, kodeObjek string) error {
 		return err
 	}
 
-	wdPath, err := os.Getwd()
+	ex, err := os.Executable()
 	if err != nil {
 		return err
 	}
+	exPath := filepath.Dir(ex)
 	var templateFile = "objekpajak1.html"
 	switch kodeObjek {
 	case "01": //kost hotel
@@ -38,7 +40,7 @@ func GeneratePdf(outFile string, p interface{}, kodeObjek string) error {
 	case "08": // airtanah
 		templateFile = "objekpajak6.html"
 	}
-	path := filepath.Join(wdPath, "../../", "internal", "models", "potensiopwp", "templates", templateFile)
+	path := filepath.Join(exPath, "../../", "internal", "models", "potensiopwp", "templates", templateFile)
 
 	tmpl, err := template.ParseFiles(path)
 	if err != nil {

@@ -35,12 +35,13 @@ func (s *Surat) GeneratePdf(outFile string) error {
 		return err
 	}
 
-	wdPath, err := os.Getwd()
+	ex, err := os.Executable()
 	if err != nil {
-		return err
+		panic(err)
 	}
+	exPath := filepath.Dir(ex)
 
-	pathSurat := filepath.Join(wdPath, "../../", "internal", "models", "suratpemberitahuan", "template", "surat.html")
+	pathSurat := filepath.Join(exPath, "../../", "internal", "models", "suratpemberitahuan", "template", "surat.html")
 
 	tmpl, err := template.ParseFiles(pathSurat)
 	if err != nil {
