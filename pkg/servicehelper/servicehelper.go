@@ -65,22 +65,24 @@ func GetPathByFilename(filename string) (filePath string) {
 
 // get path for assets root folder
 func GetAssetsPath() string {
-	wd, err := os.Getwd()
+	ex, err := os.Executable()
 	if err != nil {
-		return ""
+		panic(err)
 	}
-	basePath := filepath.Join(wd, "../../", "assets")
+	exPath := filepath.Dir(ex)
+	basePath := filepath.Join(exPath, "../../", "assets")
 	os.MkdirAll(basePath, os.ModePerm)
 	return basePath
 }
 
 // get path for resource root folder
 func GetResourcesPath() string {
-	wd, err := os.Getwd()
+	ex, err := os.Executable()
 	if err != nil {
-		return ""
+		panic(err)
 	}
-	basePath := filepath.Join(wd, "../../", "resources")
+	exPath := filepath.Dir(ex)
+	basePath := filepath.Join(exPath, "../../", "resources")
 	os.MkdirAll(basePath, os.ModePerm)
 	return basePath
 }

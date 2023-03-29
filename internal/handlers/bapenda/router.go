@@ -775,6 +775,7 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Post("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
+	r.Post("/pstdetail/bynop", pstdetail.GetByNop)
 
 	r.Post("/rekapitulasi-op", sppt.GetRekapitulasi)
 
