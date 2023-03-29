@@ -308,3 +308,28 @@ type SalinanDto struct {
 	TahunPajakskp_sppt *string     `json:"tahunPajakskp_sppt"`
 	NOPRange           []*NOPRange `json:"nop_range"`
 }
+
+type RekapitulasiOpRequest struct {
+	Propinsi_Id        *string `json:"provinsi_kode"`
+	Dati2_Id           *string `json:"daerah_kode"`
+	Kecamatan_Id       *string `json:"kecamatan_kode"`
+	TahunPajakskp_sppt string  `json:"tahun_pajak"`
+}
+
+type RekapitulasiOpResponse struct {
+	KelurahanKode     *string `json:"kelurahanKode"`
+	JumlahObjekPajak  *int    `json:"jumlahObjekPajak"`
+	JumlahBangunan    *int    `json:"jumlahBangunan"`
+	LuasTotalBumi     *int    `json:"luasTotalBumi"`
+	LuasTotalBangunan *int    `json:"luasTotalBangunan"`
+	NjopBumi          *int    `json:"njopBumi"`
+	NjopBangunan      *int    `json:"njopBangunan"`
+	TahunPajak        *string `json:"tahunPajak"`
+	JumlahSppt        *int    `json:"jumlahSppt"`
+	PbbTerhutang      *int    `json:"pbbTerhutang"`
+	PbbHarusDibayar   *int    `json:"pbbHarusDibayar"`
+	Lunas             *int    `json:"lunas"`
+	JatuhTempo        *int    `json:"jatuhTempo"`
+	PembayaranSppt    *int    `json:"PembayaranSppt"`
+	PembayaranSkpSpop *string `json:"pembayaranSkpSpop"`
+}

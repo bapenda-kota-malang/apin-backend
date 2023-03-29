@@ -115,3 +115,13 @@ func Salinan(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Salinan(data)
 	hh.DataResponse(w, result, err)
 }
+
+func GetRekapitulasi(w http.ResponseWriter, r *http.Request) {
+	var data m.RekapitulasiOpRequest
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+		return
+	}
+
+	result, err := s.GetRekapitulasi(data)
+	hh.DataResponse(w, result, err)
+}

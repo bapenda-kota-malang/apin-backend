@@ -917,3 +917,58 @@ func Salinan(input m.SalinanDto) (any, error) {
 		Data: rslt,
 	}, nil
 }
+
+func GetRekapitulasi(input m.RekapitulasiOpRequest) (any, error) {
+	var data []m.RekapitulasiOpResponse
+	var count int64
+	var pagination gh.Pagination
+
+	filter := m.RekapitulasiOpRequest{
+		Propinsi_Id:        input.Propinsi_Id,
+		Dati2_Id:           input.Dati2_Id,
+		Kecamatan_Id:       input.Kecamatan_Id,
+		TahunPajakskp_sppt: input.TahunPajakskp_sppt,
+	}
+
+	rows, err := a.DB.Debug().Model(m.Sppt{}).
+		Select("\"Sppt\".\"Keluarahan_Id\"," +
+			"(SELECT COUNT(*) FROM \"ObjekPajakPbb\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\" ) AS JML_OP," +
+			"(SELECT COUNT(*) FROM \"ObjekPajakBangunan\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\") AS JML_BGN," +
+			"(SELECT COALESCE(SUM(\"TotalLuasBumi\"),0) FROM \"ObjekPajakPbb\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\") AS TOTAL_BUMI," +
+			"(SELECT COALESCE(SUM(\"TotalLuasBangunan\"),0) FROM \"ObjekPajakPbb\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\") AS TOTAL_BANGUNAN," +
+			"(SELECT COALESCE(SUM(\"NilaiSistemBumi\"),0) FROM \"ObjekPajakBumi\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\") AS NILAI_BUMI," +
+			"(SELECT COALESCE(SUM(\"ObjekPajakBangunan\".\"NilaiSistem\"),0) FROM \"ObjekPajakBangunan\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\") AS NILAI_BGN," +
+			"\"Sppt\".\"TahunPajakskp_sppt\" AS TAHUN_PAJAK, COUNT(\"Sppt\") AS JUMLAH_SPPT, SUM(\"Sppt\".\"PBBterhutang_sppt\") AS PBB_TERHUTANG, SUM(\"Sppt\".\"PBBygHarusDibayar_sppt\") AS PBB_HARUS_DIBAYAR, SUM(\"Sppt\".\"StatusPembayaran_sppt\"::INTEGER) AS LUNAS, SUM(CASE WHEN \"Sppt\".\"TanggalJatuhTempo_sppt\" >= CURRENT_DATE THEN 1 ELSE 0 END) AS JATUH_TEMPO," +
+			"(SELECT COALESCE(SUM(\"JumlahSpptYgDibayar\"),0) FROM \"SpptPembayaran\" WHERE \"Kelurahan_Kd\" = \"Sppt\".\"Keluarahan_Id\") AS JUMLAH_YG_DIBAYAR, '0' AS PEMBAYARAN_SKPOP").
+		Where(filter).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Group("\"Sppt\".\"Propinsi_Id\"").
+		Group("\"Sppt\".\"Dati2_Id\"").
+		Group("\"Sppt\".\"Kecamatan_Id\"").
+		Group("\"Sppt\".\"Keluarahan_Id\"").
+		Group("\"Sppt\".\"TahunPajakskp_sppt\"").
+		Order("\"Sppt\".\"Keluarahan_Id\"").
+		Rows()
+
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data: "+err.Error(), data)
+	}
+	defer rows.Close()
+
+	data = make([]m.RekapitulasiOpResponse, 0)
+	row := m.RekapitulasiOpResponse{}
+	for rows.Next() {
+		rows.Scan(&row.KelurahanKode, &row.JumlahObjekPajak, &row.JumlahBangunan, &row.LuasTotalBumi, &row.LuasTotalBangunan, &row.NjopBumi, &row.NjopBangunan, &row.TahunPajak, &row.JumlahSppt, &row.PbbTerhutang, &row.PbbHarusDibayar, &row.Lunas, &row.JatuhTempo, &row.PembayaranSppt, &row.PembayaranSkpSpop)
+		data = append(data, row)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount": strconv.Itoa(len(data)),
+			"page":       strconv.Itoa(pagination.Page),
+			"pageSize":   strconv.Itoa(pagination.PageSize),
+		},
+		Data: data,
+	}, nil
+}
