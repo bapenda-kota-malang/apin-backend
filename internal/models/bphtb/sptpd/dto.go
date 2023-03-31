@@ -251,6 +251,6 @@ type FilterDto struct {
 
 type FilterPPATDto struct {
 	Ppat_Id *string `json:"ppat_id"`
-	Bulan   *string `json:"bulan"`
-	Tahun   *string `json:"tahun"`
+	Bulan   *int    `json:"bulan"`
+	Tahun   *int    `json:"tahun"`
 }

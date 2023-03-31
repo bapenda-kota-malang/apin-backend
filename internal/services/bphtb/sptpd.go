@@ -407,7 +407,7 @@ func GetListTransaksiPPAT(input m.FilterPPATDto) (any, error) {
 	queryBase := a.DB.Model(&m.BphtbSptpd{})
 	queryBase = queryBase.
 		Select("DISTINCT ON (\"Ppat_Id\") \"Ppat_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "count(\"Sptpd_Id\") \"Sptpd_Id\"", "count(\"JumlahSetor\") \"CountJumlahSetor\"", "sum(\"NilaiOp\") \"NilaiOp\"", "sum(\"JumlahSetor\") \"JumlahSetor\"").
-		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST (\"Ppat_Id\" AS INTEGER) ")
+		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST(\"Ppat_Id\" AS INTEGER) ")
 
 	if input.Ppat_Id != nil {
 		queryBase = queryBase.Where("Ppat_Id", input.Ppat_Id)
