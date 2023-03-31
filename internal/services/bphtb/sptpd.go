@@ -407,9 +407,7 @@ func GetListTransaksiPPAT(input m.FilterPPATDto) (any, error) {
 	queryBase := a.DB.Model(&m.BphtbSptpd{})
 	queryBase = queryBase.
 		Select("DISTINCT ON (\"Ppat_Id\") \"Ppat_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "count(\"Sptpd_Id\") \"Sptpd_Id\"", "count(\"JumlahSetor\") \"CountJumlahSetor\"", "sum(\"NilaiOp\") \"NilaiOp\"", "sum(\"JumlahSetor\") \"JumlahSetor\"").
-		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST (\"Ppat_Id\" AS INTEGER) ").
-		Order("\"Ppat_Id\"").
-		Group("\"Ppat_Id\", \"Ppat\".\"Nama\"")
+		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST (\"Ppat_Id\" AS INTEGER) ")
 
 	if input.Ppat_Id != nil {
 		queryBase = queryBase.Where("Ppat_Id", input.Ppat_Id)
@@ -423,7 +421,10 @@ func GetListTransaksiPPAT(input m.FilterPPATDto) (any, error) {
 		queryBase = queryBase.Where("EXTRACT('year' from \"VerifikasiPpatAt\")", input.Tahun)
 	}
 
-	result := queryBase.Find(&data)
+	result := queryBase.
+		Order("\"Ppat_Id\"").
+		Group("\"Ppat_Id\", \"Ppat\".\"Nama\"").
+		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
