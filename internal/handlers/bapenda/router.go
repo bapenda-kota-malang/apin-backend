@@ -669,6 +669,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", pembetulankeberatan.Create)
 		r.Patch("/{id}", pembetulankeberatan.Update)
 		r.Delete("/{id}", pembetulankeberatan.Delete)
+		r.Get("/download/excel", pembetulankeberatan.DownloadExcelList)
 	})
 
 	r.Route("/baplpengajuan", func(r chi.Router) {
