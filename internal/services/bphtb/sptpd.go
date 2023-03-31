@@ -397,6 +397,46 @@ func GetDetailbyField(field string, value string) (any, error) {
 	}, nil
 }
 
+func GetListTransaksiPPAT(input m.FilterPPATDto) (any, error) {
+	var data []m.TransaksiPPAT
+	var count int64
+
+	// temp := "8"
+	// input.Bulan = &temp
+
+	queryBase := a.DB.Model(&m.BphtbSptpd{})
+	queryBase = queryBase.
+		Select("DISTINCT ON (\"Ppat_Id\") \"Ppat_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "count(\"Sptpd_Id\") \"Sptpd_Id\"", "count(\"JumlahSetor\") \"CountJumlahSetor\"", "sum(\"NilaiOp\") \"NilaiOp\"", "sum(\"JumlahSetor\") \"JumlahSetor\"").
+		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST (\"Ppat_Id\" AS INTEGER) ").
+		Order("\"Ppat_Id\"").
+		Group("\"Ppat_Id\", \"Ppat\".\"Nama\"")
+
+	if input.Ppat_Id != nil {
+		queryBase = queryBase.Where("Ppat_Id", input.Ppat_Id)
+	}
+
+	if input.Bulan != nil {
+		queryBase = queryBase.Where("EXTRACT('month' from \"VerifikasiPpatAt\")", input.Bulan)
+	}
+
+	if input.Tahun != nil {
+		queryBase = queryBase.Where("EXTRACT('year' from \"VerifikasiPpatAt\")", input.Tahun)
+	}
+
+	result := queryBase.Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
 func Update(id uuid.UUID, input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB

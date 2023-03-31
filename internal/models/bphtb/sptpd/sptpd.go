@@ -168,6 +168,15 @@ type RequestApprovalSptpd struct {
 	gormhelper.DateModel
 }
 
+type TransaksiPPAT struct {
+	Sptpd_Id         *string `json:"sptpd_id"`
+	Ppat_Id          *string `json:"ppat_id"`
+	Ppat_Name        *string `json:"ppat_name"`
+	CountJumlahSetor float64 `json:"countJumlahSetor"`
+	JumlahSetor      float64 `json:"jumlahSetor"`
+	NilaiOp          float64 `json:"nilaiOp"`
+}
+
 func (req RequestApprovalSptpd) SetDataApproval(i *BphtbSptpd) *BphtbSptpd {
 	if req.User_id != nil {
 		i.User_id = req.User_id
