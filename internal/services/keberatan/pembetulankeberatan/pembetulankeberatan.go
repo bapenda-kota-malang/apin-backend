@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -211,4 +213,70 @@ func Delete(id int) (interface{}, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
+	tLayout := "2006-01-02"
+	var data []m.PembetulanKeberatan
+	result := a.DB.
+		Model(&data).
+		Scopes(gh.Filter(input)).
+		Preload(`SkSk`).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data pembetulan", data)
+		return nil, err
+	}
+
+	sn := "List"
+	xlsx := excelize.NewFile()
+	xlsx.SetSheetName(xlsx.GetSheetName(0), sn)
+
+	// first row
+	xlsx.SetCellValue(sn, fmt.Sprintf("A1"), "No")
+	xlsx.SetCellValue(sn, fmt.Sprintf("B1"), "No Pelayanan")
+	xlsx.SetCellValue(sn, fmt.Sprintf("C1"), "NOP")
+	xlsx.SetCellValue(sn, fmt.Sprintf("D1"), "No SK")
+	xlsx.SetCellValue(sn, fmt.Sprintf("E1"), "Tanggal SK")
+	xlsx.SetCellValue(sn, fmt.Sprintf("F1"), "NIP Pencetak Pembetulan")
+	xlsx.SetCellValue(sn, fmt.Sprintf("G1"), "Tanggal Cetak Pembetulan")
+
+	// col value
+	for i, v := range data {
+		n := i + 3
+		// NP
+		xlsx.SetCellValue(sn, fmt.Sprintf("A%d", n), i+1)
+		xlsx.SetCellValue(sn, fmt.Sprintf("B%d", n), fmt.Sprintf(`%s%s%s`, v.TahunPelayanan, v.BundelPelayanan, v.NoUrutPelayanan))
+
+		// NOP
+		xlsx.SetCellValue(sn, fmt.Sprintf("C%d", n), fmt.Sprintf(`%s%s%s%s%s%s%s`, v.ProvinsiPemohon_Kd, v.DaerahPemohon_Kd, v.KecamatanPemohon_Kd, v.KelurahanPemohon_Kd, v.BlokPemohon_Kd, v.NoUrutPemohonan, v.JenisOpPemohon_Kd))
+		xlsx.SetCellValue(sn, fmt.Sprintf("D%d", n), func() string {
+			if v.NoSk != nil {
+				return *v.NoSk
+			}
+			return ""
+		}())
+		xlsx.SetCellValue(sn, fmt.Sprintf("E%d", n), func() any {
+			if v.SkSk != nil {
+				tgl, _ := v.SkSk.TglSK.Value()
+				t, _ := time.Parse(tLayout, fmt.Sprintf(`%v`, tgl)[:10])
+				return fmt.Sprintf(`%v`, t.Format(tLayout))
+			}
+			return ""
+		}()) // tanggal sk
+		xlsx.SetCellValue(sn, fmt.Sprintf("F%d", n), func() string {
+			if v.NipPencetakPembetulan != nil {
+				return *v.NipPencetakPembetulan
+			}
+
+			return ""
+		}()) // nip
+		xlsx.SetCellValue(sn, fmt.Sprintf("G%d", n), func() string {
+			tgl, _ := v.TanggalCetakPembetulan.Value()
+			t, _ := time.Parse(tLayout, fmt.Sprintf(`%v`, tgl)[:10])
+			return fmt.Sprintf(`%v`, t.Format(tLayout))
+		}())
+	}
+
+	return xlsx, nil
 }
