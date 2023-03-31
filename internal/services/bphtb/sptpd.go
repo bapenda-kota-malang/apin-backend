@@ -414,11 +414,11 @@ func GetListTransaksiPPAT(input m.FilterPPATDto) (any, error) {
 	}
 
 	if input.Bulan != nil {
-		queryBase = queryBase.Where("EXTRACT('month' from \"VerifikasiPpatAt\")", input.Bulan)
+		queryBase = queryBase.Where("EXTRACT('month' from \"VerifikasiPpatAt\") = ?", input.Bulan)
 	}
 
 	if input.Tahun != nil {
-		queryBase = queryBase.Where("EXTRACT('year' from \"VerifikasiPpatAt\")", input.Tahun)
+		queryBase = queryBase.Where("EXTRACT('year' from \"VerifikasiPpatAt\") = ?", input.Tahun)
 	}
 
 	result := queryBase.
