@@ -155,6 +155,7 @@ func GetModelList() (data []interface{}) {
 		&adm.Daerah{},
 		&adm.Kecamatan{},
 		&adm.Kelurahan{},
+		&adm.Blok{},
 		&sektor.Sektor{},
 		&rm.Rekening{},
 		&omset.Omset{},
