@@ -25,10 +25,12 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
 	sbj "github.com/bapenda-kota-malang/apin-backend/internal/services/bankjatim"
+	skbng "github.com/bapenda-kota-malang/apin-backend/internal/services/kelasbangunan"
+	sktanah "github.com/bapenda-kota-malang/apin-backend/internal/services/kelastanah"
 	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
-	os "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	sopp "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	srefbuku "github.com/bapenda-kota-malang/apin-backend/internal/services/referensibuku"
+	ssob "github.com/bapenda-kota-malang/apin-backend/internal/services/sppt/objekbersama"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	ibj "github.com/bapenda-kota-malang/apin-backend/pkg/integration/bankjatim"
 )
@@ -725,7 +727,7 @@ func GetListCatatanSejarahWP(input m.FilterDto) (any, error) {
 	}
 
 	// get objek pajak pbb by nop
-	objekPajakPbb, err := os.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
+	objekPajakPbb, err := sopp.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
 	if err != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
@@ -823,7 +825,7 @@ func GetListCatatanPembayaranPbb(input m.FilterDto) (any, error) {
 	}
 
 	// get objek pajak pbb by nop
-	objekPajakPbb, err := os.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
+	objekPajakPbb, err := sopp.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
 	if err != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
@@ -899,8 +901,10 @@ func FindSpptPembayaranByNop(provinsiKode, daerahKode, kecamatanKode, kelurahanK
 	}
 	return data, nil
 }
+
 func Rincian(input m.NopDto) (any, error) {
 	var data m.Sppt
+	var rslt map[string]interface{}
 	filter := m.Sppt{
 		Propinsi_Id:        input.Propinsi_Id,
 		Dati2_Id:           input.Dati2_Id,
@@ -913,34 +917,59 @@ func Rincian(input m.NopDto) (any, error) {
 	}
 
 	a.DB.Where(&filter).First(&data)
-	// result := a.DB.Where(&filter).First(&data)
-	// if result.RowsAffected == 0 {
-	// 	return sh.SetError("request", "get-data-by-nop", source, "failed", "data tidak ada", data)
-	// } else if result.Error != nil {
-	// 	return sh.SetError("request", "get-data-by-nop", source, "failed", "gagal mendapatkan data: "+result.Error.Error(), data)
-	// }
 
-	// get ObjekPajakBumi detail
-	opBumiData, err := getObjekPajakBumiDetail(filter)
-	if err != nil {
-		return nil, err
-	}
-	// get ObjekPajakBng detail
-	opBngData, err := getObjekPajakBangunanDetail(filter)
-	if err != nil {
-		return nil, err
-	}
-	// get ObjekPajakPBB detail
-	opPBBData, err := getObjekPajakPBBDetail(filter)
-	if err != nil {
-		return nil, err
-	}
+	result := a.DB.Where(&filter).First(&data)
+	if result.RowsAffected == 0 || result.Error != nil {
+		rslt = t.II{
+			"sppt":               data,
+			"opPBB":              nil,
+			"kelasTanah":         nil,
+			"kelasBng":           nil,
+			"spptBersama":        nil,
+			"pembayaranSppt":     nil,
+			"tmptPembayaranSppt": nil,
+		}
+	} else {
+		// get kelas tanah detail
+		kelasTnh, err := sktanah.GetDetailByCode(*data.KelasTanah_Id)
+		if err != nil {
+			return nil, err
+		}
+		// get kelas Bng detail
+		kelasBng, err := skbng.GetDetailByCode(*data.KelasBangunan_Id)
+		if err != nil {
+			return nil, err
+		}
+		// get ObjekPajakPBB detail
+		opPBBData, err := getObjekPajakPBBDetail(filter)
+		if err != nil {
+			return nil, err
+		}
+		// get sppt objek Bersama detail
+		spptBersama, err := ssob.GetByNop(*data.Propinsi_Id, *data.Dati2_Id, *data.Kecamatan_Id, *data.Keluarahan_Id, *data.Blok_Id, *data.NoUrut, *data.JenisOP_Id)
+		if err != nil {
+			return nil, err
+		}
+		// get sppt pembayaran detail
+		pembayaranSppt, err := getPembayaranSppt(data)
+		if err != nil {
+			return nil, err
+		}
+		// get tmptPembayaranSppt detail
+		tmptPembayaranSppt, err := getTempatPembayaranSppt(data)
+		if err != nil {
+			return nil, err
+		}
 
-	rslt := t.II{
-		"sppt":   data,
-		"opBumi": opBumiData,
-		"opBng":  opBngData,
-		"opPBB":  opPBBData,
+		rslt = t.II{
+			"sppt":               data,
+			"opPBB":              opPBBData,
+			"kelasTanah":         kelasTnh.(rp.OKSimple).Data,
+			"kelasBng":           kelasBng.(rp.OKSimple).Data,
+			"spptBersama":        spptBersama.(rp.OKSimple).Data,
+			"pembayaranSppt":     pembayaranSppt,
+			"tmptPembayaranSppt": tmptPembayaranSppt,
+		}
 	}
 
 	return rp.OKSimple{
