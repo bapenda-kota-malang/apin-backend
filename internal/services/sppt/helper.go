@@ -2,6 +2,7 @@ package sppt
 
 import (
 	"errors"
+	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	opbg "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
@@ -137,6 +138,31 @@ func getTempatPembayaranSppt(data m.Sppt) (*mtp.TempatPembayaran, error) {
 		Kppbb_Id:        data.KPPBBbank_Id,
 	}
 	if err := a.DB.Where(&filter).Order("\"Id\" desc").First(&result).Error; err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func getTp(tpId *string) (*mtp.TempatPembayaran, error) {
+	var result *mtp.TempatPembayaran
+
+	filter := mtp.TempatPembayaran{
+		Tp_Id: tpId,
+	}
+	if err := a.DB.Model(mtp.TempatPembayaran{}).Where(&filter).Order("\"Id\" desc").First(&result).Error; err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func getSK(kanwilId *string, kppbbId *string) (*sksk.SkSk, error) {
+	var result *sksk.SkSk
+
+	filter := sksk.SkSk{
+		KanwilId: kanwilId,
+		KppbbId:  kppbbId,
+	}
+	if err := a.DB.Model(sksk.SkSk{}).Where(&filter).Order("\"Id\" desc").First(&result).Error; err != nil {
 		return nil, err
 	}
 	return result, nil
