@@ -145,11 +145,20 @@ func GetListTransaksiPPAT(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetDetailTransaksiPPAT(w http.ResponseWriter, r *http.Request) {
+	var data m.FilterPPATDto
+	if !hh.ValidateStructByURL(w, *r.URL, &data) {
+		return
+	}
+
+	result, err := s.GetDetailTransaksiPPAT(data)
+	hh.DataResponse(w, result, err)
+}
+
+func GetDetailTransPPAT(w http.ResponseWriter, r *http.Request) {
 	ppat := hh.ValidateString(w, r, "ppat")
 	if ppat == "" {
 		return
 	}
-
 	result, err := s.GetDetailbyField("Ppat_Id", ppat)
 	hh.DataResponse(w, result, err)
 }

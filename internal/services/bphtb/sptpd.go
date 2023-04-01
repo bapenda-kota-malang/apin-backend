@@ -383,9 +383,9 @@ func GetDetail(id uuid.UUID) (any, error) {
 }
 
 func GetDetailbyField(field string, value string) (any, error) {
-	var data *m.BphtbSptpd
+	var data *[]m.BphtbSptpd
 
-	result := a.DB.Where(field, value).First(&data)
+	result := a.DB.Where(field, value).Find(&data)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -400,9 +400,6 @@ func GetDetailbyField(field string, value string) (any, error) {
 func GetListTransaksiPPAT(input m.FilterPPATDto) (any, error) {
 	var data []m.TransaksiPPAT
 	var count int64
-
-	// temp := "8"
-	// input.Bulan = &temp
 
 	queryBase := a.DB.Model(&m.BphtbSptpd{})
 	queryBase = queryBase.
@@ -424,6 +421,41 @@ func GetListTransaksiPPAT(input m.FilterPPATDto) (any, error) {
 	result := queryBase.
 		Order("\"Ppat_Id\"").
 		Group("\"Ppat_Id\", \"Ppat\".\"Nama\"").
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func GetDetailTransaksiPPAT(input m.FilterPPATDto) (any, error) {
+	var data []m.BphtbSptpd
+	var count int64
+
+	queryBase := a.DB.Model(&m.BphtbSptpd{})
+	queryBase = queryBase.
+		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST(\"Ppat_Id\" AS INTEGER) ")
+
+	if input.Ppat_Id != nil {
+		queryBase = queryBase.Where("Ppat_Id", input.Ppat_Id)
+	}
+
+	if input.Bulan != nil {
+		queryBase = queryBase.Where("EXTRACT('month' from \"VerifikasiPpatAt\") = ?", input.Bulan)
+	}
+
+	if input.Tahun != nil {
+		queryBase = queryBase.Where("EXTRACT('year' from \"VerifikasiPpatAt\") = ?", input.Tahun)
+	}
+
+	result := queryBase.
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
