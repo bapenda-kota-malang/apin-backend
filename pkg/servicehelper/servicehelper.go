@@ -632,6 +632,34 @@ func NopParser(nop string) (result []string, area_kode string) {
 	return result, area_kode
 }
 
+// return formatted string NOP optional with separator
+// e.g
+//
+//	nop := NopString("1","2","3","4","5","6","7","") // 1234567
+//	nop := NopString("1","2","3","4","5","6","7",".") // 1.2.3.4.5.6.7
+func NopString(provinsi_Kode, daerah_Kode, kecamatan_Kode, kelurahan_Kode, blok_Kode, noUrut, jenisOp, separator string) string {
+	var sb strings.Builder
+	data := []string{
+		provinsi_Kode,
+		separator,
+		daerah_Kode,
+		separator,
+		kecamatan_Kode,
+		separator,
+		kelurahan_Kode,
+		separator,
+		blok_Kode,
+		separator,
+		noUrut,
+		separator,
+		jenisOp,
+	}
+	for i := 0; i < len(data); i++ {
+		sb.WriteString(data[i])
+	}
+	return sb.String()
+}
+
 // function wrapper to call all process before create file
 //
 // return filename, path, extensionFile, id, and error

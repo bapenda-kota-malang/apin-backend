@@ -58,12 +58,13 @@ type Spt struct {
 	CreateBy_User_Id uint            `json:"createBy_user_id"`
 	TanggalSpt       time.Time       `json:"tanggalSpt"`
 	NomorSpt         string          `json:"NomorSpt" gorm:"type:varchar(20)"`
-	KodeBilling      string          `json:"kodeBilling" gorm:"varchar(30)"`
+	KodeBilling      *string         `json:"kodeBilling" gorm:"varchar(30)"`
 	Type             mt.JenisPajak   `json:"type" gorm:"type:varchar(2)"`
 	StatusPembayaran SptStatus       `json:"statusPembayaran" gorm:"type:varchar(5)"`
 	TanggalLunas     *time.Time      `json:"tanggalLunas,omitempty"`
 	BatalPenetapan   bool            `json:"batalPenetapan,omitempty"`
 	IdBT             *uint64         `json:"idBT,omitempty"`
+	VaJatim          *string         `json:"vaJatim" gorm:"type:varchar(20)"`
 	// reklame
 	JenisMasaPajakReklame *mt.JenisMasa `json:"jenisMasaPajakReklame,omitempty" gorm:"type:smallint"`
 	JumlahTahun           *float64      `json:"jumlahTahun,omitempty" gorm:"type:decimal"`
@@ -78,7 +79,6 @@ type Spt struct {
 	JudulReklame          *string       `json:"judulReklame,omitempty"`
 	NamaPenyewa           *string       `json:"namaPenyewa,omitempty"`
 	AlamatPenyewa         *string       `json:"alamatPenyewa,omitempty"`
-	VaJatim               *string       `json:"vaJatim,omitempty" gorm:"type:varchar(20)"`
 	// skpdkb
 	JenisKetetapan      *JenisKetetapan     `json:"jenisKetetapan,omitempty" gorm:"varchar(20)"`
 	DasarPengenaan      *string             `json:"dasarPengenaan,omitempty" gorm:"varchar(30)"`

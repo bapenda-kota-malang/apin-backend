@@ -1,6 +1,8 @@
 package sppt
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -14,6 +16,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
@@ -21,11 +24,13 @@ import (
 	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
+	sbj "github.com/bapenda-kota-malang/apin-backend/internal/services/bankjatim"
 	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
 	os "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	sopp "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	srefbuku "github.com/bapenda-kota-malang/apin-backend/internal/services/referensibuku"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	ibj "github.com/bapenda-kota-malang/apin-backend/pkg/integration/bankjatim"
 )
 
 const source = "sppt"
@@ -217,6 +222,73 @@ func UpdatePenguranganByNop(input m.NopDto, pctPengurangan float64, tx *gorm.DB)
 	return rp.OK{
 		Meta: t.IS{
 			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func UpdateVa(ctx context.Context, id int, input m.UpdateVaDto, userId uint64) (any, error) {
+	var data m.Sppt
+	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
+	if dataRow := a.DB.First(&data, id).RowsAffected; dataRow == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+	if data.VirtualAccoountJatim == nil {
+		return nil, errors.New("data sspt ini masih belum ada virtual account")
+	}
+	data.PBBygHarusDibayar_sppt = input.PBBygHarusDibayar_sppt
+	total := *input.PBBygHarusDibayar_sppt
+	denda := 0
+	if input.Denda != nil {
+		total = *data.PBBygHarusDibayar_sppt + *input.Denda
+		denda = *input.Denda
+	}
+	if data.TanggalJatuhTempo_sppt == nil {
+		return nil, errors.New("data sspt ini masih belum ada jatuh tempo")
+	}
+	if data.NamaWP_sppt == nil {
+		return nil, errors.New("data sspt ini masih belum ada nama wp")
+	}
+
+	jatuhTempo, _ := data.TanggalJatuhTempo_sppt.Value()
+	tglExp := jatuhTempo.(time.Time)
+	newExp := time.Now()
+	if servicehelper.Midnight(newExp).After(tglExp) {
+		tglExp = servicehelper.EndOfMonth(newExp)
+	}
+	nop := servicehelper.NopString(
+		*data.Propinsi_Id,
+		*data.Dati2_Id,
+		*data.Kecamatan_Id,
+		*data.Keluarahan_Id,
+		*data.Blok_Id,
+		*data.NoUrut,
+		*data.JenisOP_Id,
+		"",
+	)
+	// bank jatim
+	payload := ibj.RequestRegistration{
+		VirtualAccount: strconv.Itoa(*data.VirtualAccoountJatim),
+		Nama:           *data.NamaWP_sppt,
+		TotalTagihan:   uint64(total),
+		TanggalExp:     tglExp.Format("20060102"),
+		Berita1:        fmt.Sprintf("%s %s", nop, newExp.Format("06")),
+		Berita2:        fmt.Sprintf("%d", denda),
+		Berita5:        fmt.Sprintf("UPDATE %s", newExp.Format("02-01-2006")),
+		FlagProses:     ibj.ProsesUpdate,
+	}
+	ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	if err := sbj.Registration(ctxTo, payload, userId); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengubah va: "+err.Error(), data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+	return rp.OK{
+		Meta: t.IS{
+			"affected": "1",
 		},
 		Data: data,
 	}, nil
