@@ -597,6 +597,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/verify/{id}", bapenagihan.Verify)
 		r.Delete("/{id}", bapenagihan.Delete)
 		r.Get("/download/excel", bapenagihan.DownloadExcelList)
+		r.Get("/download/pdf/{id}", bapenagihan.DownloadPDF)
 	})
 
 	r.Route("/pengurangan", func(r chi.Router) {
