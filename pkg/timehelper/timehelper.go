@@ -1,8 +1,9 @@
 package timehelper
 
 import (
-	"gorm.io/datatypes"
 	"time"
+
+	"gorm.io/datatypes"
 )
 
 func ParseTime(input *string) *time.Time {
@@ -50,4 +51,80 @@ func GetAllFormatTime(datetime *datatypes.Date) (string, string, string) {
 
 	// Mengembalikan tiga nilai keluaran
 	return formattedDate, dayOfWeek, formattedTime
+}
+
+func ConvertDatatypesTimeToTime(datetime *datatypes.Time) time.Time {
+	if datetime != nil {
+		gmtDatetime, _ := datetime.Value()
+		return gmtDatetime.(time.Time)
+	}
+	return time.Now()
+}
+
+func ConvertDatatypesTimeToString(datetime *datatypes.Time) string {
+	if datetime != nil {
+		gmtDatetime, _ := datetime.Value()
+		return gmtDatetime.(string)
+	}
+	return time.Now().String()
+}
+
+// Day name in Indonesia
+func GetDay(datetime *time.Time) string {
+	if datetime == nil {
+		now := time.Now()
+		datetime = &now
+	}
+
+	switch int(datetime.Weekday()) {
+	case 1:
+		return "Senin"
+	case 2:
+		return "Selasa"
+	case 3:
+		return "Rabu"
+	case 4:
+		return "Kamis"
+	case 5:
+		return "Jum'at"
+	case 6:
+		return "Sabtu"
+	default:
+		return "Minggu"
+	}
+}
+
+// Month name in Indonesia
+func GetMonth(datetime *time.Time) string {
+	if datetime == nil {
+		now := time.Now()
+		datetime = &now
+	}
+
+	switch int(datetime.Month()) {
+	case 1:
+		return "Januari"
+	case 2:
+		return "Februari"
+	case 3:
+		return "Maret"
+	case 4:
+		return "April"
+	case 5:
+		return "Mei"
+	case 6:
+		return "Juni"
+	case 7:
+		return "Juli"
+	case 8:
+		return "Agustus"
+	case 9:
+		return "September"
+	case 10:
+		return "Oktober"
+	case 11:
+		return "November"
+	default:
+		return "Desember"
+	}
 }
