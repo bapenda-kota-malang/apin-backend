@@ -209,15 +209,15 @@ func DownloadExcelListVerifikasi(input m.FilterDto, auth int, tp string) (*excel
 
 	queryBase := a.DB.Model(&m.BphtbSptpd{})
 
-	if (auth == 0 || auth == 4) && tp == "ver" {
+	if (auth == 0 || auth == 6) && tp == "ver" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"02", "03", "04", "05", "06", "07", "08", "21"})
-	} else if auth == 3 && tp == "ver" {
+	} else if auth == 4 && tp == "ver" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"04", "05", "06", "07", "08", "21"})
-	} else if auth == 2 && tp == "ver" {
+	} else if auth == 3 && tp == "ver" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"06", "07", "08", "21"})
-	} else if (auth == 0 || auth == 4) && tp == "byr" {
+	} else if (auth == 0 || auth == 6) && tp == "byr" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"08", "10", "12", "22"})
-	} else if (auth == 0 || auth == 4) && tp == "val" {
+	} else if (auth == 0 || auth == 6) && tp == "val" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"10", "13", "14", "20"})
 	}
 
@@ -590,34 +590,34 @@ func Approval(id uuid.UUID, kd string, auth int, input m.RequestApprovalSptpd, t
 		return sh.SetError("request", "approval-data", source, "failed", "gagal loging approval data", errLog)
 	}
 
-	if kd == "03" && auth == 4 {
+	if kd == "03" && auth == 6 {
 		//Dikembalikan Staf
 		tempVal := "-1"
 		data.Proses = &tempVal
-	} else if kd == "04" && auth == 4 {
+	} else if kd == "04" && auth == 6 {
 		//Kasubid
 		tempVal := "0"
 		data.Proses = &tempVal
-	} else if kd == "05" && auth == 3 {
+	} else if kd == "05" && auth == 4 {
 		//Dikembalikan Kasubid
 		tempVal := "-1"
 		data.Proses = &tempVal
-	} else if kd == "06" && auth == 3 {
+	} else if kd == "06" && auth == 4 {
 		//Kabid
 		tempVal := "2"
 		data.Proses = &tempVal
-	} else if kd == "07" && auth == 2 {
+	} else if kd == "07" && auth == 3 {
 		//Dikembalikan Kabid
-	} else if kd == "08" && auth == 2 {
+	} else if kd == "08" && auth == 3 {
 		//Cetak
 		p, _ := rand.Prime(rand.Reader, 32)
 		tempNumber := p.String()
 		data.IdBilling = &tempNumber
-	} else if kd == "10" && auth == 4 {
+	} else if kd == "10" && auth == 6 {
 		//Lunas
-	} else if kd == "12" && auth == 4 {
+	} else if kd == "12" && auth == 6 {
 		//Kurang bayar
-	} else if kd == "14" && auth == 4 {
+	} else if kd == "14" && auth == 6 {
 		//Validasi
 	} else if kd == "20" || kd == "21" || kd == "22" {
 		//Batal
