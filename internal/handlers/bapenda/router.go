@@ -726,7 +726,15 @@ func SetRoutes() http.Handler {
 		r.Patch("/verify/{id}", regobjekpajakbangunan.VerifyLspop)
 	})
 
-	rh.RegCrud(r, "/jaminanbongkar", jaminanbongkar.Crud{})
+	r.Route("/jaminanbongkar", func(r chi.Router) {
+		r.Post("/", jaminanbongkar.Create)
+		r.Get("/", jaminanbongkar.GetList)
+		r.Get("/{id}", jaminanbongkar.GetDetail)
+		r.Patch("/{id}", jaminanbongkar.Update)
+		r.Delete("/{id}", jaminanbongkar.Delete)
+		r.Get("/download/excel", jaminanbongkar.DownloadExcel)
+		r.Get("/download/pdf/{id}", jaminanbongkar.DownloadPDF)
+	})
 
 	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
 
