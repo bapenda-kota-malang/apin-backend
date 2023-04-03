@@ -6,12 +6,14 @@ go 1.18
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.8.2
+	github.com/apung/go-terbilang v0.0.0-20160918201301-120e1cf0e18a
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.1.2
 	github.com/jinzhu/copier v0.3.5
 	github.com/joho/godotenv v1.4.0
+	github.com/leekchan/accounting v1.0.0
 	github.com/lib/pq v1.10.7
 	github.com/paulmach/go.geojson v1.4.0
 	github.com/spf13/viper v1.12.0
@@ -56,15 +58,18 @@ require (
 	github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22 // indirect
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/text v0.8.0
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
+	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/jackc/pgtype v1.11.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/shopspring/decimal v1.2.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/image v0.5.0 // indirect
