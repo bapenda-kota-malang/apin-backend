@@ -437,7 +437,10 @@ func GetListTransaksiPPAT(input m.FilterPPATDto) (any, error) {
 
 func GetDetailTransaksiPPAT(input m.FilterPPATDto) (any, error) {
 	var data []m.BphtbSptpd
+	var dataPPAT mppat.Ppat
 	var count int64
+	var dateString string
+	var namePPAT string
 
 	queryBase := a.DB.Model(&m.BphtbSptpd{})
 	queryBase = queryBase.
@@ -455,19 +458,61 @@ func GetDetailTransaksiPPAT(input m.FilterPPATDto) (any, error) {
 		queryBase = queryBase.Where("EXTRACT('year' from \"VerifikasiPpatAt\") = ?", input.Tahun)
 	}
 
+	queryBase = queryBase.Order("\"TahunPajakSppt\"")
 	result := queryBase.
 		Find(&data)
 	if result.Error != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
 
+	tempPPATID, _ := strconv.Atoi(*input.Ppat_Id)
+	resPPAT := a.DB.First(dataPPAT, tempPPATID)
+	if resPPAT.Error != nil {
+		namePPAT = "PPAT" + *input.Ppat_Id
+	} else {
+		namePPAT = dataPPAT.Nama
+	}
+
+	if input.Bulan != nil && input.Tahun != nil {
+		dateString = strconv.Itoa(*input.Tahun) + "-" + strconv.Itoa(*input.Bulan) + "-01"
+	} else if input.Bulan != nil {
+		dateString = "2022-" + strconv.Itoa(*input.Bulan) + "-01"
+	} else if input.Tahun != nil {
+		dateString = strconv.Itoa(*input.Tahun) + "-12-01"
+	} else {
+		if len(data) > 0 && data[0].TahunPajakSppt != nil {
+			dateString = *data[0].TahunPajakSppt + "-12-01"
+		} else {
+			dateString = "2022-12-01"
+		}
+	}
+	resT, errPer := time.Parse("2006-01-02", dateString)
+	if errPer != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "periode tidak ditemukan", data)
+	}
+
+	startPeriode := time.Date(resT.Year(), resT.Month(), 1, 0, 0, 0, 0, time.UTC)
+	endPeriode := startPeriode.AddDate(0, 1, 0).Add(-time.Nanosecond)
+	if input.Bulan == nil {
+		startPeriode = time.Date(resT.Year(), 1, 1, 0, 0, 0, 0, time.UTC)
+	}
+
 	return rp.OK{
 		Meta: t.IS{
 			"totalCount":   strconv.Itoa(int(count)),
 			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"start":        startPeriode.String(),
+			"end":          endPeriode.String(),
+			"name":         namePPAT,
 		},
 		Data: data,
 	}, nil
+}
+
+func LastDayOfMonth(t time.Time) int {
+	firstDay := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC)
+	lastDay := firstDay.AddDate(0, 1, 0).Add(-time.Nanosecond)
+	return lastDay.Day()
 }
 
 func Update(id uuid.UUID, input m.CreateDto, tx *gorm.DB) (any, error) {
