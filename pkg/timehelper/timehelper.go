@@ -1,8 +1,9 @@
 package timehelper
 
 import (
-	"gorm.io/datatypes"
 	"time"
+
+	"gorm.io/datatypes"
 )
 
 func ParseTime(input *string) *time.Time {
@@ -28,6 +29,14 @@ func GetDateFromUTCDatetime(datetime *datatypes.Date) string {
 	}
 	return "00-00-0000"
 
+}
+
+func ConvertDatatypeDateToTime(datetime *datatypes.Date) time.Time {
+	if datetime != nil {
+		gmtDatetime, _ := datetime.Value()
+		return gmtDatetime.(time.Time)
+	}
+	return time.Now()
 }
 
 func GetAllFormatTime(datetime *datatypes.Date) (string, string, string) {
