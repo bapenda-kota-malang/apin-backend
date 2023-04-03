@@ -550,6 +550,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/cancel", sspd.Cancel)
 		r.Get("/sspddetail", sspd.GetListSspdDetail)
 		r.Get("/download/excel", sspd.DownloadExcelList)
+		r.Get("/download/pdf/{id}", sspd.DownloadPDF)
 	})
 
 	r.Route("/sinkronisasi", func(r chi.Router) {
