@@ -741,6 +741,7 @@ func SetRoutes() http.Handler {
 
 	r.Route("/pbb", func(r chi.Router) {
 		r.Post("/penetapan-massal", sppt.PenetapanMassal)
+		r.Get("/download/pdf", sppt.DownloadPDF)
 	})
 
 	rh.RegCrud(r, "/tempatpembayaranspptmasal", tempatpembayaranspptmasal.Crud{})
