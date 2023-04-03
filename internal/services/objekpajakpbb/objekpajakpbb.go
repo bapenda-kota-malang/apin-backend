@@ -2,6 +2,7 @@ package objekpajakpbb
 
 import (
 	"fmt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
 	"strconv"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
@@ -22,6 +23,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
+	mopbgn "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	pmh "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
@@ -815,5 +817,100 @@ func GetNopTerbesar(input m.ObjekPajakPbb) (any, error) {
 
 	return rp.OKSimple{
 		Data: data.NoUrut,
+	}, nil
+}
+
+func GetSejarahOp(input m.ObjekPajakPbb) (any, error) {
+	var data []*m.ObjekPajakPbb
+
+	byNop := nop.NopDetail{
+		Provinsi_Kode:  input.Provinsi_Kode,
+		Daerah_Kode:    input.Daerah_Kode,
+		Kecamatan_Kode: input.Kecamatan_Kode,
+		Kelurahan_Kode: input.Kelurahan_Kode,
+		Blok_Kode:      input.Blok_Kode,
+		NoUrut:         input.NoUrut,
+		JenisOp:        input.JenisOp,
+	}
+
+	filterPbb := m.ObjekPajakPbb{NopDetail: byNop}
+
+	resultOp := a.DB.Model(m.ObjekPajakPbb{}).Where(filterPbb).Find(&data)
+	if resultOp.RowsAffected == 0 {
+		return nil, nil
+	} else if resultOp.Error != nil {
+		return sh.SetError("request", "get-nop-terbesar", source, "failed", "gagal mengambil data nop", data)
+	}
+
+	// get objek pajak pbb by nop
+	objekPajakPbb, err := GetByNop(input.Provinsi_Kode, input.Daerah_Kode, input.Kecamatan_Kode, input.Kelurahan_Kode, input.Blok_Kode, input.NoUrut, input.JenisOp)
+	if err != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	// get wajib pajak pbb by id
+	var m_wajibPajakPbb mwp.WajibPajakPbb
+	if objekPajakPbb.WajibPajakPbb_Id != nil {
+		a.DB.Model(&mwp.WajibPajakPbb{}).Where(`"Id" = ?`, *objekPajakPbb.WajibPajakPbb_Id).First(&m_wajibPajakPbb)
+	}
+
+	var dataBumi []mopb.ObjekPajakBumi
+	filterBumi := mopb.ObjekPajakBumi{NopDetail: byNop}
+	resultBumi := a.DB.Model(mopb.ObjekPajakBumi{}).Where(filterBumi).Find(&dataBumi)
+	if resultBumi.RowsAffected == 0 {
+		return nil, nil
+	} else if resultBumi.Error != nil {
+		return sh.SetError("request", "get-nop-terbesar", source, "failed", "gagal mengambil data nop", dataBumi)
+	}
+
+	var dataBangunan []mopbgn.ObjekPajakBangunan
+	filterBangunan := mopbgn.ObjekPajakBangunan{NopDetail: byNop}
+
+	resultBangunan := a.DB.Model(mopbgn.ObjekPajakBangunan{}).Where(filterBangunan).Find(&dataBangunan)
+	if resultBangunan.RowsAffected == 0 {
+		return nil, nil
+	} else if resultBangunan.Error != nil {
+		return sh.SetError("request", "get-nop-terbesar", source, "failed", "gagal mengambil data nop", dataBumi)
+	}
+
+	var dataNilaiIndividu []nilaiindividu.NilaiIndividu
+	filterNilaiIndividu := nilaiindividu.NilaiIndividu{NopDetail: byNop}
+
+	resultNilaiIndividu := a.DB.Model(nilaiindividu.NilaiIndividu{}).Where(filterNilaiIndividu).Find(&dataNilaiIndividu)
+	if resultNilaiIndividu.RowsAffected == 0 {
+		return nil, nil
+	} else if resultNilaiIndividu.Error != nil {
+		return sh.SetError("request", "get-nop-terbesar", source, "failed", "gagal mengambil data nop", dataBumi)
+	}
+
+	var dataAnggotaOp []maop.AnggotaObjekPajak
+	filterAnggotaOp := maop.FilterDto{
+		Provinsi_Kode:  input.Provinsi_Kode,
+		Daerah_Kode:    input.Daerah_Kode,
+		Kecamatan_Kode: input.Kecamatan_Kode,
+		Kelurahan_Kode: input.Kelurahan_Kode,
+		Blok_Kode:      input.Blok_Kode,
+		NoUrut:         input.NoUrut,
+	}
+
+	resultAnggotaOp := a.DB.Model(maop.AnggotaObjekPajak{}).Where(filterAnggotaOp).Find(&dataAnggotaOp)
+	if resultAnggotaOp.RowsAffected == 0 {
+		return nil, nil
+	} else if resultAnggotaOp.Error != nil {
+		return sh.SetError("request", "get-nop-terbesar", source, "failed", "gagal mengambil data nop", dataBumi)
+	}
+
+	var rslt map[string]interface{}
+
+	rslt = t.II{
+		"dataOP":            data,
+		"dataOpBumi":        dataBumi,
+		"dataOpBangunan":    dataBangunan,
+		"dataNilaiIndividu": dataNilaiIndividu,
+		"dataAnggotaOp":     dataAnggotaOp,
+	}
+
+	return rp.OKSimple{
+		Data: rslt,
 	}, nil
 }
