@@ -5,6 +5,7 @@ import (
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
+	msptpd "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelaporanppat"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/pelaporanppat"
 )
@@ -39,6 +40,35 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := s.GetDetail(id)
+	hh.DataResponse(w, result, err)
+}
+
+func GetListLaporanPPAT(w http.ResponseWriter, r *http.Request) {
+	var data msptpd.FilterPPATDto
+	if !hh.ValidateStructByURL(w, *r.URL, &data) {
+		return
+	}
+
+	result, err := s.GetListTransaksiPPAT(data)
+	hh.DataResponse(w, result, err)
+}
+
+func GetDetailLaporanPPAT(w http.ResponseWriter, r *http.Request) {
+	var data msptpd.FilterPPATDto
+	if !hh.ValidateStructByURL(w, *r.URL, &data) {
+		return
+	}
+
+	result, err := s.GetDetailTransaksiPPAT(data)
+	hh.DataResponse(w, result, err)
+}
+
+func GetDetailLapPPAT(w http.ResponseWriter, r *http.Request) {
+	ppat := hh.ValidateString(w, r, "ppat")
+	if ppat == "" {
+		return
+	}
+	result, err := s.GetDetailbyField("Ppat_Id", ppat)
 	hh.DataResponse(w, result, err)
 }
 

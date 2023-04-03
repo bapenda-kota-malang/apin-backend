@@ -337,6 +337,15 @@ func SetRoutes() http.Handler {
 		r.Get("/", bphtbsptpd.GetDetailTransaksiPPAT)
 	})
 
+	r.Route("/ppat-laporan", func(r chi.Router) {
+		r.Get("/{ppat}", pelaporanppat.GetDetailLapPPAT)
+		r.Get("/", pelaporanppat.GetListLaporanPPAT)
+	})
+
+	r.Route("/ppat-laporan-detail", func(r chi.Router) {
+		r.Get("/", pelaporanppat.GetDetailLaporanPPAT)
+	})
+
 	r.Route("/kelastanah-kode", func(r chi.Router) {
 		r.Get("/{kd}", kelastanah.GetDetailByCode)
 	})
