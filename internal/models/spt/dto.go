@@ -42,9 +42,9 @@ type CreateDto struct {
 	NamaPenyewa           *string    `json:"namaPenyewa"`
 	AlamatPenyewa         *string    `json:"alamatPenyewa"`
 	// skdpdkb
-	JenisKetetapan *JenisKetetapan `json:"jenisKetetapan"`
-	DasarPengenaan *string         `json:"dasarPengenaan"`
-	Kenaikan       *float64        `json:"kenaikan"`
+	// JenisKetetapan *JenisKetetapan `json:"jenisKetetapan"`
+	DasarPengenaan *string  `json:"dasarPengenaan"`
+	Kenaikan       *float64 `json:"kenaikan"`
 	// Bunga            *float64        `json:"bunga"`
 	Denda            *float64   `json:"denda"`
 	Pengurangan      *float64   `json:"pengurangan"`

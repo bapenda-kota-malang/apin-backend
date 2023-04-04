@@ -181,6 +181,24 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 	data.PeriodeAkhir = datatypes.Date(sh.EndOfMonth(periodeTime))
 	data.JatuhTempo = datatypes.Date(sh.EndOfMonth(jatuhTempoTime))
 
+	// set jenis ketetapan
+	if data.DasarPengenaan == nil {
+		data.JenisKetetapan = m.JenisKetetapanSptpd
+		if data.Type == mtypes.JenisPajakOA {
+			data.JenisKetetapan = m.JenisKetetapanSkpd
+		}
+	} else {
+		// normalize dasar pengenaan to uppercase
+		dasarPengenaan := strings.ToUpper(*data.DasarPengenaan)
+		data.DasarPengenaan = &dasarPengenaan
+		switch dasarPengenaan {
+		case m.DasarPengenaanSptpd, m.DasarPengenaanSkpd, m.DasarPengenaanTeguran:
+			data.JenisKetetapan = m.JenisKetetapanSkpdkb
+		case m.DasarPengenaanSkpdkb, m.DasarPengenaanSkpdkbt:
+			data.JenisKetetapan = m.JenisKetetapanSkpdkbt
+		}
+	}
+
 	err = tx.Create(&data).Error
 	if err != nil {
 		return nil, err
