@@ -331,5 +331,5 @@ type RekapitulasiOpResponse struct {
 	Lunas             *int    `json:"lunas"`
 	JatuhTempo        *int    `json:"jatuhTempo"`
 	PembayaranSppt    *int    `json:"PembayaranSppt"`
-	PembayaranSkpSpop *string `json:"pembayaranSkpSpop"`
+	PembayaranSkpSpop *int    `json:"pembayaranSkpSpop"`
 }

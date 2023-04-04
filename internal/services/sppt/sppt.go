@@ -17,6 +17,10 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	mnop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
@@ -948,56 +952,124 @@ func Salinan(input m.SalinanDto) (any, error) {
 }
 
 func GetRekapitulasi(input m.RekapitulasiOpRequest) (any, error) {
-	var data []m.RekapitulasiOpResponse
-	var count int64
-	var pagination gh.Pagination
 
-	filter := m.RekapitulasiOpRequest{
+	filter := m.Sppt{
 		Propinsi_Id:        input.Propinsi_Id,
 		Dati2_Id:           input.Dati2_Id,
 		Kecamatan_Id:       input.Kecamatan_Id,
-		TahunPajakskp_sppt: input.TahunPajakskp_sppt,
+		TahunPajakskp_sppt: &input.TahunPajakskp_sppt,
 	}
 
-	rows, err := a.DB.Debug().Model(m.Sppt{}).
-		Select("\"Sppt\".\"Keluarahan_Id\"," +
-			"(SELECT COUNT(*) FROM \"ObjekPajakPbb\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\" ) AS JML_OP," +
-			"(SELECT COUNT(*) FROM \"ObjekPajakBangunan\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\") AS JML_BGN," +
-			"(SELECT COALESCE(SUM(\"TotalLuasBumi\"),0) FROM \"ObjekPajakPbb\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\") AS TOTAL_BUMI," +
-			"(SELECT COALESCE(SUM(\"TotalLuasBangunan\"),0) FROM \"ObjekPajakPbb\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\") AS TOTAL_BANGUNAN," +
-			"(SELECT COALESCE(SUM(\"NilaiSistemBumi\"),0) FROM \"ObjekPajakBumi\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\") AS NILAI_BUMI," +
-			"(SELECT COALESCE(SUM(\"ObjekPajakBangunan\".\"NilaiSistem\"),0) FROM \"ObjekPajakBangunan\" WHERE \"Provinsi_Kode\" = \"Sppt\".\"Propinsi_Id\" AND \"Daerah_Kode\" = \"Sppt\".\"Dati2_Id\" AND \"Kecamatan_Kode\" = \"Sppt\".\"Kecamatan_Id\" AND \"Kelurahan_Kode\" = \"Sppt\".\"Keluarahan_Id\") AS NILAI_BGN," +
-			"\"Sppt\".\"TahunPajakskp_sppt\" AS TAHUN_PAJAK, COUNT(\"Sppt\") AS JUMLAH_SPPT, SUM(\"Sppt\".\"PBBterhutang_sppt\") AS PBB_TERHUTANG, SUM(\"Sppt\".\"PBBygHarusDibayar_sppt\") AS PBB_HARUS_DIBAYAR, SUM(\"Sppt\".\"StatusPembayaran_sppt\"::INTEGER) AS LUNAS, SUM(CASE WHEN \"Sppt\".\"TanggalJatuhTempo_sppt\" >= CURRENT_DATE THEN 1 ELSE 0 END) AS JATUH_TEMPO," +
-			"(SELECT COALESCE(SUM(\"JumlahSpptYgDibayar\"),0) FROM \"SpptPembayaran\" WHERE \"Kelurahan_Kd\" = \"Sppt\".\"Keluarahan_Id\") AS JUMLAH_YG_DIBAYAR, '0' AS PEMBAYARAN_SKPOP").
-		Where(filter).
-		Count(&count).
-		Scopes(gh.Paginate(input, &pagination)).
-		Group("\"Sppt\".\"Propinsi_Id\"").
-		Group("\"Sppt\".\"Dati2_Id\"").
-		Group("\"Sppt\".\"Kecamatan_Id\"").
-		Group("\"Sppt\".\"Keluarahan_Id\"").
-		Group("\"Sppt\".\"TahunPajakskp_sppt\"").
-		Order("\"Sppt\".\"Keluarahan_Id\"").
-		Rows()
-
-	if err != nil {
-		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data: "+err.Error(), data)
-	}
-	defer rows.Close()
-
-	data = make([]m.RekapitulasiOpResponse, 0)
-	row := m.RekapitulasiOpResponse{}
-	for rows.Next() {
-		rows.Scan(&row.KelurahanKode, &row.JumlahObjekPajak, &row.JumlahBangunan, &row.LuasTotalBumi, &row.LuasTotalBangunan, &row.NjopBumi, &row.NjopBangunan, &row.TahunPajak, &row.JumlahSppt, &row.PbbTerhutang, &row.PbbHarusDibayar, &row.Lunas, &row.JatuhTempo, &row.PembayaranSppt, &row.PembayaranSkpSpop)
-		data = append(data, row)
+	nop := &mnop.NopDetail{
+		Provinsi_Kode:  input.Propinsi_Id,
+		Daerah_Kode:    input.Dati2_Id,
+		Kecamatan_Kode: input.Kecamatan_Id,
 	}
 
-	return rp.OK{
-		Meta: t.IS{
-			"totalCount": strconv.Itoa(len(data)),
-			"page":       strconv.Itoa(pagination.Page),
-			"pageSize":   strconv.Itoa(pagination.PageSize),
-		},
-		Data: data,
+	type RekapSppt struct {
+		Keluarahan_Id          *string
+		TahunPajakskp_sppt     *string `gorm:"column:tahunpajak"`
+		JumlahSppt             *int    `gorm:"column:jumlahsppt"`
+		PBBterhutang_sppt      *int    `gorm:"column:pbbterhutang"`
+		PBBygHarusDibayar_sppt *int    `gorm:"column:pbbygharusdibayar"`
+		Lunas                  *int    `gorm:"column:lunas"`
+		JatuhTempo             *int    `gorm:"column:jatuhtempo"`
+	}
+
+	var dataRekapSppt []RekapSppt
+	resultSppt := a.DB.Debug().Model(m.Sppt{}).
+		Select("\"Keluarahan_Id\", \"TahunPajakskp_sppt\" as tahunpajak, COUNT(\"Sppt\") AS jumlahsppt, " +
+			"SUM(\"PBBterhutang_sppt\") AS pbbterhutang, SUM(\"PBBygHarusDibayar_sppt\") AS pbbygharusdibayar, " +
+			"SUM(\"StatusPembayaran_sppt\"::INTEGER) AS lunas, SUM(CASE WHEN \"TanggalJatuhTempo_sppt\" <= CURRENT_DATE THEN 1 ELSE 0 END) AS jatuhtempo").
+		Where(&filter).
+		Group("\"Keluarahan_Id\"").Group("\"TahunPajakskp_sppt\"").
+		Order("\"Keluarahan_Id\"").
+		Scan(&dataRekapSppt)
+	if resultSppt.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data sppt: "+resultSppt.Error.Error(), dataRekapSppt)
+	}
+
+	type RekapOpbb struct {
+		JumlahOp          *int `gorm:"column:jumlahop"`
+		TotalLuasBumi     *int `gorm:"column:totalluasbumi"`
+		TotalLuasBangunan *int `gorm:"column:totalluasbangunan"`
+	}
+
+	var dataRekapOpbb []RekapOpbb
+	resultOpbb := a.DB.Debug().Model(objekpajakpbb.ObjekPajakPbb{}).
+		Select("COUNT(*) AS jumlahop, SUM(\"TotalLuasBumi\") AS totalluasbumi, SUM(\"TotalLuasBangunan\") AS totalluasbangunan").
+		Where(&objekpajakpbb.ObjekPajakPbb{NopDetail: *nop}).Group("\"Kelurahan_Kode\"").Order("\"Kelurahan_Kode\"").Scan(&dataRekapOpbb)
+	if resultOpbb.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak pbb: "+resultOpbb.Error.Error(), dataRekapOpbb)
+	}
+
+	type RekapOpBgn struct {
+		JumlahBgn   *int `gorm:"column:jumlahbgn"`
+		NilaiSistem *int `gorm:"column:nilaisistem"`
+	}
+
+	var dataRekapOpBgn []RekapOpBgn
+	resultOpBgn := a.DB.Debug().Model(objekpajakbangunan.ObjekPajakBangunan{}).
+		Select("COUNT(*) AS jumlahbgn, SUM(\"NilaiSistem\") AS nilaisistem").
+		Where(&objekpajakbangunan.ObjekPajakBangunan{NopDetail: *nop}).Group("\"Kelurahan_Kode\"").Order("\"Kelurahan_Kode\"").Scan(&dataRekapOpBgn)
+	if resultOpBgn.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak bangunan: "+resultOpBgn.Error.Error(), dataRekapOpBgn)
+	}
+
+	type RekapOpBumi struct {
+		NilaiSistem *int `gorm:"column:nilaisistem"`
+	}
+
+	var dataRekapOpBumi []RekapOpBumi
+	resultOpBumi := a.DB.Debug().Model(objekpajakbumi.ObjekPajakBumi{}).
+		Select("SUM(\"NilaiSistemBumi\") AS nilaisistem").
+		Where(&objekpajakbumi.ObjekPajakBumi{NopDetail: *nop}).Group("\"Kelurahan_Kode\"").Order("\"Kelurahan_Kode\"").Scan(&dataRekapOpBumi)
+	if resultOpBumi.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak bangunan: "+resultOpBumi.Error.Error(), dataRekapOpBumi)
+	}
+
+	type RekapSpptPembayaran struct {
+		SpptDibayar *int `gorm:"column:spptdibayar"`
+	}
+
+	var dataRekapPembayaran []RekapSpptPembayaran
+	resultPembayaran := a.DB.Debug().Model(mp.SpptPembayaran{}).
+		Select("SUM(\"JumlahSpptYgDibayar\") AS spptdibayar").
+		Where(&mp.FilterDto{
+			Provinsi_Kd:    input.Propinsi_Id,
+			Daerah_Kd:      input.Dati2_Id,
+			Kecamatan_Kd:   input.Kecamatan_Id,
+			TahunPajakSppt: &input.TahunPajakskp_sppt}).
+		Group("\"Kelurahan_Kd\"").Order("\"Kelurahan_Kd\"").Scan(&dataRekapPembayaran)
+	if resultPembayaran.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak bangunan: "+resultPembayaran.Error.Error(), dataRekapPembayaran)
+	}
+
+	dataResponse := []m.RekapitulasiOpResponse{}
+	dataResponse = make([]m.RekapitulasiOpResponse, 0)
+	var skpop = 0
+
+	for i := 0; i < len(dataRekapSppt); i++ {
+		dataResponse = append(dataResponse, m.RekapitulasiOpResponse{
+			KelurahanKode:     dataRekapSppt[i].Keluarahan_Id,
+			JumlahObjekPajak:  dataRekapOpbb[i].JumlahOp,
+			JumlahBangunan:    dataRekapOpBgn[i].JumlahBgn,
+			LuasTotalBumi:     dataRekapOpbb[i].TotalLuasBumi,
+			LuasTotalBangunan: dataRekapOpbb[i].TotalLuasBangunan,
+			NjopBumi:          dataRekapOpBumi[i].NilaiSistem,
+			NjopBangunan:      dataRekapOpBgn[i].NilaiSistem,
+			TahunPajak:        dataRekapSppt[i].TahunPajakskp_sppt,
+			JumlahSppt:        dataRekapSppt[i].JumlahSppt,
+			PbbTerhutang:      dataRekapSppt[i].PBBterhutang_sppt,
+			PbbHarusDibayar:   dataRekapSppt[i].PBBygHarusDibayar_sppt,
+			Lunas:             dataRekapSppt[i].Lunas,
+			JatuhTempo:        dataRekapSppt[i].JatuhTempo,
+			PembayaranSppt:    dataRekapPembayaran[i].SpptDibayar,
+			PembayaranSkpSpop: &skpop,
+		})
+	}
+
+	return rp.OKSimple{
+		Data: dataResponse,
 	}, nil
 }
