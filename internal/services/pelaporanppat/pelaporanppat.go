@@ -102,7 +102,7 @@ func GetListTransaksiPPAT(input msptpd.FilterPPATDto) (any, error) {
 	queryBase := a.DB.Model(&m.PelaporanPpat{})
 	queryBase = queryBase.
 		Select("DISTINCT ON (\"PelaporanPpat\".\"Ppat_Id\") \"Ppat_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "\"PelaporanPpat\".\"TglLapor\"", "count(\"PelaporanPpat\".\"Sptpd_Id\") \"Sptpd_Id\"", "sum(\"BphtbSptpd\".\"NilaiOp\") \"NilaiOp\"", "sum(\"BphtbSptpd\".\"JumlahSetor\") \"JumlahSetor\"", "\"BphtbSptpd\".\"Status\"").
-		Joins("LEFT JOIN \"BphtbSptpd\" ON \"BphtbSptpd\".\"Sptpd_Id\" == \"PelaporanPpat\".\"Sptpd_Id\"").
+		Joins("LEFT JOIN \"BphtbSptpd\" ON \"BphtbSptpd\".\"Sptpd_Id\" = \"PelaporanPpat\".\"Sptpd_Id\"").
 		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST(\"Ppat_Id\" AS INTEGER) ")
 
 	if input.Ppat_Id != nil {
@@ -143,12 +143,12 @@ func GetDetailTransaksiPPAT(input msptpd.FilterPPATDto) (any, error) {
 
 	queryBase := a.DB.Model(&m.PelaporanPpat{})
 	queryBase = queryBase.
-		Select("DISTINCT ON (\"PelaporanPpat\".\"Ppat_Id\") \"Ppat_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "\"PelaporanPpat\".\"TglLapor\"", "count(\"PelaporanPpat\".\"Sptpd_Id\") \"Sptpd_Id\"", "sum(\"BphtbSptpd\".\"NilaiOp\") \"NilaiOp\"", "sum(\"BphtbSptpd\".\"JumlahSetor\") \"JumlahSetor\"", "\"BphtbSptpd\".\"Status\"").
-		Joins("LEFT JOIN \"BphtbSptpd\" ON \"BphtbSptpd\".\"Sptpd_Id\" == \"PelaporanPpat\".\"Sptpd_Id\"").
-		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST(\"Ppat_Id\" AS INTEGER) ")
+		Select("\"PelaporanPpat\".\"Sptpd_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "\"PelaporanPpat\".\"TglLapor\"", "\"PelaporanPpat\".\"TglSSP\"", "\"PelaporanPpat\".\"NominalSSP\"", "\"PelaporanPpat\".\"PihakYgMengalihkan\"", "\"BphtbSptpd\".*").
+		Joins("LEFT JOIN \"BphtbSptpd\" ON \"BphtbSptpd\".\"Sptpd_Id\" = \"PelaporanPpat\".\"Sptpd_Id\"").
+		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST(\"PelaporanPpat\".\"Ppat_Id\" AS INTEGER) ")
 
 	if input.Ppat_Id != nil {
-		queryBase = queryBase.Where("Ppat_Id", input.Ppat_Id)
+		queryBase = queryBase.Where("\"PelaporanPpat\".\"Ppat_Id\"", input.Ppat_Id)
 	}
 
 	if input.Bulan != nil {
