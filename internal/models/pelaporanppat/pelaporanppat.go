@@ -66,3 +66,23 @@ type FilterDto struct {
 	Page               int             `json:"page"`
 	PageSize           int             `json:"page_size"`
 }
+
+type ResponsePelaporanPpat struct {
+	Ppat_Id     *string `json:"ppat_id"`
+	Ppat_Name   *string `json:"ppat_name"`
+	TglLapor    *string `json:"tglLapor"`
+	Sptpd_Id    *string `json:"sptpd_Id"`
+	NilaiOp     *string `json:"nilaiOp"`
+	JumlahSetor *string `json:"jumlahSetor"`
+	Status      *string `json:"status"`
+}
+
+type ResponseDetilPelaporanPpat struct {
+	Ppat_Id     *string `json:"ppat_id"`
+	Ppat_Name   *string `json:"ppat_name"`
+	TglLapor    *string `json:"tglLapor"`
+	Sptpd_Id    *string `json:"sptpd_Id"`
+	NilaiOp     *string `json:"nilaiOp"`
+	JumlahSetor *string `json:"jumlahSetor"`
+	Status      *string `json:"status"`
+}

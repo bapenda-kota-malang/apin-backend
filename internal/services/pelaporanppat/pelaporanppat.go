@@ -96,12 +96,13 @@ func GetDetailbyField(field string, value string) (any, error) {
 }
 
 func GetListTransaksiPPAT(input msptpd.FilterPPATDto) (any, error) {
-	var data []m.PelaporanPpat
+	var data []m.ResponsePelaporanPpat
 	var count int64
 
 	queryBase := a.DB.Model(&m.PelaporanPpat{})
 	queryBase = queryBase.
-		Select("DISTINCT ON (\"Ppat_Id\") \"Ppat_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "count(\"Sptpd_Id\") \"Sptpd_Id\"", "count(\"JumlahSetor\") \"CountJumlahSetor\"", "sum(\"NilaiOp\") \"NilaiOp\"", "sum(\"JumlahSetor\") \"JumlahSetor\"").
+		Select("DISTINCT ON (\"PelaporanPpat\".\"Ppat_Id\") \"Ppat_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "\"PelaporanPpat\".\"TglLapor\"", "count(\"PelaporanPpat\".\"Sptpd_Id\") \"Sptpd_Id\"", "sum(\"BphtbSptpd\".\"NilaiOp\") \"NilaiOp\"", "sum(\"BphtbSptpd\".\"JumlahSetor\") \"JumlahSetor\"", "\"BphtbSptpd\".\"Status\"").
+		Joins("LEFT JOIN \"BphtbSptpd\" ON \"BphtbSptpd\".\"Sptpd_Id\" == \"PelaporanPpat\".\"Sptpd_Id\"").
 		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST(\"Ppat_Id\" AS INTEGER) ")
 
 	if input.Ppat_Id != nil {
@@ -109,11 +110,11 @@ func GetListTransaksiPPAT(input msptpd.FilterPPATDto) (any, error) {
 	}
 
 	if input.Bulan != nil {
-		queryBase = queryBase.Where("EXTRACT('month' from \"VerifikasiPpatAt\") = ?", input.Bulan)
+		queryBase = queryBase.Where("EXTRACT('month' from \"TglLapor\") = ?", input.Bulan)
 	}
 
 	if input.Tahun != nil {
-		queryBase = queryBase.Where("EXTRACT('year' from \"VerifikasiPpatAt\") = ?", input.Tahun)
+		queryBase = queryBase.Where("EXTRACT('year' from \"TglLapor\") = ?", input.Tahun)
 	}
 
 	result := queryBase.
@@ -134,7 +135,7 @@ func GetListTransaksiPPAT(input msptpd.FilterPPATDto) (any, error) {
 }
 
 func GetDetailTransaksiPPAT(input msptpd.FilterPPATDto) (any, error) {
-	var data []m.PelaporanPpat
+	var data []m.ResponseDetilPelaporanPpat
 	var dataPPAT mppat.Ppat
 	var count int64
 	var dateString string
@@ -142,6 +143,8 @@ func GetDetailTransaksiPPAT(input msptpd.FilterPPATDto) (any, error) {
 
 	queryBase := a.DB.Model(&m.PelaporanPpat{})
 	queryBase = queryBase.
+		Select("DISTINCT ON (\"PelaporanPpat\".\"Ppat_Id\") \"Ppat_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "\"PelaporanPpat\".\"TglLapor\"", "count(\"PelaporanPpat\".\"Sptpd_Id\") \"Sptpd_Id\"", "sum(\"BphtbSptpd\".\"NilaiOp\") \"NilaiOp\"", "sum(\"BphtbSptpd\".\"JumlahSetor\") \"JumlahSetor\"", "\"BphtbSptpd\".\"Status\"").
+		Joins("LEFT JOIN \"BphtbSptpd\" ON \"BphtbSptpd\".\"Sptpd_Id\" == \"PelaporanPpat\".\"Sptpd_Id\"").
 		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST(\"Ppat_Id\" AS INTEGER) ")
 
 	if input.Ppat_Id != nil {
@@ -178,8 +181,8 @@ func GetDetailTransaksiPPAT(input msptpd.FilterPPATDto) (any, error) {
 	} else if input.Tahun != nil {
 		dateString = strconv.Itoa(*input.Tahun) + "-12-01"
 	} else {
-		if len(data) > 0 && data[0].PeriodeTahunAwal != nil {
-			dateString = *data[0].PeriodeTahunAwal + "-12-01"
+		if len(data) > 0 && data[0].TglLapor != nil {
+			dateString = *data[0].TglLapor + "-12-01"
 		} else {
 			dateString = "2022-12-01"
 		}
