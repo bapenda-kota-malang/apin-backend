@@ -4,6 +4,7 @@ import (
 	"time"
 
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )
 
@@ -80,6 +81,7 @@ type ResponsePelaporanPpat struct {
 }
 
 type ResponseDetilPelaporanPpat struct {
+	SptpdUuid                 *uuid.UUID      `json:"sptpdUuid"`
 	Ppat_Id                   *string         `json:"ppat_id"`
 	Ppat_Name                 *string         `json:"ppat_name"`
 	TglLapor                  *string         `json:"tglLapor"`
