@@ -10,7 +10,7 @@ type DataPetaBlok struct {
 	Daerah_Kode    string `json:"daerah_kode"  gorm:"type:char(2)"`
 	Kecamatan_Kode string `json:"kecamatan_kode"  gorm:"type:char(3)"`
 	Kelurahan_Kode string `json:"kelurahan_kode"  gorm:"type:char(3)"`
-	Blok_Kode      string `json:"blok_kode"  gorm:"type:char(3)"`
+	Blok_Kode      string `json:"blok_kode"  gorm:"type:char(3);unique"`
 	StatusPetaBlok int8   `json:"statusPetaBlok"`
 	gormhelper.DateModel
 }

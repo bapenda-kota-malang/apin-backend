@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image/jpeg"
 	"image/png"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,6 +17,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"gorm.io/datatypes"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
@@ -731,4 +733,26 @@ func ParseCurrency(value string) (float64, error) {
 
 func CurrentDate() time.Time {
 	return time.Now()
+}
+
+// to get difference months of denda
+func DendaMonth(jatuhTempo time.Time) int {
+	// 1. get now time change it to end of month and remove hour, min, second, nanosec
+	nowMonth := Midnight(EndOfMonth(time.Now()))
+	// 2. sub with jatuh tempo value to get time difference duration
+	diffDuration := nowMonth.Sub(jatuhTempo)
+	// 3. get hours duration divided by 24 then 30 to get difference month
+	diffMonth := diffDuration.Hours() / 24 / 30
+	// 4. remove fractional from result step 3
+	diffMonth, _ = math.Modf(diffMonth)
+	// max diff 24 month
+	if diffMonth > 24 {
+		diffMonth = 24
+	}
+	return int(diffMonth)
+}
+
+// return boolean value is jatuh tempo date already passed
+func IsJatuhTempo(jatuhTempo *datatypes.Date) bool {
+	return Midnight(time.Now()).After(time.Time(*jatuhTempo))
 }

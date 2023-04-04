@@ -467,11 +467,9 @@ func UpdateVa(ctx context.Context, id uuid.UUID, input m.UpdateVaDto, userId uin
 		data.Total = &total
 	}
 
-	jatuhTempo, _ := data.JatuhTempo.Value()
-	tglExp := jatuhTempo.(time.Time)
-	newExp := time.Now()
-	if servicehelper.Midnight(newExp).After(tglExp) {
-		tglExp = servicehelper.EndOfMonth(newExp)
+	tglExp := time.Time(data.JatuhTempo)
+	if servicehelper.IsJatuhTempo(&data.JatuhTempo) {
+		tglExp = servicehelper.EndOfMonth(time.Now())
 	}
 
 	// bank jatim
@@ -480,11 +478,11 @@ func UpdateVa(ctx context.Context, id uuid.UUID, input m.UpdateVaDto, userId uin
 		Nama:           *data.ObjekPajak.Nama,
 		TotalTagihan:   uint64(math.RoundToEven(*data.Total)),
 		TanggalExp:     tglExp.Format("20060102"),
-		Berita1:        fmt.Sprintf("%s %s", *data.Npwpd.Npwpd, newExp.Format("01-2006")),
+		Berita1:        fmt.Sprintf("%s %s", *data.Npwpd.Npwpd, time.Now().Format("01-2006")),
 		Berita2:        data.NomorSpt,
 		Berita3:        fmt.Sprintf("DENDA %d", data.Denda),
 		Berita4:        fmt.Sprintf("KENAIKAN %d", data.Kenaikan),
-		Berita5:        fmt.Sprintf("UPDATE %s", newExp.Format("02-01-2006")),
+		Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
 		FlagProses:     ibj.ProsesUpdate,
 	}
 	ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)

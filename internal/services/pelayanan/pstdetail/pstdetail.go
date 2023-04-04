@@ -10,14 +10,14 @@ import (
 const source = "pst detail"
 
 func GetByNoPelayanan(input m.GetByNoPelayananPstDetailDto) (any, error) {
-	var data m.PstDetail
+	var data []m.PstDetail
 
 	result := a.DB.
 		Model(m.PstDetail{}).
 		Where("TahunPelayanan", input.TahunPelayanan).
 		Where("BundelPelayanan", input.BundelPelayanan).
 		Where("NoUrutPelayanan", input.NoUrutPelayanan).
-		First(&data)
+		Find(&data)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
