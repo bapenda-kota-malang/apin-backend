@@ -329,6 +329,7 @@ func GetModelList() (data []interface{}) {
 		&sppt.SpptSimulasi{},
 		&spptpembayaran.SpptPembayaran{},
 		&sppttandaterima.SpptTandaTerima{},
+		&sppt.SpptSejarah{},
 	}
 	data = append(data, listModelSppt...)
 

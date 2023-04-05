@@ -948,10 +948,10 @@ func Salinan(input m.SalinanDto) (any, error) {
 }
 
 func GetSejarahSppt(input m.FilterDto) (any, error) {
-	var data []m.Sppt
+	var data []m.SpptSejarah
 	var count int64
 
-	filter := m.Sppt{
+	filter := m.SpptSejarah{
 		Propinsi_Id:        input.Propinsi_Id,
 		Dati2_Id:           input.Dati2_Id,
 		Kecamatan_Id:       input.Kecamatan_Id,
@@ -964,7 +964,7 @@ func GetSejarahSppt(input m.FilterDto) (any, error) {
 
 	var pagination gh.Pagination
 	result := a.DB.Debug().
-		Model(&m.Sppt{}).
+		Model(&m.SpptSejarah{}).
 		Where(filter).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
@@ -991,11 +991,6 @@ func GetSejarahSppt(input m.FilterDto) (any, error) {
 
 	var dataRecords []m.SejarahSpptResponse
 	for _, v := range data {
-		// get nama bank
-		tempatPembayaran, _ := getTp(v.TP_Id)
-		// get jenis sk dan no sk
-		sk, _ := getSK(v.KanwilBank_Id, v.KPPBBbank_Id)
-
 		dataRecords = append(dataRecords, m.SejarahSpptResponse{
 			NamaWP_sppt:            v.NamaWP_sppt,
 			JalanWPskp_sppt:        v.JalanWPskp_sppt,
@@ -1007,10 +1002,9 @@ func GetSejarahSppt(input m.FilterDto) (any, error) {
 			PosWPsppt_Id:           v.PosWPsppt_Id,
 			Npwp_sppt:              v.Npwp_sppt,
 			NoPersil_sppt:          v.NoPersil_sppt,
-			JnsSK:                  sk.JnsSK,
-			NoSK:                   sk.NoSK,
+			JnsSK:                  v.JnsSK,
+			NoSK:                   v.NoSK,
 			TP_Id:                  v.TP_Id,
-			NamaTp:                 tempatPembayaran.NamaTp,
 			KelasBangunan_Id:       v.KelasBangunan_Id,
 			KelasTanah_Id:          v.KelasTanah_Id,
 			TanggalJatuhTempo_sppt: v.TanggalJatuhTempo_sppt,
