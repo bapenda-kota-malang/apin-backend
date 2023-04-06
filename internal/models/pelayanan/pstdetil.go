@@ -63,3 +63,21 @@ func (i PstDetail) GetDataPermohonanNOP() string {
 	result := fmt.Sprintf("%s%s%s%s%s%s%s", *i.PermohonanProvinsiID, *i.PermohonanKotaID, *i.PermohonanKecamatanID, *i.PermohonanKelurahanID, *i.PermohonanBlokID, *i.NoUrutPemohon, *i.PemohonJenisOPID)
 	return result
 }
+
+type GetByNop struct {
+	PermohonanProvinsiID  *string `json:"permohonanProvinsiID" validate:"required"`
+	PermohonanKotaID      *string `json:"permohonanKotaID" validate:"required"`
+	PermohonanKecamatanID *string `json:"permohonanKecamatanID" validate:"required"`
+	PermohonanKelurahanID *string `json:"permohonanKelurahanID" validate:"required"`
+	PermohonanBlokID      *string `json:"permohonanBlokID" validate:"required"`
+	NoUrutPemohon         *string `json:"noUrutPemohon" validate:"required"`
+	PemohonJenisOPID      *string `json:"pemohonJenisOPID" validate:"required"`
+}
+
+type GetByNopResponse struct {
+	TahunPelayanan    *string `json:"tahunPelayanan"`
+	BundelPelayanan   *string `json:"jenisPelayanan"`
+	NoUrutPelayanan   *string `json:"noUrutPelayanan"`
+	TahunPajakPemohon *string `json:"tahunPajakPemohon"`
+	JenisPelayananID  *string `json:"jenisPelayananID"`
+}

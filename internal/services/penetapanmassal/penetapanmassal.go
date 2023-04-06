@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
+	sc "github.com/jinzhu/copier"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 
@@ -34,16 +36,16 @@ func CopySpt(input m.CopySptDto) (any, error) {
 		}
 
 		var newSpt m.Spt
+		if err := sc.Copy(&newSpt, &spt); err != nil {
+			// error when copy data
+			return sh.SetError("request", "copy-spt", source, "failed", "gagal mengambil data payload", newSpt)
+		}
 
 		if input.Types == "sa" {
-			newSpt.PeriodeAwal = spt.PeriodeAwal
-			newSpt.PeriodeAkhir = spt.PeriodeAkhir
-			newSpt.JatuhTempo = spt.JatuhTempo
 			newSpt.NomorSpt = spt.NomorSpt
 			newSpt.KodeBilling = spt.KodeBilling
 			newSpt.TanggalSpt = spt.TanggalSpt
-			jenisKetetapan := m.JenisKetetapanSkpdkb
-			newSpt.JenisKetetapan = &jenisKetetapan
+			newSpt.JenisKetetapan = m.JenisKetetapanSkpdkb
 			newSpt.Kenaikan = spt.Kenaikan
 			newSpt.Denda = spt.Denda
 
@@ -53,75 +55,20 @@ func CopySpt(input m.CopySptDto) (any, error) {
 			totalFloat := float64(total)
 			newSpt.Total = &totalFloat
 		} else if input.Types == "oa" {
-			currentDate := sh.CurrentDate()
-			beginningOfPreviosMonth := sh.BeginningOfPreviosMonth()
-			lastOfPreviosMonth := sh.EndOfPreviousMonth()
-			jatuhTempo := sh.EndOfMonth(sh.CurrentDate())
-
-			newSpt.PeriodeAwal = datatypes.Date(beginningOfPreviosMonth)
-			newSpt.PeriodeAkhir = datatypes.Date(lastOfPreviosMonth)
-			newSpt.JatuhTempo = datatypes.Date(jatuhTempo)
-			newSpt.TanggalSpt = currentDate
-			jenisKetetapan := m.JenisKetetapanSkpd
-			newSpt.JenisKetetapan = &jenisKetetapan
+			newSpt.JenisKetetapan = m.JenisKetetapanSkpd
 		}
 
-		// create new spt
-		newSpt.Npwpd_Id = spt.Npwpd_Id
-		newSpt.ObjekPajak_Id = spt.ObjekPajak_Id
-		newSpt.Rekening_Id = spt.Rekening_Id
-		newSpt.LuasLokasi = spt.LuasLokasi
-		newSpt.Description = spt.Description
-		newSpt.TarifPajak_Id = spt.TarifPajak_Id
-		newSpt.EtaxSubTotal = spt.EtaxSubTotal
-		newSpt.EtaxTotal = spt.EtaxTotal
-		newSpt.EtaxJumlahPajak = spt.EtaxJumlahPajak
-		newSpt.Omset = spt.Omset
-		newSpt.JumlahPajak = spt.JumlahPajak
-		newSpt.Lampiran = spt.Lampiran
-		newSpt.Sunset = spt.Sunset
-		newSpt.CreateBy_User_Id = spt.CreateBy_User_Id
-		newSpt.NomorSpt = spt.NomorSpt
-		newSpt.KodeBilling = spt.KodeBilling
-		newSpt.Type = spt.Type
-
-		newSpt.TanggalLunas = spt.TanggalLunas
-		newSpt.BatalPenetapan = spt.BatalPenetapan
-		newSpt.IdBT = spt.IdBT
-		newSpt.JumlahTahun = spt.JumlahTahun
-		newSpt.JumlahBulan = spt.JumlahBulan
-		newSpt.JumlahMinggu = spt.JumlahMinggu
-		newSpt.JumlahHari = spt.JumlahHari
-		newSpt.Gambar = spt.Gambar
-		newSpt.KeteranganPajak = spt.KeteranganPajak
-		newSpt.KoefisienPajak = spt.KoefisienPajak
-		newSpt.NamaProduk = spt.NamaProduk
-		newSpt.NomorRegister = spt.NomorRegister
-		newSpt.JudulReklame = spt.JudulReklame
-		newSpt.NamaPenyewa = spt.NamaPenyewa
-		newSpt.AlamatPenyewa = spt.AlamatPenyewa
-		newSpt.VaJatim = spt.VaJatim
-
-		newSpt.DasarPengenaan = spt.DasarPengenaan
-		newSpt.Kenaikan = spt.Kenaikan
-		newSpt.Denda = spt.Denda
-		newSpt.Pengurangan = spt.Pengurangan
-		newSpt.Total = spt.Total
-		newSpt.Ref_Spt_Id = spt.Ref_Spt_Id
-		newSpt.BillingPenetapan = spt.BillingPenetapan
-		newSpt.Teguran_Id = spt.Teguran_Id
-		newSpt.IsTeguran = spt.IsTeguran
-		newSpt.KeteranganPenetapan = spt.KeteranganPenetapan
-		newSpt.StatusPenetapan = spt.StatusPenetapan
-		newSpt.Kasubid_User_Id = spt.Kasubid_User_Id
-		newSpt.Kabid_User_Id = spt.Kabid_User_Id
-		newSpt.CancelledAt = spt.CancelledAt
-		newSpt.DateModel = spt.DateModel
+		currentDate := sh.CurrentDate()
+		beginningOfMonth := sh.BeginningOfMonth(time.Now())
+		endOfMonth := sh.EndOfMonth(time.Now())
+		newSpt.PeriodeAwal = datatypes.Date(beginningOfMonth)
+		newSpt.JatuhTempo = datatypes.Date(endOfMonth)
+		newSpt.TanggalSpt = currentDate
 
 		// create new spt
-		result = a.DB.Create(&newSpt)
+		result = a.DB.Debug().Updates(&newSpt)
 		if result.Error != nil {
-			return nil, result.Error
+			return sh.SetError("request", "copy-spt", source, "failed", "gagal mengambil data payload", newSpt)
 		}
 
 	}
@@ -206,7 +153,7 @@ func GetList(input m.FilterDto, types, kodeJenisPajak string) (any, error) {
 	// pagination
 	var items []item
 	query = fmt.Sprintf(`%s ORDER BY spt."NomorSpt" DESC LIMIT %d OFFSET %d`, query, input.PageSize, offset)
-	result := a.DB.Raw(query).Scan(&items)
+	result := a.DB.Debug().Raw(query).Scan(&items)
 	if result.Error != nil {
 		return nil, result.Error
 	}

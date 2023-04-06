@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 	"github.com/go-chi/chi/v5"
@@ -119,6 +120,46 @@ func (c Crud) GetDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := s.GetDetail(id)
+	hh.DataResponse(w, result, err)
+}
+
+func GetDetailPembayaran(w http.ResponseWriter, r *http.Request) {
+	no := hh.ValidateString(w, r, "no")
+	if no == "" {
+		return
+	}
+	no = strings.Replace(no, "_", ".", -1)
+
+	result, err := s.GetDetailbyField("NoDokumen", no)
+	hh.DataResponse(w, result, err)
+}
+
+func GetListTransaksiPPAT(w http.ResponseWriter, r *http.Request) {
+	var data m.FilterPPATDto
+	if !hh.ValidateStructByURL(w, *r.URL, &data) {
+		return
+	}
+
+	result, err := s.GetListTransaksiPPAT(data)
+	hh.DataResponse(w, result, err)
+}
+
+func GetDetailTransaksiPPAT(w http.ResponseWriter, r *http.Request) {
+	var data m.FilterPPATDto
+	if !hh.ValidateStructByURL(w, *r.URL, &data) {
+		return
+	}
+
+	result, err := s.GetDetailTransaksiPPAT(data)
+	hh.DataResponse(w, result, err)
+}
+
+func GetDetailTransPPAT(w http.ResponseWriter, r *http.Request) {
+	ppat := hh.ValidateString(w, r, "ppat")
+	if ppat == "" {
+		return
+	}
+	result, err := s.GetDetailbyField("Ppat_Id", ppat)
 	hh.DataResponse(w, result, err)
 }
 

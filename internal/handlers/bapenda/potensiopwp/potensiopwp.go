@@ -1,7 +1,11 @@
 package potensiopwp
 
-import (
+import ( 
+	"fmt"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"strconv" 
 	"strings"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
@@ -150,4 +154,51 @@ func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename=list_daftar_potensi_opwp_baru.xlsx")
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	result.Write(w)
-}
+} 
+
+func DownloadPdf(w http.ResponseWriter, r *http.Request) {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
+		return
+	}
+
+	result, err := s.DownloadPdf(id)
+	if err != nil {
+		return
+	}
+
+	fName := result.(rp.OKSimple).Data.(*s.ResponseFile).FileName
+	if fName == "" {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	file, err := os.Open(fName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	// membaca konten file
+	fileContent, err := ioutil.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// set header response
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=report-permohonan-%d.pdf", id))
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Length", strconv.Itoa(len(fileContent)))
+
+	// menulis konten file ke response body
+	if _, err := w.Write(fileContent); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// selesaikan response
+	w.WriteHeader(http.StatusOK)
+
+}  

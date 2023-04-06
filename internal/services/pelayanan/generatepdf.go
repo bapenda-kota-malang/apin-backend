@@ -2,11 +2,12 @@ package permohonan
 
 import (
 	"bytes"
-	wkhtmltopdf "github.com/SebastiaanKlippert/go-wkhtmltopdf"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/pdf"
 	"html/template"
 	"os"
 	"path/filepath"
+
+	wkhtmltopdf "github.com/SebastiaanKlippert/go-wkhtmltopdf"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/pdf"
 )
 
 func GeneratePdf(outFile string, p interface{}) error {
@@ -15,12 +16,13 @@ func GeneratePdf(outFile string, p interface{}) error {
 		return err
 	}
 
-	wdPath, err := os.Getwd()
+	ex, err := os.Executable()
 	if err != nil {
-		return err
+		panic(err)
 	}
+	exPath := filepath.Dir(ex)
 
-	path := filepath.Join(wdPath, "../../", "internal", "models", "pelayanan", "templates", "permohonan.html")
+	path := filepath.Join(exPath, "../../", "internal", "models", "pelayanan", "templates", "permohonan.html")
 
 	tmpl, err := template.ParseFiles(path)
 	if err != nil {

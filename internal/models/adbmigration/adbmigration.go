@@ -65,6 +65,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/logbankjatim"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkp"
@@ -79,6 +80,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/pelaporanppat"
 	pstpermohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
@@ -155,6 +157,7 @@ func GetModelList() (data []interface{}) {
 		&adm.Daerah{},
 		&adm.Kecamatan{},
 		&adm.Kelurahan{},
+		&adm.Blok{},
 		&sektor.Sektor{},
 		&rm.Rekening{},
 		&omset.Omset{},
@@ -292,13 +295,15 @@ func GetModelList() (data []interface{}) {
 		&detailsptppjpln.DetailSptPpjPln{},
 		&detailsptreklame.DetailSptReklame{},
 		&detailsptresto.DetailSptResto{},
+
+		&logbankjatim.LogBankJatim{},
 	}
 
 	data = append(data, listModelPenetapan...)
 
 	listModelPengajuan := []interface{}{
-		&pengurangan.RefPengurangan{},
 		&pengurangan.Pengurangan{},
+		&pengurangan.RefPengurangan{},
 		&pengurangan.PenguranganDendaADM{},
 		&pengurangan.PenguranganJPB{},
 		&pengurangan.PenguranganPST{},
@@ -420,6 +425,7 @@ func GetModelList() (data []interface{}) {
 	listModelBphtbSptpd := []interface{}{
 		&bphtb.BphtbSptpd{},
 		&bphtb.Lampiran{},
+		&bphtb.PembayaranBphtb{},
 	}
 	data = append(data, listModelBphtbSptpd...)
 
@@ -480,9 +486,6 @@ func GetModelList() (data []interface{}) {
 		&penetapan.PenerimaKompensasi{},
 		&penetapan.SubjekPajakNJOPTKP{},
 		&tarif.Tarif{},
-		&penetapan.PenguranganPengenaanJPB{},
-		&penetapan.PenguranganPermanen{},
-		&penetapan.PenguranganPST{},
 		&penetapan.SubjekPajak{},
 		&penetapan.DafnomOP{},
 		&referensibuku.ReferensiBuku{},
@@ -511,6 +514,11 @@ func GetModelList() (data []interface{}) {
 		&indukobjekpajak.IndukObjekPajak{},
 	}
 	data = append(data, listModelIndukObjekPajak...)
+
+	listModelPelaporanPpat := []interface{}{
+		&pelaporanppat.PelaporanPpat{},
+	}
+	data = append(data, listModelPelaporanPpat...)
 
 	return data
 }

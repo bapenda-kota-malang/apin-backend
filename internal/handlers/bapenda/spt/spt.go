@@ -242,3 +242,17 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	result, err = s.UpdateDetail(id, input, opts)
 	hh.DataResponse(w, result, err)
 }
+
+func UpdateVa(w http.ResponseWriter, r *http.Request) {
+	id, pass := hh.ValidateIdUuid(w, chi.URLParam(r, "id"))
+	if !pass {
+		return
+	}
+	var input m.UpdateVaDto
+	if !hh.ValidateStructByIOR(w, r.Body, &input) {
+		return
+	}
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err := s.UpdateVa(r.Context(), id, input, uint64(authInfo.User_Id))
+	hh.DataResponse(w, result, err)
+}

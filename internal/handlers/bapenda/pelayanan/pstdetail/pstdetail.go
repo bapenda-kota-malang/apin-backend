@@ -18,3 +18,13 @@ func GetByNoPelayanan(w http.ResponseWriter, r *http.Request) {
 	result, err := s.GetByNoPelayanan(input)
 	hh.DataResponse(w, result, err)
 }
+
+func GetByNop(w http.ResponseWriter, r *http.Request) {
+	var input m.GetByNop
+	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
+		return
+	}
+
+	result, err := s.GetByNop(input)
+	hh.DataResponse(w, result, err)
+}

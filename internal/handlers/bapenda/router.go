@@ -46,6 +46,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/baplpengajuan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bidangkerja"
 	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtbpembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb12"
@@ -97,6 +98,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pelaporanppat"
 	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penagihan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pengurangan"
@@ -235,6 +237,8 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/paymentpoint", paymentpoint.Crud{})
 
+	rh.RegCrud(r, "/pelaporanppat", pelaporanppat.Crud{})
+
 	rh.RegCrud(r, "/jenispajak", jenispajak.Crud{})
 
 	rh.RegCrud(r, "/jenisusaha", jenisusaha.Crud{})
@@ -251,6 +255,8 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/sksk", sksk.Crud{})
 
 	rh.RegCrud(r, "/bphtbsptpd", bphtbsptpd.Crud{})
+
+	rh.RegCrud(r, "/pembayaranbphtb", bphtbpembayaran.Crud{})
 
 	rh.RegCrud(r, "/kelastanah", kelastanah.Crud{})
 	r.Get("/kelastanah/download/excel", kelastanah.DownloadExcelList)
@@ -316,6 +322,28 @@ func SetRoutes() http.Handler {
 		r.Get("/{tp}", bphtbsptpd.GetListVerifikasi)
 		r.Get("/{tp}/download/excel", bphtbsptpd.DownloadExcelListVerifikasi)
 		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
+	})
+
+	r.Route("/pembayaran-bphtb", func(r chi.Router) {
+		r.Get("/{no}", bphtbsptpd.GetDetailPembayaran)
+	})
+
+	r.Route("/ppat-transaksi", func(r chi.Router) {
+		r.Get("/{ppat}", bphtbsptpd.GetDetailTransPPAT)
+		r.Get("/", bphtbsptpd.GetListTransaksiPPAT)
+	})
+
+	r.Route("/ppat-transaksi-detail", func(r chi.Router) {
+		r.Get("/", bphtbsptpd.GetDetailTransaksiPPAT)
+	})
+
+	r.Route("/ppat-laporan", func(r chi.Router) {
+		r.Get("/{ppat}", pelaporanppat.GetDetailLapPPAT)
+		r.Get("/", pelaporanppat.GetListLaporanPPAT)
+	})
+
+	r.Route("/ppat-laporan-detail", func(r chi.Router) {
+		r.Get("/", pelaporanppat.GetDetailLaporanPPAT)
 	})
 
 	r.Route("/kelastanah-kode", func(r chi.Router) {
@@ -447,6 +475,7 @@ func SetRoutes() http.Handler {
 		// r.Patch("/{id}", potensiopwp.Update)
 		r.Delete("/{id}", potensiopwp.Delete)
 		r.Get("/download/excel", potensiopwp.DownloadExcelList)
+		r.Get("/download/pdf/{id}", potensiopwp.DownloadPdf)
 	})
 
 	r.Route("/provinsi", func(r chi.Router) {
@@ -542,6 +571,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/cancel", sspd.Cancel)
 		r.Get("/sspddetail", sspd.GetListSspdDetail)
 		r.Get("/download/excel", sspd.DownloadExcelList)
+		r.Get("/download/pdf/{id}", sspd.DownloadPDF)
 	})
 
 	r.Route("/sinkronisasi", func(r chi.Router) {
@@ -569,6 +599,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/updatestatusterbit", undanganpemeriksaan.UpdateStatusTerbit)
 		r.Delete("/{id}", undanganpemeriksaan.Delete)
 		r.Get("/download/excel", undanganpemeriksaan.DownloadExcelList)
+		r.Get("/download/pdf/{id}", undanganpemeriksaan.DownloadPDF)
 	})
 
 	r.Route("/suratpemberitahuan", func(r chi.Router) {
@@ -589,6 +620,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/verify/{id}", bapenagihan.Verify)
 		r.Delete("/{id}", bapenagihan.Delete)
 		r.Get("/download/excel", bapenagihan.DownloadExcelList)
+		r.Get("/download/pdf/{id}", bapenagihan.DownloadPDF)
 	})
 
 	r.Route("/pengurangan", func(r chi.Router) {
@@ -597,6 +629,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", pengurangan.Create)
 		r.Patch("/{id}", pengurangan.Update)
 		r.Patch("/verify/{id}", pengurangan.Verify)
+		r.Get("/download/excel", pengurangan.DownloadExcelList)
 	})
 
 	r.Route("/refpengurangan", func(r chi.Router) {
@@ -609,7 +642,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListDendaADM)
 		r.Get("/{id}", pengurangan.GetDetailDendaADM)
 		r.Post("/", pengurangan.CreateDendaADM)
-		r.Patch("/{id}", pengurangan.UpdateDendaADM)
+		// r.Patch("/{id}", pengurangan.UpdateDendaADM)
 		r.Delete("/{id}", pengurangan.DeleteDendaADM)
 	})
 
@@ -617,7 +650,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListJPB)
 		r.Get("/{id}", pengurangan.GetDetailJPB)
 		r.Post("/", pengurangan.CreateJPB)
-		r.Patch("/{id}", pengurangan.UpdateJPB)
+		// r.Patch("/{id}", pengurangan.UpdateJPB)
 		r.Delete("/{id}", pengurangan.DeleteJPB)
 	})
 
@@ -625,7 +658,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListPermanen)
 		r.Get("/{id}", pengurangan.GetDetailPermanen)
 		r.Post("/", pengurangan.CreatePermanen)
-		r.Patch("/{id}", pengurangan.UpdatePermanen)
+		// r.Patch("/{id}", pengurangan.UpdatePermanen)
 		r.Delete("/{id}", pengurangan.DeletePermanen)
 	})
 
@@ -633,7 +666,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListPST)
 		r.Get("/{id}", pengurangan.GetDetailPST)
 		r.Post("/", pengurangan.CreatePST)
-		r.Patch("/{id}", pengurangan.UpdatePST)
+		// r.Patch("/{id}", pengurangan.UpdatePST)
 		r.Delete("/{id}", pengurangan.DeletePST)
 	})
 
@@ -648,6 +681,7 @@ func SetRoutes() http.Handler {
 	r.Route("/keputusankeberatanpbb", func(r chi.Router) {
 		r.Get("/", keputusankeberatanpbb.GetList)
 		r.Get("/{id}", keputusankeberatanpbb.GetDetail)
+		r.Post("/bynopsk", keputusankeberatanpbb.GetByNopDanSk)
 		r.Post("/", keputusankeberatanpbb.Create)
 		r.Patch("/{id}", keputusankeberatanpbb.Update)
 		r.Delete("/{id}", keputusankeberatanpbb.Delete)
@@ -660,6 +694,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", pembetulankeberatan.Create)
 		r.Patch("/{id}", pembetulankeberatan.Update)
 		r.Delete("/{id}", pembetulankeberatan.Delete)
+		r.Get("/download/excel", pembetulankeberatan.DownloadExcelList)
 	})
 
 	r.Route("/baplpengajuan", func(r chi.Router) {
@@ -695,7 +730,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", objekpajakpbb.GetList)
 		r.Get("/{id}", objekpajakpbb.GetDetail)
 		r.Get("/download/excel", objekpajakpbb.DownloadExcelList)
-		r.Get("/nop-terbesar", objekpajakpbb.GetNopTerbesar)
+		r.Post("/nop-terbesar", objekpajakpbb.GetNopTerbesar)
 		r.Patch("/rtrwmassal", objekpajakpbb.UpdateRtRwMassal)
 	})
 
@@ -716,7 +751,15 @@ func SetRoutes() http.Handler {
 		r.Patch("/verify/{id}", regobjekpajakbangunan.VerifyLspop)
 	})
 
-	rh.RegCrud(r, "/jaminanbongkar", jaminanbongkar.Crud{})
+	r.Route("/jaminanbongkar", func(r chi.Router) {
+		r.Post("/", jaminanbongkar.Create)
+		r.Get("/", jaminanbongkar.GetList)
+		r.Get("/{id}", jaminanbongkar.GetDetail)
+		r.Patch("/{id}", jaminanbongkar.Update)
+		r.Delete("/{id}", jaminanbongkar.Delete)
+		r.Get("/download/excel", jaminanbongkar.DownloadExcel)
+		r.Get("/download/pdf/{id}", jaminanbongkar.DownloadPDF)
+	})
 
 	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
 
@@ -764,7 +807,14 @@ func SetRoutes() http.Handler {
 	r.Route("/catatansejarahwp", func(r chi.Router) {
 		r.Get("/", sppt.ListCatataSejarahWp)
 	})
-	r.Get("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
+
+	r.Post("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
+	r.Post("/pstdetail/bynop", pstdetail.GetByNop)
+
+	r.Route("/updateva", func(r chi.Router) {
+		r.Patch("/pdl/{id}", spt.UpdateVa)
+		r.Patch("/pbb/{id}", sppt.UpdateVa)
+	})
 
 	return r
 }

@@ -6,36 +6,36 @@ import (
 )
 
 type HargaReferensi struct {
-	Id uint64 `json:"id" gorm:"primaryKey"`
+	Id             uint64        `json:"id" gorm:"primaryKey"`
+	Alamat         *string       `json:"alamat"`
+	Kecamatan_Kode *string       `json:"kecamatan_kode" gorm:"type:varchar(15)"`
+	Kelurahan_Kode *string       `json:"kelurahan_kode" gorm:"type:varchar(15)"`
+	Harga          *int          `json:"harga"`
+	Kelurahan      *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Kode;references:Kode"`
+	Kecamatan      *ad.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_Kode;references:Kode"`
 	gh.DateModel
-	Alamat       *string       `json:"alamat"`
-	Kecamatan_Id *uint64       `json:"kecamatan_id"`
-	Kelurahan_Id *uint64       `json:"kelurahan_id"`
-	Harga        *int          `json:"harga"`
-	Kecamatan    *ad.Kecamatan `json:"kecamatan,omitempty" gorm:"foreignKey:Kecamatan_Id"`
-	Kelurahan    *ad.Kelurahan `json:"kelurahan,omitempty" gorm:"foreignKey:Kelurahan_Id"`
 }
 
 type CreateDto struct {
-	Alamat       *string `json:"alamat"`
-	Kecamatan_Id *uint64 `json:"kecamatan_id"`
-	Kelurahan_Id *uint64 `json:"kelurahan_id"`
-	Harga        *int    `json:"harga"`
+	Alamat         *string `json:"alamat"`
+	Kecamatan_Kode *string `json:"kecamatan_kode"`
+	Kelurahan_Kode *string `json:"kelurahan_kode"`
+	Harga          *int    `json:"harga"`
 }
 
 type UpdateDto struct {
-	Id           uint64  `json:"id" gorm:"primaryKey"`
-	Alamat       *string `json:"alamat"`
-	Kecamatan_Id *uint64 `json:"kecamatan_id"`
-	Kelurahan_Id *uint64 `json:"kelurahan_id"`
-	Harga        *int    `json:"harga"`
+	Id             uint64  `json:"id" gorm:"primaryKey"`
+	Alamat         *string `json:"alamat"`
+	Kecamatan_Kode *string `json:"kecamatan_kode"`
+	Kelurahan_Kode *string `json:"kelurahan_kode"`
+	Harga          *int    `json:"harga"`
 }
 
 type FilterDto struct {
-	Alamat       *string `json:"alamat"`
-	Kecamatan_Id *uint64 `json:"kecamatan_id"`
-	Kelurahan_Id *uint64 `json:"kelurahan_id"`
-	Harga        *int    `json:"harga"`
-	Page         int     `json:"page"`
-	PageSize     int     `json:"page_size"`
+	Alamat         *string `json:"alamat"`
+	Kecamatan_Kode *string `json:"kecamatan_kode"`
+	Kelurahan_Kode *string `json:"kelurahan_kode"`
+	Harga          *int    `json:"harga"`
+	Page           int     `json:"page"`
+	PageSize       int     `json:"page_size"`
 }
