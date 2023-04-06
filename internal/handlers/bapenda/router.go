@@ -799,5 +799,10 @@ func SetRoutes() http.Handler {
 	r.Post("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
 	r.Post("/pstdetail/bynop", pstdetail.GetByNop)
 
+	r.Route("/updateva", func(r chi.Router) {
+		r.Patch("/pdl/{id}", spt.UpdateVa)
+		r.Patch("/pbb/{id}", sppt.UpdateVa)
+	})
+
 	return r
 }

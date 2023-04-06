@@ -67,7 +67,7 @@ type Sppt struct {
 	TahunAwalKelasBangunan *string         `json:"tahunAwalKelasBangunan" gorm:"type:varchar(4)"`
 	TahunAwalKelasTanah    *string         `json:"tahunAwalKelasTanah" gorm:"type:varchar(4)"`
 	TahunPajakskp_sppt     *string         `json:"tahunPajakskp_sppt" gorm:"type:varchar(4)"`
-	VirtualAccoountJatim   *int            `json:"virtualAccoountJatim" gorm:"type:varchar(30)"`
+	VirtualAccoountJatim   *int            `json:"virtualAccoountJatim" gorm:"type:size:18"`
 	User_ID                *uint64         `json:"user_id"`
 	gormhelper.DateModel
 }
@@ -138,6 +138,11 @@ type NopDto struct {
 	NoUrut             *string `json:"noUrut"`
 	JenisOP_Id         *string `json:"jenisOP_Id"`
 	TahunPajakskp_sppt *string `json:"tahunPajakskp_sppt"`
+}
+
+type UpdateVaDto struct {
+	PBBygHarusDibayar_sppt *int `json:"pbbYgHarusDibayar_sppt" validate:"required"`
+	Denda                  *int `json:"denda"`
 }
 
 type FilterDto struct {

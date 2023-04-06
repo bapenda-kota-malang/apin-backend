@@ -97,6 +97,11 @@ type UpdateDto struct {
 	IsTeguran             *bool           `json:"isTeguran"`
 }
 
+type UpdateVaDto struct {
+	JumlahPajak *float64 `json:"jumlahPajak" validate:"required"`
+	Denda       *float64 `json:"denda"`
+}
+
 type VerifyDto struct {
 	KeteranganPenetapan *string `json:"keteranganPenetapan"`
 	StatusPenetapan     string  `json:"statusPenetapan" validate:"required"`
