@@ -175,3 +175,46 @@ func GetMonth(datetime *time.Time) string {
 		return "Desember"
 	}
 }
+
+func ConvertDatatypesDateToTime(datetime *datatypes.Date) time.Time {
+	if datetime != nil {
+		gmtDatetime, _ := datetime.Value()
+		return gmtDatetime.(time.Time)
+	}
+	return time.Now()
+}
+
+// Month name in Indonesia
+func GetMonth(datetime *time.Time) string {
+	if datetime == nil {
+		now := time.Now()
+		datetime = &now
+	}
+
+	switch int(datetime.Month()) {
+	case 1:
+		return "Januari"
+	case 2:
+		return "Februari"
+	case 3:
+		return "Maret"
+	case 4:
+		return "April"
+	case 5:
+		return "Mei"
+	case 6:
+		return "Juni"
+	case 7:
+		return "Juli"
+	case 8:
+		return "Agustus"
+	case 9:
+		return "September"
+	case 10:
+		return "Oktober"
+	case 11:
+		return "November"
+	default:
+		return "Desember"
+	}
+}

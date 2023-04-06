@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Cetak Massal</title>
+    </head>
+
+    <body style="padding:7%; font-size:12px">
+        
+        <div>
+            <table width="100%" style="border:1px solid black; border-collapse: collapse;">
+                <tbody>
+                    <td width="35%" style="padding-top:15px; border:1px solid black ">
+                        <p style="text-align:center">
+                            PEMERINTAH KOTA MALANG<br>
+                            BADAN PENDAPATAN DAERAH<br>
+                                KOTA MALANG<br>
+                            Jl. Mayjen Sungkono Gedung B Lantai 1<br>
+                            Kelurahan Arjowinangun Malang<br>
+                            Telp. (0341) 251523, psw 124                                
+                        </p>
+                    </td>
+                    <td width="35%" style="padding-bottom:23px; border:1px solid black">
+                        <p style="text-align:center;">
+                            <br>NOTA PERHITUNGAN DAN BUKTI PEMBAYARAN<br><br>
+                            UANG JAMINAN BONGKAR PEMASANGAN REKLAME<br><br>
+                            (Sesuai Peraturan Walikota Malang Nomor 14 Tahun 2012)                           
+                        </p>
+                    </td>
+                    <td width="30%" style="padding:4px; padding-bottom:10px">
+                        <p style="text-align:center; font-weight:bold; font-size: 18px">
+                            NOMOR<br><br> 
+                            {{.NomorJaminanBongkar}}                         
+                        </p>
+                    </td>
+                </tbody>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black">
+                <tr style="border:1px solid black; text-align:left">
+                    <td style="padding-left:5px; padding-top:5px; padding-bottom:5px">Nama Wajib Pajak : {{.NamaWajibPajakSPT}}</td>
+                    <td style="padding-top:5px; padding-bottom:5px">Alamat : {{.AlamatWajibPajakSPT}}</td>
+                    <td style="padding-top:5px; padding-bottom:5px">Nomor SKPD : {{.NomorSKPD}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black; border-collapse: collapse;">
+                <tr style="border:1px solid black; text-align:center">
+                    <td width="12%" style="padding:5px; border:1px solid black">Masa Pajak</td>
+                    <td width="7%" style="padding:5px; border:1px solid black">Batas Akhir Pengambilan</td>
+                    <td width="20%" style="padding:5px; border:1px solid black">Lokasi Reklame</td>
+                    <td width="17%" style="padding:5px; border:1px solid black">Tema Reklame</td>
+                    <td width="17%" style="padding:5px; border:1px solid black">Jenis Reklame</td>
+                    <td width="14%" style="padding:5px; border:1px solid black">Ketetapan</td>
+                    <td width="13%" style="padding:5px; border:1px solid black">Jaminan</td>
+                </tr>
+                <tr>
+                    <td width="12%" style="padding:5px; border:1px solid black; text-align:center">{{.MasaPajak}}</td>
+                    <td width="7%" style="padding:5px; border:1px solid black; text-align:center">{{.BatasAkhirPengambilan}}</td>
+                    <td width="20%" style="padding:5px; border:1px solid black">{{.LokasiReklame}}</td>
+                    <td width="17%" style="padding:5px; border:1px solid black">{{.TemaReklame}}</td>
+                    <td width="17%" style="padding:5px; border:1px solid black">{{.JenisReklame}}</td>
+                    <td width="14%" style="padding:5px; border:1px solid black">{{.Ketetapan}}</td>
+                    <td width="13%" style="padding:5px; border:1px solid black; text-align:right; padding-right:5px">{{.Jaminan}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black">
+                <tr>
+                    <td width="87%" style="padding:5px; text-align:right">Sudah Termasuk Biaya Pemasangan Listrik</td>
+                    <td width="13%" style="padding:5px; text-align:right; padding-right:5px">0</td>
+                </tr>
+                <tr>
+                    <td width="87%" style="padding:5px; text-align:right">TOTAL</td>
+                    <td width="13%" style="padding:5px; text-align:right; padding-right:5px; font-size:18px">{{.Total}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black">
+                <tr>
+                    <td width="87%" style="padding:5px; font-size:18px">Terbilang : {{.Terbilang}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black; border-bottom:none">
+                <tr>
+                    <td width="27%" style="padding:5px; text-align:left; vertical-align:baseline">
+                        Catatan :<br>
+                        Bagi pemasang reklame setelah 1x24jam dari masa berakhirnya pemasangan belum membongkar sendiri, 
+                        maka pembongkarannya dilakukan oleh petugas dan yang bersangkutan tidak dapat meminta kembali uang jaminan bongkar beserta reklame yang dibongkar.
+                        Pengambilan uang jaminan bongkar dilakukan di BADAN PENDAPATAN DAERAH 
+                        KOTA MALANG / tempat pembayaran jaminan, paling lambat 10 (sepuluh) hari kerja untuk reklame tetap dan 3 hari kerja untuk reklame insidentil.
+                        Penggunaan uang jaminan untuk pembongkaran reklame bukan jaminan terhadap kerusakan dan / atau kehilangan reklame.
+                        Untuk perpanjangan pemasangan reklame, tidak dikenakan pembayaran uang jaminan bongkar kembali, apabila pembayarannya tidak melebihi batas akhir.
+                    </td>
+                    <td width="3%" style="padding:5px; text-align:center; padding-right:5px">
+                   </td>
+                    <td width="20%" style="padding:5px; text-align:center; padding-right:5px; vertical-align:baseline; padding-top:10px">
+                        <br>a.n KEPALA BADAN<br>
+                        PENDAPATAN DAERAH<br>
+                        KOTA MALANG,<br>
+                        SEKRETARIS<br><br><br>
+                        PEMBINA (IV/a)<br> 
+                        NIP. 19800111 199810 2 002<br><br><br><br><br><br>
+                        <p style="font-weight:bold">Yuyun Nanik Ekowati, S.STP, M.Si</p>
+                    </td>
+                    <td width="20%" style="padding:5px; text-align:center; padding-right:5px; vertical-align:baseline; padding-top:10px">
+                         <br>Petugas Penerima Uang<br>
+                         Jaminan Bongkar Reklame<br><br><br><br><br>....................................
+                    </td>
+                    <td width="10%" style="padding:5px; text-align:center; padding-right:5px; vertical-align:baseline; padding-top:10px">
+                        <br>Penyetor<br><br><br><br><br><br>....................................
+                   </td>
+                   <td width="15%" style="padding:5px; text-align:center; padding-right:5px; vertical-align:baseline; padding-top:10px">
+                    <br>Tgl {{.TanggalSekarang}}<br>oleh .........<br><br><br><br><br>Tanda Tangan
+               </td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black; border-top:none;">
+                <tr>
+                    <td width="50%"></td>
+                    <td width="50%" style="padding:15px;padding-top:80px">
+                        Lembar 1 : Putih untuk Wajib Pajak<br>
+                        Lembar 2 : Merah untuk bendahara penerimaan uang jaminan bongkar<br>
+                        Lembar 3 : Hijau untuk bendahara pengeluaran uang jaminan bongkar reklame<br>
+                        Lembar 4 : Kuning untuk Petugas
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+    </body>
+</html>
