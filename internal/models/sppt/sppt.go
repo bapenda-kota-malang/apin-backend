@@ -308,3 +308,12 @@ type SalinanDto struct {
 	TahunPajakskp_sppt *string     `json:"tahunPajakskp_sppt"`
 	NOPRange           []*NOPRange `json:"nop_range"`
 }
+
+type CatatanSejarahOPDto struct {
+	Provinsi_Kode        *string `json:"provinsi_kode"`
+	Daerah_Kode          *string `json:"daerah_kode"`
+	Kecamatan_Kode       *string `json:"kecamatan_kode"`
+	Kelurahan_Kode       *string `json:"kelurahan_kode"`
+	Tanggal_Mutasi_Start *string `json:"tanggal_mutasi_start"`
+	Tanggal_Mutasi_End   *string `json:"tanggal_mutasi_end"`
+}

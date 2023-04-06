@@ -766,5 +766,9 @@ func SetRoutes() http.Handler {
 	})
 	r.Get("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
 
+	r.Route("/catatansejarahop", func(r chi.Router) {
+		r.Get("/", sppt.ListCatataSejarahOp)
+	})
+
 	return r
 }
