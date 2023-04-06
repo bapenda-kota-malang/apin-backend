@@ -816,5 +816,9 @@ func SetRoutes() http.Handler {
 		r.Patch("/pbb/{id}", sppt.UpdateVa)
 	})
 
+	r.Route("/catatansejarahop", func(r chi.Router) {
+		r.Get("/", sppt.ListCatataSejarahOp)
+	})
+
 	return r
 }

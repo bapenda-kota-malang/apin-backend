@@ -40,6 +40,7 @@ type ObjekPajakPbb struct {
 	TanggalPerekaman      *time.Time        `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip" gorm:"type:char(9)"`
 	PegawaiPerekam        *p.Pegawai        `json:"pegawaiPerekam,omitempty" gorm:"foreignKey:Perekam_Pegawai_Nip;references:Nip"`
+	CreatedAt             *time.Time        `json:"createdAt"`
 	UpdatedAt             *time.Time        `json:"updatedAt"`
 
 	Provinsi_Kode  *string `json:"provinsi_kode" gorm:"type:varchar(15)"`

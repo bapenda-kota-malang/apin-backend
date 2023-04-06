@@ -20,6 +20,7 @@ import (
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	m_opp "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
@@ -1018,5 +1019,52 @@ func Salinan(input m.SalinanDto) (any, error) {
 
 	return rp.OKSimple{
 		Data: rslt,
+	}, nil
+}
+
+func GetListCatatanSejarahOp(input m.CatatanSejarahOPDto) (any, error) {
+	var (
+		dataRecords []m_opp.ObjekPajakPbb
+		count       int64
+	)
+
+	// pagination
+	var pagination gh.Pagination
+
+	// kelurahan kode = provinsi kode + daerah kode + kecamatan kode + kelurahan kode
+	kelurahanKode := fmt.Sprintf("%s%s%s%s", *input.Provinsi_Kode, *input.Daerah_Kode, *input.Kecamatan_Kode, *input.Kelurahan_Kode)
+
+	// wilayah
+	condition := m_opp.ObjekPajakPbb{
+		Provinsi_Kode:  input.Provinsi_Kode,
+		Daerah_Kode:    input.Daerah_Kode,
+		Kecamatan_Kode: input.Kecamatan_Kode,
+		Kelurahan_Kode: &kelurahanKode,
+	}
+
+	// get data
+	result := a.DB.Model(&m_opp.ObjekPajakPbb{}).
+		Debug().
+		Where(&condition).
+		// daterange by tanggal mutasi on created_at
+		Where(`"CreatedAt" BETWEEN ? AND ?`, input.Tanggal_Mutasi_Start, input.Tanggal_Mutasi_End).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&dataRecords)
+
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: dataRecords,
 	}, nil
 }
