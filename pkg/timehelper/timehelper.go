@@ -31,9 +31,9 @@ func GetDateFromUTCDatetime(datetime *datatypes.Date) string {
 
 }
 
-func GetAllFormatTime(datetime *datatypes.Date) (string, string, string) {
+func GetAllFormatTime(datetime *datatypes.Date) (string, string, string, string) {
 	if datetime == nil {
-		return "00-00-0000", "-", "00:00"
+		return "00-00-0000", "-", "00:00", "-"
 	}
 	gmtDatetime, _ := datetime.Value()
 	t, _ := gmtDatetime.(time.Time)
@@ -49,8 +49,12 @@ func GetAllFormatTime(datetime *datatypes.Date) (string, string, string) {
 	timeFormat := "15:04" // 15 -> hour, 04 -> minute
 	formattedTime := t.Format(timeFormat)
 
+	// Memformat menjadi nama bulan dalam bahasa indonesia
+	bulan := [...]string{"januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"}
+	monthOfYear := bulan[t.Month()]
+
 	// Mengembalikan tiga nilai keluaran
-	return formattedDate, dayOfWeek, formattedTime
+	return formattedDate, dayOfWeek, formattedTime, monthOfYear
 }
 
 func ConvertDatatypesTimeToTime(datetime *datatypes.Time) time.Time {

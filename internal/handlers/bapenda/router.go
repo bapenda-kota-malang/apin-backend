@@ -628,6 +628,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", pengurangan.Create)
 		r.Patch("/{id}", pengurangan.Update)
 		r.Patch("/verify/{id}", pengurangan.Verify)
+		r.Get("/download/excel", pengurangan.DownloadExcelList)
 	})
 
 	r.Route("/refpengurangan", func(r chi.Router) {

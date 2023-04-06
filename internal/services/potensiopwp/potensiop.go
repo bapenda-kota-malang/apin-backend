@@ -3,14 +3,15 @@ package potensiopwp
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
+	"regexp"
+	"strconv"
+
 	rpth "github.com/bapenda-kota-malang/apin-backend/pkg/reporthelper"
 	strh "github.com/bapenda-kota-malang/apin-backend/pkg/stringhelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"path/filepath"
-	"regexp"
-	"strconv"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -576,7 +577,7 @@ func DownloadPdf(id uuid.UUID) (interface{}, error) {
 		})
 	}
 
-	tanggalTinjau, hariTinjau, waktuTinjau := th.GetAllFormatTime(finalresultTmp.StartDate)
+	tanggalTinjau, hariTinjau, waktuTinjau, _ := th.GetAllFormatTime(finalresultTmp.StartDate)
 	finalresult := map[string]interface{}{
 		"Data": map[string]string{
 			"NamaWP":      strh.NullToAny(&finalresultTmp.PotensiPemilikWp[0].Nama, "-"),
