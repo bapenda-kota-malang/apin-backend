@@ -79,6 +79,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/pelaporanppat"
 	pstpermohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
@@ -513,6 +514,11 @@ func GetModelList() (data []interface{}) {
 		&indukobjekpajak.IndukObjekPajak{},
 	}
 	data = append(data, listModelIndukObjekPajak...)
+
+	listModelPelaporanPpat := []interface{}{
+		&pelaporanppat.PelaporanPpat{},
+	}
+	data = append(data, listModelPelaporanPpat...)
 
 	return data
 }

@@ -98,6 +98,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pelaporanppat"
 	permohonan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penagihan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pengurangan"
@@ -236,6 +237,8 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/paymentpoint", paymentpoint.Crud{})
 
+	rh.RegCrud(r, "/pelaporanppat", pelaporanppat.Crud{})
+
 	rh.RegCrud(r, "/jenispajak", jenispajak.Crud{})
 
 	rh.RegCrud(r, "/jenisusaha", jenisusaha.Crud{})
@@ -323,6 +326,24 @@ func SetRoutes() http.Handler {
 
 	r.Route("/pembayaran-bphtb", func(r chi.Router) {
 		r.Get("/{no}", bphtbsptpd.GetDetailPembayaran)
+	})
+
+	r.Route("/ppat-transaksi", func(r chi.Router) {
+		r.Get("/{ppat}", bphtbsptpd.GetDetailTransPPAT)
+		r.Get("/", bphtbsptpd.GetListTransaksiPPAT)
+	})
+
+	r.Route("/ppat-transaksi-detail", func(r chi.Router) {
+		r.Get("/", bphtbsptpd.GetDetailTransaksiPPAT)
+	})
+
+	r.Route("/ppat-laporan", func(r chi.Router) {
+		r.Get("/{ppat}", pelaporanppat.GetDetailLapPPAT)
+		r.Get("/", pelaporanppat.GetListLaporanPPAT)
+	})
+
+	r.Route("/ppat-laporan-detail", func(r chi.Router) {
+		r.Get("/", pelaporanppat.GetDetailLaporanPPAT)
 	})
 
 	r.Route("/kelastanah-kode", func(r chi.Router) {
