@@ -3,14 +3,15 @@ package potensiopwp
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
+	"regexp"
+	"strconv"
+
 	rpth "github.com/bapenda-kota-malang/apin-backend/pkg/reporthelper"
 	strh "github.com/bapenda-kota-malang/apin-backend/pkg/stringhelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"path/filepath"
-	"regexp"
-	"strconv"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -506,7 +507,7 @@ func DownloadPdf(id uuid.UUID) (interface{}, error) {
 		for _, hiburan := range DetailPotensiHiburans {
 			KpList = append(KpList, &rpth.TCItemList{
 				Title: fmt.Sprintf("%d Orang", hiburan.Kapasitas),
-				Value: fmt.Sprintf("Tarif Rp %s Jumlah %s", strh.NullToAny(&hiburan.Tarif, "-"), strh.NullToAny(&hiburan.Jumlah, "-")),
+				Value: fmt.Sprintf("Tarif Rp %f Jumlah %d", hiburan.Tarif, hiburan.Jumlah),
 				Unit:  "buah",
 			})
 		}
@@ -517,8 +518,8 @@ func DownloadPdf(id uuid.UUID) (interface{}, error) {
 		DetailPotensiHotels = finalresultTmp.DetailPotensiHotels
 		for _, hotel := range DetailPotensiHotels {
 			KpList = append(KpList, &rpth.TCItemList{
-				Title: fmt.Sprintf("%s Orang", strh.NullToAny(&hotel.Kapasitas, "0")),
-				Value: fmt.Sprintf("Tarif Rp %s Jumlah %s", strh.NullToAny(&hotel.TarifFasilitas, "-"), strh.NullToAny(&hotel.JumlahFasilitas, "-")),
+				Title: fmt.Sprintf("%d Orang", hotel.Kapasitas),
+				Value: fmt.Sprintf("Tarif Rp %f Jumlah %d", hotel.TarifFasilitas, hotel.JumlahFasilitas),
 				Unit:  "Kamar",
 			})
 		}
@@ -576,7 +577,7 @@ func DownloadPdf(id uuid.UUID) (interface{}, error) {
 		})
 	}
 
-	tanggalTinjau, hariTinjau, waktuTinjau := th.GetAllFormatTime(finalresultTmp.StartDate)
+	tanggalTinjau, hariTinjau, waktuTinjau, _ := th.GetAllFormatTime(finalresultTmp.StartDate)
 	finalresult := map[string]interface{}{
 		"Data": map[string]string{
 			"NamaWP":      strh.NullToAny(&finalresultTmp.PotensiPemilikWp[0].Nama, "-"),

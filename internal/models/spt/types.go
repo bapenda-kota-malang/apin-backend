@@ -21,9 +21,16 @@ const (
 	StatusRestitusiSebagian   SptStatus = "32" //restitusi sebagian
 	StatusPenyetoran          SptStatus = "40" //penyetoran
 
-	JenisKetetapanSkpdkb  JenisKetetapan = "skpdkb"
-	JenisKetetapanSkpdkbt JenisKetetapan = "skpdkbt"
-	JenisKetetapanSkpd    JenisKetetapan = "skpd"
+	JenisKetetapanSptpd   JenisKetetapan = "SPTPD"
+	JenisKetetapanSkpd    JenisKetetapan = "SKPD"
+	JenisKetetapanSkpdkb  JenisKetetapan = "SKPDKB"
+	JenisKetetapanSkpdkbt JenisKetetapan = "SKPDKBT"
+
+	DasarPengenaanSptpd   = "SPTPD"
+	DasarPengenaanSkpd    = "SKPD"
+	DasarPengenaanTeguran = "Teguran"
+	DasarPengenaanSkpdkb  = "SKPDKB"
+	DasarPengenaanSkpdkbt = "SKPDKBT"
 
 	TbpStatusFilterBaru       uint8 = 1 // baru
 	TbpStatusFilterPembayaran uint8 = 2 // Pembayaran

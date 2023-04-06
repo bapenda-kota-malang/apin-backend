@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Undangan Pemeriksaan</title>
+
+        <style>
+            ul {
+              list-style: none; /* Remove HTML bullets */
+              padding: 0;
+              margin: 0;
+            }
+            
+            li::before {
+              content: "-"; /* Insert content that looks like bullets */
+              padding-right: 8px;
+              color: blue; /* Or a color you prefer */
+            }
+            </style>
+
+    </head>
+
+    <body style="padding-left:7%; padding-right:7%; padding-top:4%; line-height:1.5px; font-size: 12px">
+        
+        <header>
+            <div>
+                <table width="100%" style="">
+                    <tbody>
+                        <td width="15%" style="padding-left:4px; padding-eight:4px; padding-bottom:10px">
+                            <img src="http://localhost:8080/assets/images/logoMalangBw.png" alt="BSE" usemap="#workmap" width="110" height="110">
+                        </td>
+                        <td width="70%" style="padding-bottom:23px; solid black">
+                            <p style="text-align:center; font-weight:bold; font-size:20px;">
+                                <br>PEMERINTAH KOTA MALANG
+                            </p>
+                            <p style="text-align:center; font-weight:bold; font-size:23px;">
+                                BADAN PENDAPATAN DAERAH
+                            </p>
+                            <p style="text-align:center; font-weight:bold">
+                                Perkantoran Terpadu Pemerintah Kota Malang
+                            </p>
+                            <p style="text-align:center; font-size: 10px">
+                                Jl. Mayjend Sungkono Gedung B Lantai 1 Telp (0341) 751532 Kel. Arjowinangun
+                            </p>
+                            <p style="text-align:center; font-size: 10px">
+                                <a href="http://www.bapenda.malangkota.go.id">http://www.bapenda.malangkota.go.id</a> | 
+                                email : <a href="mailto:bapenda@malangkota.go.id" style="color:black; text-decoration:none">bapenda@malangkota.go.id</a>
+                            </p>
+                            <p style="text-align:center; font-weight:bold">
+                                <i>Malang 65132</i>
+                            </p>
+                        </td>
+                        <td width="15%" style="padding:4px; padding-bottom:10px">
+                            <img src="http://localhost:8080/assets/images/logoKAN.png" alt="BSE" usemap="#workmap" width="200" height="100">
+                        </td>
+                    </tbody>
+                </table>
+            </div>
+        </header>
+
+        <div>
+            <hr style="width:100%; height:3px; background:black">
+        </div>
+
+        <div style="padding-top:20px; padding-bottom:18px; padding-left:50px; line-height:1.5">
+            <table width="100%">
+                <tr style="text-align:left">
+                    <td width="70%">
+                       <table width="100%"%>
+                            <tr width="100%">
+                                <td width="20%">Nomor</td>
+                                <td width="3%">:</td>
+                                <td width="77%">{{.Nomor}}</td>
+                            </tr>
+                            <tr width="100%">
+                                <td width="20%">Sifat</td>
+                                <td width="3%">:</td>
+                                <td width="77%">Penting</td>
+                            </tr>
+                            <tr width="100%">
+                                <td width="20%">Lampiran</td>
+                                <td width="3%">:</td>
+                                <td width="77%">-</td>
+                            </tr>
+                            <tr width="100%">
+                                <td width="20%">Perihal</td>
+                                <td width="3%">:</td>
+                                <td width="77%" style="font-weight:bold; text-decoration:underline">UNDANGAN</td>
+                            </tr>
+                       </table>
+                    </td>
+                    <td width="30%">                        
+                        <p>
+                            Malang,<br>        
+                            Kepada<br>
+                            Yth. Sdr. Pengelola/ Pemilik<br>
+                            &emsp;{{.NamaUsaha}}<br>
+                            &emsp;NPWPD. {{.NPWPDUsaha}}<br>
+                            &emsp;{{.AlamatUsaha}}<br>
+                            &emsp;di<br>
+                            &emsp;&emsp;M a l a n g
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="line-height:2; padding-bottom:100px">
+            <div style="text-align:justify; text-indent:45px; padding-left:70px; padding-right:70px; padding-bottom:15px">
+                Berdasarkan arahan Tim Supervisi Korsupgah KPK RI Wilayah VI tentang Optimalisasi Pendapatan Asli Daerah (OPAD),  
+                Undang-Undang No.28 Tahun 2009 tentang Pajak Daerah dan Restribusi Daerah, 
+                Undang-Undang No. 19 Tahun 1997 sebagaimana telah diubah dengan Undang-Undang No. 19 Tahun 2000 tentang Penagihan Pajak Dengan Surat Paksa, 
+                Peraturan Daerah Kota Malang No. 9 Tahun 2005 tentang Penagihan Pajak Dengan Surat Paksa, 
+                Peraturan Daerah Kota Malang No. 16 Tahun 2010 sebagaimana telah diubah dengan Peraturan Daerah Kota Malang No. 8 Tahun 2019 
+                tentang Perubahan Kedua atas Peraturan Daerah Kota Malang No. 16 Tahun 2010 tentang Pajak Daerah, 
+                kami mengundang Saudara untuk hadir pada:
+            </div>
+            <div style="padding-left:120px; padding-right:120px; padding-bottom:15px">
+                <table width="100%"%>
+                    <tr width="100%">
+                        <td width="20%">Hari/Tanggal</td>
+                        <td width="3%">:</td>
+                        <td width="77%">{{.HariDanTanggal}}</td>
+                    </tr>
+                    <tr width="100%">
+                        <td width="20%">Pukul</td>
+                        <td width="3%">:</td>
+                        <td width="77%">{{.Pukul}}</td>
+                    </tr>
+                    <tr width="100%">
+                        <td width="20%">Tempat</td>
+                        <td width="3%">:</td>
+                        <td width="77%" style="text-align:justify">{{.Tempat}}</td>
+                    </tr>
+                    <tr width="100%">
+                        <td width="20%" style="vertical-align:baseline">Petugas</td>
+                        <td width="3%" style="vertical-align:baseline">:</td>
+                        <td width="77%">
+                            <ul>
+                                {{ range .Petugas }}
+                                    <li>{{.Nama}}</li>
+                                {{ end }}
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr width="100%">
+                        <td width="20%" style="vertical-align:baseline">Keperluan</td>
+                        <td width="3%" style="vertical-align:baseline">:</td>
+                        <td width="77%" style="text-align:justify">{{.Keperluan}}</td>
+                    </tr>
+                </table>
+            </div>
+            <div style="text-align:justify; text-indent:45px; padding-left:70px; padding-right:70px; padding-bottom:15px">
+                Apabila berhalangan hadir, mohon menghubungi nomor Call Center Subbidang Pengawasan, 
+                Penagihan dan Penindakan 08113135585. Demikian atas perhatiannya disampaikan terima kasih.
+            </div>
+        </div>
+
+        <footer>
+            <div style="line-height:1">
+                <hr style="width:100%; background:black">
+                <table width="100%" style="">
+                    <tbody>
+                        <td width="85%" style="font-size:12px">
+                            <ul>
+                                <li>UU ITE No. 11 Tahun 2008 Pasal 5 ayat 1
+                                    <p style="padding-left:12px">“Informasi Elektronik dan/atau Dokumen Elektronik dan/atau hasil cetaknya merupakan alat bukti hukum yang sah.”</p>
+                                </li>
+                                <li>Dokumen ini telah ditandatangani secara elektronik menggunakan Sertifikat Elektronik  yang diterbitkan BSrE</li>
+                            </ul>
+                        </td>
+                        <td width="15%" style="text-align:right">
+                            <br>
+                            <img src="http://localhost:8080/assets/images/logoBSE.png" alt="BSE" usemap="#workmap" width="150" height="80">
+                        </td>
+                    </tbody>
+                </table>
+            </div>
+        </footer>
+
+    </body>
+</html>

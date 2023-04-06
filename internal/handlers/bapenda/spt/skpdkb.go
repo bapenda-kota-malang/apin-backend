@@ -82,6 +82,7 @@ func SkpdkbExisting(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	// re := regexp.MustCompile(`^\/\w*`)
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 	opts := make(map[string]interface{})
 	opts["userId"] = uint(authInfo.User_Id)

@@ -3,23 +3,32 @@ package jaminanbongkar
 import (
 	"fmt"
 	"math"
+	"path/filepath"
 	"strconv"
+	"strings"
+	"time"
 
-	sc "github.com/jinzhu/copier"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
-
-	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
-	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
-	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
-
+	"github.com/apung/go-terbilang"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/jaminanbongkar/prosesjambong"
 	mspt "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mdsrek "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptreklame"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambong"
 	mtjrek "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifjambongrek"
+	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	excelhelper "github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
+	sc "github.com/jinzhu/copier"
+	"github.com/leekchan/accounting"
+	"github.com/xuri/excelize/v2"
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
@@ -381,4 +390,238 @@ func Delete(id int) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList() (*excelize.File, error) {
+	var (
+		data            []m.JaminanBongkar
+		getJenisReklame = func(jenisReklame mt.JenisMasa) string {
+			switch jenisReklame {
+			case mt.MasaPajakTahun:
+				return "Masa Pajak Tetap 1 Tahun"
+			case mt.MasaPajakBulan:
+				return "Masa Pajak Insidentil 1 Bulan"
+			case mt.MasaPajakHari:
+				return "Masa Pajak Insidentil 1 Hari"
+			default:
+				return "Masa Pajak Insidentil 1 Kali Penyelenggaraan"
+			}
+		}
+		getStatus = func(status prosesjambong.Status) string {
+			if status == prosesjambong.StatusAmbil {
+				return "Ambil"
+			}
+			return "Eksekusi"
+		}
+	)
+
+	result := a.DB.
+		Preload("CreateBy").
+		Preload("Spt").
+		Preload("ProsesJambong").
+		Preload("Spt.ObjekPajak").
+		Preload("Spt.Rekening").
+		Find(&data)
+
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "No. Jaminan Bongkar",
+			"C": "No. SKPD",
+			"D": "Nama WP",
+			"E": "Tgl",
+			"F": "Batas Pengambilan",
+			"G": "Jenis Reklame",
+			"H": "Nominal",
+			"I": "Status",
+			"J": "Nama User",
+			"K": "Nama Rekening",
+		})
+
+		for i, v := range data {
+			var (
+				n                                                                 = i + 1
+				objekPajakName, tanggalBatas, jenisMasaPajakReklame, rekeningName string
+			)
+
+			if v.Spt != nil {
+				if v.Spt.ObjekPajak != nil {
+					if v.Spt.ObjekPajak.Nama != nil {
+						objekPajakName = *v.Spt.ObjekPajak.Nama
+					}
+				}
+
+				if v.Spt.JenisMasaPajakReklame != nil {
+					jenisMasaPajakReklame = getJenisReklame(*v.Spt.JenisMasaPajakReklame)
+				}
+
+				if v.Spt.Rekening != nil {
+					if v.Spt.Rekening.Nama != nil {
+						rekeningName = *v.Spt.Rekening.Nama
+					}
+				}
+			}
+
+			if v.TanggalBatas != nil {
+				tanggalBatas = timehelper.GetDateFromUTCDatetime(v.TanggalBatas)
+			}
+
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": v.Nomor,
+				"C": v.Spt.NomorSpt,
+				"D": objekPajakName,
+				"E": v.CreatedAt.Format("2006-01-02 15:04:05"),
+				"F": tanggalBatas,
+				"G": jenisMasaPajakReklame,
+				"H": v.Nominal,
+				"I": getStatus(v.ProsesJambong.Status),
+				"J": v.CreateBy.Name,
+				"K": rekeningName,
+			})
+		}
+
+		return tmp
+	}()
+
+	return excelhelper.ExportList(excelData, "List")
+}
+
+type ResponseFile struct {
+	ID       int    `json:"id"`
+	FileName string `json:"fileName"`
+}
+
+// jaminan bongkar reklame
+func DownloadPDF(id int) (any, error) {
+	var (
+		data                                                                              m.JaminanBongkar
+		lokasi                                                                            []string
+		ketetapan, objekPajakName, objekPajakAlamat, nomorSpt, judulReklmae, jenisReklame string
+		periodeAwal, periodeAkhir, tanggalBatas                                           datatypes.Date
+		nominal, jaminan                                                                  float64
+		now                                                                               time.Time = time.Now()
+		ac                                                                                          = accounting.Accounting{Symbol: "", Precision: 0, Thousand: ".", Decimal: ","}
+	)
+
+	result := a.DB.
+		Preload("CreateBy").
+		Preload("Spt").
+		Preload("ProsesJambong").
+		Preload("Spt.ObjekPajak").
+		Preload("Spt.Rekening").
+		Preload("Spt.DetailSptReklame.TarifReklame").
+		Preload("TarifJambong").
+		First(&data, id)
+
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	for _, v := range data.Spt.DetailSptReklame {
+		if v.Lokasi != nil {
+			lokasi = append(lokasi, *v.Lokasi)
+		}
+	}
+
+	if data.TarifJambong != nil {
+		if data.TarifJambong.Nominal != nil {
+			nominal = *data.TarifJambong.Nominal
+		}
+	}
+
+	if data.Spt != nil {
+		if data.Spt.ObjekPajak != nil {
+			if data.Spt.ObjekPajak.Nama != nil {
+				objekPajakName = *data.Spt.ObjekPajak.Nama
+			}
+			if data.Spt.ObjekPajak.Alamat != nil {
+				objekPajakAlamat = *data.Spt.ObjekPajak.Alamat
+			}
+		}
+
+		nomorSpt = data.Spt.NomorSpt
+		periodeAwal = data.Spt.PeriodeAwal
+		periodeAkhir = data.Spt.PeriodeAkhir
+
+		if data.Spt.JudulReklame != nil {
+			judulReklmae = *data.Spt.JudulReklame
+		}
+
+		for _, v := range data.Spt.DetailSptReklame {
+			// if index != len(data.Spt.DetailSptReklame)-1 {
+			var (
+				panjang, lebar float64
+				sisi           uint64
+			)
+
+			if v.Panjang != nil {
+				panjang = *v.Panjang
+			}
+			if v.Lebar != nil {
+				lebar = *v.Lebar
+			}
+			if v.Sisi != nil {
+				sisi = *v.Sisi
+			}
+
+			if v.TarifReklame != nil {
+				if v.TarifReklame.JenisReklame != nil {
+					jenisReklame = *v.TarifReklame.JenisReklame
+				}
+			}
+
+			ketetapan += fmt.Sprintf("%.2f x %v x %v x %v", (panjang * lebar), sisi, v.Jumlah, nominal)
+			jaminan = panjang * lebar * float64(sisi) * float64(v.Jumlah) * nominal
+			// }
+		}
+	}
+
+	if data.TanggalBatas != nil {
+		tanggalBatas = *data.TanggalBatas
+	}
+
+	finalResult := map[string]interface{}{
+		"NomorJaminanBongkar": data.Nomor,
+		"NamaWajibPajakSPT":   objekPajakName,
+		"AlamatWajibPajakSPT": objekPajakAlamat,
+		"NomorSKPD":           nomorSpt,
+		"MasaPajak": fmt.Sprintf("%v - %v",
+			timehelper.ConvertDatatypesDateToTime(&periodeAwal).Format("01/02/2006"),
+			timehelper.ConvertDatatypesDateToTime(&periodeAkhir).Format("01/02/2006")),
+		"BatasAkhirPengambilan": timehelper.ConvertDatatypesDateToTime(&tanggalBatas).Format("01/02/2006"),
+		"LokasiReklame":         strings.Join(lokasi, ", "), // detailsptreklame.lokasi
+		"TemaReklame":           judulReklmae,
+		"JenisReklame":          jenisReklame,
+		"Ketetapan":             ketetapan,
+		"Jaminan":               ac.FormatMoney(jaminan),
+		"BiayaListrik":          data.BiayaPemutusan,
+		"Total":                 ac.FormatMoney(data.Nominal),
+		"Terbilang":             terbilang.ToTerbilangRp(int(data.Nominal)),
+		"TanggalSekarang":       fmt.Sprintf("%v %v %v", now.Day(), timehelper.GetMonth(&now), now.Year()),
+	}
+
+	uuid, err := sh.GetUuidv4()
+	if err != nil {
+		return nil, err
+	}
+	fileName := sh.GenerateFilename("jaminan-bongkar-reklame", uuid, 0, "pdf")
+
+	outFile := filepath.Join(sh.GetPdfPath(), fileName)
+	if err := GeneratePdf(outFile, finalResult); err != nil {
+		return nil, err
+	}
+	_r := &ResponseFile{
+		ID:       id,
+		FileName: outFile,
+	}
+	return rp.OKSimple{Data: _r}, nil
 }

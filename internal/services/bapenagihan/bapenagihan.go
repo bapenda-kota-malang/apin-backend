@@ -4,15 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"time"
-
-	"github.com/google/uuid"
-	sc "github.com/jinzhu/copier"
-	"github.com/xuri/excelize/v2"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -20,8 +15,15 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/google/uuid"
+	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
+	bpd "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihandetail"
+	u "github.com/bapenda-kota-malang/apin-backend/internal/models/user"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
@@ -442,4 +444,76 @@ func Delete(id uuid.UUID, tx *gorm.DB) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+type ResponseFile struct {
+	ID       uuid.UUID `json:"id"`
+	FileName string    `json:"fileName"`
+}
+
+// Berita acara penagihan / pemeriksaan
+func DownloadPDF(id uuid.UUID) (any, error) {
+	var (
+		dataBaPenagihan       m.BaPenagihan
+		npwpd                 string
+		petugas               []u.User
+		listBaPenagihanDetail []bpd.BaPenagihanDetail
+	)
+
+	result := a.DB.
+		Preload("Undangan.Npwpd").
+		First(&dataBaPenagihan, id)
+
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data", dataBaPenagihan)
+		return nil, err
+	}
+
+	result = a.DB.
+		Where(`"BaPenagihan_Id" = ?`, dataBaPenagihan.Id).
+		Preload("Petugas").
+		Find(&listBaPenagihanDetail)
+
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", listBaPenagihanDetail)
+		return nil, err
+	}
+
+	for index, d := range listBaPenagihanDetail {
+		if d.Petugas != nil {
+			petugas = append(petugas, u.User{
+				Id:   index + 1,
+				Name: d.Petugas.Name,
+			})
+		}
+	}
+
+	if dataBaPenagihan.Undangan != nil {
+		if dataBaPenagihan.Undangan.Npwpd != nil {
+			if dataBaPenagihan.Undangan.Npwpd.Npwpd != nil {
+				npwpd = *dataBaPenagihan.Undangan.Npwpd.Npwpd
+			}
+		}
+	}
+
+	finalResult := map[string]interface{}{
+		"NPWPD":   npwpd,
+		"Petugas": petugas,
+	}
+
+	uuid, err := sh.GetUuidv4()
+	if err != nil {
+		return nil, err
+	}
+	fileName := sh.GenerateFilename("berita-acara-penagihan-pemeriksaan", uuid, 0, "pdf")
+
+	outFile := filepath.Join(sh.GetPdfPath(), fileName)
+	if err := GeneratePdf(outFile, finalResult); err != nil {
+		return nil, err
+	}
+	_r := &ResponseFile{
+		ID:       id,
+		FileName: outFile,
+	}
+	return rp.OKSimple{Data: _r}, nil
 }
