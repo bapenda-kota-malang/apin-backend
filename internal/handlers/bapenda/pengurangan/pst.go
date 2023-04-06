@@ -17,9 +17,8 @@ func CreatePST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jnsSkUp := strings.ToUpper(*input.JenisSk)
-	input.JenisSk = &jnsSkUp
-	if err := checkJnsSk(jnsSkUp); err != nil {
+	input.SkSk.JnsSK = strings.ToUpper(input.SkSk.JnsSK)
+	if err := checkJnsSk(input.SkSk.JnsSK); err != nil {
 		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
 		return
 	}
@@ -59,12 +58,11 @@ func UpdatePST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jnsSkUp := strings.ToUpper(*data.JenisSk)
-	data.JenisSk = &jnsSkUp
-	if err := checkJnsSk(jnsSkUp); err != nil {
-		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
-		return
-	}
+	// input.SkSk.JnsSK = strings.ToUpper(input.SkSk.JnsSK)
+	// if err := checkJnsSk(input.SkSk.JnsSK); err != nil {
+	// 	hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
+	// 	return
+	// }
 
 	result, err := s.UpdatePST(id, data)
 	hh.DataResponse(w, result, err)

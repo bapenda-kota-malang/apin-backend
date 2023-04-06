@@ -507,7 +507,7 @@ func DownloadPdf(id uuid.UUID) (interface{}, error) {
 		for _, hiburan := range DetailPotensiHiburans {
 			KpList = append(KpList, &rpth.TCItemList{
 				Title: fmt.Sprintf("%d Orang", hiburan.Kapasitas),
-				Value: fmt.Sprintf("Tarif Rp %s Jumlah %s", strh.NullToAny(&hiburan.Tarif, "-"), strh.NullToAny(&hiburan.Jumlah, "-")),
+				Value: fmt.Sprintf("Tarif Rp %f Jumlah %d", hiburan.Tarif, hiburan.Jumlah),
 				Unit:  "buah",
 			})
 		}
@@ -518,8 +518,8 @@ func DownloadPdf(id uuid.UUID) (interface{}, error) {
 		DetailPotensiHotels = finalresultTmp.DetailPotensiHotels
 		for _, hotel := range DetailPotensiHotels {
 			KpList = append(KpList, &rpth.TCItemList{
-				Title: fmt.Sprintf("%s Orang", strh.NullToAny(&hotel.Kapasitas, "0")),
-				Value: fmt.Sprintf("Tarif Rp %s Jumlah %s", strh.NullToAny(&hotel.TarifFasilitas, "-"), strh.NullToAny(&hotel.JumlahFasilitas, "-")),
+				Title: fmt.Sprintf("%d Orang", hotel.Kapasitas),
+				Value: fmt.Sprintf("Tarif Rp %f Jumlah %d", hotel.TarifFasilitas, hotel.JumlahFasilitas),
 				Unit:  "Kamar",
 			})
 		}

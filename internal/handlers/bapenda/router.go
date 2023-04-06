@@ -641,7 +641,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListDendaADM)
 		r.Get("/{id}", pengurangan.GetDetailDendaADM)
 		r.Post("/", pengurangan.CreateDendaADM)
-		r.Patch("/{id}", pengurangan.UpdateDendaADM)
+		// r.Patch("/{id}", pengurangan.UpdateDendaADM)
 		r.Delete("/{id}", pengurangan.DeleteDendaADM)
 	})
 
@@ -649,7 +649,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListJPB)
 		r.Get("/{id}", pengurangan.GetDetailJPB)
 		r.Post("/", pengurangan.CreateJPB)
-		r.Patch("/{id}", pengurangan.UpdateJPB)
+		// r.Patch("/{id}", pengurangan.UpdateJPB)
 		r.Delete("/{id}", pengurangan.DeleteJPB)
 	})
 
@@ -657,7 +657,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListPermanen)
 		r.Get("/{id}", pengurangan.GetDetailPermanen)
 		r.Post("/", pengurangan.CreatePermanen)
-		r.Patch("/{id}", pengurangan.UpdatePermanen)
+		// r.Patch("/{id}", pengurangan.UpdatePermanen)
 		r.Delete("/{id}", pengurangan.DeletePermanen)
 	})
 
@@ -665,7 +665,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListPST)
 		r.Get("/{id}", pengurangan.GetDetailPST)
 		r.Post("/", pengurangan.CreatePST)
-		r.Patch("/{id}", pengurangan.UpdatePST)
+		// r.Patch("/{id}", pengurangan.UpdatePST)
 		r.Delete("/{id}", pengurangan.DeletePST)
 	})
 

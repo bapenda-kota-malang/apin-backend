@@ -181,6 +181,24 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 	data.PeriodeAkhir = datatypes.Date(sh.EndOfMonth(periodeTime))
 	data.JatuhTempo = datatypes.Date(sh.EndOfMonth(jatuhTempoTime))
 
+	// set jenis ketetapan
+	if data.DasarPengenaan == nil {
+		data.JenisKetetapan = m.JenisKetetapanSptpd
+		if data.Type == mtypes.JenisPajakOA {
+			data.JenisKetetapan = m.JenisKetetapanSkpd
+		}
+	} else {
+		// normalize dasar pengenaan to uppercase
+		dasarPengenaan := strings.ToUpper(*data.DasarPengenaan)
+		data.DasarPengenaan = &dasarPengenaan
+		switch dasarPengenaan {
+		case m.DasarPengenaanSptpd, m.DasarPengenaanSkpd, m.DasarPengenaanTeguran:
+			data.JenisKetetapan = m.JenisKetetapanSkpdkb
+		case m.DasarPengenaanSkpdkb, m.DasarPengenaanSkpdkbt:
+			data.JenisKetetapan = m.JenisKetetapanSkpdkbt
+		}
+	}
+
 	err = tx.Create(&data).Error
 	if err != nil {
 		return nil, err
@@ -467,11 +485,9 @@ func UpdateVa(ctx context.Context, id uuid.UUID, input m.UpdateVaDto, userId uin
 		data.Total = &total
 	}
 
-	jatuhTempo, _ := data.JatuhTempo.Value()
-	tglExp := jatuhTempo.(time.Time)
-	newExp := time.Now()
-	if servicehelper.Midnight(newExp).After(tglExp) {
-		tglExp = servicehelper.EndOfMonth(newExp)
+	tglExp := time.Time(data.JatuhTempo)
+	if servicehelper.IsJatuhTempo(&data.JatuhTempo) {
+		tglExp = servicehelper.EndOfMonth(time.Now())
 	}
 
 	// bank jatim
@@ -480,11 +496,11 @@ func UpdateVa(ctx context.Context, id uuid.UUID, input m.UpdateVaDto, userId uin
 		Nama:           *data.ObjekPajak.Nama,
 		TotalTagihan:   uint64(math.RoundToEven(*data.Total)),
 		TanggalExp:     tglExp.Format("20060102"),
-		Berita1:        fmt.Sprintf("%s %s", *data.Npwpd.Npwpd, newExp.Format("01-2006")),
+		Berita1:        fmt.Sprintf("%s %s", *data.Npwpd.Npwpd, time.Now().Format("01-2006")),
 		Berita2:        data.NomorSpt,
 		Berita3:        fmt.Sprintf("DENDA %d", data.Denda),
 		Berita4:        fmt.Sprintf("KENAIKAN %d", data.Kenaikan),
-		Berita5:        fmt.Sprintf("UPDATE %s", newExp.Format("02-01-2006")),
+		Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
 		FlagProses:     ibj.ProsesUpdate,
 	}
 	ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)

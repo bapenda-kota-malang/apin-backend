@@ -205,11 +205,15 @@ func UpdatePenguranganByNop(input m.NopDto, pctPengurangan float64, tx *gorm.DB)
 		Where("TahunPajakskp_sppt", &input.TahunPajakskp_sppt).
 		First(&data)
 	if result.RowsAffected == 0 {
-		return nil, nil
+		return nil, fmt.Errorf("data sppt tidak ditemukan")
 	}
 
-	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	if data.PBBterhutang_sppt == nil {
+		return nil, fmt.Errorf("data spp pbb yang terhutang kosong")
+	}
+
+	if data.StatusPembayaran_sppt != nil && *data.StatusPembayaran_sppt != "0" {
+		return nil, fmt.Errorf("status pembayaran bukan belum bayar (0)")
 	}
 
 	faktorPengurangan := int(float64(*data.PBBterhutang_sppt) * pctPengurangan)
@@ -252,11 +256,9 @@ func UpdateVa(ctx context.Context, id int, input m.UpdateVaDto, userId uint64) (
 		return nil, errors.New("data sspt ini masih belum ada nama wp")
 	}
 
-	jatuhTempo, _ := data.TanggalJatuhTempo_sppt.Value()
-	tglExp := jatuhTempo.(time.Time)
-	newExp := time.Now()
-	if servicehelper.Midnight(newExp).After(tglExp) {
-		tglExp = servicehelper.EndOfMonth(newExp)
+	tglExp := time.Time(*data.TanggalJatuhTempo_sppt)
+	if servicehelper.IsJatuhTempo(data.TanggalJatuhTempo_sppt) {
+		tglExp = servicehelper.EndOfMonth(time.Now())
 	}
 	nop := servicehelper.NopString(
 		*data.Propinsi_Id,
@@ -274,9 +276,9 @@ func UpdateVa(ctx context.Context, id int, input m.UpdateVaDto, userId uint64) (
 		Nama:           *data.NamaWP_sppt,
 		TotalTagihan:   uint64(total),
 		TanggalExp:     tglExp.Format("20060102"),
-		Berita1:        fmt.Sprintf("%s %s", nop, newExp.Format("06")),
+		Berita1:        fmt.Sprintf("%s %s", nop, time.Now().Format("06")),
 		Berita2:        fmt.Sprintf("%d", denda),
-		Berita5:        fmt.Sprintf("UPDATE %s", newExp.Format("02-01-2006")),
+		Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
 		FlagProses:     ibj.ProsesUpdate,
 	}
 	ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
