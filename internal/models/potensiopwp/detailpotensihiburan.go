@@ -9,8 +9,8 @@ type DetailPotensiHiburan struct {
 	Id             uint      `json:"id" gorm:"primaryKey"`
 	Potensiop_Id   uuid.UUID `json:"potensiop_id" gorm:"type:uuid"`
 	JenisFasilitas string    `json:"jenisFasilitas"`
-	Jumlah         string    `json:"jumlah"`
-	Tarif          string    `json:"tarif"`
+	Jumlah         uint64    `json:"jumlah"`
+	Tarif          float64   `json:"tarif"`
 	Kapasitas      int64     `json:"kapasitas"`
 	gormhelper.DateModel
 }
@@ -18,8 +18,8 @@ type DetailPotensiHiburan struct {
 type CreateDtoDPHiburan struct {
 	Potensiop_Id   uuid.UUID `json:"-"`
 	JenisFasilitas string    `json:"jenisFasilitas"`
-	Jumlah         string    `json:"jumlah"`
-	Tarif          string    `json:"tarif"`
+	Jumlah         uint64    `json:"jumlah"`
+	Tarif          float64   `json:"tarif"`
 	Kapasitas      int64     `json:"kapasitas"`
 }
 

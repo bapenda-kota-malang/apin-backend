@@ -209,15 +209,15 @@ func DownloadExcelListVerifikasi(input m.FilterDto, auth int, tp string) (*excel
 
 	queryBase := a.DB.Model(&m.BphtbSptpd{})
 
-	if (auth == 0 || auth == 4) && tp == "ver" {
+	if (auth == 0 || auth == 6) && tp == "ver" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"02", "03", "04", "05", "06", "07", "08", "21"})
-	} else if auth == 3 && tp == "ver" {
+	} else if auth == 4 && tp == "ver" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"04", "05", "06", "07", "08", "21"})
-	} else if auth == 2 && tp == "ver" {
+	} else if auth == 3 && tp == "ver" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"06", "07", "08", "21"})
-	} else if (auth == 0 || auth == 4) && tp == "byr" {
+	} else if (auth == 0 || auth == 6) && tp == "byr" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"08", "10", "12", "22"})
-	} else if (auth == 0 || auth == 4) && tp == "val" {
+	} else if (auth == 0 || auth == 6) && tp == "val" {
 		queryBase = queryBase.Where("\"Status\" IN ?", []string{"10", "13", "14", "20"})
 	}
 
@@ -383,9 +383,9 @@ func GetDetail(id uuid.UUID) (any, error) {
 }
 
 func GetDetailbyField(field string, value string) (any, error) {
-	var data *m.BphtbSptpd
+	var data *[]m.BphtbSptpd
 
-	result := a.DB.Where(field, value).First(&data)
+	result := a.DB.Where(field, value).Find(&data)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	} else if result.Error != nil {
@@ -395,6 +395,124 @@ func GetDetailbyField(field string, value string) (any, error) {
 	return rp.OKSimple{
 		Data: data,
 	}, nil
+}
+
+func GetListTransaksiPPAT(input m.FilterPPATDto) (any, error) {
+	var data []m.TransaksiPPAT
+	var count int64
+
+	queryBase := a.DB.Model(&m.BphtbSptpd{})
+	queryBase = queryBase.
+		Select("DISTINCT ON (\"Ppat_Id\") \"Ppat_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "count(\"Sptpd_Id\") \"Sptpd_Id\"", "count(\"JumlahSetor\") \"CountJumlahSetor\"", "sum(\"NilaiOp\") \"NilaiOp\"", "sum(\"JumlahSetor\") \"JumlahSetor\"").
+		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST(\"Ppat_Id\" AS INTEGER) ")
+
+	if input.Ppat_Id != nil {
+		queryBase = queryBase.Where("Ppat_Id", input.Ppat_Id)
+	}
+
+	if input.Bulan != nil {
+		queryBase = queryBase.Where("EXTRACT('month' from \"VerifikasiPpatAt\") = ?", input.Bulan)
+	}
+
+	if input.Tahun != nil {
+		queryBase = queryBase.Where("EXTRACT('year' from \"VerifikasiPpatAt\") = ?", input.Tahun)
+	}
+
+	result := queryBase.
+		Order("\"Ppat_Id\"").
+		Group("\"Ppat_Id\", \"Ppat\".\"Nama\"").
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func GetDetailTransaksiPPAT(input m.FilterPPATDto) (any, error) {
+	var data []m.BphtbSptpd
+	var dataPPAT mppat.Ppat
+	var count int64
+	var dateString string
+	var namePPAT string
+
+	queryBase := a.DB.Model(&m.BphtbSptpd{})
+	queryBase = queryBase.
+		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST(\"Ppat_Id\" AS INTEGER) ")
+
+	if input.Ppat_Id != nil {
+		queryBase = queryBase.Where("Ppat_Id", input.Ppat_Id)
+	}
+
+	if input.Bulan != nil {
+		queryBase = queryBase.Where("EXTRACT('month' from \"VerifikasiPpatAt\") = ?", input.Bulan)
+	}
+
+	if input.Tahun != nil {
+		queryBase = queryBase.Where("EXTRACT('year' from \"VerifikasiPpatAt\") = ?", input.Tahun)
+	}
+
+	queryBase = queryBase.Order("\"TahunPajakSppt\"")
+	result := queryBase.
+		Find(&data)
+	if result.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+	}
+
+	tempPPATID, _ := strconv.Atoi(*input.Ppat_Id)
+	resPPAT := a.DB.First(dataPPAT, tempPPATID)
+	if resPPAT.Error != nil {
+		namePPAT = "PPAT" + *input.Ppat_Id
+	} else {
+		namePPAT = dataPPAT.Nama
+	}
+
+	if input.Bulan != nil && input.Tahun != nil {
+		dateString = strconv.Itoa(*input.Tahun) + "-" + strconv.Itoa(*input.Bulan) + "-01"
+	} else if input.Bulan != nil {
+		dateString = "2022-" + strconv.Itoa(*input.Bulan) + "-01"
+	} else if input.Tahun != nil {
+		dateString = strconv.Itoa(*input.Tahun) + "-12-01"
+	} else {
+		if len(data) > 0 && data[0].TahunPajakSppt != nil {
+			dateString = *data[0].TahunPajakSppt + "-12-01"
+		} else {
+			dateString = "2022-12-01"
+		}
+	}
+	resT, errPer := time.Parse("2006-01-02", dateString)
+	if errPer != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "periode tidak ditemukan", data)
+	}
+
+	startPeriode := time.Date(resT.Year(), resT.Month(), 1, 0, 0, 0, 0, time.UTC)
+	endPeriode := startPeriode.AddDate(0, 1, 0).Add(-time.Nanosecond)
+	if input.Bulan == nil {
+		startPeriode = time.Date(resT.Year(), 1, 1, 0, 0, 0, 0, time.UTC)
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"start":        startPeriode.String(),
+			"end":          endPeriode.String(),
+			"name":         namePPAT,
+		},
+		Data: data,
+	}, nil
+}
+
+func LastDayOfMonth(t time.Time) int {
+	firstDay := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC)
+	lastDay := firstDay.AddDate(0, 1, 0).Add(-time.Nanosecond)
+	return lastDay.Day()
 }
 
 func Update(id uuid.UUID, input m.CreateDto, tx *gorm.DB) (any, error) {
@@ -472,34 +590,34 @@ func Approval(id uuid.UUID, kd string, auth int, input m.RequestApprovalSptpd, t
 		return sh.SetError("request", "approval-data", source, "failed", "gagal loging approval data", errLog)
 	}
 
-	if kd == "03" && auth == 4 {
+	if kd == "03" && auth == 6 {
 		//Dikembalikan Staf
 		tempVal := "-1"
 		data.Proses = &tempVal
-	} else if kd == "04" && auth == 4 {
+	} else if kd == "04" && auth == 6 {
 		//Kasubid
 		tempVal := "0"
 		data.Proses = &tempVal
-	} else if kd == "05" && auth == 3 {
+	} else if kd == "05" && auth == 4 {
 		//Dikembalikan Kasubid
 		tempVal := "-1"
 		data.Proses = &tempVal
-	} else if kd == "06" && auth == 3 {
+	} else if kd == "06" && auth == 4 {
 		//Kabid
 		tempVal := "2"
 		data.Proses = &tempVal
-	} else if kd == "07" && auth == 2 {
+	} else if kd == "07" && auth == 3 {
 		//Dikembalikan Kabid
-	} else if kd == "08" && auth == 2 {
+	} else if kd == "08" && auth == 3 {
 		//Cetak
 		p, _ := rand.Prime(rand.Reader, 32)
 		tempNumber := p.String()
 		data.IdBilling = &tempNumber
-	} else if kd == "10" && auth == 4 {
+	} else if kd == "10" && auth == 6 {
 		//Lunas
-	} else if kd == "12" && auth == 4 {
+	} else if kd == "12" && auth == 6 {
 		//Kurang bayar
-	} else if kd == "14" && auth == 4 {
+	} else if kd == "14" && auth == 6 {
 		//Validasi
 	} else if kd == "20" || kd == "21" || kd == "22" {
 		//Batal

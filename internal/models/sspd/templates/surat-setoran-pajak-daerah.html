@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Surat Setoran Pajak Daerah</title>
+    </head>
+
+    <body style="padding:7%; line-height:1.5px; font-size:12px">
+        
+        <div>
+            <table width="100%" style="border:1px solid black; border-collapse: collapse; font-size: 15px">
+                <tbody>
+                    <td width="35%" style="padding-top:15px; border:1px solid black; padding-bottom:15px; ">
+                        <div style="text-align:center; font-weight:bold">
+                            <p>PEMERINTAH KOTA MALANG</p>
+                            <p>BADAN PENDAPATAN DAERAH</p>                          
+                        </div>
+                        <div style="text-align:center; font-weight:bold; font-size:10px">
+                            <p>Perkantoran Terpadu PEMKOT Malang</p>
+                            <p>Jl. Mayjen Sungkono Gedung B Lt.1</p>
+                            <p>Telp. (0341) 751532 Kel. Arjowinangun 55132   
+                        </div>
+                    </td>
+                    <td width="35%" style="padding-bottom:23px; border:1px solid black">
+                        <div style="text-align:center; font-weight:bold; line-height:10px">
+                            <p>S S P D</p>
+                            <p>(SURAT SETORAN PAJAK DAERAH)</p>                          
+                        </div>
+                    </td>
+                    <td width="30%" style="padding:4px; padding-bottom:10px">
+                        <div style="text-align:center; font-weight:bold; line-height:10px">
+                            <p>Nomor SSPD</p> 
+                            <p style="font-size:17px">{{.NomorSSPD}}</p>                         
+                        </div>
+                    </td>
+                </tbody>
+            </table>
+        </div>
+
+         <div>
+            <table width="100%" style="border:1px solid black; border-collapse: collapse;">
+                <tr width="20%" style="text-align:left">
+                    <td width="23%" style="padding-left:5px; padding-bottom:15px; padding-top: 15px">Nama</td>
+                    <td width="2%" style="padding-left:5px; padding-bottom:15px; padding-top: 15px">:</td>
+                    <td width="75" style="padding-left:5px; padding-bottom:15px; padding-top: 15px">{{.NamaPenyetor}}</td>
+                </tr>
+                <tr width="20%" style="text-align:left">
+                    <td width="23%" style="padding-left:5px; padding-bottom:15px">Alamat</td>
+                    <td width="2%" style="padding-left:5px; padding-bottom:15px">:</td>
+                    <td width="75" style="padding-left:5px; padding-bottom:15px">{{.AlamatPenyetor}}</td>
+                </tr>
+                <tr width="20%" style="text-align:left">
+                    <td width="23%" style="padding-left:5px; padding-bottom:15px">NPWPD</td>
+                    <td width="2%" style="padding-left:5px; padding-bottom:15px">:</td>
+                    <td width="75" style="padding-left:5px; padding-bottom:15px">{{.NPWPDPenyetor}}</td>
+                </tr>
+                <tr width="20%" style="text-align:left">
+                    <td width="23%" style="padding-left:5px; padding-bottom:15px">Menyetor berdasarkan</td>
+                    <td width="2%" style="padding-left:5px; padding-bottom:15px">:</td>
+                    <td width="75" style="padding-left:5px; padding-bottom:15px">{{.DasarSetoran}}</td>
+                </tr>
+                <tr width="20%" style="text-align:left">
+                    <td width="23%" style="padding-left:5px; padding-bottom:15px">Masa Pajak</td>
+                    <td width="2%" style="padding-left:5px; padding-bottom:15px">:</td>
+                    <td width="75%" style="padding-left:5px; padding-bottom:15px">{{.MasaPajakBulan}} &ensp; Tahun : {{.MasaPajakTahun}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black; border-collapse: collapse;">
+                <tr style="border:1px solid black; text-align:center">
+                    <td width="20%" style="padding:11px; border:1px solid black">Rekening</td>
+                    <td width="50%" style="padding:11px; border:1px solid black">Jenis Pajak</td>
+                    <td width="30%" style="padding:11px; border:1px solid black">Jumlah (Rp.)</td>
+                </tr>
+                <tr>
+                    <td width="20%" style="padding:11px; border:1px solid black; text-align:left">{{.NomorRekening}}</td>
+                    <td width="50%" style="padding:11px; border:1px solid black; text-align:left">{{.JenisPajak}}</td>
+                    <td width="30%" style="padding:11px; border:1px solid black; text-align:right">{{.Jumlah}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black; border-collapse: collapse;">
+                <tr style="text-align:left">
+                    <td width="23%" style="padding-left:5px; padding-bottom:30px; padding-top: 30px">Terbilang</td>
+                    <td width="2%" style="padding-left:5px; padding-bottom:30px; padding-top: 30px">:</td>
+                    <td width="75" style="padding-left:5px; padding-bottom:30px; padding-top: 30px">{{.Terbilang}}</td>
+                </tr>
+                <tr style="text-align:left">
+                    <td width="23%" style="padding-left:5px; padding-bottom:30px">Keterangan</td>
+                    <td width="2%" style="padding-left:5px; padding-bottom:30px">:</td>
+                    <td width="75" style="padding-left:5px; padding-bottom:30px">{{.Keterangan}}</td>
+                </tr>
+                <tr style="text-align:left">
+                    <td colspan="3" style="padding-left:5px; padding-bottom:30px">SSPD ini bukan merupakan Bukti LEGAL format perijinan</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black; border-collapse: collapse;">
+                <tr style="border:1px solid black">
+                    <td width="30%" style="padding-top:10px; padding-bottom; 15px; border:1px solid black; text-align:center">
+                        <p>Ruang untuk Teraan</p>
+                        <p>Kas Register / Tanda Tangan</p>
+                        <p>Petugas Penerima</p>
+                    </td>
+                    <td width="40%" style="padding-top:10px; padding-bottom;15px; padding-left:5px;">
+                        <div style="padding-left:4px">
+                            <p>Diterima oleh</p>
+                            <p>Petugas Tempat Pembayaran,</p>
+                        </div>
+                        <div>
+                            <table>
+                                <tr style="text-align:left">
+                                    <td width="40%" style="padding-bottom:12px; padding-top: 15px">Tanggal &emsp;&emsp;</td>
+                                    <td width="5%" style="padding-bottom:12px; padding-top: 15px">:</td>
+                                    <td width="55%" style="padding-bottom:12px; padding-top: 15px">{{.TanggalDiterima}}</td>
+                                </tr>
+                                <tr style="text-align:left">
+                                    <td width="40%" style="padding-bottom:12px">Tanda tangan &emsp;&emsp;</td>
+                                    <td width="5%" style="padding-bottom:12px">:</td>
+                                    <td width="55%" style="padding-bottom:12px"></td>
+                                </tr>
+                                <tr style="text-align:left">
+                                    <td width="40%" style="padding-bottom:12px">Nama Terang &emsp;&emsp;</td>
+                                    <td width="5%" style="padding-bottom:12px">:</td>
+                                    <td width="55%" style="padding-bottom:12px">{{.NamaPenerima}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                    <td width="30%" style="padding-top:10px; padding-bottom; 15px; border:1px solid black; text-align:center">
+                        <p>Malang, {{.TanggalSekarang}}</p>
+                        <p style="padding-bottom:60px">Penyetor,</p>
+                        <p style="padding-bottom:10px">(....................................)</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <p>Lembar : 1. Putih - WP  2. Merah - Penagih  3. Kuning - Pembukuan  4. Hijau - Kasir</p>
+        </div>
+        
+    </body>
+</html>

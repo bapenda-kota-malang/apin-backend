@@ -24,6 +24,7 @@ type UpdateDto struct {
 type FilterDto struct {
 	KlasifikasiJalan_Id *string `json:"klasifikasiJalan_id"`
 	Nama                *string `json:"nama"`
+	Nama_Opt            *string `json:"nama_opt"`
 	Page                int     `json:"page"`
 	PageSize            int     `json:"page_size"`
 }

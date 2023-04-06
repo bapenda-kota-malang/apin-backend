@@ -26,9 +26,8 @@ func CreateDendaADM(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jnsSkUp := strings.ToUpper(*input.JenisSk)
-	input.JenisSk = &jnsSkUp
-	if err := checkJnsSk(jnsSkUp); err != nil {
+	input.SkSk.JnsSK = strings.ToUpper(input.SkSk.JnsSK)
+	if err := checkJnsSk(input.SkSk.JnsSK); err != nil {
 		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{Message: err.Error()}, nil)
 		return
 	}

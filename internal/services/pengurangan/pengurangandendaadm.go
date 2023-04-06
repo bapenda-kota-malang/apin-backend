@@ -9,7 +9,9 @@ import (
 	"gorm.io/gorm"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
+	msksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	msppt "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
+	ssksk "github.com/bapenda-kota-malang/apin-backend/internal/services/sksk"
 	ssppt "github.com/bapenda-kota-malang/apin-backend/internal/services/sppt"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
@@ -21,27 +23,54 @@ import (
 const sourceDendaADM = "penguranganDendaADM"
 
 func CreateDendaADM(input m.CreateDtoDendaADM) (any, error) {
-	var data m.PenguranganDendaADM
-	if err := sc.Copy(&data, input); err != nil {
-		return sh.SetError("request", "create-data", sourceDendaADM, "failed", "gagal mengambil data payload", data)
+	pstDetails, err := checkPstDetail(input.ThnPelayanan, input.BundelPelayanan, input.NoUrutPelayanan)
+	if err != nil {
+		return nil, err
 	}
+	if len(pstDetails) != len(input.Data) {
+		return nil, errors.New("data pst detail tidak sama dengan payload data")
+	}
+	// TODO: check pst permohongan pengurangan
 
-	err := a.DB.Transaction(func(tx *gorm.DB) error {
-		result := tx.Create(&data)
-		if result.Error != nil {
-			return result.Error
+	var data []m.PenguranganDendaADM
+	for i := 0; i < len(input.Data); i++ {
+		data = append(data, m.PenguranganDendaADM{
+			BaseModel: m.BaseModel{
+				Kanwil_Kode:            input.Kanwil_Kode,
+				Kppbb_Kode:             input.Kppbb_Kode,
+				ThnPelayanan:           input.ThnPelayanan,
+				BundelPelayanan:        input.BundelPelayanan,
+				NoUrutPelayanan:        input.NoUrutPelayanan,
+				Provinsi_Kode_Pemohon:  input.Data[i].Provinsi_Kode_Pemohon,
+				Daerah_Kode_Pemohon:    input.Data[i].Daerah_Kode_Pemohon,
+				Kecamatan_Kode_Pemohon: input.Data[i].Kecamatan_Kode_Pemohon,
+				Kelurahan_Kode_Pemohon: input.Data[i].Kelurahan_Kode_Pemohon,
+				Blok_Kode_Pemohon:      input.Data[i].Blok_Kode_Pemohon,
+				NoUrut_Pemohon:         input.Data[i].NoUrut_Pemohon,
+				JenisOp_Pemohon:        input.Data[i].JenisOp_Pemohon,
+				JnsSk:                  input.SkSk.JnsSK,
+				NoSk:                   input.SkSk.NoSK,
+			},
+			TahunPengurangan: input.Data[i].TahunPengurangan,
+			StatusPenguragan: input.Data[i].StatusPenguragan,
+			PCTPengurangan:   input.Data[i].PCTPengurangan,
+		})
+	}
+	skskDto := msksk.CreateDto{
+		PermohonanId: pstDetails[0].PermohonanId,
+		KanwilId:     &input.Kanwil_Kode,
+		KppbbId:      &input.Kppbb_Kode,
+		JnsSK:        &input.SkSk.JnsSK,
+		NoSK:         &input.SkSk.NoSK,
+		TglSK:        input.SkSk.TglSK,
+		NoBaKantor:   &input.SkSk.NoLhp,
+		TglBaKantor:  input.SkSk.TglLhp,
+	}
+	err = a.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&data).Error; err != nil {
+			return err
 		}
-		_, err := ssppt.UpdatePenguranganByNop(msppt.NopDto{
-			Propinsi_Id:        data.ProvinsiPemohon_Kd,
-			Dati2_Id:           data.DaerahPemohon_Kd,
-			Kecamatan_Id:       data.KecamatanPemohon_Kd,
-			Keluarahan_Id:      data.KelurahanPemohon_Kd,
-			Blok_Id:            data.BlokPemohon_Kd,
-			NoUrut:             data.NoUrutPemohon_Kd,
-			JenisOP_Id:         data.JenisOpPemohon_Kd,
-			TahunPajakskp_sppt: data.TahunPenguranganDendaADM,
-		}, *data.PctPenguranganDendaADM, tx)
-		if err != nil {
+		if _, err := ssksk.Create(skskDto, tx); err != nil {
 			return err
 		}
 		return nil
@@ -108,17 +137,17 @@ func UpdateDendaADM(id int, input m.UpdateDtoDendaADM) (interface{}, error) {
 		if result := tx.Save(&data); result.Error != nil {
 			return result.Error
 		}
-		if input.PctPenguranganDendaADM != nil {
+		if input.PCTPengurangan != nil {
 			_, err := ssppt.UpdatePenguranganByNop(msppt.NopDto{
-				Propinsi_Id:        data.ProvinsiPemohon_Kd,
-				Dati2_Id:           data.DaerahPemohon_Kd,
-				Kecamatan_Id:       data.KecamatanPemohon_Kd,
-				Keluarahan_Id:      data.KelurahanPemohon_Kd,
-				Blok_Id:            data.BlokPemohon_Kd,
-				NoUrut:             data.NoUrutPemohon_Kd,
-				JenisOP_Id:         data.JenisOpPemohon_Kd,
-				TahunPajakskp_sppt: data.TahunPenguranganDendaADM,
-			}, *data.PctPenguranganDendaADM, tx)
+				Propinsi_Id:        &data.Provinsi_Kode_Pemohon,
+				Dati2_Id:           &data.Daerah_Kode_Pemohon,
+				Kecamatan_Id:       &data.Kecamatan_Kode_Pemohon,
+				Keluarahan_Id:      &data.Kelurahan_Kode_Pemohon,
+				Blok_Id:            &data.Blok_Kode_Pemohon,
+				NoUrut:             &data.NoUrut_Pemohon,
+				JenisOP_Id:         &data.JenisOp_Pemohon,
+				TahunPajakskp_sppt: data.TahunPengurangan,
+			}, *data.PCTPengurangan, tx)
 			if err != nil {
 				return err
 			}
