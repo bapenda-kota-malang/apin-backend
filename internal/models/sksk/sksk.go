@@ -12,7 +12,7 @@ type SkSk struct {
 	KanwilId      *string         `json:"kanwilId" gorm:"type:varchar(2)"`
 	KppbbId       *string         `json:"kppbbId" gorm:"type:varchar(2)"`
 	JnsSK         *string         `json:"jnsSK" gorm:"type:varchar(1)"`
-	NoSK          *string         `json:"noSK" gorm:"type:varchar(30)"`
+	NoSK          *string         `json:"noSK" gorm:"type:varchar(30);unique"`
 	TglSK         *datatypes.Date `json:"tglSK"`
 	NoBaKantor    *string         `json:"noBaKantor" gorm:"type:varchar(30)"`
 	TglBaKantor   *datatypes.Date `json:"tglBaKantor"`

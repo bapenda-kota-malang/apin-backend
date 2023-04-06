@@ -45,8 +45,7 @@ func CopySpt(input m.CopySptDto) (any, error) {
 			newSpt.NomorSpt = spt.NomorSpt
 			newSpt.KodeBilling = spt.KodeBilling
 			newSpt.TanggalSpt = spt.TanggalSpt
-			jenisKetetapan := m.JenisKetetapanSkpdkb
-			newSpt.JenisKetetapan = &jenisKetetapan
+			newSpt.JenisKetetapan = m.JenisKetetapanSkpdkb
 			newSpt.Kenaikan = spt.Kenaikan
 			newSpt.Denda = spt.Denda
 
@@ -56,8 +55,7 @@ func CopySpt(input m.CopySptDto) (any, error) {
 			totalFloat := float64(total)
 			newSpt.Total = &totalFloat
 		} else if input.Types == "oa" {
-			jenisKetetapan := m.JenisKetetapanSkpd
-			newSpt.JenisKetetapan = &jenisKetetapan
+			newSpt.JenisKetetapan = m.JenisKetetapanSkpd
 		}
 
 		currentDate := sh.CurrentDate()

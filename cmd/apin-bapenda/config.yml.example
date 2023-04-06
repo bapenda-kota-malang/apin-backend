@@ -31,3 +31,6 @@ authConf:
 
 redisConf:
   dsn: 127.0.0.1:6379
+
+bankJatimConf:
+  url: https://fca830b2-dd1f-4b3b-99ac-f8d63ae38dbf.mock.pstmn.io

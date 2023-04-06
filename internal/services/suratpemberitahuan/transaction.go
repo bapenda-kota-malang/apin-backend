@@ -1,7 +1,6 @@
 package suratpemberitahuan
 
 import (
-	"math"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -51,21 +50,9 @@ func TrxSchedule(db *gorm.DB) (resp rp.OKSimple, err error) {
 				Skpd:       v.NomorSpt,
 				Ketetapan:  sh.FormatCurrency(v.JumlahPajak),
 			}
-			// to get difference months basically:
-			// 1. get now time change it to end of month and remove hour, min, second, nanosec
-			nowMonth := sh.Midnight(sh.EndOfMonth(time.Now()))
-			// 2. sub with jatuh tempo value to get time difference duration
-			diffDuration := nowMonth.Sub(time.Time(v.JatuhTempo))
-			// 3. get hours duration divided by 24 then 30 to get difference month
-			diffMonth := diffDuration.Hours() / 24 / 30
-			// 4. remove fractional from result step 3
-			diffMonth, _ = math.Modf(diffMonth)
-			// max diff 24 month
-			if diffMonth > 24 {
-				diffMonth = 24
-			}
+			diffMonth := sh.DendaMonth(time.Time(v.JatuhTempo))
 			// denda = (jumlah pajak * 2%) * diff month
-			denda := (v.JumlahPajak * 0.02) * diffMonth
+			denda := (v.JumlahPajak * 0.02) * float64(diffMonth)
 			// sptTax = jumlah pajak (ketetapan) + denda
 			sptTax := v.JumlahPajak + denda
 			respSspdDetail, err := servsspddetail.GetListSspdDetail(msspd.SspdDetailFilterDto{Spt_Id: &v.Id})

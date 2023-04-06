@@ -24,12 +24,16 @@ type app struct {
 	MailerConf      *mailerConf
 	RateLimiterConf *rateLimiterConf
 	LoggerConf      *loggerConf
+	BankJatimConf   *bankJatimConf
 }
 
 // Exported package vars for easier resolving
-var Self *app // the core itself
-var DB *gorm.DB
-var Logger *zap.Logger
+var (
+	Self      *app // the core itself
+	DB        *gorm.DB
+	Logger    *zap.Logger
+	BankJatim *BankJatimClient
+)
 
 // app starter
 func Run(routerIn http.Handler, code string) {
@@ -41,11 +45,13 @@ func Run(routerIn http.Handler, code string) {
 	Self.DbConf = &dbConf{}
 	Self.MailerConf = &mailerConf{}
 	Self.LoggerConf = &loggerConf{}
+	Self.BankJatimConf = &bankJatimConf{}
 
 	// init all manually to make it clear of what's happening
 	Self.initConfig()
 	Self.initLogger()
 	Self.initDb()
+	Self.initBankJatimClient()
 	// a.initMailer()
 	Self.initExtCall()
 	Self.initHttp(routerIn)

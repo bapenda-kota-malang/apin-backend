@@ -39,7 +39,10 @@ func Create(input m.InputPembetulanSkKeberatan) (any, error) {
 	if err != nil || (respPstDetail == nil && err == nil) {
 		return nil, err
 	}
-	dataPstDetail := respPstDetail.(rp.OKSimple).Data.(mpst.PstDetail)
+	if len(respPstDetail.(rp.OKSimple).Data.([]mpst.PstDetail)) == 0 {
+		return sh.SetError("request", "create-data", source, "failed", "data pst detail dengan no pelayanan tidak ada", data)
+	}
+	dataPstDetail := respPstDetail.(rp.OKSimple).Data.([]mpst.PstDetail)[0]
 
 	// check data inside tabel keputusan keberatan pbb, use nop and no sk lama
 	respKepKebPbb, err := skepkebpbb.GetByNopDanSk(m.FilterNopSkDtoKepKebPbb{

@@ -1,12 +1,17 @@
 package sspd
 
 import (
+	"fmt"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"strconv"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/sspd"
 	sd "github.com/bapenda-kota-malang/apin-backend/internal/services/sspd/sspddetail"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
@@ -104,4 +109,46 @@ func DownloadExcelList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename=list_sspd.xlsx")
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	result.Write(w)
+}
+
+// Surat setoran pajak daerah
+func DownloadPDF(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+	result, err := s.DownloadPDF(id)
+	if err != nil {
+		return
+	}
+
+	fName := result.(rp.OKSimple).Data.(*s.ResponseFile).FileName
+
+	file, err := os.Open(fName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	// membaca konten file
+	fileContent, err := ioutil.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// set header response
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=surat-setoran-pajak-daerah-%d.pdf", id))
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Length", strconv.Itoa(len(fileContent)))
+
+	// menulis konten file ke response body
+	if _, err := w.Write(fileContent); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// selesaikan response
+	w.WriteHeader(http.StatusOK)
 }
