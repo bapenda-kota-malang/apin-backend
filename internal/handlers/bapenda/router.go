@@ -333,6 +333,14 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/{kd}", bphtbsptpd.Approval)
 	})
 
+	r.Route("/hrgresource", func(r chi.Router) {
+		r.Get("/{year}/{group}", hargaresource.GetDetailByYearNoDok)
+	})
+
+	r.Route("/hrgresource-kode", func(r chi.Router) {
+		r.Get("/{kode}", hargaresource.GetDetailByYearNoDok)
+	})
+
 	r.Route("/pembayaran-bphtb", func(r chi.Router) {
 		r.Get("/{no}", bphtbsptpd.GetDetailPembayaran)
 	})

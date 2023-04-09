@@ -65,3 +65,25 @@ func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Delete(id, nil)
 	hh.DataResponse(w, result, err)
 }
+
+func GetDetailByYearNoDok(w http.ResponseWriter, r *http.Request) {
+	group := hh.ValidateString(w, r, "group")
+	if group != "" {
+		return
+	}
+
+	year := hh.ValidateString(w, r, "year")
+
+	result, err := s.GetDetailByYearNoDok(&year, group)
+	hh.DataResponse(w, result, err)
+}
+
+func GetDetailByField(w http.ResponseWriter, r *http.Request) {
+	kode := hh.ValidateString(w, r, "kode")
+	if kode != "" {
+		return
+	}
+
+	result, err := s.GetDetailByField("Resource_Kode", &kode)
+	hh.DataResponse(w, result, err)
+}

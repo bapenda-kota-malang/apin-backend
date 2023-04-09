@@ -77,6 +77,49 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
+func GetDetailByYearNoDok(year *string, kode string) (any, error) {
+	var data *m.HargaResource
+
+	queryBase := a.DB.Model(&m.HargaResource{})
+
+	if year != nil {
+		temp := ""
+		if year != &temp {
+			queryBase = queryBase.Where("\"ThnHrgResource\"", &year)
+		}
+	}
+	queryBase = queryBase.Where("\"GroupResource_Kode\"", &kode)
+
+	result := queryBase.
+		Find(&data)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data harga resource", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
+func GetDetailByField(field string, value *string) (any, error) {
+	var data *m.HargaResource
+
+	queryBase := a.DB.Model(&m.HargaResource{}).Where(field, &value)
+	result := queryBase.
+		Find(&data)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return sh.SetError("request", "get-data-detail", source, "failed", "gagal mengambil data harga resource", data)
+	}
+
+	return rp.OKSimple{
+		Data: data,
+	}, nil
+}
+
 func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
