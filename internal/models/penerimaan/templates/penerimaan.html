@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>{{ .title }}</title>
+    <style>
+        .title {
+            text-align: center;
+        }
+
+        table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        table th {
+            padding: 1px 5px;
+        }
+
+        table td {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="title">
+        <h1> {{ .title }} </h1>
+        <h2> {{ .subtitle }} </h2>
+    </div>
+
+    <div class="table" style="font-family: arial;font-size: 10pt;">
+        <table>
+            <tr>
+                <th style="width: 3%">No</th>
+                <th style="width: 7%">No SSPD</th>
+                <th style="width: 7%">No SKPD</th>
+                <th style="width: 7%">Tanggal TBP</th>
+                <th style="width: 7%">Tanggal STS</th>
+                <th>Nama</th>
+                <th>Alamat</th>
+                <th>NPWPD</th>
+                <th style="width: 5%">Bulan</th>
+                <th style="width: 5%">Tahun</th>
+                <th style="width: 7%">Rekening</th>
+                <th>Jenis Pajak</th>
+                <th>Jumlah</th>
+                <th>Keterangan</th>
+            </tr>
+
+            <!-- content -->
+            {{range $val := .data}}
+            <tr>
+                {{range $v := $val}}
+                <td> {{$v}} </td>
+                {{end}}
+            </tr>
+            {{end}}
+        </table>
+    </div>
+</body>
+
+</html>

@@ -160,3 +160,12 @@ type ListLogPayment struct {
 type CancelDto struct {
 	IsCancelled *bool `json:"isCancelled"`
 }
+
+// FilterReport struct
+type FilterReport struct {
+	StartDate  *string `json:"start_date"`
+	StopDate   *string `json:"stop_date"`
+	StartMonth *int    `json:"start_month"`
+	StopMonth  *int    `json:"stop_month"`
+	Year       *string `json:"year"`
+}

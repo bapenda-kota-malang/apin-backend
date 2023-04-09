@@ -30,6 +30,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/nilaiindividu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/njoptkp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/pelayanan/pstdetail"
+	penerimaaan "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penerimaan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/penetapanmassal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/profile"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/referensibuku"
@@ -777,6 +778,12 @@ func SetRoutes() http.Handler {
 
 	r.Post("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
 	r.Post("/pstdetail/bynop", pstdetail.GetByNop)
+
+	r.Route("/report/penerimaan", func(r chi.Router) {
+		r.Get("/", penerimaaan.GetList)
+		r.Get("/download/excel", penerimaaan.DownloadExcelList)
+		r.Get("/download/pdf", penerimaaan.DownloadPDFList)
+	})
 
 	return r
 }
