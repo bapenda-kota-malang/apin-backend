@@ -580,6 +580,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}/cancel", sspd.Cancel)
 		r.Get("/sspddetail", sspd.GetListSspdDetail)
 		r.Get("/download/excel", sspd.DownloadExcelList)
+		r.Get("/download/pdf/{id}", sspd.DownloadPDF)
 	})
 
 	r.Route("/sinkronisasi", func(r chi.Router) {
@@ -607,6 +608,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/updatestatusterbit", undanganpemeriksaan.UpdateStatusTerbit)
 		r.Delete("/{id}", undanganpemeriksaan.Delete)
 		r.Get("/download/excel", undanganpemeriksaan.DownloadExcelList)
+		r.Get("/download/pdf/{id}", undanganpemeriksaan.DownloadPDF)
 	})
 
 	r.Route("/suratpemberitahuan", func(r chi.Router) {
@@ -627,6 +629,7 @@ func SetRoutes() http.Handler {
 		r.Patch("/verify/{id}", bapenagihan.Verify)
 		r.Delete("/{id}", bapenagihan.Delete)
 		r.Get("/download/excel", bapenagihan.DownloadExcelList)
+		r.Get("/download/pdf/{id}", bapenagihan.DownloadPDF)
 	})
 
 	r.Route("/pengurangan", func(r chi.Router) {
@@ -635,6 +638,7 @@ func SetRoutes() http.Handler {
 		r.Post("/", pengurangan.Create)
 		r.Patch("/{id}", pengurangan.Update)
 		r.Patch("/verify/{id}", pengurangan.Verify)
+		r.Get("/download/excel", pengurangan.DownloadExcelList)
 	})
 
 	r.Route("/refpengurangan", func(r chi.Router) {
@@ -647,7 +651,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListDendaADM)
 		r.Get("/{id}", pengurangan.GetDetailDendaADM)
 		r.Post("/", pengurangan.CreateDendaADM)
-		r.Patch("/{id}", pengurangan.UpdateDendaADM)
+		// r.Patch("/{id}", pengurangan.UpdateDendaADM)
 		r.Delete("/{id}", pengurangan.DeleteDendaADM)
 	})
 
@@ -655,7 +659,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListJPB)
 		r.Get("/{id}", pengurangan.GetDetailJPB)
 		r.Post("/", pengurangan.CreateJPB)
-		r.Patch("/{id}", pengurangan.UpdateJPB)
+		// r.Patch("/{id}", pengurangan.UpdateJPB)
 		r.Delete("/{id}", pengurangan.DeleteJPB)
 	})
 
@@ -663,7 +667,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListPermanen)
 		r.Get("/{id}", pengurangan.GetDetailPermanen)
 		r.Post("/", pengurangan.CreatePermanen)
-		r.Patch("/{id}", pengurangan.UpdatePermanen)
+		// r.Patch("/{id}", pengurangan.UpdatePermanen)
 		r.Delete("/{id}", pengurangan.DeletePermanen)
 	})
 
@@ -671,7 +675,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", pengurangan.GetListPST)
 		r.Get("/{id}", pengurangan.GetDetailPST)
 		r.Post("/", pengurangan.CreatePST)
-		r.Patch("/{id}", pengurangan.UpdatePST)
+		// r.Patch("/{id}", pengurangan.UpdatePST)
 		r.Delete("/{id}", pengurangan.DeletePST)
 	})
 
@@ -756,7 +760,15 @@ func SetRoutes() http.Handler {
 		r.Patch("/verify/{id}", regobjekpajakbangunan.VerifyLspop)
 	})
 
-	rh.RegCrud(r, "/jaminanbongkar", jaminanbongkar.Crud{})
+	r.Route("/jaminanbongkar", func(r chi.Router) {
+		r.Post("/", jaminanbongkar.Create)
+		r.Get("/", jaminanbongkar.GetList)
+		r.Get("/{id}", jaminanbongkar.GetDetail)
+		r.Patch("/{id}", jaminanbongkar.Update)
+		r.Delete("/{id}", jaminanbongkar.Delete)
+		r.Get("/download/excel", jaminanbongkar.DownloadExcel)
+		r.Get("/download/pdf/{id}", jaminanbongkar.DownloadPDF)
+	})
 
 	rh.RegCrud(r, "/prosesjambong", prosesjambong.Crud{})
 
@@ -807,6 +819,15 @@ func SetRoutes() http.Handler {
 
 	r.Post("/pstdetail/bynopelayanan", pstdetail.GetByNoPelayanan)
 	r.Post("/pstdetail/bynop", pstdetail.GetByNop)
+
+	r.Route("/updateva", func(r chi.Router) {
+		r.Patch("/pdl/{id}", spt.UpdateVa)
+		r.Patch("/pbb/{id}", sppt.UpdateVa)
+	})
+
+	r.Route("/catatansejarahop", func(r chi.Router) {
+		r.Get("/", sppt.ListCatataSejarahOp)
+	})
 
 	return r
 }

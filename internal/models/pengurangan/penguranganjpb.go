@@ -4,66 +4,63 @@ import "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 
 type PenguranganJPB struct {
 	BaseModel
-	TahunPengenaanJPB *string  `json:"tahunPengenaanJPB" gorm:"type:char(4)"`
-	PctPenguranganJPB *float64 `json:"pctPenguranganJPB" gorm:"type:decimal(5,2)"`
+	ThnPengenaan      *string  `json:"thnPengenaan" gorm:"type:char(4)"`
+	PCTPenguranganJPB *float64 `json:"PCTPenguranganJPB" gorm:"type:decimal(5,2)"`
 	gormhelper.DateModel
 }
 
+type DataJpbDto struct {
+	DataBaseDto
+	ThnPengenaan      *string  `json:"thnPengenaan"`
+	PCTPenguranganJPB *float64 `json:"PCTPenguranganJPB"`
+}
+
 type CreateDtoJPB struct {
-	Kanwil_Kd           *string  `json:"kanwil_Kd"`
-	Kppbb_Kd            *string  `json:"kppbb_Kd"`
-	TahunPelayanan      *string  `json:"tahunPelayanan"`
-	BundelPelayanan     *string  `json:"bundelPelayanan"`
-	NoUrutPelayanan     *string  `json:"noUrutPelayanan"`
-	ProvinsiPemohon_Kd  *string  `json:"ProvinsiPemohon_Kd"`
-	DaerahPemohon_Kd    *string  `json:"daerahPemohon_Kd"`
-	KecamatanPemohon_Kd *string  `json:"kecamatanPemohon_Kd"`
-	KelurahanPemohon_Kd *string  `json:"KelurahanPemohon_Kd"`
-	BlokPemohon_Kd      *string  `json:"blokPemohon_Kd"`
-	NoUrutPemohon_Kd    *string  `json:"noUrutPemohon_Kd"`
-	JenisOpPemohon_Kd   *string  `json:"jenisOpPemohon_Kd"`
-	JenisSk             *string  `json:"jenisSk"`
-	NoSk                *string  `json:"noSk"`
-	TahunPengenaanJPB   *string  `json:"tahunPengenaanJPB"`
-	PctPenguranganJPB   *float64 `json:"pctPenguranganJPB"`
+	Kanwil_Kode     string        `json:"kanwil_kode"`
+	Kppbb_Kode      string        `json:"kppbb_kode"`
+	ThnPelayanan    string        `json:"thnPelayanan" validate:"required"`
+	BundelPelayanan string        `json:"bundelPelayanan" validate:"required"`
+	NoUrutPelayanan string        `json:"noUrutPelayanan" validate:"required"`
+	SkSk            CreateSkskDto `json:"sksk" validate:"required"`
+	Data            DataJpbDto    `json:"data" validate:"required"`
 }
 
 type FilterDtoJPB struct {
-	Kanwil_Kd           *string  `json:"kanwil_Kd"`
-	Kppbb_Kd            *string  `json:"kppbb_Kd"`
-	TahunPelayanan      *string  `json:"tahunPelayanan"`
-	BundelPelayanan     *string  `json:"bundelPelayanan"`
-	NoUrutPelayanan     *string  `json:"noUrutPelayanan"`
-	ProvinsiPemohon_Kd  *string  `json:"ProvinsiPemohon_Kd"`
-	DaerahPemohon_Kd    *string  `json:"daerahPemohon_Kd"`
-	KecamatanPemohon_Kd *string  `json:"kecamatanPemohon_Kd"`
-	KelurahanPemohon_Kd *string  `json:"KelurahanPemohon_Kd"`
-	BlokPemohon_Kd      *string  `json:"blokPemohon_Kd"`
-	NoUrutPemohon_Kd    *string  `json:"noUrutPemohon_Kd"`
-	JenisOpPemohon_Kd   *string  `json:"jenisOpPemohon_Kd"`
-	JenisSk             *string  `json:"jenisSk"`
-	NoSk                *string  `json:"noSk"`
-	TahunPengenaanJPB   *string  `json:"tahunPengenaanJPB"`
-	PctPenguranganJPB   *float64 `json:"pctPenguranganJPB"`
-	Page                int      `json:"page"`
-	PageSize            int      `json:"page_size"`
+	Kanwil_Kode            *string  `json:"kanwil_kode"`
+	Kppbb_Kode             *string  `json:"kppbb_kode"`
+	ThnPelayanan           *string  `json:"thnPelayanan"`
+	BundelPelayanan        *string  `json:"bundelPelayanan"`
+	NoUrutPelayanan        *string  `json:"noUrutPelayanan"`
+	Provinsi_Kode_Pemohon  *string  `json:"provinsi_kode_pemohon"`
+	Daerah_Kode_Pemohon    *string  `json:"daerah_kode_pemohon"`
+	Kecamatan_Kode_Pemohon *string  `json:"kecamatan_kode_pemohon"`
+	Kelurahan_Kode_Pemohon *string  `json:"kelurahan_kode_pemohon"`
+	Blok_Kode_Pemohon      *string  `json:"blok_kode_pemohon"`
+	NoUrut_Pemohon         *string  `json:"noUrut_pemohon"`
+	JenisOp_Pemohon        *string  `json:"jenisOp_pemohon"`
+	JenisSk                *string  `json:"jenisSk"`
+	NoSk                   *string  `json:"noSk"`
+	ThnPengenaan           *string  `json:"thnPengenaan"`
+	PCTPenguranganJPB      *float64 `json:"PCTPenguranganJPB"`
+	Page                   int      `json:"page"`
+	PageSize               int      `json:"page_size"`
 }
 
 type UpdateDtoJPB struct {
-	Kanwil_Kd           *string  `json:"kanwil_Kd"`
-	Kppbb_Kd            *string  `json:"kppbb_Kd"`
-	TahunPelayanan      *string  `json:"tahunPelayanan"`
-	BundelPelayanan     *string  `json:"bundelPelayanan"`
-	NoUrutPelayanan     *string  `json:"noUrutPelayanan"`
-	ProvinsiPemohon_Kd  *string  `json:"ProvinsiPemohon_Kd"`
-	DaerahPemohon_Kd    *string  `json:"daerahPemohon_Kd"`
-	KecamatanPemohon_Kd *string  `json:"kecamatanPemohon_Kd"`
-	KelurahanPemohon_Kd *string  `json:"KelurahanPemohon_Kd"`
-	BlokPemohon_Kd      *string  `json:"blokPemohon_Kd"`
-	NoUrutPemohon_Kd    *string  `json:"noUrutPemohon_Kd"`
-	JenisOpPemohon_Kd   *string  `json:"jenisOpPemohon_Kd"`
-	JenisSk             *string  `json:"jenisSk"`
-	NoSk                *string  `json:"noSk"`
-	TahunPengenaanJPB   *string  `json:"tahunPengenaanJPB"`
-	PctPenguranganJPB   *float64 `json:"pctPenguranganJPB"`
+	Kanwil_Kode            *string  `json:"kanwil_kode"`
+	Kppbb_Kode             *string  `json:"kppbb_kode"`
+	ThnPelayanan           *string  `json:"thnPelayanan"`
+	BundelPelayanan        *string  `json:"bundelPelayanan"`
+	NoUrutPelayanan        *string  `json:"noUrutPelayanan"`
+	Provinsi_Kode_Pemohon  *string  `json:"provinsi_kode_pemohon"`
+	Daerah_Kode_Pemohon    *string  `json:"daerah_kode_pemohon"`
+	Kecamatan_Kode_Pemohon *string  `json:"kecamatan_kode_pemohon"`
+	Kelurahan_Kode_Pemohon *string  `json:"kelurahan_kode_pemohon"`
+	Blok_Kode_Pemohon      *string  `json:"blok_kode_pemohon"`
+	NoUrut_Pemohon         *string  `json:"noUrut_pemohon"`
+	JenisOp_Pemohon        *string  `json:"jenisOp_pemohon"`
+	JenisSk                *string  `json:"jenisSk"`
+	NoSk                   *string  `json:"noSk"`
+	ThnPengenaan           *string  `json:"thnPengenaan"`
+	PCTPenguranganJPB      *float64 `json:"PCTPenguranganJPB"`
 }
