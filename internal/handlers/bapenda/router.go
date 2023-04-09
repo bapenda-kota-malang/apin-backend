@@ -250,7 +250,7 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/sppt", sppt.Crud{})
 	r.Post("/sppt/rincian", sppt.Rincian)
 	r.Post("/sppt/salinan", sppt.Salinan)
-	r.Post("/sppt/sejarah", sppt.SejarahSppt)
+	r.Post("/sppt/sejarah", sppt.GetListSejarahSppt)
 
 	r.Post("/sksk/cetak", sksk.Cetak)
 	rh.RegCrud(r, "/sksk", sksk.Crud{})

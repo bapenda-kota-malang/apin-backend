@@ -132,13 +132,3 @@ func UpdateVa(w http.ResponseWriter, r *http.Request) {
 	result, err := s.UpdateVa(r.Context(), id, data, uint64(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
-
-func SejarahSppt(w http.ResponseWriter, r *http.Request) {
-	var input m.FilterDto
-	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
-		return
-	}
-
-	result, err := s.GetSejarahSppt(input)
-	hh.DataResponse(w, result, err)
-}
