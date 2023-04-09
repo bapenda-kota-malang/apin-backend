@@ -5,10 +5,12 @@ import (
 	"time"
 
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
@@ -265,4 +267,105 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+// GetDownloadExcelTransaksiPPAT func
+func GetDownloadExcelTransaksiPPAT(input msptpd.FilterPPATDto) (*excelize.File, error) {
+	var data []m.ResponsePelaporanPpat
+	// var count int64
+
+	queryBase := a.DB.Model(&m.PelaporanPpat{})
+	queryBase = queryBase.
+		Select("DISTINCT ON (\"PelaporanPpat\".\"Ppat_Id\") \"PelaporanPpat\".\"Ppat_Id\"", "(\"Ppat\".\"Nama\") \"Ppat_Name\"", "\"PelaporanPpat\".\"TglLapor\"", "count(\"PelaporanPpat\".\"Sptpd_Id\") \"Sptpd_Id\"", "sum(\"BphtbSptpd\".\"NilaiOp\") \"NilaiOp\"", "sum(\"BphtbSptpd\".\"JumlahSetor\") \"JumlahSetor\"", "\"BphtbSptpd\".\"Status\"").
+		Joins("LEFT JOIN \"BphtbSptpd\" ON \"BphtbSptpd\".\"Sptpd_Id\" = \"PelaporanPpat\".\"Sptpd_Id\"").
+		Joins("LEFT JOIN \"Ppat\" ON \"Ppat\".\"Id\" = CAST(\"PelaporanPpat\".\"Ppat_Id\" AS INTEGER) ")
+
+	if input.Ppat_Id != nil {
+		queryBase = queryBase.Where("\"PelaporanPpat\".\"Ppat_Id\"", input.Ppat_Id)
+	}
+
+	if input.Bulan != nil {
+		queryBase = queryBase.Where("EXTRACT('month' from \"TglLapor\") = ?", input.Bulan)
+	}
+
+	if input.Tahun != nil {
+		queryBase = queryBase.Where("EXTRACT('year' from \"TglLapor\") = ?", input.Tahun)
+	}
+
+	result := queryBase.
+		Order("\"PelaporanPpat\".\"Ppat_Id\"").
+		Group("\"PelaporanPpat\".\"Ppat_Id\", \"Ppat\".\"Nama\", \"PelaporanPpat\".\"TglLapor\", \"BphtbSptpd\".\"Status\"").
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data laporan ppat", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "Nama PPAT",
+			"C": "Tanggal Laporan",
+			"D": "Jumlah Transaksi",
+			"E": "Nominal Transaksi (Rp.)",
+			"F": "Nominal BPHTB (Rp.)",
+			"G": "Status",
+		})
+		for i, v := range data {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": func() string {
+					if v.Ppat_Name != nil {
+						return *v.Ppat_Name
+					}
+					return ""
+				}(),
+				"C": func() string {
+					if v.TglLapor != nil {
+						return *v.TglLapor
+					}
+					return ""
+				}(),
+				"D": func() string {
+					if v.Sptpd_Id != nil {
+						return *v.Sptpd_Id
+					}
+					return ""
+				}(),
+				"E": func() string {
+					if v.NilaiOp != nil {
+						return *v.NilaiOp
+					}
+					return ""
+				}(),
+				"F": func() string {
+					if v.JumlahSetor != nil {
+						return *v.JumlahSetor
+					}
+					return ""
+				}(),
+				"G": func() string {
+					if v.Status != nil {
+						return *v.Status
+					}
+					return ""
+				}(),
+			})
+		}
+		return tmp
+	}()
+
+	xlsx, err := excelhelper.ExportList(excelData, "List")
+	if err != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data laporan ppat", data)
+		return nil, err
+	}
+
+	xlsx.SetCellValue("List", "A1", "Transaksi PPAT")
+	xlsx.MergeCell("List", "A1", "G1")
+
+	// xlsx.SetCellValue("List", "A2", fmt.Sprintf(`Periode: %s %s`, mon, input.Tahun))
+	return xlsx, nil
 }

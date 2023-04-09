@@ -340,6 +340,8 @@ func SetRoutes() http.Handler {
 	r.Route("/ppat-laporan", func(r chi.Router) {
 		r.Get("/{ppat}", pelaporanppat.GetDetailLapPPAT)
 		r.Get("/", pelaporanppat.GetListLaporanPPAT)
+		r.Get("/download/excel", pelaporanppat.DownloadExcelLaporanPPAT)
+		r.Get("/download/pdf", pelaporanppat.DownloadPDFLaporanPPAT)
 	})
 
 	r.Route("/ppat-laporan-detail", func(r chi.Router) {

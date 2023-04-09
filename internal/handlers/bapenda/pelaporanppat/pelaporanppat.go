@@ -96,3 +96,31 @@ func (c Crud) Delete(w http.ResponseWriter, r *http.Request) {
 	result, err := s.Delete(id, nil)
 	hh.DataResponse(w, result, err)
 }
+
+// DownloadExcelLaporanPPAT func
+func DownloadExcelLaporanPPAT(w http.ResponseWriter, r *http.Request) {
+	var data msptpd.FilterPPATDto
+	if !hh.ValidateStructByURL(w, *r.URL, &data) {
+		return
+	}
+
+	result, err := s.GetDownloadExcelTransaksiPPAT(data)
+	if err != nil {
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=list_pelaporan_ppat.xlsx")
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+	result.Write(w)
+}
+
+// DownloadPDFLaporanPPAT func
+func DownloadPDFLaporanPPAT(w http.ResponseWriter, r *http.Request) {
+	var data msptpd.FilterPPATDto
+	if !hh.ValidateStructByURL(w, *r.URL, &data) {
+		return
+	}
+
+	result, err := s.GetListTransaksiPPAT(data)
+	hh.DataResponse(w, result, err)
+}
