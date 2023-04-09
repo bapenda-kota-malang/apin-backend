@@ -40,6 +40,7 @@ func GetList(input npwpd.FilterDto) (interface{}, error) {
 			return tx.Omit("Password")
 		}).
 		Joins("Rekening").
+		Joins("ObjekPajak").
 		// Preload("ObjekPajak").
 		Preload("ObjekPajak.Kecamatan").
 		Preload("ObjekPajak.Kelurahan").

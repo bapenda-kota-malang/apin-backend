@@ -1,8 +1,10 @@
 package spt
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -13,6 +15,7 @@ import (
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/google/uuid"
 
+	sbj "github.com/bapenda-kota-malang/apin-backend/internal/services/bankjatim"
 	srek "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
 	snomertracker "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/sptnomertracker"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
@@ -20,6 +23,8 @@ import (
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	ibj "github.com/bapenda-kota-malang/apin-backend/pkg/integration/bankjatim"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/datatypes"
@@ -59,8 +64,9 @@ func filePreProcess(b64String, docsname string, userId uint, oldId uuid.UUID) (f
 	return
 }
 
-func generateKodeBilling(kodeBilling string, nomerSpt string) string {
-	return fmt.Sprintf("%s%s", kodeBilling, nomerSpt)
+func generateKodeBilling(kodeBilling *string, nomerSpt string) *string {
+	kode := fmt.Sprintf("%s%s", *kodeBilling, nomerSpt)
+	return &kode
 }
 
 func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, error) {
@@ -127,6 +133,10 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
+	if data.Total == nil {
+		data.Total = &data.JumlahPajak
+	}
+
 	if data.TanggalSpt.IsZero() {
 		data.TanggalSpt = time.Now()
 	}
@@ -141,7 +151,7 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 	nomerSpt := fmt.Sprintf("%d%s", yearTwoDigit, nomerUrut)
 	data.NomorSpt = fmt.Sprintf("%c-%s", kode[0], nomerSpt)
 	if opts["baseUri"].(string) == "sptpd" {
-		data.KodeBilling = generateKodeBilling(*dataRekening.KodeBilling, nomerSpt)
+		data.KodeBilling = generateKodeBilling(dataRekening.KodeBilling, nomerSpt)
 	}
 	switch data.Type {
 	case mtypes.JenisPajakOA, mtypes.JenisPajakSA:
@@ -170,6 +180,24 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 	data.PeriodeAwal = datatypes.Date(periodeTime)
 	data.PeriodeAkhir = datatypes.Date(sh.EndOfMonth(periodeTime))
 	data.JatuhTempo = datatypes.Date(sh.EndOfMonth(jatuhTempoTime))
+
+	// set jenis ketetapan
+	if data.DasarPengenaan == nil {
+		data.JenisKetetapan = m.JenisKetetapanSptpd
+		if data.Type == mtypes.JenisPajakOA {
+			data.JenisKetetapan = m.JenisKetetapanSkpd
+		}
+	} else {
+		// normalize dasar pengenaan to uppercase
+		dasarPengenaan := strings.ToUpper(*data.DasarPengenaan)
+		data.DasarPengenaan = &dasarPengenaan
+		switch dasarPengenaan {
+		case m.DasarPengenaanSptpd, m.DasarPengenaanSkpd, m.DasarPengenaanTeguran:
+			data.JenisKetetapan = m.JenisKetetapanSkpdkb
+		case m.DasarPengenaanSkpdkb, m.DasarPengenaanSkpdkbt:
+			data.JenisKetetapan = m.JenisKetetapanSkpdkbt
+		}
+	}
 
 	err = tx.Create(&data).Error
 	if err != nil {
@@ -436,6 +464,60 @@ func UpdatePenyetoran(id uuid.UUID, tx *gorm.DB) error {
 		return result.Error
 	}
 	return nil
+}
+
+// update virtual account bank jatim
+func UpdateVa(ctx context.Context, id uuid.UUID, input m.UpdateVaDto, userId uint64) (any, error) {
+	var data m.Spt
+	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
+	if dataRow := a.DB.Preload("Npwpd").Preload("ObjekPajak").First(&data, "\"Id\" = ?", id.String()).RowsAffected; dataRow == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+	if data.VaJatim == nil {
+		return nil, errors.New("data spt ini masih belum ada virtual account")
+	}
+	data.JumlahPajak = *input.JumlahPajak
+
+	data.Total = &data.JumlahPajak
+	data.Denda = input.Denda
+	if data.Denda != nil {
+		total := data.JumlahPajak + *data.Denda
+		data.Total = &total
+	}
+
+	tglExp := time.Time(data.JatuhTempo)
+	if servicehelper.IsJatuhTempo(&data.JatuhTempo) {
+		tglExp = servicehelper.EndOfMonth(time.Now())
+	}
+
+	// bank jatim
+	payload := ibj.RequestRegistration{
+		VirtualAccount: *data.VaJatim,
+		Nama:           *data.ObjekPajak.Nama,
+		TotalTagihan:   uint64(math.RoundToEven(*data.Total)),
+		TanggalExp:     tglExp.Format("20060102"),
+		Berita1:        fmt.Sprintf("%s %s", *data.Npwpd.Npwpd, time.Now().Format("01-2006")),
+		Berita2:        data.NomorSpt,
+		Berita3:        fmt.Sprintf("DENDA %d", data.Denda),
+		Berita4:        fmt.Sprintf("KENAIKAN %d", data.Kenaikan),
+		Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
+		FlagProses:     ibj.ProsesUpdate,
+	}
+	ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	if err := sbj.Registration(ctxTo, payload, userId); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengubah va: "+err.Error(), data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+	return rp.OK{
+		Meta: t.IS{
+			"affected": "1",
+		},
+		Data: data,
+	}, nil
 }
 
 func Delete(id uuid.UUID) (any, error) {

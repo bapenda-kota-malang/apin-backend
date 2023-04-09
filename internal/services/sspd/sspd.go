@@ -2,9 +2,12 @@ package sspd
 
 import (
 	"errors"
+	"fmt"
+	"path/filepath"
 	"strconv"
 	"time"
 
+	"github.com/apung/go-terbilang"
 	mn "github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sspd"
@@ -16,9 +19,11 @@ import (
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/slicehelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
+	"github.com/leekchan/accounting"
 	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -499,4 +504,116 @@ func Update(id int, input m.UpdateDto, user_id uint64) (any, error) {
 	return rp.OKSimple{
 		Data: resp,
 	}, nil
+}
+
+type ResponseFile struct {
+	ID       int    `json:"id"`
+	FileName string `json:"fileName"`
+}
+
+// Surat setoran pajak derah
+func DownloadPDF(id int) (any, error) {
+	var (
+		data                                                                         m.Sspd
+		objekPajakNama, objekPajakAlamat, masaPajakBulan, masaPajakTahun             string
+		rekeningKode, rekeningNama, note, tanggalDiterima, tanggalSekarang, userName string
+		total                                                                        float64
+		nomorNpwpd                                                                   int
+		ac                                                                           = accounting.Accounting{Symbol: "", Precision: 0, Thousand: ".", Decimal: ","}
+	)
+
+	result := a.DB.
+		Preload("ObjekPajak").
+		Preload("SspdDetails.Spt").
+		Preload("Npwpd").
+		Preload("Rekening").
+		Preload("User").
+		Find(&data, id)
+
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	if data.ObjekPajak != nil {
+		if data.ObjekPajak.Nama != nil {
+			objekPajakNama = *data.ObjekPajak.Nama
+		}
+		if data.ObjekPajak.Alamat != nil {
+			objekPajakAlamat = *data.ObjekPajak.Alamat
+		}
+	}
+
+	if data.Rekening != nil {
+		if data.Rekening.Nama != nil {
+			rekeningNama = *data.Rekening.Nama
+		}
+		if data.Rekening.Kode != nil {
+			rekeningKode = *data.Rekening.Kode
+		}
+	}
+
+	if data.User != nil {
+		userName = data.User.Name
+	}
+
+	if data.Total != nil {
+		total = *data.Total
+	}
+
+	if data.Npwpd != nil {
+		nomorNpwpd = data.Npwpd.Nomor
+	}
+
+	if data.Note != nil {
+		note = *data.Note
+	}
+
+	if data.TanggalBayar != nil {
+		now := time.Now()
+		tanggalDiterima = fmt.Sprintf("%v %v %v", data.TanggalBayar.Day(), timehelper.GetMonth(data.TanggalBayar), data.TanggalBayar.Year())
+		tanggalSekarang = fmt.Sprintf("%v %v %v", now.Day(), timehelper.GetMonth(&now), now.Year())
+	}
+
+	if len(data.SspdDetails) > 0 {
+		if data.SspdDetails[0].Spt != nil {
+			masa := timehelper.ConvertDatatypesDateToTime(&data.SspdDetails[0].Spt.PeriodeAwal)
+			masaPajakBulan = fmt.Sprintf("%v", masa.Month())
+			masaPajakTahun = fmt.Sprintf("%v", masa.Year())
+		}
+	}
+
+	finalResult := map[string]interface{}{
+		"NomorSSPD":       data.NomorOutput,
+		"NamaPenyetor":    objekPajakNama,
+		"AlamatPenyetor":  objekPajakAlamat,
+		"NPWPDPenyetor":   nomorNpwpd,
+		"DasarSetoran":    "SPTPD", // hold dulu
+		"MasaPajakBulan":  masaPajakBulan,
+		"MasaPajakTahun":  masaPajakTahun,
+		"NomorRekening":   rekeningKode,
+		"JenisPajak":      rekeningNama,
+		"Jumlah":          ac.FormatMoney(total),
+		"Terbilang":       terbilang.ToTerbilangRp(int(total)),
+		"Keterangan":      note,
+		"TanggalDiterima": tanggalDiterima,
+		"TanggalSekarang": tanggalSekarang,
+		"NamaPenerima":    userName,
+	}
+
+	uuid, err := sh.GetUuidv4()
+	if err != nil {
+		return nil, err
+	}
+	fileName := sh.GenerateFilename("surat-setoran-pajak-daerah", uuid, 0, "pdf")
+
+	outFile := filepath.Join(sh.GetPdfPath(), fileName)
+	if err := GeneratePdf(outFile, finalResult); err != nil {
+		return nil, err
+	}
+	_r := &ResponseFile{
+		ID:       id,
+		FileName: outFile,
+	}
+	return rp.OKSimple{Data: _r}, nil
 }

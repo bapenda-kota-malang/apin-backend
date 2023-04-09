@@ -799,17 +799,17 @@ func Approval(kd string, auth int, input m.RequestApprovalPermohonan, idata m.Pe
 		return nil, nil
 	}
 
-	if kd == "00" && auth == 4 {
+	if kd == "00" && auth == 6 {
 		//diterima staff
-	} else if kd == "01" && auth == 3 {
+	} else if kd == "01" && auth == 4 {
 		//diterima kasubid
-	} else if kd == "02" && auth == 2 {
+	} else if kd == "02" && auth == 3 {
 		//diterima kabid
 		_, errResult := sori.CopyDataReg(input.Id, *input.NOP, *idata.JenisPengurangan, tx)
 		if errResult != nil {
 			return sh.SetError("request", "approval-data", source, "failed", "gagal melakukan approval data, user status tidak valid", idata)
 		}
-	} else if kd == "03" && auth == 4 {
+	} else if kd == "03" && auth == 6 {
 		//ditolak
 	} else if kd == "04" && auth == 2 {
 		//diterima sekban

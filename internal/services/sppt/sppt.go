@@ -1,6 +1,8 @@
 package sppt
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strconv"
@@ -15,11 +17,16 @@ import (
 	kt "github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	pmh "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
+
+	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+
+	m_opp "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
 	tp "github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
+	sbj "github.com/bapenda-kota-malang/apin-backend/internal/services/bankjatim"
 	sd "github.com/bapenda-kota-malang/apin-backend/internal/services/daerah"
 	skc "github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
 	kbs "github.com/bapenda-kota-malang/apin-backend/internal/services/kelasbangunan"
@@ -36,6 +43,7 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	ibj "github.com/bapenda-kota-malang/apin-backend/pkg/integration/bankjatim"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
@@ -216,11 +224,15 @@ func UpdatePenguranganByNop(input m.NopDto, pctPengurangan float64, tx *gorm.DB)
 		Where("TahunPajakskp_sppt", &input.TahunPajakskp_sppt).
 		First(&data)
 	if result.RowsAffected == 0 {
-		return nil, nil
+		return nil, fmt.Errorf("data sppt tidak ditemukan")
 	}
 
-	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	if data.PBBterhutang_sppt == nil {
+		return nil, fmt.Errorf("data spp pbb yang terhutang kosong")
+	}
+
+	if data.StatusPembayaran_sppt != nil && *data.StatusPembayaran_sppt != "0" {
+		return nil, fmt.Errorf("status pembayaran bukan belum bayar (0)")
 	}
 
 	faktorPengurangan := int(float64(*data.PBBterhutang_sppt) * pctPengurangan)
@@ -235,6 +247,71 @@ func UpdatePenguranganByNop(input m.NopDto, pctPengurangan float64, tx *gorm.DB)
 	return rp.OK{
 		Meta: t.IS{
 			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func UpdateVa(ctx context.Context, id int, input m.UpdateVaDto, userId uint64) (any, error) {
+	var data m.Sppt
+	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
+	if dataRow := a.DB.First(&data, id).RowsAffected; dataRow == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+	if data.VirtualAccoountJatim == nil {
+		return nil, errors.New("data sspt ini masih belum ada virtual account")
+	}
+	data.PBBygHarusDibayar_sppt = input.PBBygHarusDibayar_sppt
+	total := *input.PBBygHarusDibayar_sppt
+	denda := 0
+	if input.Denda != nil {
+		total = *data.PBBygHarusDibayar_sppt + *input.Denda
+		denda = *input.Denda
+	}
+	if data.TanggalJatuhTempo_sppt == nil {
+		return nil, errors.New("data sspt ini masih belum ada jatuh tempo")
+	}
+	if data.NamaWP_sppt == nil {
+		return nil, errors.New("data sspt ini masih belum ada nama wp")
+	}
+
+	tglExp := time.Time(*data.TanggalJatuhTempo_sppt)
+	if servicehelper.IsJatuhTempo(data.TanggalJatuhTempo_sppt) {
+		tglExp = servicehelper.EndOfMonth(time.Now())
+	}
+	nop := servicehelper.NopString(
+		*data.Propinsi_Id,
+		*data.Dati2_Id,
+		*data.Kecamatan_Id,
+		*data.Keluarahan_Id,
+		*data.Blok_Id,
+		*data.NoUrut,
+		*data.JenisOP_Id,
+		"",
+	)
+	// bank jatim
+	payload := ibj.RequestRegistration{
+		VirtualAccount: strconv.Itoa(*data.VirtualAccoountJatim),
+		Nama:           *data.NamaWP_sppt,
+		TotalTagihan:   uint64(total),
+		TanggalExp:     tglExp.Format("20060102"),
+		Berita1:        fmt.Sprintf("%s %s", nop, time.Now().Format("06")),
+		Berita2:        fmt.Sprintf("%d", denda),
+		Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
+		FlagProses:     ibj.ProsesUpdate,
+	}
+	ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	if err := sbj.Registration(ctxTo, payload, userId); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengubah va: "+err.Error(), data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+	return rp.OK{
+		Meta: t.IS{
+			"affected": "1",
 		},
 		Data: data,
 	}, nil
@@ -1254,4 +1331,51 @@ func DownloadPDF(input m.PenetapanMassalDto) (any, error) {
 		FileName: outFile,
 	}
 	return rp.OKSimple{Data: _r}, nil
+}
+
+func GetListCatatanSejarahOp(input m.CatatanSejarahOPDto) (any, error) {
+	var (
+		dataRecords []m_opp.ObjekPajakPbb
+		count       int64
+	)
+
+	// pagination
+	var pagination gh.Pagination
+
+	// kelurahan kode = provinsi kode + daerah kode + kecamatan kode + kelurahan kode
+	kelurahanKode := fmt.Sprintf("%s%s%s%s", *input.Provinsi_Kode, *input.Daerah_Kode, *input.Kecamatan_Kode, *input.Kelurahan_Kode)
+
+	// wilayah
+	condition := m_opp.ObjekPajakPbb{
+		Provinsi_Kode:  input.Provinsi_Kode,
+		Daerah_Kode:    input.Daerah_Kode,
+		Kecamatan_Kode: input.Kecamatan_Kode,
+		Kelurahan_Kode: &kelurahanKode,
+	}
+
+	// get data
+	result := a.DB.Model(&m_opp.ObjekPajakPbb{}).
+		Debug().
+		Where(&condition).
+		// daterange by tanggal mutasi on created_at
+		Where(`"CreatedAt" BETWEEN ? AND ?`, input.Tanggal_Mutasi_Start, input.Tanggal_Mutasi_End).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&dataRecords)
+
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: dataRecords,
+	}, nil
 }

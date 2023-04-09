@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/sppt"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
@@ -117,6 +118,22 @@ func Salinan(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := s.Salinan(data)
+	hh.DataResponse(w, result, err)
+}
+
+func UpdateVa(w http.ResponseWriter, r *http.Request) {
+	id := hh.ValidateAutoInc(w, r, "id")
+	if id < 1 {
+		return
+	}
+
+	var data m.UpdateVaDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
+	result, err := s.UpdateVa(r.Context(), id, data, uint64(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 

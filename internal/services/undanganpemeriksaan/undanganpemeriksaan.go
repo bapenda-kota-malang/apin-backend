@@ -3,7 +3,9 @@ package undanganpemeriksaan
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	sc "github.com/jinzhu/copier"
 	"github.com/xuri/excelize/v2"
@@ -15,7 +17,9 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
@@ -223,4 +227,102 @@ func UpdateStatusTerbit(input m.UpdateStatusTerbitDto, tx *gorm.DB) (any, error)
 		dataResult = append(dataResult, data)
 	}
 	return rp.OKSimple{Data: dataResult}, nil
+}
+
+type ResponseFile struct {
+	ID       int    `json:"id"`
+	FileName string `json:"fileName"`
+}
+
+// Undangan Pemeriksaan
+func DownloadPDF(id int) (any, error) {
+	var (
+		data                                                                                          m.UndanganPemeriksaan
+		noSuratUndangan, namaUsaha, nomorNpwpd, alamatUsaha, tempat, keperluan, pukul, hariDanTanggal string
+	)
+	result := a.DB.
+		Preload("Npwpd.ObjekPajak").
+		First(&data, id)
+
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+
+	if data.NoSuratUndangan != nil {
+		noSuratUndangan = *data.NoSuratUndangan
+	}
+
+	if data.Tanggal != nil {
+		hariDanTanggal = fmt.Sprintf("%v/ %v %v %v",
+			timehelper.GetDay(data.Tanggal),
+			data.Tanggal.Day(),
+			timehelper.GetMonth(data.Tanggal),
+			data.Tanggal.Month(),
+		)
+	}
+
+	if data.Tempat != nil {
+		tempat = *data.Tempat
+	}
+
+	if data.Keperluan != nil {
+		keperluan = *data.Keperluan
+	}
+
+	if data.Pukul != nil {
+		p := timehelper.ConvertDatatypesTimeToString(data.Pukul)
+		pukul = fmt.Sprintf("%v WIB", strings.Replace(p[0:5], ":", ".", 1))
+	}
+
+	if data.Npwpd != nil {
+		if data.Npwpd.ObjekPajak != nil {
+			if data.Npwpd.ObjekPajak.Nama != nil {
+				namaUsaha = *data.Npwpd.ObjekPajak.Nama
+			}
+
+			if data.Npwpd.ObjekPajak.Alamat != nil {
+				alamatUsaha = *data.Npwpd.ObjekPajak.Alamat
+			}
+		}
+
+		if data.Npwpd.Npwpd != nil {
+			nomorNpwpd = *data.Npwpd.Npwpd
+		}
+	}
+
+	finalResult := map[string]interface{}{
+		"Nomor":          noSuratUndangan,
+		"NamaUsaha":      namaUsaha,
+		"NPWPDUsaha":     nomorNpwpd,
+		"AlamatUsaha":    alamatUsaha,
+		"HariDanTanggal": hariDanTanggal,
+		"Pukul":          pukul,
+		"Tempat":         tempat,
+		"Keperluan":      keperluan,
+		"Petugas": []pegawai.Pegawai{
+			{
+				Nama: "Bpk. Didit Edy S",
+			},
+			{
+				Nama: "Bpk. Vivo D.",
+			},
+		},
+	}
+
+	uuid, err := sh.GetUuidv4()
+	if err != nil {
+		return nil, err
+	}
+	fileName := sh.GenerateFilename("undangan pemeriksaan", uuid, 0, "pdf")
+
+	outFile := filepath.Join(sh.GetPdfPath(), fileName)
+	if err := GeneratePdf(outFile, finalResult); err != nil {
+		return nil, err
+	}
+	_r := &ResponseFile{
+		ID:       id,
+		FileName: outFile,
+	}
+	return rp.OKSimple{Data: _r}, nil
 }
