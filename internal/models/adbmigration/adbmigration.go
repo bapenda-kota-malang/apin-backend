@@ -100,6 +100,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/regobjekpajakpbb"
 	regpstpermohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/reklas"
+	resource "github.com/bapenda-kota-malang/apin-backend/internal/models/resource"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sinkronisasi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
@@ -519,6 +520,13 @@ func GetModelList() (data []interface{}) {
 		&pelaporanppat.PelaporanPpat{},
 	}
 	data = append(data, listModelPelaporanPpat...)
+
+	listModelResource := []interface{}{
+		&resource.GroupResource{},
+		&resource.ItemResource{},
+		&resource.HargaResource{},
+	}
+	data = append(data, listModelResource...)
 
 	return data
 }

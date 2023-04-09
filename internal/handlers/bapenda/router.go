@@ -20,7 +20,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depjpbklsbintang"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/depminmax"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbfasum/nondep"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/groupresource"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/hargaresource"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/indukobjekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/itemresource"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/jaminanbongkar/prosesjambong"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/kanwil"
@@ -242,6 +245,12 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/jenispajak", jenispajak.Crud{})
 
 	rh.RegCrud(r, "/jenisusaha", jenisusaha.Crud{})
+
+	rh.RegCrud(r, "/groupresource", groupresource.Crud{})
+
+	rh.RegCrud(r, "/itemresource", itemresource.Crud{})
+
+	rh.RegCrud(r, "/hargaresource", hargaresource.Crud{})
 
 	rh.RegCrud(r, "/tempatpembayaran", tempatpembayaran.Crud{})
 
