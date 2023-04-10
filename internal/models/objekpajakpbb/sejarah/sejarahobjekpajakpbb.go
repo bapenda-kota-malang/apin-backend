@@ -62,5 +62,5 @@ type SejarahOpResponse struct {
 	ListOpBumi        []hopb.SejarahOpBumiResponse       `json:"listOpBumi"`
 	ListOpBangunan    []hopbgn.SejarahOpBangunanResponse `json:"listOpBangunan"`
 	ListNilaiIndividu []hni.SejarahNilaiIndividuResponse `json:"ListNilaiIndividu"`
-	ListOpAnggota     []haop.SejarahOpAnggotaResponse    `json:"listOpAnggota"`
+	ListOpAnggota     []haop.SejarahAnggotaOpResponse    `json:"listOpAnggota"`
 }

@@ -21,22 +21,22 @@ func nopSearcher(input msppt.Sppt) m.ObjekPajakPbb {
 		}}
 }
 
-func GetByNopObject(input *m.ObjekPajakPbb) (m.ObjekPajakPbb, error) {
-	var data m.ObjekPajakPbb
+func GetByNopObject(input m.ObjekPajakPbb) (*m.ObjekPajakPbb, error) {
+	var data *m.ObjekPajakPbb
 
-	kelurahan := *input.Provinsi_Kode + *input.Daerah_Kode + *input.Kecamatan_Kode + *input.Kelurahan_Kode
+	kelurahan := *input.NopDetail.Provinsi_Kode + *input.NopDetail.Daerah_Kode + *input.NopDetail.Kecamatan_Kode + *input.NopDetail.Kelurahan_Kode
 
 	filter := m.ObjekPajakPbb{
 		NopDetail: nop.NopDetail{
-			Provinsi_Kode:  data.Provinsi_Kode,
-			Daerah_Kode:    data.Daerah_Kode,
-			Kecamatan_Kode: data.Kecamatan_Kode,
+			Provinsi_Kode:  input.NopDetail.Provinsi_Kode,
+			Daerah_Kode:    input.NopDetail.Daerah_Kode,
+			Kecamatan_Kode: input.NopDetail.Kecamatan_Kode,
 			Kelurahan_Kode: &kelurahan,
-			Blok_Kode:      data.Blok_Kode,
-			NoUrut:         data.NoUrut,
+			Blok_Kode:      input.NopDetail.Blok_Kode,
+			NoUrut:         input.NopDetail.NoUrut,
 		},
 	}
-	result := a.DB.Where(filter).First(&data)
+	result := a.DB.Debug().Where(&filter).First(&data)
 	if result.Error != nil {
 		return data, result.Error
 	}

@@ -76,7 +76,7 @@ func GetNopTerbesar(w http.ResponseWriter, r *http.Request) {
 }
 
 func SejarahOp(w http.ResponseWriter, r *http.Request) {
-	var data m.ObjekPajakPbb
+	var data m.SejarahFilterDto
 	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
 		return
 	}

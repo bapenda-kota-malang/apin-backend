@@ -31,7 +31,17 @@ type SejarahAnggotaObjekPajak struct {
 	gh.DateModel
 }
 
-type SejarahOpAnggotaResponse struct {
+type SejarahFilterDto struct {
+	Induk_Provinsi_Kode  *string `json:"induk_provinsi_kode"`
+	Induk_Daerah_Kode    *string `json:"induk_daerah_kode"`
+	Induk_Kecamatan_Kode *string `json:"induk_kecamatan_kode"`
+	Induk_Kelurahan_Kode *string `json:"induk_kelurahan_kode"`
+	Induk_Blok_Kode      *string `json:"induk_blok_kode"`
+	Induk_NoUrut         *string `json:"induk_noUrut"`
+	Induk_JenisOp        *string `json:"induk_jenisOp"`
+}
+
+type SejarahAnggotaOpResponse struct {
 	Nop                      *string `json:"nop"`
 	LuasBumiBeban            *int    `json:"luasBumiBeban"`
 	LuasBangunanBeban        *int    `json:"luasBangunanBeban"`
