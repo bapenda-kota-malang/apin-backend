@@ -14,7 +14,6 @@ import (
 
 type SejarahObjekPajakPbb struct {
 	nop.NopDetail
-	ObjekPajakPbb_Id      *uint64           `json:"objekPajakPbb_id"`
 	WajibPajakPbb_Id      *uint64           `json:"wajibPajakPbb_id"`
 	NoFormulirSpop        *string           `json:"noFormulirSpop" gorm:"type:char(11)"`
 	NoPersil              *string           `json:"noPersil" gorm:"type:varchar(5)"`
@@ -29,6 +28,7 @@ type SejarahObjekPajakPbb struct {
 	NjopBumi              *int              `json:"njopBumi"`
 	NjopBangunan          *int              `json:"njopBangunan"`
 	StatusPeta            *int              `json:"statusPeta"`
+	IndeksObjekPajak      *int              `json:"indeksObjekPajak"`
 	JenisTransaksi        ot.JenisTransaksi `json:"jenisTransaksi" gorm:"type:varchar(2)"`
 	TanggalPendataan      *time.Time        `json:"tanggalPendataan"`
 	Pendata_Pegawai_Nip   *string           `json:"pendata_pegawai_nip" gorm:"type:char(9)"`
@@ -45,7 +45,7 @@ type SejarahObjekPajakPbb struct {
 	gh.DateModel
 }
 
-type ListSejarahOpPbb struct {
+type SejarahOpPbbResponse struct {
 	StatusCabang      *int        `json:"statusCabang"`
 	StatusWp          ot.StatusWp `json:"statusWp"`
 	NamaWajibPajak    *string     `json:"namaWajibPajak"`
@@ -55,12 +55,12 @@ type ListSejarahOpPbb struct {
 }
 
 type SejarahOpResponse struct {
-	NamaWajibPajak    *string                        `json:"namaWajibPajak"`
-	JalanObjekPajak   *string                        `json:"jalanObjekPajak"`
-	JalanWajibPajak   *string                        `json:"jalanWajibPajak"`
-	ListOpPbb         []ListSejarahOpPbb             `json:"listOpPbb"`
-	ListOpBumi        []hopb.ListSejarahOpBumi       `json:"listOpBumi"`
-	ListOpBangunan    []hopbgn.ListSejarahOpBangunan `json:"listOpBangunan"`
-	ListNilaiIndividu []hni.ListSejarahNilaiIndividu `json:"ListNilaiIndividu"`
-	ListOpAnggota     []haop.ListSejarahOpAnggota    `json:"listOpAnggota"`
+	NamaWajibPajak    *string                            `json:"namaWajibPajak"`
+	JalanObjekPajak   *string                            `json:"jalanObjekPajak"`
+	JalanWajibPajak   *string                            `json:"jalanWajibPajak"`
+	ListOpPbb         []SejarahOpPbbResponse             `json:"listOpPbb"`
+	ListOpBumi        []hopb.SejarahOpBumiResponse       `json:"listOpBumi"`
+	ListOpBangunan    []hopbgn.SejarahOpBangunanResponse `json:"listOpBangunan"`
+	ListNilaiIndividu []hni.SejarahNilaiIndividuResponse `json:"ListNilaiIndividu"`
+	ListOpAnggota     []haop.SejarahOpAnggotaResponse    `json:"listOpAnggota"`
 }
