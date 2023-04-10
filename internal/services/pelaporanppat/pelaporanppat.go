@@ -1,10 +1,15 @@
 package pelaporanppat
 
 import (
+	"bytes"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
+	"text/template"
 	"time"
 
+	"github.com/SebastiaanKlippert/go-wkhtmltopdf"
 	sc "github.com/jinzhu/copier"
 	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
@@ -12,6 +17,7 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/pdf"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	msptpd "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
@@ -271,10 +277,8 @@ func Delete(id int, tx *gorm.DB) (any, error) {
 	}, nil
 }
 
-// GetDownloadExcelTransaksiPPAT func
-func GetDownloadExcelTransaksiPPAT(input msptpd.FilterPPATDto) (*excelize.File, error) {
+func getData(input msptpd.FilterPPATDto) (*[]m.ResponsePelaporanPpat, error) {
 	var data []m.ResponsePelaporanPpat
-	// var count int64
 
 	queryBase := a.DB.Model(&m.PelaporanPpat{})
 	queryBase = queryBase.
@@ -303,6 +307,16 @@ func GetDownloadExcelTransaksiPPAT(input msptpd.FilterPPATDto) (*excelize.File, 
 		return nil, err
 	}
 
+	return &data, nil
+}
+
+// GetReportExcelTransaksiPPAT func
+func GetReportExcelTransaksiPPAT(input msptpd.FilterPPATDto) (*excelize.File, error) {
+	data, err := getData(input)
+	if err != nil {
+		return nil, err
+	}
+
 	// header
 	xlsx := excelize.NewFile()
 	xlsx.SetSheetName(xlsx.GetSheetName(0), "List")
@@ -315,7 +329,7 @@ func GetDownloadExcelTransaksiPPAT(input msptpd.FilterPPATDto) (*excelize.File, 
 	xlsx.SetCellValue("List", fmt.Sprintf(`F%d`, start), "Nominal BPHTB (Rp.)")
 	xlsx.SetCellValue("List", fmt.Sprintf(`G%d`, start), "Status")
 
-	for i, v := range data {
+	for i, v := range *data {
 		n := start + i + 1
 		xlsx.SetCellValue("List", fmt.Sprintf(`A%d`, n), i+1)
 		xlsx.SetCellValue("List", fmt.Sprintf(`B%d`, n), func() string {
@@ -362,4 +376,109 @@ func GetDownloadExcelTransaksiPPAT(input msptpd.FilterPPATDto) (*excelize.File, 
 	xlsx.SetCellValue("List", "A2", fmt.Sprintf(`Periode: %s %d`, months[*input.Bulan-1], *input.Tahun))
 	xlsx.MergeCell("List", "A2", "G2")
 	return xlsx, nil
+}
+
+// ResponseFile struct
+type ResponseFile struct {
+	FileName string `json:"fileName"`
+}
+
+// GetReportPDFTransaksiPPAT func
+func GetReportPDFTransaksiPPAT(input msptpd.FilterPPATDto) (interface{}, error) {
+	data, err := getData(input)
+	if err != nil {
+		return nil, err
+	}
+
+	uuid, err := sh.GetUuidv4()
+	if err != nil {
+		return nil, err
+	}
+	fileName := sh.GenerateFilename("laporan-ppat", uuid, 0, "pdf")
+
+	outFile := filepath.Join(sh.GetPdfPath(), fileName)
+
+	// get template
+	ex, err := os.Executable()
+	if err != nil {
+		return nil, err
+	}
+	exPath := filepath.Dir(ex)
+	path := filepath.Join(exPath, "../../", "internal", "models", "pelaporanppat", "templates", "pelaporanppat.html")
+
+	// generate pdf
+	pdfg, err := pdf.NewPdfg(wkhtmltopdf.PageSizeA4, wkhtmltopdf.OrientationPortrait, false)
+	if err != nil {
+		return nil, err
+	}
+
+	var tmpData []any
+	// generate data
+	for i, v := range *data {
+		n := i + 1
+
+		tmp := []any{
+			n,
+			func() string {
+				if v.Ppat_Name != nil {
+					return *v.Ppat_Name
+				}
+				return ""
+			}(),
+			func() string {
+				if v.TglLapor != nil {
+					return *v.TglLapor
+				}
+				return ""
+			}(),
+			func() string {
+				if v.Sptpd_Id != nil {
+					return *v.Sptpd_Id
+				}
+				return ""
+			}(),
+			func() string {
+				if v.NilaiOp != nil {
+					return *v.NilaiOp
+				}
+				return ""
+			}(),
+			func() string {
+				if v.JumlahSetor != nil {
+					return *v.JumlahSetor
+				}
+				return ""
+			}(),
+			func() string {
+				if v.Status != nil {
+					return *v.Status
+				}
+				return ""
+			}(),
+		}
+		tmpData = append(tmpData, tmp)
+	}
+	tmpl, err := template.ParseFiles(path)
+	if err != nil {
+		return nil, err
+	}
+
+	buf := new(bytes.Buffer)
+	err = tmpl.Execute(buf, map[string]interface{}{
+		"title":    "Transaksi PPAT",
+		"subtitle": fmt.Sprintf(`Periode: %s %d`, months[*input.Bulan-1], *input.Tahun),
+		"data":     tmpData,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if err := pdfg.GeneratePdfFromReader(buf, outFile); err != nil {
+		return nil, err
+	}
+
+	_r := &ResponseFile{
+		FileName: outFile,
+	}
+	return rp.OKSimple{Data: _r}, nil
 }

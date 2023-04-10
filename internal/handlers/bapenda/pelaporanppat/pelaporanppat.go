@@ -1,13 +1,18 @@
 package pelaporanppat
 
 import (
+	"fmt"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"strconv"
 
 	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 
 	msptpd "github.com/bapenda-kota-malang/apin-backend/internal/models/bphtb/sptpd"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelaporanppat"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/pelaporanppat"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 )
 
 type Crud struct{}
@@ -104,7 +109,7 @@ func DownloadExcelLaporanPPAT(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.GetDownloadExcelTransaksiPPAT(data)
+	result, err := s.GetReportExcelTransaksiPPAT(data)
 	if err != nil {
 		return
 	}
@@ -117,10 +122,47 @@ func DownloadExcelLaporanPPAT(w http.ResponseWriter, r *http.Request) {
 // DownloadPDFLaporanPPAT func
 func DownloadPDFLaporanPPAT(w http.ResponseWriter, r *http.Request) {
 	var data msptpd.FilterPPATDto
-	if !hh.ValidateStructByURL(w, *r.URL, &data) {
+	if hh.ValidateStructByURL(w, *r.URL, &data) == false {
 		return
 	}
 
-	result, err := s.GetListTransaksiPPAT(data)
-	hh.DataResponse(w, result, err)
+	result, err := s.GetReportPDFTransaksiPPAT(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fName := result.(rp.OKSimple).Data.(*s.ResponseFile).FileName
+	if fName == "" {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	file, err := os.Open(fName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	// membaca konten file
+	fileContent, err := ioutil.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// set header response
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=pelaporan-ppat.pdf"))
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Length", strconv.Itoa(len(fileContent)))
+
+	// menulis konten file ke response body
+	if _, err := w.Write(fileContent); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// selesaikan response
+	w.WriteHeader(http.StatusOK)
 }
