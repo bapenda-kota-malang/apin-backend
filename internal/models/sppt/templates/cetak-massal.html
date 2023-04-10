@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Cetak Massal</title>
+    </head>
+
+    <body style="padding:7%; font-size:12px">
+        
+        <div>
+            <p style="font-size:17px"><b>PEMERINTAH KOTA MALANG</b></p>
+            <p style="font-size:20px"><b>BADAN PENDAPATAN DAERAH</b></p>
+        </div>
+
+        <div>
+            <p style="text-align:right;"><b>
+                SPPT PBB 
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <br>BUKAN MERUPAKAN BUKTI KEPEMILIKAN HAK
+            </b></p>
+        </div>
+
+        <div>
+            <table width="100%" border="0">
+                <tbody>
+                    <td align="right">
+                        <b>AKUN :</b>  
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        411312</td>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="height: 3px"></div>
+
+        <p style="text-align:right">PERKOTAAN</p>
+
+        <div style="text-align:center; font-weight:bold; font-size:22px">
+            <p>SURAT PEMBERITAHUAN PAJAK TERHUTANG</p>
+            <p>PAJAK BUMI DAN BANGUNAN TAHUN {{.TahunPajakSppt}}</p>
+        </div>
+
+        <div style="height: 10px"></div>
+
+        <div>
+            <div style="float:left;width:50%;text-align:left"><b>NOP</b> : {{.NOP}}</div>
+            <div style="float:right;width:50%;text-align:right">#70702231230337NAP2A5503</div>
+        </div>
+
+        <div style="height: 30px"></div>
+        
+
+        <div>
+            <table width="100%" style="border:1px solid black; border-collapse: collapse">
+                <tbody>
+                    <td width="50%" style="padding:4px; border-right:1px solid black; line-height:8px">
+                        <p style="text-align:center">LETAK OBJEK PAJAK</p>
+                        <p>{{.AlamatObjekPajak}}</p>
+                        <p>{{.RTRWObjekPajakPbb}}</p>
+                        <p>{{.NamaKelurahan}}</p>
+                        <p>{{.NamaKecamatan}}</p>
+                        <p>{{.NamaKota}}</p>
+                    </td>
+                    <td width="50%" style="padding:4px; line-height:8px">
+                        <p style="text-align:center">NAMA DAN ALAMAT WAJIB PAJAK</p>
+                        <p>{{.NamaWPSppt}}</p>
+                        <p>{{.AlamatWPPBBNo}}</p>
+                        <p>{{.RtRwSppt}}</p>
+                        <p>{{.NamaKelurahanSppt}}</p>
+                        <p>{{.NamaKotaSppt}}</p>
+                    </td>
+                </tbody>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border-right:1px solid black; border-left:1px solid black; border-collapse: collapse">
+                <tr width="100%">
+                    <th style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-bottom:1px solid black; border-right: 1px solid black">OBJEK PAJAK</th>
+                    <th style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-bottom:1px solid black; border-right: 1px solid black">LUAS (M2)</th>
+                    <th style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-bottom:1px solid black; border-right: 1px solid black">KELAS</th>
+                    <th style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-bottom:1px solid black; border-right: 1px solid black">NJOP PER M2 (Rp)</th>
+                    <th style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-bottom:1px solid black; border-right: 1px solid black">TOTAL NJOP (Rp)</th>
+                </tr>
+                <tr>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black">BUMI</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center">{{.LuasBumiSppt}}</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center">{{.KelasTanahSppt}}</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center">{{.NilaiPerM2Tanah}}</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:right; padding-right: 10px">{{.NJOPBumi_sppt}}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black;">BANGUNAN</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center">{{.LuasBangunanSppt}}</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center">{{.KelasBangunanSppt}}</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center">{{.NilaiPerM2Bangunan}}</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:right; padding-right: 10px">{{.NJOPBangunan_sppt}}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black;">BUMI BERSAMA</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center">0</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center"></td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center">0</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:right; padding-right: 10px">0</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black;">BANGUNAN BERSAMA</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center">0</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center"></td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:center">0</td>
+                    <td style="padding-left: 5px; padding-bottom:2px; padding-top:2px; border-right:1px solid black; text-align:right; padding-right: 10px">0</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black; border-collapse: collapse">
+                <tr>
+                    <td width="30%" style="padding-left: 15px; padding-bottom:3px; padding-top:10px">NJOP Sebagai dasar pengenaan PBB</td>
+                    <td width="10%">=</td>
+                    <td width="40%"></td>
+                    <td width="20%" style="text-align:right; padding-right: 10px">{{.NJOPSppt}}</td>
+                </tr>
+                <tr>
+                    <td width="30%" style="padding-left: 15px; padding-bottom:3px">NJOPTKP (NJOP Tidak Kena Pajak</td>
+                    <td width="10%">=</td>
+                    <td width="40%"></td>
+                    <td width="20%" style="text-align:right; padding-right: 10px">{{.NJOPTKPSppt}}</td>
+                </tr>
+                <tr>
+                    <td width="30%" style="padding-left: 15px; padding-bottom:15px">NOP untuk penghitungan PBB</td>
+                    <td width="10%">=</td>
+                    <td width="40%"></td>
+                    <td width="20%" style="text-align:right; padding-right: 10px">{{.Total}}</td>
+                </tr>
+                <tr>
+                    <td width="30%" style="padding-left: 15px; padding-bottom:15px">PBB yang Terhutang</td>
+                    <td width="10%">=</td>
+                    <td width="40%">{{.PresentaseNJOPSppt}} X {{.Total}}</td>
+                    <td width="20%" style="text-align:right; padding-right: 10px">{{.TotalBersih}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border-right:1px solid black; border-left:1px solid black; border-collapse: collapse">
+                <tr>
+                    <td style="padding-left: 15px; padding-bottom:3px; padding-top:10px">PAJAK BUMI DAN BANGUNAN YANG HARUS DIBAYAR (Rp)</td>
+                    <td style="text-align:right; padding-right: 10px">{{.TotalBersih}}</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding-left: 15px; padding-bottom:15px; padding-top:10px">{{.Terbilang}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table width="100%" style="border:1px solid black; border-collapse: collapse">
+                <tbody>
+                    <td width="40%" style="padding:4px; border:1px solid black; line-height:5px">
+                        <p style="padding-left: 13px; padding-top:5px; padding-bottom:10px"><b>TGL. JATUH TEMPO</b> : {{.TanggalJatuhTempoSppt}}</p>
+                        <p style="padding-left: 13px; padding-bottom:2px"><b>TEMPAT PEBAYARAN :</b></p>
+                        <p style="padding-left: 13px; padding-bottom:2px">BANK JATIM, INDOMARET, TOKOPEDIA, ALFAMART,</p>    
+                        <p style="padding-left: 13px; padding-bottom:2px">GOPAY, OVO, PT. P OS INDONESIA, QRIS, BANK</p>
+                        <p style="padding-left: 13px; padding-bottom:2px">JATIM (VA), AGEN LAKUPANDAI, </p>
+                        <p style="padding-left: 13px; padding-bottom:2px">TRANSER VA BANK JATIM No. Rek :</p>
+                        <p style="padding-left: 13px; padding-bottom:2px">14626020220002168</p>
+                        <p style="padding-left: 13px; padding-bottom:2px; padding-top:5px;">(EXP : 30-11-2022)</p>
+                    </td>
+                    <td width="20%" style="padding:4px; padding-bottom:2px; border:1px solid black; line-height:5px">
+                        <p style="text-align:center">SCAN DISINI</p>
+                        <br><br><br><br><br><br><br><br><br>
+                        <p style="text-align:center">QRIS PBB</p>
+                    </td>
+                    <td width="40%" style="padding:4px; padding-bottom:10px; line-height:5px">
+                        <p style="padding-bottom:2px; text-align:center">MALANG, {{.TanggalTerbitSppt}}</p>
+                        <p style="padding-bottom:2px; text-align:center"><b>KEPALA BADAN PENDAPATAN DAERAH</b></p>
+                        <p style="padding-bottom:2px; text-align:center"><b>KOTA MALANG</b></p>
+                        <br><br>
+                        <p style="text-align:center">TDD</p>
+                        <br><br>
+                        <p style="padding-bottom:2px; text-align:center">Dr. HANDI PRIYANTO, AP, M.sI</p>
+                        <p style="padding-bottom:2px; text-align:center">NIP. 197606071994121001</p>
+                    </td>
+                </tbody>
+            </table>
+        </div>
+        
+    </body>
+</html>
