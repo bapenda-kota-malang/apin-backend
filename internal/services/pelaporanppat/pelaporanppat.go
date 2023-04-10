@@ -1,6 +1,7 @@
 package pelaporanppat
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -10,7 +11,6 @@ import (
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
@@ -21,6 +21,8 @@ import (
 )
 
 const source = "pelaporan ppat"
+
+var months = []string{"Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"}
 
 func Create(input m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
@@ -301,71 +303,63 @@ func GetDownloadExcelTransaksiPPAT(input msptpd.FilterPPATDto) (*excelize.File, 
 		return nil, err
 	}
 
-	var excelData = func() []interface{} {
-		var tmp []interface{}
-		tmp = append(tmp, map[string]interface{}{
-			"A": "No",
-			"B": "Nama PPAT",
-			"C": "Tanggal Laporan",
-			"D": "Jumlah Transaksi",
-			"E": "Nominal Transaksi (Rp.)",
-			"F": "Nominal BPHTB (Rp.)",
-			"G": "Status",
-		})
-		for i, v := range data {
-			n := i + 1
-			tmp = append(tmp, map[string]interface{}{
-				"A": n,
-				"B": func() string {
-					if v.Ppat_Name != nil {
-						return *v.Ppat_Name
-					}
-					return ""
-				}(),
-				"C": func() string {
-					if v.TglLapor != nil {
-						return *v.TglLapor
-					}
-					return ""
-				}(),
-				"D": func() string {
-					if v.Sptpd_Id != nil {
-						return *v.Sptpd_Id
-					}
-					return ""
-				}(),
-				"E": func() string {
-					if v.NilaiOp != nil {
-						return *v.NilaiOp
-					}
-					return ""
-				}(),
-				"F": func() string {
-					if v.JumlahSetor != nil {
-						return *v.JumlahSetor
-					}
-					return ""
-				}(),
-				"G": func() string {
-					if v.Status != nil {
-						return *v.Status
-					}
-					return ""
-				}(),
-			})
-		}
-		return tmp
-	}()
+	// header
+	xlsx := excelize.NewFile()
+	xlsx.SetSheetName(xlsx.GetSheetName(0), "List")
+	start := 4
+	xlsx.SetCellValue("List", fmt.Sprintf(`A%d`, start), "No")
+	xlsx.SetCellValue("List", fmt.Sprintf(`B%d`, start), "Nama PPAT")
+	xlsx.SetCellValue("List", fmt.Sprintf(`C%d`, start), "Tanggal Laporan")
+	xlsx.SetCellValue("List", fmt.Sprintf(`D%d`, start), "Jumlah Transaksi")
+	xlsx.SetCellValue("List", fmt.Sprintf(`E%d`, start), "Nominal Transaksi (Rp.)")
+	xlsx.SetCellValue("List", fmt.Sprintf(`F%d`, start), "Nominal BPHTB (Rp.)")
+	xlsx.SetCellValue("List", fmt.Sprintf(`G%d`, start), "Status")
 
-	xlsx, err := excelhelper.ExportList(excelData, "List")
-	if err != nil {
-		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data laporan ppat", data)
-		return nil, err
+	for i, v := range data {
+		n := start + i + 1
+		xlsx.SetCellValue("List", fmt.Sprintf(`A%d`, n), i+1)
+		xlsx.SetCellValue("List", fmt.Sprintf(`B%d`, n), func() string {
+			if v.Ppat_Name != nil {
+				return *v.Ppat_Name
+			}
+			return ""
+		}())
+		xlsx.SetCellValue("List", fmt.Sprintf(`C%d`, n), func() string {
+			if v.TglLapor != nil {
+				return *v.TglLapor
+			}
+			return ""
+		}())
+		xlsx.SetCellValue("List", fmt.Sprintf(`D%d`, n), func() string {
+			if v.Sptpd_Id != nil {
+				return *v.Sptpd_Id
+			}
+			return ""
+		}())
+		xlsx.SetCellValue("List", fmt.Sprintf(`E%d`, n), func() string {
+			if v.NilaiOp != nil {
+				return *v.NilaiOp
+			}
+			return ""
+		}())
+		xlsx.SetCellValue("List", fmt.Sprintf(`F%d`, n), func() string {
+			if v.JumlahSetor != nil {
+				return *v.JumlahSetor
+			}
+			return ""
+		}())
+		xlsx.SetCellValue("List", fmt.Sprintf(`G%d`, n), func() string {
+			if v.Status != nil {
+				return *v.Status
+			}
+			return ""
+		}())
 	}
 
 	xlsx.SetCellValue("List", "A1", "Transaksi PPAT")
 	xlsx.MergeCell("List", "A1", "G1")
 
-	// xlsx.SetCellValue("List", "A2", fmt.Sprintf(`Periode: %s %s`, mon, input.Tahun))
+	xlsx.SetCellValue("List", "A2", fmt.Sprintf(`Periode: %s %d`, months[*input.Bulan-1], *input.Tahun))
+	xlsx.MergeCell("List", "A2", "G2")
 	return xlsx, nil
 }
