@@ -1,13 +1,17 @@
 package sppt
 
 import (
+	"fmt"
+	"io/ioutil"
 	"net/http"
-
-	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
+	"os"
+	"strconv"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	s "github.com/bapenda-kota-malang/apin-backend/internal/services/sppt"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
+	hh "github.com/bapenda-kota-malang/apin-backend/pkg/handlerhelper"
 )
 
 type Crud struct{}
@@ -131,6 +135,48 @@ func UpdateVa(w http.ResponseWriter, r *http.Request) {
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 	result, err := s.UpdateVa(r.Context(), id, data, uint64(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
+}
+
+// cetak massal
+func DownloadPDF(w http.ResponseWriter, r *http.Request) {
+	var data m.PenetapanMassalDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.DownloadPDF(data)
+	if err != nil {
+		return
+	}
+
+	fName := result.(rp.OKSimple).Data.(*s.ResponseFile).FileName
+
+	file, err := os.Open(fName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	// membaca konten file
+	fileContent, err := ioutil.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// set header response
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=report-cetak-massal.pdf"))
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Length", strconv.Itoa(len(fileContent)))
+
+	// menulis konten file ke response body
+	if _, err := w.Write(fileContent); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func GetRekapitulasi(w http.ResponseWriter, r *http.Request) {
