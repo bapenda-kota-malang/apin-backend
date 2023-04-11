@@ -732,6 +732,7 @@ func SetRoutes() http.Handler {
 		r.Get("/download/excel", objekpajakpbb.DownloadExcelList)
 		r.Post("/nop-terbesar", objekpajakpbb.GetNopTerbesar)
 		r.Patch("/rtrwmassal", objekpajakpbb.UpdateRtRwMassal)
+		r.Post("/sejarah", objekpajakpbb.SejarahOp)
 	})
 
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
