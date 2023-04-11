@@ -186,3 +186,13 @@ type UpdateRtRwMassalDto struct {
 	AkhirNoUrut    *string `json:"akhirNoUrut" validate:"required"`
 	AkhirJenisOp   *string `json:"akhirJenisOp" validate:"required"`
 }
+
+type SejarahFilterDto struct {
+	Provinsi_Kode  *string `json:"provinsi_kode"`
+	Daerah_Kode    *string `json:"daerah_kode"`
+	Kecamatan_Kode *string `json:"kecamatan_kode"`
+	Kelurahan_Kode *string `json:"kelurahan_kode"`
+	Blok_Kode      *string `json:"blok_kode"`
+	NoUrut         *string `json:"noUrut"`
+	JenisOp        *string `json:"jenisOp"`
+}

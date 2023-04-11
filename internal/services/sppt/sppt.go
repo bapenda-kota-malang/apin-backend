@@ -11,7 +11,6 @@ import (
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/apung/go-terbilang"
-	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	kb "github.com/bapenda-kota-malang/apin-backend/internal/models/kelasbangunan"
 	kt "github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
@@ -20,6 +19,11 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	mnop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	m_opp "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
@@ -1377,5 +1381,128 @@ func GetListCatatanSejarahOp(input m.CatatanSejarahOPDto) (any, error) {
 			"pageSize":     strconv.Itoa(pagination.PageSize),
 		},
 		Data: dataRecords,
+	}, nil
+}
+
+func GetRekapitulasi(input m.RekapitulasiOpRequest) (any, error) {
+
+	filter := m.Sppt{
+		Propinsi_Id:        input.Propinsi_Id,
+		Dati2_Id:           input.Dati2_Id,
+		Kecamatan_Id:       input.Kecamatan_Id,
+		TahunPajakskp_sppt: &input.TahunPajakskp_sppt,
+	}
+
+	nop := &mnop.NopDetail{
+		Provinsi_Kode:  input.Propinsi_Id,
+		Daerah_Kode:    input.Dati2_Id,
+		Kecamatan_Kode: input.Kecamatan_Id,
+	}
+
+	type RekapSppt struct {
+		Keluarahan_Id          *string
+		TahunPajakskp_sppt     *string `gorm:"column:tahunpajak"`
+		JumlahSppt             *int    `gorm:"column:jumlahsppt"`
+		PBBterhutang_sppt      *int    `gorm:"column:pbbterhutang"`
+		PBBygHarusDibayar_sppt *int    `gorm:"column:pbbygharusdibayar"`
+		Lunas                  *int    `gorm:"column:lunas"`
+		JatuhTempo             *int    `gorm:"column:jatuhtempo"`
+	}
+
+	var dataRekapSppt []RekapSppt
+	resultSppt := a.DB.Debug().Model(m.Sppt{}).
+		Select("\"Keluarahan_Id\", \"TahunPajakskp_sppt\" as tahunpajak, COUNT(\"Sppt\") AS jumlahsppt, " +
+			"SUM(\"PBBterhutang_sppt\") AS pbbterhutang, SUM(\"PBBygHarusDibayar_sppt\") AS pbbygharusdibayar, " +
+			"SUM(\"StatusPembayaran_sppt\"::INTEGER) AS lunas, SUM(CASE WHEN \"TanggalJatuhTempo_sppt\" <= CURRENT_DATE THEN 1 ELSE 0 END) AS jatuhtempo").
+		Where(&filter).
+		Group("\"Keluarahan_Id\"").Group("\"TahunPajakskp_sppt\"").
+		Order("\"Keluarahan_Id\"").
+		Scan(&dataRekapSppt)
+	if resultSppt.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data sppt: "+resultSppt.Error.Error(), dataRekapSppt)
+	}
+
+	type RekapOpbb struct {
+		JumlahOp          *int `gorm:"column:jumlahop"`
+		TotalLuasBumi     *int `gorm:"column:totalluasbumi"`
+		TotalLuasBangunan *int `gorm:"column:totalluasbangunan"`
+	}
+
+	var dataRekapOpbb []RekapOpbb
+	resultOpbb := a.DB.Debug().Model(objekpajakpbb.ObjekPajakPbb{}).
+		Select("COUNT(*) AS jumlahop, SUM(\"TotalLuasBumi\") AS totalluasbumi, SUM(\"TotalLuasBangunan\") AS totalluasbangunan").
+		Where(&objekpajakpbb.ObjekPajakPbb{NopDetail: *nop}).Group("\"Kelurahan_Kode\"").Order("\"Kelurahan_Kode\"").Scan(&dataRekapOpbb)
+	if resultOpbb.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak pbb: "+resultOpbb.Error.Error(), dataRekapOpbb)
+	}
+
+	type RekapOpBgn struct {
+		JumlahBgn   *int `gorm:"column:jumlahbgn"`
+		NilaiSistem *int `gorm:"column:nilaisistem"`
+	}
+
+	var dataRekapOpBgn []RekapOpBgn
+	resultOpBgn := a.DB.Debug().Model(objekpajakbangunan.ObjekPajakBangunan{}).
+		Select("COUNT(*) AS jumlahbgn, SUM(\"NilaiSistem\") AS nilaisistem").
+		Where(&objekpajakbangunan.ObjekPajakBangunan{NopDetail: *nop}).Group("\"Kelurahan_Kode\"").Order("\"Kelurahan_Kode\"").Scan(&dataRekapOpBgn)
+	if resultOpBgn.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak bangunan: "+resultOpBgn.Error.Error(), dataRekapOpBgn)
+	}
+
+	type RekapOpBumi struct {
+		NilaiSistem *int `gorm:"column:nilaisistem"`
+	}
+
+	var dataRekapOpBumi []RekapOpBumi
+	resultOpBumi := a.DB.Debug().Model(objekpajakbumi.ObjekPajakBumi{}).
+		Select("SUM(\"NilaiSistemBumi\") AS nilaisistem").
+		Where(&objekpajakbumi.ObjekPajakBumi{NopDetail: *nop}).Group("\"Kelurahan_Kode\"").Order("\"Kelurahan_Kode\"").Scan(&dataRekapOpBumi)
+	if resultOpBumi.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak bangunan: "+resultOpBumi.Error.Error(), dataRekapOpBumi)
+	}
+
+	type RekapSpptPembayaran struct {
+		SpptDibayar *int `gorm:"column:spptdibayar"`
+	}
+
+	var dataRekapPembayaran []RekapSpptPembayaran
+	resultPembayaran := a.DB.Debug().Model(mp.SpptPembayaran{}).
+		Select("SUM(\"JumlahSpptYgDibayar\") AS spptdibayar").
+		Where(&mp.FilterDto{
+			Provinsi_Kd:    input.Propinsi_Id,
+			Daerah_Kd:      input.Dati2_Id,
+			Kecamatan_Kd:   input.Kecamatan_Id,
+			TahunPajakSppt: &input.TahunPajakskp_sppt}).
+		Group("\"Kelurahan_Kd\"").Order("\"Kelurahan_Kd\"").Scan(&dataRekapPembayaran)
+	if resultPembayaran.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak bangunan: "+resultPembayaran.Error.Error(), dataRekapPembayaran)
+	}
+
+	dataResponse := []m.RekapitulasiOpResponse{}
+	dataResponse = make([]m.RekapitulasiOpResponse, 0)
+	var skpop = 0
+
+	for i := 0; i < len(dataRekapSppt); i++ {
+		dataResponse = append(dataResponse, m.RekapitulasiOpResponse{
+			KelurahanKode:     dataRekapSppt[i].Keluarahan_Id,
+			JumlahObjekPajak:  dataRekapOpbb[i].JumlahOp,
+			JumlahBangunan:    dataRekapOpBgn[i].JumlahBgn,
+			LuasTotalBumi:     dataRekapOpbb[i].TotalLuasBumi,
+			LuasTotalBangunan: dataRekapOpbb[i].TotalLuasBangunan,
+			NjopBumi:          dataRekapOpBumi[i].NilaiSistem,
+			NjopBangunan:      dataRekapOpBgn[i].NilaiSistem,
+			TahunPajak:        dataRekapSppt[i].TahunPajakskp_sppt,
+			JumlahSppt:        dataRekapSppt[i].JumlahSppt,
+			PbbTerhutang:      dataRekapSppt[i].PBBterhutang_sppt,
+			PbbHarusDibayar:   dataRekapSppt[i].PBBygHarusDibayar_sppt,
+			Lunas:             dataRekapSppt[i].Lunas,
+			JatuhTempo:        dataRekapSppt[i].JatuhTempo,
+			PembayaranSppt:    dataRekapPembayaran[i].SpptDibayar,
+			PembayaranSkpSpop: &skpop,
+		})
+	}
+
+	return rp.OKSimple{
+		Data: dataResponse,
 	}, nil
 }
