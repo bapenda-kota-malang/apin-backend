@@ -322,3 +322,28 @@ type CatatanSejarahOPDto struct {
 	Tanggal_Mutasi_Start *string `json:"tanggal_mutasi_start"`
 	Tanggal_Mutasi_End   *string `json:"tanggal_mutasi_end"`
 }
+
+type RekapitulasiOpRequest struct {
+	Propinsi_Id        *string `json:"provinsi_kode"`
+	Dati2_Id           *string `json:"daerah_kode"`
+	Kecamatan_Id       *string `json:"kecamatan_kode"`
+	TahunPajakskp_sppt string  `json:"tahun_pajak"`
+}
+
+type RekapitulasiOpResponse struct {
+	KelurahanKode     *string `json:"kelurahanKode"`
+	JumlahObjekPajak  *int    `json:"jumlahObjekPajak"`
+	JumlahBangunan    *int    `json:"jumlahBangunan"`
+	LuasTotalBumi     *int    `json:"luasTotalBumi"`
+	LuasTotalBangunan *int    `json:"luasTotalBangunan"`
+	NjopBumi          *int    `json:"njopBumi"`
+	NjopBangunan      *int    `json:"njopBangunan"`
+	TahunPajak        *string `json:"tahunPajak"`
+	JumlahSppt        *int    `json:"jumlahSppt"`
+	PbbTerhutang      *int    `json:"pbbTerhutang"`
+	PbbHarusDibayar   *int    `json:"pbbHarusDibayar"`
+	Lunas             *int    `json:"lunas"`
+	JatuhTempo        *int    `json:"jatuhTempo"`
+	PembayaranSppt    *int    `json:"PembayaranSppt"`
+	PembayaranSkpSpop *int    `json:"pembayaranSkpSpop"`
+}

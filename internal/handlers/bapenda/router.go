@@ -821,5 +821,7 @@ func SetRoutes() http.Handler {
 		r.Get("/", sppt.ListCatataSejarahOp)
 	})
 
+	r.Post("/rekapitulasi-op", sppt.GetRekapitulasi)
+
 	return r
 }

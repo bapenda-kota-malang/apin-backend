@@ -178,3 +178,13 @@ func DownloadPDF(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func GetRekapitulasi(w http.ResponseWriter, r *http.Request) {
+	var data m.RekapitulasiOpRequest
+	if !hh.ValidateStructByIOR(w, r.Body, &data) {
+		return
+	}
+
+	result, err := s.GetRekapitulasi(data)
+	hh.DataResponse(w, result, err)
+}
