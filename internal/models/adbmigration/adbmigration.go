@@ -3,6 +3,7 @@ package adbmigration
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
+	sejarahaop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak/sejarah"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bankpersepsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/banktunggal"
@@ -65,20 +66,26 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kppbb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/logbankjatim"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
+	sejarahni "github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu/sejarah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+	sejarahopbgn "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan/sejarah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	sejarahopbumi "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi/sejarah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	sejarahopbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb/sejarah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/pelaporanppat"
 	pstpermohonan "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp"
@@ -155,6 +162,7 @@ func GetModelList() (data []interface{}) {
 		&adm.Daerah{},
 		&adm.Kecamatan{},
 		&adm.Kelurahan{},
+		&adm.Blok{},
 		&sektor.Sektor{},
 		&rm.Rekening{},
 		&omset.Omset{},
@@ -292,13 +300,15 @@ func GetModelList() (data []interface{}) {
 		&detailsptppjpln.DetailSptPpjPln{},
 		&detailsptreklame.DetailSptReklame{},
 		&detailsptresto.DetailSptResto{},
+
+		&logbankjatim.LogBankJatim{},
 	}
 
 	data = append(data, listModelPenetapan...)
 
 	listModelPengajuan := []interface{}{
-		&pengurangan.RefPengurangan{},
 		&pengurangan.Pengurangan{},
+		&pengurangan.RefPengurangan{},
 		&pengurangan.PenguranganDendaADM{},
 		&pengurangan.PenguranganJPB{},
 		&pengurangan.PenguranganPST{},
@@ -481,9 +491,6 @@ func GetModelList() (data []interface{}) {
 		&penetapan.PenerimaKompensasi{},
 		&penetapan.SubjekPajakNJOPTKP{},
 		&tarif.Tarif{},
-		&penetapan.PenguranganPengenaanJPB{},
-		&penetapan.PenguranganPermanen{},
-		&penetapan.PenguranganPST{},
 		&penetapan.SubjekPajak{},
 		&penetapan.DafnomOP{},
 		&referensibuku.ReferensiBuku{},
@@ -512,6 +519,20 @@ func GetModelList() (data []interface{}) {
 		&indukobjekpajak.IndukObjekPajak{},
 	}
 	data = append(data, listModelIndukObjekPajak...)
+
+	listModelPelaporanPpat := []interface{}{
+		&pelaporanppat.PelaporanPpat{},
+	}
+	data = append(data, listModelPelaporanPpat...)
+
+	listModelSejarahObjekPajak := []interface{}{
+		&sejarahopbb.SejarahObjekPajakPbb{},
+		sejarahopbumi.SejarahObjekPajakBumi{},
+		sejarahopbgn.SejarahObjekPajakBangunan{},
+		sejarahni.SejarahNilaiIndividu{},
+		sejarahaop.SejarahAnggotaObjekPajak{},
+	}
+	data = append(data, listModelSejarahObjekPajak...)
 
 	return data
 }

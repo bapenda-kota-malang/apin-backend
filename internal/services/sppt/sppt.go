@@ -1,31 +1,61 @@
 package sppt
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
-	sc "github.com/jinzhu/copier"
-	"gorm.io/datatypes"
-	"gorm.io/gorm"
+	"github.com/apung/go-terbilang"
+	mad "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	kb "github.com/bapenda-kota-malang/apin-backend/internal/models/kelasbangunan"
+	kt "github.com/bapenda-kota-malang/apin-backend/internal/models/kelastanah"
+	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	pmh "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
 
-	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
-	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
-	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
-	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
+	mnop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	m_opp "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	mp "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
+	tp "github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/wajibpajakpbb"
 	saop "github.com/bapenda-kota-malang/apin-backend/internal/services/anggotaobjekpajak"
+	sbj "github.com/bapenda-kota-malang/apin-backend/internal/services/bankjatim"
+	sd "github.com/bapenda-kota-malang/apin-backend/internal/services/daerah"
+	skc "github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
+	kbs "github.com/bapenda-kota-malang/apin-backend/internal/services/kelasbangunan"
+	skbng "github.com/bapenda-kota-malang/apin-backend/internal/services/kelasbangunan"
+	kts "github.com/bapenda-kota-malang/apin-backend/internal/services/kelastanah"
+	sktanah "github.com/bapenda-kota-malang/apin-backend/internal/services/kelastanah"
+	skl "github.com/bapenda-kota-malang/apin-backend/internal/services/kelurahan"
 	sopb "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakbumi"
-	os "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	sopp "github.com/bapenda-kota-malang/apin-backend/internal/services/objekpajakpbb"
 	srefbuku "github.com/bapenda-kota-malang/apin-backend/internal/services/referensibuku"
+	ssob "github.com/bapenda-kota-malang/apin-backend/internal/services/sppt/objekbersama"
+	tps "github.com/bapenda-kota-malang/apin-backend/internal/services/tempatpembayaran"
+	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
+	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
+	ibj "github.com/bapenda-kota-malang/apin-backend/pkg/integration/bankjatim"
+	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
+	sc "github.com/jinzhu/copier"
+	"github.com/leekchan/accounting"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 const source = "sppt"
@@ -198,11 +228,15 @@ func UpdatePenguranganByNop(input m.NopDto, pctPengurangan float64, tx *gorm.DB)
 		Where("TahunPajakskp_sppt", &input.TahunPajakskp_sppt).
 		First(&data)
 	if result.RowsAffected == 0 {
-		return nil, nil
+		return nil, fmt.Errorf("data sppt tidak ditemukan")
 	}
 
-	if err := sc.Copy(&data, &input); err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
+	if data.PBBterhutang_sppt == nil {
+		return nil, fmt.Errorf("data spp pbb yang terhutang kosong")
+	}
+
+	if data.StatusPembayaran_sppt != nil && *data.StatusPembayaran_sppt != "0" {
+		return nil, fmt.Errorf("status pembayaran bukan belum bayar (0)")
 	}
 
 	faktorPengurangan := int(float64(*data.PBBterhutang_sppt) * pctPengurangan)
@@ -217,6 +251,71 @@ func UpdatePenguranganByNop(input m.NopDto, pctPengurangan float64, tx *gorm.DB)
 	return rp.OK{
 		Meta: t.IS{
 			"affected": strconv.Itoa(int(result.RowsAffected)),
+		},
+		Data: data,
+	}, nil
+}
+
+func UpdateVa(ctx context.Context, id int, input m.UpdateVaDto, userId uint64) (any, error) {
+	var data m.Sppt
+	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
+	if dataRow := a.DB.First(&data, id).RowsAffected; dataRow == 0 {
+		return nil, errors.New("data tidak dapat ditemukan")
+	}
+	if data.VirtualAccoountJatim == nil {
+		return nil, errors.New("data sspt ini masih belum ada virtual account")
+	}
+	data.PBBygHarusDibayar_sppt = input.PBBygHarusDibayar_sppt
+	total := *input.PBBygHarusDibayar_sppt
+	denda := 0
+	if input.Denda != nil {
+		total = *data.PBBygHarusDibayar_sppt + *input.Denda
+		denda = *input.Denda
+	}
+	if data.TanggalJatuhTempo_sppt == nil {
+		return nil, errors.New("data sspt ini masih belum ada jatuh tempo")
+	}
+	if data.NamaWP_sppt == nil {
+		return nil, errors.New("data sspt ini masih belum ada nama wp")
+	}
+
+	tglExp := time.Time(*data.TanggalJatuhTempo_sppt)
+	if servicehelper.IsJatuhTempo(data.TanggalJatuhTempo_sppt) {
+		tglExp = servicehelper.EndOfMonth(time.Now())
+	}
+	nop := servicehelper.NopString(
+		*data.Propinsi_Id,
+		*data.Dati2_Id,
+		*data.Kecamatan_Id,
+		*data.Keluarahan_Id,
+		*data.Blok_Id,
+		*data.NoUrut,
+		*data.JenisOP_Id,
+		"",
+	)
+	// bank jatim
+	payload := ibj.RequestRegistration{
+		VirtualAccount: strconv.Itoa(*data.VirtualAccoountJatim),
+		Nama:           *data.NamaWP_sppt,
+		TotalTagihan:   uint64(total),
+		TanggalExp:     tglExp.Format("20060102"),
+		Berita1:        fmt.Sprintf("%s %s", nop, time.Now().Format("06")),
+		Berita2:        fmt.Sprintf("%d", denda),
+		Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
+		FlagProses:     ibj.ProsesUpdate,
+	}
+	ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	if err := sbj.Registration(ctxTo, payload, userId); err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengubah va: "+err.Error(), data)
+	}
+
+	if result := a.DB.Save(&data); result.Error != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
+	}
+	return rp.OK{
+		Meta: t.IS{
+			"affected": "1",
 		},
 		Data: data,
 	}, nil
@@ -653,7 +752,7 @@ func GetListCatatanSejarahWP(input m.FilterDto) (any, error) {
 	}
 
 	// get objek pajak pbb by nop
-	objekPajakPbb, err := os.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
+	objekPajakPbb, err := sopp.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
 	if err != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
@@ -751,7 +850,7 @@ func GetListCatatanPembayaranPbb(input m.FilterDto) (any, error) {
 	}
 
 	// get objek pajak pbb by nop
-	objekPajakPbb, err := os.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
+	objekPajakPbb, err := sopp.GetByNop(input.Propinsi_Id, input.Dati2_Id, input.Kecamatan_Id, input.Keluarahan_Id, input.Blok_Id, input.NoUrut, input.JenisOP_Id)
 	if err != nil {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
@@ -827,8 +926,10 @@ func FindSpptPembayaranByNop(provinsiKode, daerahKode, kecamatanKode, kelurahanK
 	}
 	return data, nil
 }
+
 func Rincian(input m.NopDto) (any, error) {
 	var data m.Sppt
+	var rslt map[string]interface{}
 	filter := m.Sppt{
 		Propinsi_Id:        input.Propinsi_Id,
 		Dati2_Id:           input.Dati2_Id,
@@ -841,34 +942,59 @@ func Rincian(input m.NopDto) (any, error) {
 	}
 
 	a.DB.Where(&filter).First(&data)
-	// result := a.DB.Where(&filter).First(&data)
-	// if result.RowsAffected == 0 {
-	// 	return sh.SetError("request", "get-data-by-nop", source, "failed", "data tidak ada", data)
-	// } else if result.Error != nil {
-	// 	return sh.SetError("request", "get-data-by-nop", source, "failed", "gagal mendapatkan data: "+result.Error.Error(), data)
-	// }
 
-	// get ObjekPajakBumi detail
-	opBumiData, err := getObjekPajakBumiDetail(filter)
-	if err != nil {
-		return nil, err
-	}
-	// get ObjekPajakBng detail
-	opBngData, err := getObjekPajakBangunanDetail(filter)
-	if err != nil {
-		return nil, err
-	}
-	// get ObjekPajakPBB detail
-	opPBBData, err := getObjekPajakPBBDetail(filter)
-	if err != nil {
-		return nil, err
-	}
+	result := a.DB.Where(&filter).First(&data)
+	if result.RowsAffected == 0 || result.Error != nil {
+		rslt = t.II{
+			"sppt":               data,
+			"opPBB":              nil,
+			"kelasTanah":         nil,
+			"kelasBng":           nil,
+			"spptBersama":        nil,
+			"pembayaranSppt":     nil,
+			"tmptPembayaranSppt": nil,
+		}
+	} else {
+		// get kelas tanah detail
+		kelasTnh, err := sktanah.GetDetailByCode(*data.KelasTanah_Id)
+		if err != nil {
+			return nil, err
+		}
+		// get kelas Bng detail
+		kelasBng, err := skbng.GetDetailByCode(*data.KelasBangunan_Id)
+		if err != nil {
+			return nil, err
+		}
+		// get ObjekPajakPBB detail
+		opPBBData, err := getObjekPajakPBBDetail(filter)
+		if err != nil {
+			return nil, err
+		}
+		// get sppt objek Bersama detail
+		spptBersama, err := ssob.GetByNop(*data.Propinsi_Id, *data.Dati2_Id, *data.Kecamatan_Id, *data.Keluarahan_Id, *data.Blok_Id, *data.NoUrut, *data.JenisOP_Id)
+		if err != nil {
+			return nil, err
+		}
+		// get sppt pembayaran detail
+		pembayaranSppt, err := getPembayaranSppt(data)
+		if err != nil {
+			return nil, err
+		}
+		// get tmptPembayaranSppt detail
+		tmptPembayaranSppt, err := getTempatPembayaranSppt(data)
+		if err != nil {
+			return nil, err
+		}
 
-	rslt := t.II{
-		"sppt":   data,
-		"opBumi": opBumiData,
-		"opBng":  opBngData,
-		"opPBB":  opPBBData,
+		rslt = t.II{
+			"sppt":               data,
+			"opPBB":              opPBBData,
+			"kelasTanah":         kelasTnh.(rp.OKSimple).Data,
+			"kelasBng":           kelasBng.(rp.OKSimple).Data,
+			"spptBersama":        spptBersama.(rp.OKSimple).Data,
+			"pembayaranSppt":     pembayaranSppt,
+			"tmptPembayaranSppt": tmptPembayaranSppt,
+		}
 	}
 
 	return rp.OKSimple{
@@ -915,5 +1041,468 @@ func Salinan(input m.SalinanDto) (any, error) {
 
 	return rp.OKSimple{
 		Data: rslt,
+	}, nil
+}
+
+type ResponseFile struct {
+	ID       int    `json:"id"`
+	FileName string `json:"fileName"`
+}
+
+// cetak massal
+func DownloadPDF(input m.PenetapanMassalDto) (any, error) {
+	var (
+		dataSppt                                                                                                                   m.Sppt
+		dataKelurahan                                                                                                              *mad.Kelurahan
+		dataKecamatan                                                                                                              *mad.Kecamatan
+		dataKota                                                                                                                   *mad.Daerah
+		dataKelasTanah                                                                                                             *kt.KelasTanah
+		dataKelasBangunan                                                                                                          *kb.KelasBangunan
+		dataTempatPembayaran                                                                                                       *tp.TempatPembayaran
+		propinsi_Id, dati2_Id, kecamatan_Id, keluarahan_Id, blok_Id, noUrut, jenisOP_Id, tanggalJatuhTempo_sppt                    string
+		tahunPajakskp_sppt, namaWP_sppt, jalanWPskp_sppt, blokKavNoWP_sppt, rtWP_sppt, tanggalTerbit_sppt                          string
+		rwWP_sppt, kelurahanWP_sppt, kotaWP_sppt, kelasTanah_Id, kelasBangunan_Id, jalan, blokKavNo, rt, rw                        string
+		nilaiPerM2Tanah, nilaiPerM2Bangunan, namaTempatPembayaran, nJOP_sppt, nJOPTKP_sppt, pbbterhutang_sppt                      string
+		luasBumi_sppt, nJOPBumi_sppt, luasBangunan_sppt, nJOPBangunan_sppt, nJOP_sppt_int, nJOPTKP_sppt_int, pbbterhutang_sppt_int int
+		ac                                                                                                                         = accounting.Accounting{Symbol: "", Precision: 0, Thousand: ".", Decimal: ","}
+	)
+
+	resultSppt := a.DB.Debug().
+		Where(`"Propinsi_Id" = ?`, input.Provinsi_Kode).
+		Where(`"Dati2_Id" = ?`, input.Daerah_Kode).
+		Where(`"Kecamatan_Id" = ?`, input.Kecamatan_Kode).
+		Where(`"Keluarahan_Id" = ?`, input.Kelurahan_Kode).
+		Where(`"TahunPajakskp_sppt" = ?`, input.Tahun).
+		First(&dataSppt)
+	if resultSppt.RowsAffected == 0 {
+		return nil, nil
+	} else if resultSppt.Error != nil {
+		return sh.SetError("request", "download-report-pdf", source, "failed", "gagal menemukan data Sppt: ", dataSppt)
+	}
+
+	resultObjekPajakInterface, err := sopp.GetDetailbyNop(pmh.PermohonanNOP{
+		PermohonanProvinsiID:  *dataSppt.Propinsi_Id,
+		PermohonanKotaID:      *dataSppt.Dati2_Id,
+		PermohonanKecamatanID: *dataSppt.Kecamatan_Id,
+		PermohonanKelurahanID: *dataSppt.Keluarahan_Id,
+		PermohonanBlokID:      *dataSppt.Blok_Id,
+		NoUrutPemohon:         *dataSppt.NoUrut,
+		PemohonJenisOPID:      *dataSppt.JenisOP_Id})
+	if err != nil {
+		return nil, err
+	}
+	if resultObjekPajakInterface == nil {
+		return sh.SetError("request", "download-report-pdf", "objekPajakPbb", "failed", "gagal menemukan data ObjekPajakPbb: ", nil)
+	}
+
+	dataObjekPajakPbb := resultObjekPajakInterface.(rp.OKSimple).Data.(*mopb.ObjekPajakPbb)
+
+	/** Get detail by kode kota */
+	kodeKota, _ := strconv.Atoi(fmt.Sprintf("%v%v", *dataSppt.Propinsi_Id, *dataSppt.Dati2_Id))
+	resultKotaInterface, err := sd.GetDetailByCode(kodeKota)
+	if err != nil {
+		return nil, err
+	}
+	if resultKotaInterface == nil {
+		return sh.SetError("request", "download-report-pdf", "Derah", "failed", "gagal menemukan data Daerah: ", nil)
+	} else {
+		dataKota = resultKotaInterface.(rp.OKSimple).Data.(*mad.Daerah)
+	}
+
+	/** get detail by kode kecamatan */
+	kodeKecamatan, _ := strconv.Atoi(fmt.Sprintf("%v%v", dataKota.Kode, *dataSppt.Kecamatan_Id))
+	resultKecamatanInterface, err := skc.GetDetailByCode(kodeKecamatan)
+	if err != nil {
+		return nil, err
+	}
+	if resultKecamatanInterface == nil {
+		return sh.SetError("request", "download-report-pdf", "kecamatan", "failed", "gagal menemukan data Kecamatan: ", nil)
+	} else {
+		dataKecamatan = resultKecamatanInterface.(rp.OKSimple).Data.(*mad.Kecamatan)
+	}
+
+	/** get detail kelurahan by kode kelurahan */
+	kodeKelurahan, _ := strconv.Atoi(fmt.Sprintf("%v%v", dataKecamatan.Kode, *dataSppt.Keluarahan_Id))
+	resultKelurahanInterface, err := skl.GetDetailByCode(kodeKelurahan)
+	if err != nil {
+		return nil, err
+	}
+	if resultKelurahanInterface == nil {
+		return sh.SetError("request", "download-report-pdf", "kelurahan", "failed", "gagal menemukan data Kelurahan: ", nil)
+	} else {
+		dataKelurahan = resultKelurahanInterface.(rp.OKSimple).Data.(*mad.Kelurahan)
+
+	}
+
+	/** get detail kelas tanah */
+	if dataSppt.KelasTanah_Id != nil {
+		kelasTanahInterface, err := kts.GetDetailByCode(*dataSppt.KelasTanah_Id)
+		if err != nil {
+			return nil, err
+		}
+		if kelasTanahInterface == nil {
+			return sh.SetError("request", "download-report-pdf", "kelasTanah", "failed", "gagal menemukan data kelas tanah: ", nil)
+		} else {
+			dataKelasTanah = kelasTanahInterface.(rp.OKSimple).Data.(*kt.KelasTanah)
+		}
+
+		if dataKelasTanah.NilaiPerM2Tanah != nil {
+			nilaiPerM2Tanah = ac.FormatMoney(*dataKelasTanah.NilaiPerM2Tanah)
+		}
+	}
+
+	/** get detail kelas banungn */
+	if dataSppt.KelasBangunan_Id != nil {
+		kelasBangunanInterface, err := kbs.GetDetailByCode(*dataSppt.KelasBangunan_Id)
+		if err != nil {
+			return nil, err
+		}
+		if kelasBangunanInterface == nil {
+			return sh.SetError("request", "download-report-pdf", "kelasBangunan", "failed", "gagal menemukan data kelas bangunan: ", nil)
+		} else {
+			dataKelasBangunan = kelasBangunanInterface.(rp.OKSimple).Data.(*kb.KelasBangunan)
+		}
+
+		if dataKelasBangunan.NilaiPerM2Bangunan != nil {
+			nilaiPerM2Bangunan = ac.FormatMoney(*dataKelasBangunan.NilaiPerM2Bangunan)
+		}
+	}
+
+	/** get detail tempat pembayaran */
+	if dataSppt.TP_Id != nil {
+		tempatPembayaranId, _ := strconv.Atoi(*dataSppt.TP_Id)
+		tempatPembayaranInterface, err := tps.GetDetail(tempatPembayaranId)
+		if err != nil {
+			return nil, err
+		}
+		if tempatPembayaranInterface == nil {
+			return sh.SetError("request", "download-report-pdf", "kelasBangunan", "failed", "gagal menemukan data kelas bangunan: ", nil)
+		} else {
+			dataTempatPembayaran = tempatPembayaranInterface.(rp.OKSimple).Data.(*tp.TempatPembayaran)
+		}
+
+		if dataTempatPembayaran.NamaTp != nil {
+			namaTempatPembayaran = *dataTempatPembayaran.NamaTp
+		}
+	}
+
+	if dataSppt.Propinsi_Id != nil {
+		propinsi_Id = *dataSppt.Propinsi_Id
+	}
+	if dataSppt.Dati2_Id != nil {
+		dati2_Id = *dataSppt.Dati2_Id
+	}
+	if dataSppt.Kecamatan_Id != nil {
+		kecamatan_Id = *dataSppt.Kecamatan_Id
+	}
+	if dataSppt.Keluarahan_Id != nil {
+		keluarahan_Id = *dataSppt.Keluarahan_Id
+	}
+	if dataSppt.Blok_Id != nil {
+		blok_Id = *dataSppt.Blok_Id
+	}
+	if dataSppt.NoUrut != nil {
+		noUrut = *dataSppt.NoUrut
+	}
+	if dataSppt.JenisOP_Id != nil {
+		jenisOP_Id = *dataSppt.JenisOP_Id
+	}
+	if dataSppt.TahunPajakskp_sppt != nil {
+		tahunPajakskp_sppt = *dataSppt.TahunPajakskp_sppt
+	}
+	if dataSppt.NamaWP_sppt != nil {
+		namaWP_sppt = *dataSppt.NamaWP_sppt
+	}
+	if dataSppt.JalanWPskp_sppt != nil {
+		jalanWPskp_sppt = *dataSppt.JalanWPskp_sppt
+	}
+	if dataSppt.BlokKavNoWP_sppt != nil {
+		blokKavNoWP_sppt = *dataSppt.BlokKavNoWP_sppt
+	}
+	if dataSppt.RtWP_sppt != nil {
+		rtWP_sppt = *dataSppt.RtWP_sppt
+	}
+	if dataSppt.RwWP_sppt != nil {
+		rwWP_sppt = *dataSppt.RwWP_sppt
+	}
+	if dataSppt.KelurahanWP_sppt != nil {
+		kelurahanWP_sppt = *dataSppt.KelurahanWP_sppt
+	}
+	if dataSppt.KotaWP_sppt != nil {
+		kotaWP_sppt = *dataSppt.KotaWP_sppt
+	}
+	if dataSppt.LuasBumi_sppt != nil {
+		luasBumi_sppt = *dataSppt.LuasBumi_sppt
+	}
+	if dataSppt.KelasTanah_Id != nil {
+		kelasTanah_Id = *dataSppt.KelasTanah_Id
+	}
+	if dataSppt.NJOPBumi_sppt != nil {
+		nJOPBumi_sppt = *dataSppt.NJOPBumi_sppt
+	}
+	if dataSppt.LuasBangunan_sppt != nil {
+		luasBangunan_sppt = *dataSppt.LuasBangunan_sppt
+	}
+	if dataSppt.KelasBangunan_Id != nil {
+		kelasBangunan_Id = *dataSppt.KelasBangunan_Id
+	}
+	if dataSppt.NJOPBangunan_sppt != nil {
+		nJOPBangunan_sppt = *dataSppt.NJOPBangunan_sppt
+	}
+	if dataSppt.NJOP_sppt != nil {
+		nJOP_sppt_int = *dataSppt.NJOP_sppt
+		nJOP_sppt = ac.FormatMoney(*dataSppt.NJOP_sppt)
+	}
+	if dataSppt.NJOPTKP_sppt != nil {
+		nJOPTKP_sppt_int = *dataSppt.NJOPTKP_sppt
+		nJOPTKP_sppt = ac.FormatMoney(*dataSppt.NJOPTKP_sppt)
+	}
+	if dataSppt.PBBterhutang_sppt != nil {
+		pbbterhutang_sppt_int = *dataSppt.PBBterhutang_sppt
+		pbbterhutang_sppt = ac.FormatMoney(*dataSppt.PBBterhutang_sppt)
+	}
+	if dataSppt.TanggalJatuhTempo_sppt != nil {
+		tanggalJatuhTempo_sppt = timehelper.ConvertDatatypeDateToTime(dataSppt.TanggalJatuhTempo_sppt).Format("02-Jan-2006")
+	}
+	if dataSppt.TanggalTerbit_sppt != nil {
+		tanggalTerbit_sppt = timehelper.ConvertDatatypeDateToTime(dataSppt.TanggalTerbit_sppt).Format("02-Jan-2006")
+	}
+	if dataObjekPajakPbb.Jalan != nil {
+		jalan = *dataObjekPajakPbb.Jalan
+	}
+	if dataObjekPajakPbb.BlokKavNo != nil {
+		blokKavNo = *dataObjekPajakPbb.BlokKavNo
+	}
+	if dataObjekPajakPbb.Rt != nil {
+		rt = *dataObjekPajakPbb.Rt
+	}
+	if dataObjekPajakPbb.Rw != nil {
+		rw = *dataObjekPajakPbb.Rw
+	}
+
+	finalresult := map[string]interface{}{
+		"NOP": fmt.Sprintf("%v.%v.%v.%v.%v-%v.%v",
+			propinsi_Id,
+			dati2_Id,
+			kecamatan_Id,
+			keluarahan_Id,
+			blok_Id,
+			noUrut,
+			jenisOP_Id),
+		"TahunPajakSppt":        tahunPajakskp_sppt,
+		"AlamatObjekPajak":      fmt.Sprintf("%v %v", jalan, blokKavNo),
+		"NamaWPSppt":            namaWP_sppt,
+		"RTRWObjekPajakPbb":     fmt.Sprintf("RT %v/RW %v", rt, rw),
+		"AlamatWPPBBNo":         fmt.Sprintf("%v %v", jalanWPskp_sppt, blokKavNoWP_sppt),
+		"NamaKelurahan":         dataKelurahan.Nama,
+		"NamaKecamatan":         dataKecamatan.Nama,
+		"NamaKota":              dataKota.Nama,
+		"RtRwSppt":              fmt.Sprintf("RT %v/RW.%v", rtWP_sppt, rwWP_sppt),
+		"NamaKelurahanSppt":     kelurahanWP_sppt,
+		"NamaKotaSppt":          kotaWP_sppt,
+		"LuasBumiSppt":          luasBumi_sppt,
+		"KelasTanahSppt":        kelasTanah_Id,
+		"NilaiPerM2Tanah":       nilaiPerM2Tanah,
+		"NJOPBumi_sppt":         nJOPBumi_sppt,
+		"LuasBangunanSppt":      luasBangunan_sppt,
+		"KelasBangunanSppt":     kelasBangunan_Id,
+		"NilaiPerM2Bangunan":    nilaiPerM2Bangunan,
+		"NJOPBangunan_sppt":     nJOPBangunan_sppt,
+		"NJOPSppt":              nJOP_sppt,
+		"NJOPTKPSppt":           nJOPTKP_sppt,
+		"Total":                 ac.FormatMoney(nJOP_sppt_int - nJOPTKP_sppt_int),
+		"PresentaseNJOPSppt":    "0.55%",
+		"TotalBersih":           pbbterhutang_sppt,
+		"Terbilang":             cases.Title(language.Und, cases.NoLower).String(terbilang.ToTerbilangRp(pbbterhutang_sppt_int)),
+		"TanggalJatuhTempoSppt": tanggalJatuhTempo_sppt,
+		"TanggalTerbitSppt":     tanggalTerbit_sppt,
+		"NamaTempatPembayaran":  namaTempatPembayaran,
+		"PBBTerhitungSppt":      pbbterhutang_sppt,
+	}
+
+	uuid, err := sh.GetUuidv4()
+	if err != nil {
+		return nil, err
+	}
+	fileName := sh.GenerateFilename("cetak-massal", uuid, 0, "pdf")
+
+	outFile := filepath.Join(sh.GetPdfPath(), fileName)
+	if err := GeneratePdf(outFile, finalresult); err != nil {
+		return nil, err
+	}
+	_r := &ResponseFile{
+		// ID:       id,
+		FileName: outFile,
+	}
+	return rp.OKSimple{Data: _r}, nil
+}
+
+func GetListCatatanSejarahOp(input m.CatatanSejarahOPDto) (any, error) {
+	var (
+		dataRecords []m_opp.ObjekPajakPbb
+		count       int64
+	)
+
+	// pagination
+	var pagination gh.Pagination
+
+	// kelurahan kode = provinsi kode + daerah kode + kecamatan kode + kelurahan kode
+	kelurahanKode := fmt.Sprintf("%s%s%s%s", *input.Provinsi_Kode, *input.Daerah_Kode, *input.Kecamatan_Kode, *input.Kelurahan_Kode)
+
+	// wilayah
+	condition := m_opp.ObjekPajakPbb{
+		Provinsi_Kode:  input.Provinsi_Kode,
+		Daerah_Kode:    input.Daerah_Kode,
+		Kecamatan_Kode: input.Kecamatan_Kode,
+		Kelurahan_Kode: &kelurahanKode,
+	}
+
+	// get data
+	result := a.DB.Model(&m_opp.ObjekPajakPbb{}).
+		Debug().
+		Where(&condition).
+		// daterange by tanggal mutasi on created_at
+		Where(`"CreatedAt" BETWEEN ? AND ?`, input.Tanggal_Mutasi_Start, input.Tanggal_Mutasi_End).
+		Count(&count).
+		Scopes(gh.Paginate(input, &pagination)).
+		Find(&dataRecords)
+
+	if result.RowsAffected == 0 {
+		return nil, nil
+	} else if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return rp.OK{
+		Meta: t.IS{
+			"totalCount":   strconv.Itoa(int(count)),
+			"currentCount": strconv.Itoa(int(result.RowsAffected)),
+			"page":         strconv.Itoa(pagination.Page),
+			"pageSize":     strconv.Itoa(pagination.PageSize),
+		},
+		Data: dataRecords,
+	}, nil
+}
+
+func GetRekapitulasi(input m.RekapitulasiOpRequest) (any, error) {
+
+	filter := m.Sppt{
+		Propinsi_Id:        input.Propinsi_Id,
+		Dati2_Id:           input.Dati2_Id,
+		Kecamatan_Id:       input.Kecamatan_Id,
+		TahunPajakskp_sppt: &input.TahunPajakskp_sppt,
+	}
+
+	nop := &mnop.NopDetail{
+		Provinsi_Kode:  input.Propinsi_Id,
+		Daerah_Kode:    input.Dati2_Id,
+		Kecamatan_Kode: input.Kecamatan_Id,
+	}
+
+	type RekapSppt struct {
+		Keluarahan_Id          *string
+		TahunPajakskp_sppt     *string `gorm:"column:tahunpajak"`
+		JumlahSppt             *int    `gorm:"column:jumlahsppt"`
+		PBBterhutang_sppt      *int    `gorm:"column:pbbterhutang"`
+		PBBygHarusDibayar_sppt *int    `gorm:"column:pbbygharusdibayar"`
+		Lunas                  *int    `gorm:"column:lunas"`
+		JatuhTempo             *int    `gorm:"column:jatuhtempo"`
+	}
+
+	var dataRekapSppt []RekapSppt
+	resultSppt := a.DB.Debug().Model(m.Sppt{}).
+		Select("\"Keluarahan_Id\", \"TahunPajakskp_sppt\" as tahunpajak, COUNT(\"Sppt\") AS jumlahsppt, " +
+			"SUM(\"PBBterhutang_sppt\") AS pbbterhutang, SUM(\"PBBygHarusDibayar_sppt\") AS pbbygharusdibayar, " +
+			"SUM(\"StatusPembayaran_sppt\"::INTEGER) AS lunas, SUM(CASE WHEN \"TanggalJatuhTempo_sppt\" <= CURRENT_DATE THEN 1 ELSE 0 END) AS jatuhtempo").
+		Where(&filter).
+		Group("\"Keluarahan_Id\"").Group("\"TahunPajakskp_sppt\"").
+		Order("\"Keluarahan_Id\"").
+		Scan(&dataRekapSppt)
+	if resultSppt.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data sppt: "+resultSppt.Error.Error(), dataRekapSppt)
+	}
+
+	type RekapOpbb struct {
+		JumlahOp          *int `gorm:"column:jumlahop"`
+		TotalLuasBumi     *int `gorm:"column:totalluasbumi"`
+		TotalLuasBangunan *int `gorm:"column:totalluasbangunan"`
+	}
+
+	var dataRekapOpbb []RekapOpbb
+	resultOpbb := a.DB.Debug().Model(objekpajakpbb.ObjekPajakPbb{}).
+		Select("COUNT(*) AS jumlahop, SUM(\"TotalLuasBumi\") AS totalluasbumi, SUM(\"TotalLuasBangunan\") AS totalluasbangunan").
+		Where(&objekpajakpbb.ObjekPajakPbb{NopDetail: *nop}).Group("\"Kelurahan_Kode\"").Order("\"Kelurahan_Kode\"").Scan(&dataRekapOpbb)
+	if resultOpbb.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak pbb: "+resultOpbb.Error.Error(), dataRekapOpbb)
+	}
+
+	type RekapOpBgn struct {
+		JumlahBgn   *int `gorm:"column:jumlahbgn"`
+		NilaiSistem *int `gorm:"column:nilaisistem"`
+	}
+
+	var dataRekapOpBgn []RekapOpBgn
+	resultOpBgn := a.DB.Debug().Model(objekpajakbangunan.ObjekPajakBangunan{}).
+		Select("COUNT(*) AS jumlahbgn, SUM(\"NilaiSistem\") AS nilaisistem").
+		Where(&objekpajakbangunan.ObjekPajakBangunan{NopDetail: *nop}).Group("\"Kelurahan_Kode\"").Order("\"Kelurahan_Kode\"").Scan(&dataRekapOpBgn)
+	if resultOpBgn.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak bangunan: "+resultOpBgn.Error.Error(), dataRekapOpBgn)
+	}
+
+	type RekapOpBumi struct {
+		NilaiSistem *int `gorm:"column:nilaisistem"`
+	}
+
+	var dataRekapOpBumi []RekapOpBumi
+	resultOpBumi := a.DB.Debug().Model(objekpajakbumi.ObjekPajakBumi{}).
+		Select("SUM(\"NilaiSistemBumi\") AS nilaisistem").
+		Where(&objekpajakbumi.ObjekPajakBumi{NopDetail: *nop}).Group("\"Kelurahan_Kode\"").Order("\"Kelurahan_Kode\"").Scan(&dataRekapOpBumi)
+	if resultOpBumi.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak bangunan: "+resultOpBumi.Error.Error(), dataRekapOpBumi)
+	}
+
+	type RekapSpptPembayaran struct {
+		SpptDibayar *int `gorm:"column:spptdibayar"`
+	}
+
+	var dataRekapPembayaran []RekapSpptPembayaran
+	resultPembayaran := a.DB.Debug().Model(mp.SpptPembayaran{}).
+		Select("SUM(\"JumlahSpptYgDibayar\") AS spptdibayar").
+		Where(&mp.FilterDto{
+			Provinsi_Kd:    input.Propinsi_Id,
+			Daerah_Kd:      input.Dati2_Id,
+			Kecamatan_Kd:   input.Kecamatan_Id,
+			TahunPajakSppt: &input.TahunPajakskp_sppt}).
+		Group("\"Kelurahan_Kd\"").Order("\"Kelurahan_Kd\"").Scan(&dataRekapPembayaran)
+	if resultPembayaran.Error != nil {
+		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data objek pajak bangunan: "+resultPembayaran.Error.Error(), dataRekapPembayaran)
+	}
+
+	dataResponse := []m.RekapitulasiOpResponse{}
+	dataResponse = make([]m.RekapitulasiOpResponse, 0)
+	var skpop = 0
+
+	for i := 0; i < len(dataRekapSppt); i++ {
+		dataResponse = append(dataResponse, m.RekapitulasiOpResponse{
+			KelurahanKode:     dataRekapSppt[i].Keluarahan_Id,
+			JumlahObjekPajak:  dataRekapOpbb[i].JumlahOp,
+			JumlahBangunan:    dataRekapOpBgn[i].JumlahBgn,
+			LuasTotalBumi:     dataRekapOpbb[i].TotalLuasBumi,
+			LuasTotalBangunan: dataRekapOpbb[i].TotalLuasBangunan,
+			NjopBumi:          dataRekapOpBumi[i].NilaiSistem,
+			NjopBangunan:      dataRekapOpBgn[i].NilaiSistem,
+			TahunPajak:        dataRekapSppt[i].TahunPajakskp_sppt,
+			JumlahSppt:        dataRekapSppt[i].JumlahSppt,
+			PbbTerhutang:      dataRekapSppt[i].PBBterhutang_sppt,
+			PbbHarusDibayar:   dataRekapSppt[i].PBBygHarusDibayar_sppt,
+			Lunas:             dataRekapSppt[i].Lunas,
+			JatuhTempo:        dataRekapSppt[i].JatuhTempo,
+			PembayaranSppt:    dataRekapPembayaran[i].SpptDibayar,
+			PembayaranSkpSpop: &skpop,
+		})
+	}
+
+	return rp.OKSimple{
+		Data: dataResponse,
 	}, nil
 }

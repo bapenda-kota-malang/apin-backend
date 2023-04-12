@@ -6,6 +6,7 @@ package main
 import (
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/seeder"
 	_seederHandler "github.com/bapenda-kota-malang/apin-backend/internal/handlers/seeder"
@@ -38,12 +39,13 @@ func main() {
 	opt.ParseOption()
 
 	// get path
-	wd, err := os.Getwd()
+	ex, err := os.Executable()
 	if err != nil {
 		log.Fatalf("get wd path: %s", err)
 	}
+	exPath := filepath.Dir(ex)
 
-	sSqlService := _seederService.NewSeed(wd)
+	sSqlService := _seederService.NewSeed(exPath)
 	sSqlHandler := _seederHandler.NewSeedSqlHandler(sSqlService)
 
 	// update seed.sql list data from inside sqls folder

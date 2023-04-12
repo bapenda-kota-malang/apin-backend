@@ -76,7 +76,7 @@ func Verify(id uuid.UUID, input m.VerifyDto, userId uint) (any, error) {
 			return sh.SetError("request", "update-data", source, "failed", "rekening tidak diketahui", data)
 		}
 		dataRekening := respRek.(rp.OKSimple).Data.(*mrek.Rekening)
-		data.KodeBilling = generateKodeBilling(*dataRekening.KodeBilling, data.NomorSpt[2:])
+		data.KodeBilling = generateKodeBilling(dataRekening.KodeBilling, data.NomorSpt[2:])
 	case mtypes.StatusVerifikasiBaru,
 		mtypes.StatusVerifikasiDisetujuiKasubid,
 		mtypes.StatusVerifikasiDitolakKasubid,

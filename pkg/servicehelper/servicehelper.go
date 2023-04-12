@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image/jpeg"
 	"image/png"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,6 +17,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"gorm.io/datatypes"
 
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
@@ -65,22 +67,24 @@ func GetPathByFilename(filename string) (filePath string) {
 
 // get path for assets root folder
 func GetAssetsPath() string {
-	wd, err := os.Getwd()
+	ex, err := os.Executable()
 	if err != nil {
-		return ""
+		panic(err)
 	}
-	basePath := filepath.Join(wd, "../../", "assets")
+	exPath := filepath.Dir(ex)
+	basePath := filepath.Join(exPath, "../../", "assets")
 	os.MkdirAll(basePath, os.ModePerm)
 	return basePath
 }
 
 // get path for resource root folder
 func GetResourcesPath() string {
-	wd, err := os.Getwd()
+	ex, err := os.Executable()
 	if err != nil {
-		return ""
+		panic(err)
 	}
-	basePath := filepath.Join(wd, "../../", "resources")
+	exPath := filepath.Dir(ex)
+	basePath := filepath.Join(exPath, "../../", "resources")
 	os.MkdirAll(basePath, os.ModePerm)
 	return basePath
 }
@@ -632,6 +636,34 @@ func NopParser(nop string) (result []string, area_kode string) {
 	return result, area_kode
 }
 
+// return formatted string NOP optional with separator
+// e.g
+//
+//	nop := NopString("1","2","3","4","5","6","7","") // 1234567
+//	nop := NopString("1","2","3","4","5","6","7",".") // 1.2.3.4.5.6.7
+func NopString(provinsi_Kode, daerah_Kode, kecamatan_Kode, kelurahan_Kode, blok_Kode, noUrut, jenisOp, separator string) string {
+	var sb strings.Builder
+	data := []string{
+		provinsi_Kode,
+		separator,
+		daerah_Kode,
+		separator,
+		kecamatan_Kode,
+		separator,
+		kelurahan_Kode,
+		separator,
+		blok_Kode,
+		separator,
+		noUrut,
+		separator,
+		jenisOp,
+	}
+	for i := 0; i < len(data); i++ {
+		sb.WriteString(data[i])
+	}
+	return sb.String()
+}
+
 // function wrapper to call all process before create file
 //
 // return filename, path, extensionFile, id, and error
@@ -701,4 +733,26 @@ func ParseCurrency(value string) (float64, error) {
 
 func CurrentDate() time.Time {
 	return time.Now()
+}
+
+// to get difference months of denda
+func DendaMonth(jatuhTempo time.Time) int {
+	// 1. get now time change it to end of month and remove hour, min, second, nanosec
+	nowMonth := Midnight(EndOfMonth(time.Now()))
+	// 2. sub with jatuh tempo value to get time difference duration
+	diffDuration := nowMonth.Sub(jatuhTempo)
+	// 3. get hours duration divided by 24 then 30 to get difference month
+	diffMonth := diffDuration.Hours() / 24 / 30
+	// 4. remove fractional from result step 3
+	diffMonth, _ = math.Modf(diffMonth)
+	// max diff 24 month
+	if diffMonth > 24 {
+		diffMonth = 24
+	}
+	return int(diffMonth)
+}
+
+// return boolean value is jatuh tempo date already passed
+func IsJatuhTempo(jatuhTempo *datatypes.Date) bool {
+	return Midnight(time.Now()).After(time.Time(*jatuhTempo))
 }

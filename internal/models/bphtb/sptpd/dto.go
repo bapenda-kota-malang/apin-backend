@@ -248,3 +248,9 @@ type FilterDto struct {
 	Page                      int             `json:"page"`
 	PageSize                  int             `json:"page_size"`
 }
+
+type FilterPPATDto struct {
+	Ppat_Id *string `json:"ppat_id"`
+	Bulan   *int    `json:"bulan"`
+	Tahun   *int    `json:"tahun"`
+}

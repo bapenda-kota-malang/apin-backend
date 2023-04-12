@@ -40,6 +40,7 @@ type ObjekPajakPbb struct {
 	TanggalPerekaman      *time.Time        `json:"tanggalPerekaman"`
 	Perekam_Pegawai_Nip   *string           `json:"perekam_pegawai_nip" gorm:"type:char(9)"`
 	PegawaiPerekam        *p.Pegawai        `json:"pegawaiPerekam,omitempty" gorm:"foreignKey:Perekam_Pegawai_Nip;references:Nip"`
+	CreatedAt             *time.Time        `json:"createdAt"`
 	UpdatedAt             *time.Time        `json:"updatedAt"`
 
 	Provinsi_Kode  *string `json:"provinsi_kode" gorm:"type:varchar(15)"`
@@ -184,4 +185,14 @@ type UpdateRtRwMassalDto struct {
 	AkhirBlok_Kode *string `json:"akhirBlok_kode" validate:"required"`
 	AkhirNoUrut    *string `json:"akhirNoUrut" validate:"required"`
 	AkhirJenisOp   *string `json:"akhirJenisOp" validate:"required"`
+}
+
+type SejarahFilterDto struct {
+	Provinsi_Kode  *string `json:"provinsi_kode"`
+	Daerah_Kode    *string `json:"daerah_kode"`
+	Kecamatan_Kode *string `json:"kecamatan_kode"`
+	Kelurahan_Kode *string `json:"kelurahan_kode"`
+	Blok_Kode      *string `json:"blok_kode"`
+	NoUrut         *string `json:"noUrut"`
+	JenisOp        *string `json:"jenisOp"`
 }

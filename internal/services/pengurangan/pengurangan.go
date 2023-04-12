@@ -14,11 +14,16 @@ import (
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
 	"github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	strh "github.com/bapenda-kota-malang/apin-backend/pkg/stringhelper"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -476,4 +481,63 @@ func Delete(id uuid.UUID) (interface{}, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
+	var data []m.Pengurangan
+
+	result := a.DB.
+		Model(&m.Pengurangan{}).
+		Preload(clause.Associations, gormhelper.OmitPassword()).
+		Preload("Spt.Npwpd").
+		Preload("Spt.ObjekPajak").
+		Preload("Spt.Rekening").
+		Scopes(gh.Filter(input)).
+		Find(&data)
+	if result.Error != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data pengurangan", data)
+		return nil, err
+	}
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No",
+			"B": "Tanggal Permohonan",
+			"C": "Nama Pemohon",
+			"D": "SPTPD/NPWPD",
+			"E": "NPWPD",
+			"F": "Nama Usaha",
+			"G": "Jenis Usaha",
+			"H": "Status",
+		})
+		for i, d := range data {
+			n := i + 1
+			_, _, _, month := timehelper.GetAllFormatTime((*datatypes.Date)(&d.TanggalPengajuan))
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": fmt.Sprintf("%v %v %v", d.TanggalPengajuan.Day(), month, d.TanggalPengajuan.Year()),
+				"C": strh.NullToAny(&d.NamaPemohon, "-"),
+				"D": strh.NullToAny(&d.Spt.NomorSpt, "-"),
+				"E": strh.NullToAny(d.Spt.Npwpd.Npwpd, "-"),
+				"F": strh.NullToAny(d.Spt.ObjekPajak.Nama, "-"),
+				"G": strh.NullToAny(d.Spt.Rekening.Nama, "-"),
+				"H": func(status m.Status) string {
+					switch status {
+					case m.StatusDiproses:
+						return "Diproses"
+					case m.StatusDiterima:
+						return "Diterima"
+					case m.StatusDitolak:
+						return "Ditolak"
+					default:
+						return "-"
+					}
+				}(d.Status),
+			})
+		}
+		return tmp
+	}()
+
+	return excelhelper.ExportList(excelData, "List")
 }
