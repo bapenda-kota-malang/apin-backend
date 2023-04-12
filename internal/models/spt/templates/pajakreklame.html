@@ -1,0 +1,141 @@
+<!doctype html> 
+<html> 
+    <head> 
+        <meta charset="utf-8"/> 
+        <title>Untitled Document</title>         
+    </head>     
+    <body> 
+		
+		
+		<div>
+		
+		<table width="100%" border="1" cellspacing="0"  style="font-family: arial"cellpadding="5">
+  <tbody>
+    <tr>
+      <td width="27%"><table width="100%" border="0">
+        <tbody>
+          <tr>
+            <td width="72%" align="center" valign="middle"><div style="font-size: 9pt;"> <strong>PEMERINTAH KOTA MALANG</strong></div></td>
+          </tr>
+          <tr>
+            <td align="center" valign="middle"><strong style="font-size: 10pt;">BADAN PENDAPATAN DAERAH</strong></td>
+          </tr>
+          <tr>
+            <td align="center" valign="middle"><div style="font-size: 8pt">Perkantoran Terpadu Pemerintah Kota Malang</div></td>
+          </tr>
+          <tr>
+            <td align="center" valign="middle"><div style="font-size:9pt">JL. Mayjen Sungkono  Gedung B Lantai I<br>Telp. (0341) 751532 Kel. Arjowinangun Malang 65132</div></td>
+          </tr>
+        </tbody>
+      </table></td>
+      <td colspan="5" align="center" valign="middle"><strong>SURAT KETETAPAN PAJAK DAERAH
+        
+        <br>TAHUN {{.Custom.Tahun}}</strong></td>
+      <td colspan="2" ><div style="font-size:14pt"><strong>NO. KOHIR<br>
+        {{.Data.NoKOHIR}}</strong></div></td>
+    </tr>
+    <tr>
+      <td colspan="8"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>
+            <td width="6%" align="left" valign="top">&nbsp;</td>
+            <td width="7%" align="left" valign="top">&nbsp;</td>
+            <td width="0%" align="left" valign="top">&nbsp;</td>
+            <td colspan="4" align="left" valign="top">&nbsp;</td>
+            </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">Nama </td>
+            <td align="left" valign="top">:</td>
+            <td width="45%" align="left" valign="top">{{.Data.NamaWP}}</td>
+            <td width="15%" align="left" valign="top">Kode Billing</td>
+            <td width="0%" align="left" valign="top">:</td>
+            <td width="27%" align="left" valign="top"><strong>{{.Data.KodeBilling}}</strong></td>
+            </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">Alamat</td>
+            <td align="left" valign="top">:</td>
+            <td align="left" valign="top">{{.Data.AlamatWP}}</td>
+            <td align="left" valign="top">Virtual Account</td>
+            <td align="left" valign="top">:</td>
+            <td align="left" valign="top"><strong> {{.Data.NoVA}}</strong></td>
+            </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">NPWPD</td>
+            <td align="left" valign="top">:</td>
+            <td align="left" valign="top"> {{.Data.NPWP}}</td>
+            <td colspan="3" align="center" valign="top">&nbsp; </td>
+            </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td colspan="3" align="center" valign="top">&nbsp;</td>
+            </tr>
+          </tbody>
+        </table></td>
+    </tr>
+    <tr>
+      <td colspan="4" align="center" valign="top">Jenis Reklame</td>
+      <td colspan="4" align="center" valign="top"> Teks Reklame</td>
+    </tr>
+    <tr>
+      <td colspan="4" align="left" valign="middle">Kode Rekening : {{.Data.Objek.KodeRekening}}<br>
+        Reklame : {{.Data.Objek.Nomer}}</td>
+      <td colspan="4" align="center" valign="middle">&quot;{{.Data.Objek.Nama}}&quot;</td>
+    </tr>
+    <tr>
+      <td colspan="2" align="left" valign="middle">Lokasi Reklame </td>
+      <td width="11%" align="center" valign="middle">Ukuran</td>
+      <td width="12%" align="center" valign="middle">Jumlah</td>
+      <td width="24%" align="center" valign="middle">Batas Waktu </td>
+      <td colspan="2" align="center" valign="middle">Tarif</td>
+      <td width="14%" align="right" valign="middle">Pajak</td>
+    </tr>
+    <tr>
+      <td colspan="2" align="left" valign="middle">{{.Data.Objek.Lokasi}}</td>
+      <td align="center" valign="middle">{{.Data.Objek.Ukuran}}</td>
+      <td align="center" valign="middle">{{.Data.Objek.Jumlah}}</td>
+      <td align="center" valign="middle">{{.Data.Objek.BatasWaktu}}</td>
+      <td colspan="2" align="center" valign="middle">{{.Data.Objek.Tarif}}</td>
+      <td align="right" valign="middle">{{.Data.Objek.Pajak}}</td>
+    </tr>
+    <tr>
+      <td colspan="7" align="left" valign="middle">Jumlah Ketetapan Pokok Pajak<br></td>
+      <td align="right" valign="middle">{{.Data.Pajak.Pokok}}</td>
+    </tr>
+    <tr>
+      <td colspan="7" align="left" valign="middle">Denda Pajak</td>
+      <td align="right" valign="middle">{{.Data.Pajak.Denda}}</td>
+    </tr>
+    <tr>
+      <td colspan="7" align="left" valign="middle">Jumlah Ketetapan Pokok Pajak + Denda Pajak</td>
+      <td align="right" valign="middle">{{.Data.Pajak.Total}}</td>
+    </tr>
+    <tr>
+      <td colspan="8">        Dengan Huruf : {{.Data.Pajak.Terbilang}}</td>
+      </tr>
+    <tr>
+      <td colspan="8">PERHATIAN :<br>
+        1. Harap Penyetoran dilakukan melalui kasir Badan Pendapatan Daerah Kota Malang dengan menggunakan Surat Setoran Pajak Daerah (SSPD)<br>
+        2. Apabila SKPD ini tidak atau kurang dibayar setelah lewat waktu paling lama 30 hari sejak SKPD ini diterima dikenakan sanksi administratif berupa denda sebesar 2% per bulan</td>
+      </tr>
+    <tr>
+      <td colspan="8" align="center" valign="middle">Malang, {{.Custom.Tanggal}}<br>
+        a.n Kepala Badan Pendapatan Daerah<br>
+        Kepala Bidang Pajak Daerah        
+		  <br><br><br><br><br><br>SUKO KURNIANTO, SE,M.PA<br>
+          Pembina<br>
+        NIP.19750917 199803 1 004</td>
+      </tr>
+  </tbody>
+</table>
+
+		</div>
+		</div>
+		 
+</body>     
+</html>

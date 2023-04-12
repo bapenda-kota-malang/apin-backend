@@ -515,6 +515,8 @@ func SetRoutes() http.Handler {
 		r.Get("/{id}", spt.GetDetail)
 		r.Patch("/{id}", spt.Update)
 		r.Delete("/{id}", spt.Delete)
+		r.Get("/download/excel", spt.DownloadExcelList)
+		r.Get("/download/pdf/{id}", spt.DownloadPdf)
 	})
 
 	r.Route("/skpd", func(r chi.Router) {
@@ -524,6 +526,8 @@ func SetRoutes() http.Handler {
 		r.Patch("/{id}", spt.Update)
 		r.Patch("/{id}/verify", spt.Verify)
 		r.Delete("/{id}", spt.Delete)
+		r.Get("/download/excel", spt.DownloadExcelList)
+		r.Get("/download/pdf/{id}", spt.DownloadPdf)
 	})
 
 	r.Route("/skpdkb", func(r chi.Router) {

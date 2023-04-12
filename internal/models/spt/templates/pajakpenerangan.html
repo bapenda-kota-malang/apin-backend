@@ -1,0 +1,391 @@
+<!doctype html> 
+<html> 
+    <head> 
+        <meta charset="utf-8"/> 
+        <title>Untitled Document</title>         
+    </head>     
+    <body> 
+		
+		<div>
+		
+		
+		<table width="100%" border="1" cellspacing="0" cellpadding="5" style="font-size: 9pt; font-family: arial; ">
+  <tbody>
+    <tr>
+      <td colspan="2"><table width="100%" border="0">
+        <tbody>
+          <tr>
+            <td width="72%" align="center" valign="middle"><div style="font-size: 10pt;"> <strong>PEMERINTAH KOTA MALANG</strong></div></td>
+            </tr>
+          <tr>
+            <td align="center" valign="middle"><strong style="font-size: 8pt;">BADAN PENDAPATAN DAERAH</strong></td>
+          </tr>
+          <tr>
+            <td align="center" valign="middle"><strong>Perkantoran Terpadu Pemerintah Kota Malang</strong></td>
+          </tr>
+          <tr>
+            <td align="center" valign="middle"><strong>JL. Mayjen Sungkono  Gedung B Lantai I Telp. (0341) 751532 Kel. Arjowinangun Malang 65132</strong></td>
+          </tr>
+        </tbody>
+      </table></td>
+      <td width="35%"><table width="200" border="0" style="font-size: 8pt">
+        <tbody>
+          <tr>
+            <td width="115">No. SPTPD</td>
+            <td width="10">:</td>
+            <td width="62">{{.Data.NoSPTPD}}</td>
+          </tr>
+          <tr>
+            <td>Masa Pajak</td>
+            <td>:</td>
+            <td>{{.Data.MasaPajak}}</td>
+          </tr>
+          <tr>
+            <td>Tahun</td>
+            <td>:</td>
+            <td>{{.Data.Tahun}}</td>
+          </tr>
+        </tbody>
+      </table></td>
+    </tr>
+    <tr>
+      <td colspan="3" align="center" valign="top"><div style="font-size: 8pt"><strong>SPTPD<br>        (SURAT PEMBERITAHUAN PAJAK DAERAH)<br>
+        PAJAK PENERANGAN JALAN DIHASILKAN SENDIRI</strong></div></td>
+      </tr>
+    <tr>
+      <td width="49%" ><table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>
+            <td colspan="3" align="left" valign="top">NPWPD (Nomor Pokok Wajib Pajak) : *</td>
+            </tr>
+          <tr>
+            <td width="9%" height="42">&nbsp;</td>
+            <td width="76%"><table width="100%"   cellspacing="0" cellpadding="0">
+              <tbody>
+                <tr>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td >&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                  <td style="border: 1px #000000 solid">&nbsp;</td>
+                </tr>
+              </tbody>
+            </table></td>
+            <td width="15%">&nbsp;</td>
+          </tr>
+          <tr>
+            <td height="19">&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+          </tr>
+        </tbody>
+      </table></td>
+      <td colspan="2">Kepada<br>
+
+Yth. {{.Data.NamaWP}}<br><br>
+di<br>
+        {{.Data.Kota}}<br></td>
+      </tr>
+    <tr>
+      <td colspan="3" style="font-size: 8pt" align="left" valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>
+            <td colspan="2" align="left" valign="top">PERHATIAN :</td>
+            </tr>
+          <tr>
+            <td width="2%">1.</td>
+            <td width="98%">Harap diisi dalam rangkap 2 (dua) ditulis dengan HURUF KAPITAL;</td>
+          </tr>
+          <tr>
+            <td>2.</td>
+            <td>Beri nomor pada kotak <span style="border: 1px solid black;  ">&nbsp; &nbsp; &nbsp;</span> yang tersedia untuk jawaban yang diberikan;</td>
+          </tr>
+          <tr>
+            <td>3.</td>
+            <td>Setelah diisi dan ditandatangani wajib diserahkan kembali kepada Dinas Pendapatan Daerah Kota Malang paling lambat 10 (sepuluh) hari setelah
+          berakhirnya masa pajak;</td>
+          </tr>
+          <tr>
+            <td>4.</td>
+            <td>Keterlambatan penyerahan dari tanggal tersebut di atas, maka akan dilakukan Pentapan Secara Jabatan (<em>Official Assesment</em>)</td>
+          </tr>
+          </tbody>
+      </table> </td>
+      </tr>
+    <tr>
+      <td colspan="3" align="center" valign="top"><strong>DIISI OLEH WAJIB PAJAK/PENGUSAHA</strong></td>
+      </tr>
+    <tr>
+      <td colspan="3"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>
+            <td width="2%" align="left" valign="top">1.</td>
+            <td width="40%" align="left" valign="top">NAMA PENGUSAHA</td>
+            <td width="1%" align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.NamaWP}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">2.</td>
+            <td align="left" valign="top">a. NAMA USAHA/PERUSAHAAN</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.NamaUsaha}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">b. ALAMAT USAHA/PERUSAHAAN</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.AlamatUsaha}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td width="32%" align="left" valign="top">Telp. {{.Data.Telp}}</td>
+            <td width="25%" align="left" valign="top">HP  {{.Data.Phone}} </td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">c. JENIS BIDANG USAHA/PERUSAHAAN</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.JenisUsaha}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">3.</td>
+            <td align="left" valign="top">a. NAMA PIHAK YANG DIBERI KUASA</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Kuasa.Nama}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">b. ALAMAT PIHAK YANG DIBERI KUASA</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Kuasa.Alamat}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">Telp. {{.Data.Kuasa.Telp}}</td>
+            <td align="left" valign="top">HP  {{.Data.Kuasa.Phone}}</td>
+            </tr>
+          <tr>
+            <td align="left" valign="top">4.</td>
+            <td align="left" valign="top">JENIS MESIN PENGGERAK</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Objek.JenisMesinPenggerak}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">5.</td>
+            <td align="left" valign="top">TAHUN MESIN PENGGERAK</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Objek.TahunMesiPeggerak}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">6.</td>
+            <td align="left" valign="top">DAYA MESIN PENGGERAK</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Objek.DayaMesinPenggerak}} PK</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">7.</td>
+            <td align="left" valign="top">KEMAMPUAN MESIN PENGGERAK SEKARANG</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Objek.KemampuanMesinPenggerak}} %</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">8.</td>
+            <td align="left" valign="top">BEBAN PUNCAK MESIN SAAT DIGUNAKAN</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Objek.BebanMesin}} %</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">9.</td>
+            <td align="left" valign="top">JUMLAH JAM SEHARI</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Objek.JmlJamSehari}} JAM/HARI</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">10.</td>
+            <td align="left" valign="top">JUMLAH HARI KERJA SEBULAN</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Objek.JumlahJamSebulan}} HARI/BULAN</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">11.</td>
+            <td align="left" valign="top">APAKAH MENGGUNAKAN TENAGA LISTRIK<br>
+              DARI PLN ?</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">  {.Data.Objek.GunakanPLN}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">12.</td>
+            <td align="left" valign="top">JIKA JAWABANNYA YA. BERAPA DAYA LISTRIK PLN YANG TERPASANG</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Objek.Daya}}</td>
+          </tr>
+          </tbody>
+      </table></td>
+      </tr>
+    <tr>
+      <td colspan="3" align="center" valign="top"><strong>PERNYATAAN</strong></td>
+      </tr>
+    <tr>
+      <td colspan="3"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>
+            <td colspan="3" align="left" valign="top">Dengan menyadari sepenuhnya akan segala akibat termasuk sanksi-sanksi sesuai dengan ketentuan peraturan perundang-undangan, saya atau yang<br>
+              saya beri kuasa menyatakan bahwa apa yang telah saya beritahukan tersebut di atas beserta lampiran-lampirannya adalah benar, lengkap dan jelas.</td>
+            </tr>
+          <tr>
+            <td width="76%">&nbsp;</td>
+            <td width="20%" align="center" valign="middle">Malang, 19 April 2021</td>
+            <td width="4%" align="center" valign="middle">&nbsp; </td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td align="center" valign="middle">Wajib Pajak,</td>
+            <td align="center" valign="middle">&nbsp; </td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td align="center" valign="middle">&nbsp;</td>
+            <td align="center" valign="middle">&nbsp;</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td align="center" valign="middle">{{.Data.NamaWP}}</td>
+            <td align="center" valign="middle">&nbsp; </td>
+          </tr>
+        </tbody>
+      </table></td>
+      </tr>
+    <tr>
+      <td colspan="3" align="center" valign="top"><strong>DIISI OLEH PETUGAS PENERIMA BAPENDA</strong></td>
+      </tr>
+    <tr>
+      <td colspan="3"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>
+            <td width="3%" align="left" valign="top">&nbsp; </td>
+            <td width="47%" align="left" valign="top">Diterima tanggal</td>
+            <td width="1%" align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Petugas.TglTerima}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp; </td>
+            <td align="left" valign="top">Nama Petugas</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Petugas.Nama}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">NIP</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.Petugas.NIP}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td width="34%" align="left" valign="top">&nbsp;</td>
+            <td width="15%" align="center" valign="top">(<span style="width: 150px">&nbsp;</span>)</td>
+          </tr>
+          </tbody>
+      </table></td>
+      </tr>
+    <tr>
+      <td colspan="3">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tbody>
+            <tr>
+              <td width="8%" height="28">MODEL DPD-02</td>
+              <td width="26%"><div style="border-bottom: thin dotted black;width: 100%">&nbsp;</div></td>
+              <td width="6%"> potong disini</td>
+              <td width="60%"><div style="border-bottom: thin dotted black;width: 100%">&nbsp;</div></td>
+            </tr>
+          </tbody>
+        </table></td>
+      </tr>
+    <tr>
+      <td colspan="3" align="center" valign="top">No. SPTPD : {{.Data.NoSPTPD }}<br>
+        <strong>TANDA TERIMA</strong></td>
+      </tr>
+    <tr>
+      <td colspan="3"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>
+            <td width="15%" align="left" valign="top">&nbsp;</td>
+            <td width="18%" align="left" valign="top">NPWPD</td>
+            <td width="2%" align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.NPWP}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">Nama </td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.NamaWP}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">Alamat</td>
+            <td align="left" valign="top">:</td>
+            <td colspan="2" align="left" valign="top">{{.Data.AlamatWP}}</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">Kode Billing</td>
+            <td align="left" valign="top">:</td>
+            <td align="left" valign="top"> {{.Data.KodeBilling}}</td>
+            <td align="center" valign="top">Malang, {{ .Custom.Tanggal }}</td>
+            </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">No VA</td>
+            <td align="left" valign="top">:</td>
+            <td align="left" valign="top"> {{.Data.NoVA}}</td>
+            <td align="center" valign="top">Yang menerima,</td>
+            </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="center" valign="top">&nbsp;</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="center" valign="top">&nbsp;</td>
+          </tr>
+          <tr>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td align="left" valign="top">&nbsp;</td>
+            <td width="37%" align="left" valign="top">&nbsp;</td>
+            <td width="28%" align="center" valign="top">&nbsp;</td>
+          </tr>
+        </tbody>
+      </table></td>
+      </tr>
+  </tbody>
+</table>
+
+			
+		</div>
+		
+		
+
+    </body>     
+</html>

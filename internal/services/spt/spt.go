@@ -3,6 +3,9 @@ package spt
 import (
 	"errors"
 	"fmt"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/excelhelper"
+	rpth "github.com/bapenda-kota-malang/apin-backend/pkg/reporthelper"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -21,7 +24,10 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
+	strh "github.com/bapenda-kota-malang/apin-backend/pkg/stringhelper"
+	th "github.com/bapenda-kota-malang/apin-backend/pkg/timehelper"
 	sc "github.com/jinzhu/copier"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -459,4 +465,163 @@ func Delete(id uuid.UUID) (any, error) {
 		},
 		Data: data,
 	}, nil
+}
+
+func DownloadExcelList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (*excelize.File, error) {
+
+	data, err := GetList(input, userId, cmdBase, tx)
+	if err != nil {
+		_, err := sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
+		return nil, err
+	}
+	result := data.(rp.OK).Data.([]m.ListDataDto)
+
+	var excelData = func() []interface{} {
+		var tmp []interface{}
+		tmp = append(tmp, map[string]interface{}{
+			"A": "No.",
+			"B": "No SPTPD",
+			"C": "Tanggal",
+			"D": "Masa Pajak",
+			"E": "Jatuh Tempo",
+			"F": "Pajak/Retribusi",
+			"G": "NPWPD",
+			"H": "Nama Wajib Pajak",
+			"I": "Jumlah Pajak",
+			"J": "Status",
+		})
+		for i, v := range result {
+			n := i + 1
+			tmp = append(tmp, map[string]interface{}{
+				"A": n,
+				"B": strh.NullToAny(&v.NomorSpt, ""),
+				"C": func() string {
+					return v.CreatedAt.Format("2006-01-02")
+				}(),
+				"D": fmt.Sprintf(`%s s/d %s`, th.GetDateFromUTCDatetime(&v.PeriodeAwal), th.GetDateFromUTCDatetime(&v.PeriodeAkhir)),
+				"E": th.GetDateFromUTCDatetime(&v.JatuhTempo),
+				"F": func() string {
+					if v.Rekening != nil {
+						return strh.NullToAny(v.Rekening.JenisUsaha, "-")
+					}
+					return "-"
+				}(),
+				"G": func() string {
+					if v.Npwpd != nil {
+						return strh.NullToAny(v.Npwpd.Npwpd, "-")
+					}
+					return "-"
+				}(),
+				"H": func() string {
+					if v.ObjekPajak != nil {
+						return strh.NullToAny(v.ObjekPajak.Nama, "-")
+					}
+					return "-"
+				}(),
+				"I": strh.FloatToAny(&v.JumlahPajak, "0"),
+				"J": strh.NullToAny(v.StatusFinal, "-"),
+			})
+		}
+		return tmp
+	}()
+	return excelhelper.ExportList(excelData, "List")
+}
+
+type ResponseFile struct {
+	ID       int    `json:"id"`
+	FileName string `json:"fileName"`
+}
+
+func DownloadPdf(id uuid.UUID, typeSpt string, userId uint) (any, error) {
+
+	dataDetail, err := GetDetail(id, typeSpt, userId)
+	if err != nil {
+		return sh.SetError("request", "download-pdf", source, "failed", "gagal mengambil data ", dataDetail)
+	}
+	finalresultTmp := dataDetail.(rp.OKSimple).Data.(*m.Spt)
+
+	var KpList = []*rpth.TCItemList{}
+	var TrList = []*rpth.TCItemList{}
+
+	finalresult := map[string]interface{}{
+		"Data": map[string]any{
+			"NoSPTPD":     strh.NullToAny(&finalresultTmp.NomorSpt, "-"),
+			"NPWP":        strh.NullToAny(&finalresultTmp.NomorSpt, "-"),
+			"NoKOHIR":     strh.NullToAny(&finalresultTmp.NomorSpt, "-"),
+			"NamaWP":      strh.NullToAny(&finalresultTmp.NomorSpt, "-"),
+			"AlamatWP":    strh.NullToAny(&finalresultTmp.NomorSpt, "-"),
+			"NamaUsaha":   strh.NullToAny(&finalresultTmp.NomorSpt, "-"),
+			"AlamatUsaha": strh.NullToAny(&finalresultTmp.NomorSpt, "-"),
+			"Phone":       strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			"Telp":        strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			"JenisUsaha":  strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			"KodeBilling": strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			"NoVA":        strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			"MasaPajak":   strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			"Tahun":       strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			"Kota":        strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			"Kuasa": map[string]string{
+				"Nama":   strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Alamat": strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Telp":   strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Phone":  strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			},
+			"Objek": map[string]string{
+				"JenisMesinPenggerak":     strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"TahunMesiPeggerak":       strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"DayaMesinPenggerak":      strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"KemampuanMesinPenggerak": strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"JmlJamSehari":            strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"JumlahJamSebulan":        strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"BebanMesin":              strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"GunakanPLN":              strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Daya":                    strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+
+				"KodeRekening": strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Nomer":        strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Lokasi":       strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Ukuran":       strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Nama":         strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Jumlah":       strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"BatasWaktu":   strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Tarif":        strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Pajak":        strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			},
+			"Pajak": map[string]string{
+				"Pokok":     strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Denda":     strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Total":     strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"Terbilang": strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			},
+			"Petugas": map[string]string{
+				"Nama":      strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"NIP":       strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+				"TglTerima": strh.NullToAny(finalresultTmp.ObjekPajak.Nama, "-"),
+			},
+		},
+		"Custom": map[string]string{
+			"Tahun":   "2023",
+			"Tanggal": "11-12-1216",
+		},
+		"ListItem": map[string][]*rpth.TCItemList{
+			"Kapasitas": KpList,
+			"Tarif":     TrList,
+		},
+	}
+
+	_, err = sh.GetUuidv4()
+	if err != nil {
+		return nil, err
+	}
+	fileName := sh.GenerateFilename(fmt.Sprintf("report_spt_%s", "02"), id, 0, "pdf")
+
+	outFile := filepath.Join(sh.GetPdfPath(), fileName)
+	if err := GeneratePdf(outFile, finalresult, "02"); err != nil {
+		return nil, err
+	}
+	_r := &ResponseFile{
+		ID:       0,
+		FileName: outFile,
+	}
+	return rp.OKSimple{Data: _r}, nil
 }

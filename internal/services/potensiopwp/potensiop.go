@@ -439,18 +439,36 @@ func DownloadExcelList(input m.FilterDto) (*excelize.File, error) {
 					}
 				}(),
 				"C": v.Id,
-				"D": *v.Rekening.JenisUsaha,
+				"D": func() string {
+					if v.Rekening != nil {
+						if v.Rekening.JenisUsaha != nil {
+							return *v.Rekening.JenisUsaha
+						}
+						return ""
+					}
+					return ""
+				}(),
 				"E": v.DetailPotensiOp.Nama,
 				"F": func() string {
-					if v.PotensiPemilikWp != nil {
+					if len(v.PotensiPemilikWp) != 0 && v.PotensiPemilikWp != nil {
 						for _, r := range v.PotensiPemilikWp {
 							return r.Nama
 						}
 					}
 					return ""
-				},
-				"G": v.DetailPotensiOp.Kecamatan.Nama,
-				"H": v.DetailPotensiOp.Kelurahan.Nama,
+				}(),
+				"G": func() string {
+					if v.DetailPotensiOp.Kecamatan != nil {
+						return v.DetailPotensiOp.Kecamatan.Nama
+					}
+					return ""
+				}(),
+				"H": func() string {
+					if v.DetailPotensiOp.Kelurahan != nil {
+						return v.DetailPotensiOp.Kelurahan.Nama
+					}
+					return ""
+				}(),
 				"I": func() string {
 					return v.CreatedAt.Format("2006-01-02")
 				}(),
