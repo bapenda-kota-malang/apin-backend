@@ -108,7 +108,7 @@ func DownloadPDF(w http.ResponseWriter, r *http.Request) {
 	if !pass {
 		return
 	}
-	
+
 	result, err := s.DownloadPDF(id)
 	if err != nil {
 		return
