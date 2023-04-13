@@ -21,7 +21,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-	result, err := s.Create(input, uint64(authInfo.User_Id), nil)
+	result, err := s.TrxCreate(input, uint64(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 
@@ -37,7 +37,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-	result, err := s.Update(id, uint64(authInfo.User_Id), input, nil)
+	result, err := s.TrxUpdate(id, input, uint64(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 

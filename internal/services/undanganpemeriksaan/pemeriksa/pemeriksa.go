@@ -1,4 +1,4 @@
-package petugas
+package pemeriksa
 
 import (
 	"strconv"
@@ -10,17 +10,17 @@ import (
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 
-	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
+	m "github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan/pemeriksa"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
 
-const source = "bapenagihanpetugas"
+const source = "undanganpemeriksaanpemeriksa"
 
 func Create(input []m.CreateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var data []m.BaPenagihanPetugas
+	var data []m.UndanganPemeriksaanPemeriksa
 
 	// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 	if err := sc.Copy(&data, &input); err != nil {
@@ -40,11 +40,11 @@ func Update(input []m.UpdateDto, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
-	var datas []m.BaPenagihanPetugas
+	var datas []m.UndanganPemeriksaanPemeriksa
 	rowsAffected := 0
 	for _, v := range input {
-		var data m.BaPenagihanPetugas
-		result := tx.Where(&m.BaPenagihanPetugas{BaPenagihan_Id: v.BaPenagihan_Id, Petugas_Id: v.Petugas_Id}).First(&data)
+		var data m.UndanganPemeriksaanPemeriksa
+		result := tx.Where(&m.UndanganPemeriksaanPemeriksa{UndanganPemeriksaan_Id: v.UndanganPemeriksaan_Id, Petugas_Id: v.Petugas_Id}).First(&data)
 		rowsAffected += int(result.RowsAffected)
 		if v.Deleted && result.RowsAffected != 0 {
 			if result := tx.Delete(&data); result.Error != nil {
@@ -79,7 +79,7 @@ func Update(input []m.UpdateDto, tx *gorm.DB) (any, error) {
 }
 
 func Delete(id int) (any, error) {
-	var data *m.BaPenagihanPetugas
+	var data *m.UndanganPemeriksaanPemeriksa
 	result := a.DB.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
