@@ -3,7 +3,6 @@ package bapenagihan
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -270,9 +269,6 @@ func Update(id uuid.UUID, input m.UpdateDto, userId uint, tx *gorm.DB) (any, err
 					return sh.SetError("request", "update-data", source, "failed", "old file empty when try to delete", data)
 				}
 				for i := range dokumentasiFilename {
-					dokFile := dokumentasiFilename[i]
-					oldFile := *v.OldFile
-					fmt.Println(dokFile == oldFile)
 					if dokumentasiFilename[i] == *v.OldFile {
 						dokumentasiFilename = append(dokumentasiFilename[:i], dokumentasiFilename[i+1:]...)
 						path := sh.GetPathByFilename(*v.OldFile)

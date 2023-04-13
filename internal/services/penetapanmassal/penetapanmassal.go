@@ -52,8 +52,7 @@ func CopySpt(input m.CopySptDto) (any, error) {
 			// hitung jumlah pajak + kenaikan 25% (dari jumlah pajak) + denda 2% (dari jumlah pajak)
 			total := spt.JumlahPajak + (spt.JumlahPajak * 25 / 100) + (spt.JumlahPajak * 2 / 100)
 			// int to float
-			totalFloat := float64(total)
-			newSpt.Total = &totalFloat
+			newSpt.Total = float64(total)
 		} else if input.Types == "oa" {
 			newSpt.JenisKetetapan = m.JenisKetetapanSkpd
 		}

@@ -109,7 +109,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err = s.CreateDetail(input, opts, nil)
+	result, err = s.CreateDetail(r.Context(), input, opts, nil)
 	hh.DataResponse(w, result, err)
 }
 

@@ -1,6 +1,7 @@
 package espt
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -238,7 +239,7 @@ func Create(input m.CreateDto, user_Id uint, tx *gorm.DB) (any, error) {
 }
 
 // Service update data for table espt
-func Update(id uuid.UUID, input any, userId uint, tx *gorm.DB) (any, error) {
+func Update(ctx context.Context, id uuid.UUID, input any, userId uint, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -316,7 +317,7 @@ func Update(id uuid.UUID, input any, userId uint, tx *gorm.DB) (any, error) {
 			opts["newFile"] = false
 			opts["baseUri"] = "sptpd"
 
-			_, err = sspt.CreateDetail(inputSpt, opts, tx)
+			_, err = sspt.CreateDetail(ctx, inputSpt, opts, tx)
 			if err != nil {
 				return err
 			}

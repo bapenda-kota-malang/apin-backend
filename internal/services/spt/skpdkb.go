@@ -1,6 +1,7 @@
 package spt
 
 import (
+	"context"
 	"errors"
 	"strconv"
 	"strings"
@@ -97,7 +98,7 @@ func Verify(id uuid.UUID, input m.VerifyDto, userId uint) (any, error) {
 	}, nil
 }
 
-func CreateSkpdkbExisting(input m.SkpdkbExisting, opts map[string]interface{}) (any, error) {
+func CreateSkpdkbExisting(ctx context.Context, input m.SkpdkbExisting, opts map[string]interface{}) (any, error) {
 	var newDataInput m.Input
 	var existingData m.Spt
 	var createdNewData m.Spt
@@ -138,7 +139,7 @@ func CreateSkpdkbExisting(input m.SkpdkbExisting, opts map[string]interface{}) (
 		// calculate skpdkb process
 		newDataInput.CalculateSkpdkb()
 		// create new data
-		respNewData, err := CreateDetail(newDataInput, opts, tx)
+		respNewData, err := CreateDetail(ctx, newDataInput, opts, tx)
 		if err != nil {
 			return err
 		}
@@ -160,11 +161,11 @@ func CreateSkpdkbExisting(input m.SkpdkbExisting, opts map[string]interface{}) (
 	return rp.OKSimple{Data: createdNewData}, nil
 }
 
-func CreateSkpdkbNew(input m.Input, opts map[string]interface{}) (any, error) {
+func CreateSkpdkbNew(ctx context.Context, input m.Input, opts map[string]interface{}) (any, error) {
 	var createdData m.Spt
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// save new data
-		respNewData, err := CreateDetail(input, opts, tx)
+		respNewData, err := CreateDetail(ctx, input, opts, tx)
 		if err != nil {
 			return err
 		}

@@ -88,7 +88,7 @@ func SkpdkbExisting(w http.ResponseWriter, r *http.Request) {
 	opts["userId"] = uint(authInfo.User_Id)
 	opts["newFile"] = false
 	opts["baseUri"] = typeSpt
-	result, err := s.CreateSkpdkbExisting(input, opts)
+	result, err := s.CreateSkpdkbExisting(r.Context(), input, opts)
 	hh.DataResponse(w, result, err)
 }
 
@@ -166,6 +166,6 @@ func SkpdNew(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	result, err := s.CreateSkpdkbNew(input, opts)
+	result, err := s.CreateSkpdkbNew(r.Context(), input, opts)
 	hh.DataResponse(w, result, err)
 }

@@ -1,6 +1,7 @@
 package espt
 
 import (
+	"context"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -209,7 +210,7 @@ func CreateDetail(input m.Input, user_Id uint) (interface{}, error) {
 // this function flow is:
 //
 // update data esptd with id, check data details type, loop for update every items, assign data details to data espt for respond
-func UpdateDetail(id uuid.UUID, input m.Input, user_Id uint) (interface{}, error) {
+func UpdateDetail(ctx context.Context, id uuid.UUID, input m.Input, user_Id uint) (interface{}, error) {
 	var data m.Espt
 	affected := "0"
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
@@ -220,7 +221,7 @@ func UpdateDetail(id uuid.UUID, input m.Input, user_Id uint) (interface{}, error
 		}
 		updateDto = input.GetEspt().(m.UpdateDto)
 
-		respEspt, err := Update(id, updateDto, user_Id, tx)
+		respEspt, err := Update(ctx, id, updateDto, user_Id, tx)
 		if err != nil {
 			return err
 		}
