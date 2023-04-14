@@ -19,25 +19,21 @@ import (
 )
 
 func SkpdkbGetList(w http.ResponseWriter, r *http.Request) {
-	jkOptNotNull := "IS NOT NULL"
-	jkOptEq := "="
 	var input m.SkpdkbListDto
 	if !hh.ValidateStructByURL(w, *r.URL, &input) {
 		return
 	}
 
-	var jk *m.JenisKetetapan
-
+	var jk m.JenisKetetapan
 	if input.JenisKetetapan == nil {
-		input.JenisKetetapan_Opt = &jkOptNotNull
-	} else if string(m.JenisKetetapanSkpdkb) == *input.JenisKetetapan {
-		tmp := m.JenisKetetapanSkpdkb
-		jk = &tmp
-		input.JenisKetetapan_Opt = &jkOptEq
-	} else if string(m.JenisKetetapanSkpdkbt) == *input.JenisKetetapan {
-		tmp := m.JenisKetetapanSkpdkbt
-		jk = &tmp
-		input.JenisKetetapan_Opt = &jkOptEq
+		// TODO: how to search data skpdkb when jenis ketetapan skdpkb and skpdkbt
+		// unfiltered skpdkb and skpdkbt
+		tmp := "unfilter skpdkb"
+		input.JenisKetetapan_Opt = &tmp
+	} else if string(m.JenisKetetapanSkpdkb) == strings.ToUpper(*input.JenisKetetapan) {
+		jk = m.JenisKetetapanSkpdkb
+	} else if string(m.JenisKetetapanSkpdkbt) == strings.ToUpper(*input.JenisKetetapan) {
+		jk = m.JenisKetetapanSkpdkbt
 	} else {
 		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{
 			Message: "jenis ketetapan tidak valid",
@@ -48,7 +44,7 @@ func SkpdkbGetList(w http.ResponseWriter, r *http.Request) {
 	inputFilter := m.FilterDto{
 		Rekening_Id:        input.Rekening_Id,
 		Type:               mtypes.JenisPajak(strings.ToUpper(input.Type)),
-		JenisKetetapan:     jk,
+		JenisKetetapan:     &jk,
 		JenisKetetapan_Opt: input.JenisKetetapan_Opt,
 		Page:               input.Page,
 		PageSize:           input.PageSize,

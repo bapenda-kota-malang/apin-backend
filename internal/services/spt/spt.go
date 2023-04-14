@@ -187,6 +187,7 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 	if userId != 0 {
 		baseQuery.Joins("JOIN \"Npwpd\" ON \"Spt\".\"Npwpd_Id\" = \"Npwpd\".\"Id\" AND \"Npwpd\".\"User_Id\" = ?", userId)
 	}
+	// jatuh tempo query
 	opts := "gte"
 	if input.JatuhTempo != nil {
 		val, _ := input.JatuhTempo.Value()
@@ -195,14 +196,9 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 		opts = "="
 	}
 
-	// TODO: hapus filter date now ini
-	// if input.JatuhTempo == nil && input.JenisKetetapan_Opt == nil || *input.JenisKetetapan_Opt == "IS NULL" {
-	// 	dataDateNow := datatypes.Date(time.Now())
-	// 	input.JatuhTempo = &dataDateNow
-	// }
-
-	if input.JenisKetetapan_Opt != nil && (*input.JenisKetetapan_Opt == "IS NOT NULL" || *input.JenisKetetapan_Opt == "IS NULL") {
-		baseQuery.Where(fmt.Sprintf("\"JenisKetetapan\" %s", *input.JenisKetetapan_Opt))
+	if input.JenisKetetapan_Opt != nil && *input.JenisKetetapan_Opt == "unfilter skpdkb" {
+		baseQuery.Where("\"JenisKetetapan\" = ? AND \"JenisKetetapan\" = ?", m.JenisKetetapanSkpdkb, m.JenisKetetapanSkpdkbt)
+		input.JenisKetetapan = nil
 		input.JenisKetetapan_Opt = nil
 	}
 
@@ -249,10 +245,8 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 	input.JatuhTempo_Opt = &opts
 	result := baseQuery.Debug().
 		Select("\"Spt\".*").
-		Joins("Rekening").
 		Preload("Rekening").
 		Preload("ObjekPajak").
-		Preload("Npwpd").
 		Preload("Npwpd.PemilikWps").
 		Scopes(gh.Filter(input)).
 		Count(&count).
