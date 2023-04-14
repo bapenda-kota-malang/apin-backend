@@ -33,6 +33,7 @@ import (
 	rmwppbb "github.com/bapenda-kota-malang/apin-backend/internal/models/regwajibpajakpbb"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
+	mkurang "github.com/bapenda-kota-malang/apin-backend/internal/models/pengurangan"
 	reg "github.com/bapenda-kota-malang/apin-backend/internal/models/regpelayanan"
 	sksk "github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	skepkebpbb "github.com/bapenda-kota-malang/apin-backend/internal/services/keberatan/keputusankeberatanpbb"
@@ -1052,7 +1053,8 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, tx *gorm.D
 		permohonanBaru        *m.PstDataOPBaru
 		permohonanPengurangan *m.PstPermohonanPengurangan
 		pembetulanSpptSKPSTP  *m.PembetulanSpptSKPSTP
-		keputusanKeberatanPbb *m.KeputusanKeberatanPbb
+		keputusanKeberatanPbb *mkepkebpbb.CreateDtoKepKebPbb
+		mPengurangan          mkurang.CreateDto
 
 		regPermohonanDetail      *reg.RegPstDetail
 		regPermohonanBaru        *reg.RegPstDataOPBaru
@@ -1066,11 +1068,12 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, tx *gorm.D
 		opbng *mopbng.ObjekPajakBangunan
 		opfas *mopfas.FasilitasBangunan
 
-		roppbb *rmoppbb.RegObjekPajakPbb
-		rwppbb *rmwppbb.RegWajibPajakPbb
-		roptnh *rmoptnh.RegObjekPajakBumi
-		ropbng []rmopbng.RegObjekPajakBangunan
-		ropfas []rmopfas.RegFasilitasBangunan
+		roppbb    *rmoppbb.RegObjekPajakPbb
+		rwppbb    *rmwppbb.RegWajibPajakPbb
+		roptnh    *rmoptnh.RegObjekPajakBumi
+		ropbng    []rmopbng.RegObjekPajakBangunan
+		ropfas    []rmopfas.RegFasilitasBangunan
+		rlampiran *reg.RegPstLampiran
 	)
 
 	nop = m.DecodeNOPPermohonan(&nopInput)
@@ -1158,6 +1161,28 @@ func CopyDataReg(id uint64, nopInput string, jenisPengurangan string, tx *gorm.D
 
 			if result := tx.Create(&permohonanPengurangan); result.Error != nil {
 				return errors.New("penyimpanan data permohonan pengurangan gagal")
+			}
+
+			//pengurangan update =>relasi ke pelayanan permohonan ???
+
+			_ = a.DB.Where("PermohonanId", idPermohonan).First(&rlampiran)
+
+			mPengurangan.NamaPemohon = *data.NamaPemohon
+			mPengurangan.AlamatPemohon = *data.AlamatPemohon
+			mPengurangan.AlasanPengurangan = regPermohonanPengurangan.AlasanPengurangan
+			mPengurangan.TanggalPengajuan = (*time.Time)(data.TanggalSuratPermohonan)
+
+			tempJP, errJP := strconv.Atoi(jenisPengurangan)
+			if errJP == nil {
+				mPengurangan.JenisPengurangan = (mkurang.JenisPengurangan)(tempJP)
+			}
+
+			mPengurangan.FotoKtp = *rlampiran.LampiranKTP
+			mPengurangan.LaporanKeuangan = *rlampiran.LampiranLaporanKeuangan
+			mPengurangan.DokumenLainnya = rlampiran.LampiranLainLain
+
+			if result := tx.Create(&mPengurangan); result.Error != nil {
+				return errors.New("penyimpanan data pengurangan gagal")
 			}
 		}
 
