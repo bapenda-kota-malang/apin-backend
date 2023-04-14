@@ -172,6 +172,14 @@ func GetDetail(id int) (interface{}, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
+func GetFromUserid(userId uint64) (m.Pegawai, error) {
+	var data m.Pegawai
+	if err := a.DB.Select("\"Pegawai\".*").Joins("JOIN \"User\" ON \"User\".\"Position\" = 1 AND \"User\".\"Ref_Id\" = \"Pegawai\".\"Id\" AND \"User\".\"Id\" = ?", userId).First(&data).Error; err != nil {
+		return data, err
+	}
+	return data, nil
+}
+
 func Update(id int, input m.UpdateDto) (interface{}, error) {
 	var data *m.Pegawai
 	var dataU *mu.User

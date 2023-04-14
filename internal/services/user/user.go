@@ -227,20 +227,6 @@ func Verifikasi(id int, input m.VerifikasiDto) (any, error) {
 	}, nil
 }
 
-func GetJabatanPegawai(userId uint) (any, error) {
-	var data string
-	res := a.DB.
-		Model(m.User{}).
-		Select("\"Jabatan\".\"Nama\"").
-		Joins("JOIN \"Pegawai\" ON \"User\".\"Ref_Id\" = \"Pegawai\".\"Id\"").
-		Joins("JOIN \"Jabatan\" ON \"Pegawai\".\"Jabatan_Id\" = \"Jabatan\".\"Id\"").
-		First(&data, userId)
-	if res.Error != nil {
-		return sh.SetError("request", "get-data", source, "failed", res.Error.Error(), data)
-	}
-	return data, nil
-}
-
 func ChangePass(id int, input m.ChangePassDto) (any, error) {
 	// TODO: PINDAH KE VALIDATOR
 	if *input.NewPassword != *input.RePassword {
