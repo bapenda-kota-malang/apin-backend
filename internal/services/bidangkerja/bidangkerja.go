@@ -73,6 +73,11 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
+func GetByKode(kode string) (data m.BidangKerja, err error) {
+	err = a.DB.Where("Kode", kode).First(&data).Error
+	return
+}
+
 func Update(id int, input m.UpdateDto) (any, error) {
 	var data *m.BidangKerja
 	result := a.DB.First(&data, id)

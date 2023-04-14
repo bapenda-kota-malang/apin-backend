@@ -159,13 +159,11 @@ func Create(ctx context.Context, input m.CreateDto, opts map[string]interface{},
 	switch data.JenisKetetapan {
 	case m.JenisKetetapanSptpd, m.JenisKetetapanSkpdkb, m.JenisKetetapanSkpdkbt:
 		data.KodeBilling = generateKodeBilling(dataRekening.KodeBilling, nomerSpt)
-		data.Rekening = dataRekening
 		va, err := vaManager(ctx, data, ibj.ProsesCreate)
 		if err != nil {
 			return nil, err
 		}
 		data.VaJatim = &va
-		data.Rekening = nil
 	}
 
 	err = tx.Create(&data).Error
@@ -451,25 +449,6 @@ func UpdateVa(ctx context.Context, id uuid.UUID, input m.UpdateVaDto, userId uin
 	if err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengubah va: "+err.Error(), data)
 	}
-
-	// bank jatim
-	// payload := ibj.RequestRegistration{
-	// 	VirtualAccount: *data.VaJatim,
-	// 	Nama:           *data.ObjekPajak.Nama,
-	// 	TotalTagihan:   uint64(math.RoundToEven(*data.Total)),
-	// 	TanggalExp:     tglExp.Format("20060102"),
-	// 	Berita1:        fmt.Sprintf("%s %s", *data.Npwpd.Npwpd, time.Now().Format("01-2006")),
-	// 	Berita2:        data.NomorSpt,
-	// 	Berita3:        fmt.Sprintf("DENDA %d", data.Denda),
-	// 	Berita4:        fmt.Sprintf("KENAIKAN %d", data.Kenaikan),
-	// 	Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
-	// 	FlagProses:     ibj.ProsesUpdate,
-	// }
-	// ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
-	// defer cancel()
-	// if err := sbj.Registration(ctxTo, payload, userId); err != nil {
-
-	// }
 
 	if result := a.DB.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data", data)
