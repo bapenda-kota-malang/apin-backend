@@ -129,6 +129,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarif"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaranspptmasal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan/pemeriksa"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bidangkerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
@@ -440,6 +441,7 @@ func GetModelList() (data []interface{}) {
 		&bapenagihan.BaPenagihan{},
 		&bapenagihanpetugas.BaPenagihanPetugas{},
 		&undanganpemeriksaan.UndanganPemeriksaan{},
+		&pemeriksa.UndanganPemeriksaanPemeriksa{},
 	}
 	data = append(data, listModelPenagihan...)
 

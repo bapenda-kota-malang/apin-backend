@@ -14,8 +14,11 @@ import (
 type BaPenagihan struct {
 	Id               uuid.UUID      `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	Undangan_Id      uint64         `json:"undangan_id"`
+	Nama             string         `json:"nama"`
+	Alamat           string         `json:"alamat"`
+	Instansi         string         `json:"instansi"`
+	NomorTlp         string         `json:"nomorTlp"`
 	Tanggal          datatypes.Date `json:"tanggal"`
-	ObjekPajakPbb_Id uint64         `json:"objekPajakPbb_id"`
 	NoBeritaAcara    string         `json:"noBeritaAcara"`
 	Hasil            *string        `json:"hasil"`
 	Catatan          *string        `json:"catatan"`
@@ -31,7 +34,10 @@ type BaPenagihan struct {
 
 type CreateDto struct {
 	Undangan_Id       uint64         `json:"undangan_id" validate:"required;min=1"`
-	ObjekPajakPbb_Id  uint64         `json:"objekPajakPbb_id" validate:"min=1"`
+	Nama              string         `json:"nama"`
+	Alamat            string         `json:"alamat"`
+	Instansi          string         `json:"instansi"`
+	NomorTlp          string         `json:"nomorTlp"`
 	Tanggal           datatypes.Date `json:"tanggal"`
 	NoBeritaAcara     string         `json:"-"`
 	Hasil             *string        `json:"hasil"`
