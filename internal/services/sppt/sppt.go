@@ -966,7 +966,7 @@ func Rincian(input m.NopDto) (any, error) {
 			return nil, err
 		}
 		// get ObjekPajakPBB detail
-		opPBBData, err := getObjekPajakPBBDetail(filter)
+		opPBBData, err := GetObjekPajakPBBDetail(filter)
 		if err != nil {
 			return nil, err
 		}
