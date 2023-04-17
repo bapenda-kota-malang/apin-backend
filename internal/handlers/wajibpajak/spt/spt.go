@@ -18,15 +18,16 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	re := regexp.MustCompile(`^\/\w*`)
+	var jk m.JenisKetetapan
 	switch re.FindString(r.RequestURI)[1:] {
 	case "sptpd":
+		jk = m.JenisKetetapanSptpd
 		input.Type = mtypes.JenisPajakSA
 	case "skpd":
+		jk = m.JenisKetetapanSkpd
 		input.Type = mtypes.JenisPajakOA
 	}
-
-	jkOpt := "IS NULL"
-	input.JenisKetetapan_Opt = &jkOpt
+	input.JenisKetetapan = &jk
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 

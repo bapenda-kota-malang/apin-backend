@@ -1,18 +1,19 @@
 package spt
 
 import (
+	"context"
 	"errors"
 	"strconv"
-	"strings"
 
 	mrek "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	sbk "github.com/bapenda-kota-malang/apin-backend/internal/services/bidangkerja"
 	srek "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
-	suser "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/integration/bankjatim"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/google/uuid"
 	sc "github.com/jinzhu/copier"
@@ -20,8 +21,8 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func Verify(id uuid.UUID, input m.VerifyDto, userId uint) (any, error) {
-	var data *m.Spt
+func Verify(ctx context.Context, id uuid.UUID, input m.VerifyDto, userId uint, bidangKerjaKode string) (any, error) {
+	var data m.Spt
 	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
 	dataRow := a.DB.First(&data, "\"Id\" = ? AND \"Type\" = ?", id.String(), mtypes.JenisPajakOA).RowsAffected
 	if dataRow == 0 {
@@ -34,51 +35,46 @@ func Verify(id uuid.UUID, input m.VerifyDto, userId uint) (any, error) {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	resp, err := suser.GetJabatanPegawai(userId)
+	bidangKerjaData, err := sbk.GetByKode(bidangKerjaKode)
 	if err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal data pegawai: "+err.Error(), data)
-	}
-	jabatan := strings.ToUpper(resp.(string))
-	userRole := ""
-	if kasubid := strings.Contains(jabatan, "KEPALA SUB BIDANG"); kasubid {
-		data.Kasubid_User_Id = &userId
-		userRole = "kasubid"
-	} else if kabid := strings.Contains(jabatan, "KEPALA BIDANG"); kabid {
-		data.Kabid_User_Id = &userId
-		userRole = "kabid"
-	}
-	if userRole == "" {
-		return sh.SetError("request", "update-data", source, "failed", "pegawai bukan kabid atau kasubid", data)
+		return sh.SetError("request", "update-data", source, "failed", "gagal data bidang kerja: "+err.Error(), data)
 	}
 
-	switch input.StatusPenetapan {
-	case "disetujui":
-		if userRole == "kasubid" {
+	switch bidangKerjaData.Level {
+	case mtypes.LevelJabatanKasubidKasubag:
+		data.Kasubid_User_Id = &userId
+		if input.StatusPenetapan == "disetujui" {
 			data.StatusPenetapan = mtypes.StatusVerifikasiDisetujuiKasubid
-		} else if userRole == "kabid" {
+			break
+		}
+		data.StatusPenetapan = mtypes.StatusVerifikasiDitolakKasubid
+	case mtypes.LevelJabatanKabid:
+		data.Kabid_User_Id = &userId
+		if input.StatusPenetapan == "disetujui" {
 			data.StatusPenetapan = mtypes.StatusVerifikasiDisetujuiKabid
+			// get data rekening
+			respRek, err := srek.GetDetail(int(data.Rekening_Id))
+			if err != nil {
+				return sh.SetError("request", "update-data", source, "failed", "rekening tidak diketahui", data)
+			}
+			dataRekening := respRek.(rp.OKSimple).Data.(*mrek.Rekening)
+			data.KodeBilling = generateKodeBilling(dataRekening.KodeBilling, data.NomorSpt[2:])
+			va, err := vaManager(ctx, data, bankjatim.ProsesCreate)
+			if err != nil {
+				sh.SetError("request", "update-data", source, "failed", "gagal membuat va: "+err.Error(), data)
+			}
+			data.VaJatim = &va
+			break
 		}
-	case "ditolak":
-		if userRole == "kasubid" {
-			data.StatusPenetapan = mtypes.StatusVerifikasiDitolakKasubid
-		} else if userRole == "kabid" {
-			data.StatusPenetapan = mtypes.StatusVerifikasiDitolakKabid
-		}
+		data.StatusPenetapan = mtypes.StatusVerifikasiDitolakKabid
 	default:
-		return sh.SetError("request", "update-data", source, "failed", "status tidak diketahui", data)
+		return sh.SetError("request", "update-data", source, "failed", "level jabatan tidak diperbolehkan verifikasi", data)
 	}
 
 	switch data.StatusPenetapan {
-	case mtypes.StatusVerifikasiDisetujuiKabid:
-		// get data rekening
-		respRek, err := srek.GetDetail(int(data.Rekening_Id))
-		if err != nil {
-			return sh.SetError("request", "update-data", source, "failed", "rekening tidak diketahui", data)
-		}
-		dataRekening := respRek.(rp.OKSimple).Data.(*mrek.Rekening)
-		data.KodeBilling = generateKodeBilling(dataRekening.KodeBilling, data.NomorSpt[2:])
 	case mtypes.StatusVerifikasiBaru,
 		mtypes.StatusVerifikasiDisetujuiKasubid,
+		mtypes.StatusVerifikasiDisetujuiKabid,
 		mtypes.StatusVerifikasiDitolakKasubid,
 		mtypes.StatusVerifikasiDitolakKabid:
 		// do nothing
@@ -97,7 +93,7 @@ func Verify(id uuid.UUID, input m.VerifyDto, userId uint) (any, error) {
 	}, nil
 }
 
-func CreateSkpdkbExisting(input m.SkpdkbExisting, opts map[string]interface{}) (any, error) {
+func CreateSkpdkbExisting(ctx context.Context, input m.SkpdkbExisting, opts map[string]interface{}) (any, error) {
 	var newDataInput m.Input
 	var existingData m.Spt
 	var createdNewData m.Spt
@@ -138,7 +134,7 @@ func CreateSkpdkbExisting(input m.SkpdkbExisting, opts map[string]interface{}) (
 		// calculate skpdkb process
 		newDataInput.CalculateSkpdkb()
 		// create new data
-		respNewData, err := CreateDetail(newDataInput, opts, tx)
+		respNewData, err := CreateDetail(ctx, newDataInput, opts, tx)
 		if err != nil {
 			return err
 		}
@@ -160,11 +156,11 @@ func CreateSkpdkbExisting(input m.SkpdkbExisting, opts map[string]interface{}) (
 	return rp.OKSimple{Data: createdNewData}, nil
 }
 
-func CreateSkpdkbNew(input m.Input, opts map[string]interface{}) (any, error) {
+func CreateSkpdkbNew(ctx context.Context, input m.Input, opts map[string]interface{}) (any, error) {
 	var createdData m.Spt
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		// save new data
-		respNewData, err := CreateDetail(input, opts, tx)
+		respNewData, err := CreateDetail(ctx, input, opts, tx)
 		if err != nil {
 			return err
 		}

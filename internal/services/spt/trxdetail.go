@@ -1,6 +1,7 @@
 package spt
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -174,7 +175,7 @@ func TransformEspt(esptDetail *mespt.Espt) (input m.Input, err error) {
 // function flow is:
 //
 // create for sptd, replace id, create for data details based on data type, assign data details to data spt for respond
-func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (interface{}, error) {
+func CreateDetail(ctx context.Context, input m.Input, opts map[string]interface{}, tx *gorm.DB) (interface{}, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -193,7 +194,7 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 			createDto = input.GetSpt(opts["baseUri"].(string)).(m.CreateDto)
 		}
 
-		respSpt, err := Create(createDto, opts, tx)
+		respSpt, err := Create(ctx, createDto, opts, tx)
 		if err != nil {
 			return err
 		}
