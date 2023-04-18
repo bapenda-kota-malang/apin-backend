@@ -3,6 +3,7 @@ package spt
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 
 	mrek "github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
@@ -131,8 +132,6 @@ func CreateSkpdkbExisting(ctx context.Context, input m.SkpdkbExisting, opts map[
 			return err
 		}
 
-		// calculate skpdkb process
-		newDataInput.CalculateSkpdkb()
 		// create new data
 		respNewData, err := CreateDetail(ctx, newDataInput, opts, tx)
 		if err != nil {
@@ -144,14 +143,14 @@ func CreateSkpdkbExisting(ctx context.Context, input m.SkpdkbExisting, opts map[
 		// existingData.Ref_Spt_Id = &createdNewData.Id
 		// TODO: FLAG SKPDKB
 		// update existing data
-		if result := tx.Save(&existingData); result.Error != nil {
-			return err
-		}
+		// if result := tx.Save(&existingData); result.Error != nil {
+		// 	return err
+		// }
 
 		return nil
 	})
 	if err != nil {
-		return sh.SetError("request", "create-skpdkb-existing", source, "failed", "transaction skpd existing: "+err.Error(), createdNewData)
+		return sh.SetError("request", "create-skpdkb-existing", source, "failed", fmt.Sprintf("transaction skpdkb/skpdkbt from %s existing: %s", opts["typeSpt"], err), createdNewData)
 	}
 	return rp.OKSimple{Data: createdNewData}, nil
 }

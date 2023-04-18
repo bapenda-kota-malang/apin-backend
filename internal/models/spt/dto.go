@@ -5,6 +5,7 @@ import (
 
 	mespt "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
 	mt "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 	"gorm.io/datatypes"
@@ -236,9 +237,13 @@ func (input *CreateDetailBaseDto) CalculateSkpdkb() {
 	pengurangan := float64(0)
 	if input.Spt.Kenaikan != nil {
 		kenaikan = *input.Spt.Kenaikan
+	} else {
+		kenaikan = input.Spt.JumlahPajak * 0.25
 	}
 	if input.Spt.Denda != nil {
 		denda = *input.Spt.Denda
+	} else {
+		denda = input.Spt.JumlahPajak * 0.02 * float64(servicehelper.DendaMonth(time.Time(*input.Spt.JatuhTempo)))
 	}
 	if input.Spt.Pengurangan != nil {
 		pengurangan = *input.Spt.Pengurangan

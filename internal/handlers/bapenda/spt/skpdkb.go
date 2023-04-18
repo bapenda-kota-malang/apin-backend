@@ -73,17 +73,24 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 
 func SkpdkbExisting(w http.ResponseWriter, r *http.Request) {
 	typeSpt := strings.ToUpper(chi.URLParam(r, "type"))
+	if typeSpt != "SA" && typeSpt != "OA" {
+		hj.WriteJSON(w, http.StatusBadRequest, rp.ErrSimple{
+			Message: "type tidak valid",
+		}, nil)
+		return
+	}
 	var input m.SkpdkbExisting
 	err := validateDetail(w, r.Body, &input)
 	if err != nil {
 		return
 	}
-	// re := regexp.MustCompile(`^\/\w*`)
+	re := regexp.MustCompile(`^\/\w*`)
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
 	opts := make(map[string]interface{})
 	opts["userId"] = uint(authInfo.User_Id)
 	opts["newFile"] = false
-	opts["baseUri"] = typeSpt
+	opts["baseUri"] = re.FindString(r.RequestURI)[1:]
+	opts["typeSpt"] = typeSpt
 	result, err := s.CreateSkpdkbExisting(r.Context(), input, opts)
 	hh.DataResponse(w, result, err)
 }
