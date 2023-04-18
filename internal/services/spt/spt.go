@@ -157,13 +157,19 @@ func Create(ctx context.Context, input m.CreateDto, opts map[string]interface{},
 	}
 
 	switch data.JenisKetetapan {
-	case m.JenisKetetapanSptpd, m.JenisKetetapanSkpdkb, m.JenisKetetapanSkpdkbt:
+	case m.JenisKetetapanSptpd:
 		data.KodeBilling = generateKodeBilling(dataRekening.KodeBilling, nomerSpt)
 		va, err := vaManager(ctx, data, ibj.ProsesCreate)
 		if err != nil {
 			return nil, err
 		}
 		data.VaJatim = &va
+	case m.JenisKetetapanSkpdkb, m.JenisKetetapanSkpdkbt:
+		data.KodeBilling = generateKodeBilling(dataRekening.KodeBilling, nomerSpt)
+		_, err := vaManager(ctx, data, ibj.ProsesUpdate)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	err = tx.Create(&data).Error
@@ -336,6 +342,14 @@ func GetDetail(id uuid.UUID, typeSpt string, userId uint) (any, error) {
 	return rp.OKSimple{
 		Data: data,
 	}, nil
+}
+
+func GetByVa(va *string) (m.Spt, error) {
+	var data m.Spt
+	if err := a.DB.Preload("Npwpd.ObjekPajak").Where("VaJatim", &va).First(&data).Error; err != nil {
+		return data, err
+	}
+	return data, nil
 }
 
 func Update(id uuid.UUID, input m.UpdateDto, opts map[string]interface{}, tx *gorm.DB) (any, error) {
