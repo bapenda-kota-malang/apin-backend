@@ -181,6 +181,7 @@ func GetList(input rn.FilterDto) (interface{}, error) {
 		Preload(clause.Associations, func(tx *gorm.DB) *gorm.DB {
 			return tx.Omit("Password")
 		}).
+		Joins("RegObjekPajak").
 		Preload("RegObjekPajak.Kecamatan").
 		Preload("RegObjekPajak.Kelurahan").
 		Preload("RegPemilikWps.Daerah").

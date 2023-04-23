@@ -125,7 +125,8 @@ type FilterDto struct {
 	TanggalSelesai    *datatypes.Date `json:"tanggalSelesai"`
 	TanggalPermohonan *datatypes.Date `json:"tanggalPermohonan"`
 	NOP               *string         `json:"nop"`
-	NamaWP            *string         `json:"namaWP"`
+	NamaWP            *string         `json:"namaWP" refsource:"NamaPemohon"`
+	NamaWP_Opt        *string         `json:"namaWP_opt"`
 	LetakOP           *string         `json:"letakOP"`
 	TahunPajak        *string         `json:"tahunPajak"`
 	PenerimaanBerkas  *string         `json:"penerimaanBerkas"`

@@ -64,6 +64,7 @@ type LoginDto struct {
 
 type FilterDto struct {
 	Name     *string `json:"name"`
+	Name_Opt *string `json:"name_opt"`
 	Position *int16  `json:"position"`
 	Email    *string `json:"email"`
 	Status   *int16  `json:"status"`
