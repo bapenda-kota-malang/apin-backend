@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"strings"
+	"time"
 
 	mhdair "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	mjppj "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
@@ -18,8 +20,7 @@ import (
 	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
 	mtarifreklame "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
-
-	// sbjc "github.com/bapenda-kota-malang/apin-backend/internal/services/bankjatimclient"
+	sbjc "github.com/bapenda-kota-malang/apin-backend/internal/services/bankjatimclient"
 	srek "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
 	shda "github.com/bapenda-kota-malang/apin-backend/internal/services/hargadasarair"
 	sjppj "github.com/bapenda-kota-malang/apin-backend/internal/services/jenisppj"
@@ -96,7 +97,7 @@ func vaManager(ctx context.Context, data m.Spt, flagProses ibj.FlagProses) (stri
 		data.ObjekPajak = respObjePajak.(rp.OKSimple).Data.(*mobjekpajak.ObjekPajak)
 	}
 	var va string
-	// tglExp := time.Time(data.JatuhTempo)
+	tglExp := time.Time(data.JatuhTempo)
 	switch flagProses {
 	case ibj.ProsesCreate:
 		// PDL => 5 digit no VA, 3 digit jenis pajak, 2 digit tahun, 6 digit nomor SPT
@@ -107,38 +108,38 @@ func vaManager(ctx context.Context, data m.Spt, flagProses ibj.FlagProses) (stri
 		}
 		va = *data.VaJatim
 		if servicehelper.IsJatuhTempo(&data.JatuhTempo) {
-			// tglExp = servicehelper.EndOfMonth(time.Now())
+			tglExp = servicehelper.EndOfMonth(time.Now())
 		}
 	default:
 		return "", errors.New("flag proses tidak diperbolehkan")
 	}
-	// denda := float64(0)
-	// if data.Denda != nil {
-	// 	denda = *data.Denda
-	// }
-	// kenaikan := float64(0)
-	// if data.Kenaikan != nil {
-	// 	kenaikan = *data.Kenaikan
-	// }
+	denda := float64(0)
+	if data.Denda != nil {
+		denda = *data.Denda
+	}
+	kenaikan := float64(0)
+	if data.Kenaikan != nil {
+		kenaikan = *data.Kenaikan
+	}
 
 	// payload registration bank jatim
-	// payload := ibj.ReqRegistration{
-	// 	VirtualAccount: va,
-	// 	Nama:           *data.ObjekPajak.Nama,
-	// 	TotalTagihan:   uint64(math.RoundToEven(data.Total)),
-	// 	TanggalExp:     tglExp.Format("20060102"),
-	// 	Berita1:        fmt.Sprintf("%s %s", *data.Npwpd.Npwpd, time.Now().Format("01-2006")),
-	// 	Berita2:        data.NomorSpt,
-	// 	Berita3:        fmt.Sprintf("DENDA %.2f", denda),
-	// 	Berita4:        fmt.Sprintf("KENAIKAN %.2f", kenaikan),
-	// 	Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
-	// 	FlagProses:     flagProses,
-	// }
-	// ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
-	// defer cancel()
-	// if err := sbjc.Registration(ctxTo, payload, uint64(data.CreateBy_User_Id)); err != nil {
-	// 	return "", err
-	// }
+	payload := ibj.ReqRegistration{
+		VirtualAccount: va,
+		Nama:           *data.ObjekPajak.Nama,
+		TotalTagihan:   uint64(math.RoundToEven(data.Total)),
+		TanggalExp:     tglExp.Format("20060102"),
+		Berita1:        fmt.Sprintf("%s %s", *data.Npwpd.Npwpd, time.Now().Format("01-2006")),
+		Berita2:        data.NomorSpt,
+		Berita3:        fmt.Sprintf("DENDA %.2f", denda),
+		Berita4:        fmt.Sprintf("KENAIKAN %.2f", kenaikan),
+		Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
+		FlagProses:     flagProses,
+	}
+	ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	if err := sbjc.Registration(ctxTo, payload, uint64(data.CreateBy_User_Id)); err != nil {
+		return "", err
+	}
 
 	// deactivate va
 	if data.JenisKetetapan == m.JenisKetetapanSkpdkb || data.JenisKetetapan == m.JenisKetetapanSkpdkbt {
@@ -154,28 +155,28 @@ func vaManager(ctx context.Context, data m.Spt, flagProses ibj.FlagProses) (stri
 			return "", fmt.Errorf("data spt ref tidak ditemukan")
 		}
 		if dataSptOld.Denda != nil {
-			// denda = *dataSptOld.Denda
+			denda = *dataSptOld.Denda
 		}
 		if dataSptOld.Kenaikan != nil {
-			// kenaikan = *dataSptOld.Kenaikan
+			kenaikan = *dataSptOld.Kenaikan
 		}
-		// payload := ibj.ReqRegistration{
-		// 	VirtualAccount: va,
-		// 	Nama:           *dataSptOld.ObjekPajak.Nama,
-		// 	TotalTagihan:   uint64(math.RoundToEven(dataSptOld.Total)),
-		// 	TanggalExp:     time.Time(dataSptOld.JatuhTempo).Format("20060102"),
-		// 	Berita1:        fmt.Sprintf("%s %s", *dataSptOld.Npwpd.Npwpd, time.Now().Format("01-2006")),
-		// 	Berita2:        dataSptOld.NomorSpt,
-		// 	Berita3:        fmt.Sprintf("DENDA %f", denda),
-		// 	Berita4:        fmt.Sprintf("KENAIKAN %f", kenaikan),
-		// 	Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
-		// 	FlagProses:     ibj.ProsesDelete,
-		// }
-		// ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
-		// defer cancel()
-		// if err := sbjc.Registration(ctxTo, payload, uint64(data.CreateBy_User_Id)); err != nil {
-		// 	return "", err
-		// }
+		payload := ibj.ReqRegistration{
+			VirtualAccount: va,
+			Nama:           *dataSptOld.ObjekPajak.Nama,
+			TotalTagihan:   uint64(math.RoundToEven(dataSptOld.Total)),
+			TanggalExp:     time.Time(dataSptOld.JatuhTempo).Format("20060102"),
+			Berita1:        fmt.Sprintf("%s %s", *dataSptOld.Npwpd.Npwpd, time.Now().Format("01-2006")),
+			Berita2:        dataSptOld.NomorSpt,
+			Berita3:        fmt.Sprintf("DENDA %f", denda),
+			Berita4:        fmt.Sprintf("KENAIKAN %f", kenaikan),
+			Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
+			FlagProses:     ibj.ProsesDelete,
+		}
+		ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
+		defer cancel()
+		if err := sbjc.Registration(ctxTo, payload, uint64(data.CreateBy_User_Id)); err != nil {
+			return "", err
+		}
 	}
 	return va, nil
 }

@@ -13,31 +13,31 @@ import (
 )
 
 type RegNpwpd struct {
-	Id                uint64             `json:"id" gorm:"primarykey"`
-	RegObjekPajak_Id  uint64             `json:"regObjekPajak_id"`
-	RegObjekPajak     *rop.RegObjekPajak `json:"regObjekPajak,omitempty" gorm:"foreignKey:RegObjekPajak_Id"`
-	Golongan          t.Golongan         `json:"golongan"`
-	Nomor             int                `json:"nomor"`
-	Status            t.Status           `json:"status"`
-	TanggalPenutupan  *time.Time         `json:"tanggalPenutupan"`
-	TanggalBuka       *time.Time         `json:"tanggalBuka"`
-	JenisPajak        mt.JenisPajak      `json:"jenisPajak" gorm:"size:2"`
-	SatuanKerja_Id           *uint64            `json:"satuanKerja_id"`
-	SatuanKerja              *satuanKerja.SatuanKerja  `json:"satuanKerja,omitempty" gorm:"foreignKey:SatuanKerja_Id"`
-	Rekening_Id       *uint64            `json:"rekening_id"`
-	Rekening          *rekening.Rekening `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
-	User_Name         *string            `json:"user_name" gorm:"size:20"`
-	User_Id           uint64             `json:"user_id"`
-	User              *user.User         `json:"user" gorm:"foreignKey:User_Id;references:Id"`
-	OmsetOp           *string            `json:"omsetOp" gorm:"size:50"`
-	Genset            *bool              `json:"genset"`
-	AirTanah          *bool              `json:"airTanah"`
-	TanggalMulaiUsaha *time.Time         `json:"tanggalMulaiUsaha"`
-	LuasBangunan      *string            `json:"luasBangunan" gorm:"size:50"`
-	JamBukaUsaha      *string            `json:"jamBukaUsaha" gorm:"size:50"`
-	JamTutupUsaha     *string            `json:"jamTutupUsaha" gorm:"size:50"`
-	Pengunjung        *string            `json:"pengunjung" gorm:"size:50"`
-	VendorEtax_Id     *string            `json:"vendorEtax_id"`
+	Id                uint64                   `json:"id" gorm:"primarykey"`
+	RegObjekPajak_Id  uint64                   `json:"regObjekPajak_id"`
+	RegObjekPajak     *rop.RegObjekPajak       `json:"regObjekPajak,omitempty" gorm:"foreignKey:RegObjekPajak_Id"`
+	Golongan          t.Golongan               `json:"golongan"`
+	Nomor             int                      `json:"nomor"`
+	Status            t.Status                 `json:"status"`
+	TanggalPenutupan  *time.Time               `json:"tanggalPenutupan"`
+	TanggalBuka       *time.Time               `json:"tanggalBuka"`
+	JenisPajak        mt.JenisPajak            `json:"jenisPajak" gorm:"size:2"`
+	SatuanKerja_Id    *uint64                  `json:"satuanKerja_id"`
+	SatuanKerja       *satuanKerja.SatuanKerja `json:"satuanKerja,omitempty" gorm:"foreignKey:SatuanKerja_Id"`
+	Rekening_Id       *uint64                  `json:"rekening_id"`
+	Rekening          *rekening.Rekening       `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
+	User_Name         *string                  `json:"user_name" gorm:"size:20"`
+	User_Id           uint64                   `json:"user_id"`
+	User              *user.User               `json:"user" gorm:"foreignKey:User_Id;references:Id"`
+	OmsetOp           *string                  `json:"omsetOp" gorm:"size:50"`
+	Genset            *bool                    `json:"genset"`
+	AirTanah          *bool                    `json:"airTanah"`
+	TanggalMulaiUsaha *time.Time               `json:"tanggalMulaiUsaha"`
+	LuasBangunan      *string                  `json:"luasBangunan" gorm:"size:50"`
+	JamBukaUsaha      *string                  `json:"jamBukaUsaha" gorm:"size:50"`
+	JamTutupUsaha     *string                  `json:"jamTutupUsaha" gorm:"size:50"`
+	Pengunjung        *string                  `json:"pengunjung" gorm:"size:50"`
+	VendorEtax_Id     *string                  `json:"vendorEtax_id"`
 	gormhelper.DateModel
 	VerifyStatus   VerifyStatus `json:"verifyStatus"`
 	VerifiedAt     *time.Time   `json:"verifiedAt"`
@@ -64,7 +64,7 @@ type CreateDto struct {
 	Golongan          t.Golongan `json:"golongan" validate:"required"`
 	TanggalPenutupan  *string    `json:"tanggalPenutupan"`
 	TanggalBuka       *string    `json:"tanggalBuka"`
-	SatuanKerja_Id           *uint64    `json:"satuanKerja_id"`
+	SatuanKerja_Id    *uint64    `json:"satuanKerja_id"`
 	Rekening_Id       *uint64    `json:"rekening_id" validate:"required"`
 	User_Name         *string    `json:"user_name"`
 	TanggalMulaiUsaha *string    `json:"tanggalMulaiUsaha"`
@@ -91,7 +91,7 @@ type CreateDto struct {
 type UpdateDto struct {
 	TanggalPenutupan *string `json:"tanggalPenutupan"`
 	TanggalBuka      *string `json:"tanggalBuka"`
-	SatuanKerja_Id          *uint64 `json:"satuanKerja_id"`
+	SatuanKerja_Id   *uint64 `json:"satuanKerja_id"`
 	Rekening_Id      *uint64 `json:"rekening_id"`
 	User_Name        *string `json:"user_name"`
 
@@ -117,20 +117,22 @@ type VerifikasiDto struct {
 }
 
 type FilterDto struct {
-	User_Id           *uint64     `json:"user_id"`
-	Golongan          *t.Golongan `json:"golongan"`
-	TanggalPenutupan  *string     `json:"tanggalPenutupan"`
-	TanggalBuka       *string     `json:"tanggalBuka"`
-	SatuanKerja_Id           *uint64     `json:"satuanKerja_id"`
-	Rekening_Id       *uint64     `json:"rekening_id"`
-	User_Name         *string     `json:"user_name"`
-	TanggalMulaiUsaha *string     `json:"tanggalMulaiUsaha"`
-	LuasBangunan      *string     `json:"luasBangunan"`
-	JamBukaUsaha      *string     `json:"jamBukaUsaha"`
-	JamTutupUsaha     *string     `json:"jamTutupUsaha"`
-	Pengunjung        *string     `json:"pengunjung"`
-	OmsetOp           *string     `json:"omsetOp"`
-	FotoKtp           string      `json:"fotoKtp"`
+	User_Id                *uint64     `json:"user_id"`
+	Golongan               *t.Golongan `json:"golongan"`
+	TanggalPenutupan       *string     `json:"tanggalPenutupan"`
+	TanggalBuka            *string     `json:"tanggalBuka"`
+	SatuanKerja_Id         *uint64     `json:"satuanKerja_id"`
+	Rekening_Id            *uint64     `json:"rekening_id"`
+	User_Name              *string     `json:"user_name"`
+	RegObjekPajak_Nama     *string     `json:"regObjekPajak_nama" refsource:"RegObjekPajak.Nama"`
+	RegObjekPajak_Nama_Opt *string     `json:"regObjekPajak_nama_opt"`
+	TanggalMulaiUsaha      *string     `json:"tanggalMulaiUsaha"`
+	LuasBangunan           *string     `json:"luasBangunan"`
+	JamBukaUsaha           *string     `json:"jamBukaUsaha"`
+	JamTutupUsaha          *string     `json:"jamTutupUsaha"`
+	Pengunjung             *string     `json:"pengunjung"`
+	OmsetOp                *string     `json:"omsetOp"`
+	FotoKtp                string      `json:"fotoKtp"`
 	// SuratIzinUsaha    *[]string   `json:"suratIzinUsaha"`
 	// LainLain          *[]string   `json:"lainLain"`
 	// FotoObjek         *[]string   `json:"fotoObjek"`

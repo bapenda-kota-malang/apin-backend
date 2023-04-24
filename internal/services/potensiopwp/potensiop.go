@@ -163,6 +163,7 @@ func GetList(input m.FilterDto) (any, error) {
 	var pagination gh.Pagination
 	result := a.DB.Model(&m.PotensiOp{}).
 		Joins("Rekening").
+		Joins("DetailPotensiOp").
 		Scopes(gh.Filter(input)).
 		Count(&count).
 		Scopes(gh.Paginate(input, &pagination)).
