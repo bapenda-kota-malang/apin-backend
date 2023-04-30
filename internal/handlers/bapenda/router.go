@@ -48,6 +48,7 @@ import (
 	bphtbsptpd "github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtbpembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/copydbkb"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb12"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb13"
@@ -824,6 +825,7 @@ func SetRoutes() http.Handler {
 	})
 
 	r.Post("/rekapitulasi-op", sppt.GetRekapitulasi)
+	r.Post("/copydbkb", copydbkb.CopyDbkb)
 
 	return r
 }

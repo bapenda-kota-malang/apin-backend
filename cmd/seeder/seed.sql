@@ -64,5 +64,6 @@
 \i sqls/sp-PenetapanMassal.sql
 \i sqls/sp-PenentuanKelas.sql
 \i sqls/sp-NJOPTKPIndividu.sql
+\i sqls/sp-CopyDbkb.sql
 
 -- new data

@@ -46,6 +46,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/fasilitasbangunan"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/geojson"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/group"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/harga"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/indukobjekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/jabatan"
@@ -537,6 +538,14 @@ func GetModelList() (data []interface{}) {
 		sejarahaop.SejarahAnggotaObjekPajak{},
 	}
 	data = append(data, listModelSejarahObjekPajak...)
+
+	listHarga := []interface{}{
+		&harga.HargaSatuan{},
+		&harga.HargaResource{},
+		&harga.HargaKegiatan{},
+		&harga.HargaKegiatanJPB8{},
+	}
+	data = append(data, listHarga...)
 
 	return data
 }
