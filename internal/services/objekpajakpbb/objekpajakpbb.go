@@ -2,13 +2,14 @@ package objekpajakpbb
 
 import (
 	"fmt"
+	"strconv"
+
 	mhaop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak/sejarah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
 	mhni "github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu/sejarah"
 	mhopbgn "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan/sejarah"
 	mhopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi/sejarah"
 	mhopbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb/sejarah"
-	"strconv"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/kecamatan"
@@ -345,6 +346,7 @@ func GetList(input m.FilterDto, refId int, user_id *int) (any, error) {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
 
+	fmt.Println(data)
 	for i := 0; i < len(data); i++ {
 		kecamatan, kelurahan, err := getAreaData(data[i])
 		if err != nil {
@@ -353,6 +355,9 @@ func GetList(input m.FilterDto, refId int, user_id *int) (any, error) {
 		data[i].Kecamatan = kecamatan
 		data[i].Kelurahan = kelurahan
 
+		if data[i].WajibPajakPbb_Id == nil {
+			continue
+		}
 		resWpPbb, err := swp.GetDetail(int(*data[i].WajibPajakPbb_Id))
 		if err != nil {
 			return sh.SetError("request", "get-data-list", source, "failed", fmt.Sprintf("gagal mengambil data: %s", err), data[i])
