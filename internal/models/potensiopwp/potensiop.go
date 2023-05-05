@@ -119,6 +119,8 @@ type FilterDto struct {
 	Npwp           *string         `json:"npwp" gorm:"size:50"`
 	Rekening_Id    *uint64         `json:"rekening_id"`
 	Rekening_Objek *string         `json:"rekening_objek" refsource:"Rekening.Objek"`
+	NamaOp         *string         `json:"namaOp" refsource:"DetailPotensiOp.Nama"`
+	NamaOp_Opt     *string         `json:"namaOp_opt" refsource:"DetailPotensiOp.Nama"`
 	StartDate      *datatypes.Date `json:"startDate"`
 	LuasBangunan   *string         `json:"luasBangunan"`
 	JamBuka        *string         `json:"jamBuka"`
