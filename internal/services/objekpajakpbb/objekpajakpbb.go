@@ -2,6 +2,12 @@ package objekpajakpbb
 
 import (
 	"fmt"
+	mhaop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak/sejarah"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
+	mhni "github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu/sejarah"
+	mhopbgn "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan/sejarah"
+	mhopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi/sejarah"
+	mhopbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb/sejarah"
 	"strconv"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
@@ -22,6 +28,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	mkk "github.com/bapenda-kota-malang/apin-backend/internal/models/kunjungankembali"
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
+	mopbgn "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	mopb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
 	pmh "github.com/bapenda-kota-malang/apin-backend/internal/models/pelayanan"
@@ -815,5 +822,169 @@ func GetNopTerbesar(input m.ObjekPajakPbb) (any, error) {
 
 	return rp.OKSimple{
 		Data: data.NoUrut,
+	}, nil
+}
+
+func GetSejarahOp(input m.SejarahFilterDto) (any, error) {
+	var dataSejarahOpPbb []*mhopbb.SejarahObjekPajakPbb
+
+	byNop := nop.NopDetail{
+		Provinsi_Kode:  input.Provinsi_Kode,
+		Daerah_Kode:    input.Daerah_Kode,
+		Kecamatan_Kode: input.Kecamatan_Kode,
+		Kelurahan_Kode: input.Kelurahan_Kode,
+		Blok_Kode:      input.Blok_Kode,
+		NoUrut:         input.NoUrut,
+		JenisOp:        input.JenisOp,
+	}
+
+	filterPbb := m.ObjekPajakPbb{NopDetail: byNop}
+
+	resultOp := a.DB.Debug().Model(mhopbb.SejarahObjekPajakPbb{}).Where(filterPbb).Find(&dataSejarahOpPbb)
+	if resultOp.Error != nil {
+		return sh.SetError("request", "get-sejarah-objek-pajak", source, "failed", "gagal mengambil data sejarah op", dataSejarahOpPbb)
+	}
+
+	var sejOpbb []mhopbb.SejarahOpPbbResponse
+	for _, v := range dataSejarahOpPbb {
+
+		perekam, _ := GetPegawaiByNip(v.Perekam_Pegawai_Nip)
+
+		resWpPbb, err := swp.GetDetail(int(*v.WajibPajakPbb_Id))
+		if resWpPbb == nil || err != nil {
+			return sh.SetError("request", "get-sejarah-objek-pajak", source, "failed", fmt.Sprintf("gagal mengambil data detail wajib pajak", err), dataSejarahOpPbb)
+		}
+		namaWp := resWpPbb.(rp.OKSimple).Data.(*mwp.WajibPajakPbb).Nama
+
+		sejOpbb = append(sejOpbb, mhopbb.SejarahOpPbbResponse{
+			StatusCabang:      v.StatusCabang,
+			StatusWp:          v.StatusWp,
+			NamaWajibPajak:    namaWp,
+			TotalLuasBangunan: v.TotalLuasBangunan,
+			TanggalPerekaman:  v.TanggalPerekaman,
+			NamaPerekam:       &perekam.Nama,
+		})
+	}
+
+	// get objek pajak pbb by nop
+	objekPajakPbb, err := GetByNopObject(filterPbb)
+	if err != nil {
+		return sh.SetError("request", "get-sejarah-objek-pajak", source, "failed", "gagal mengambil data objek pajak", dataSejarahOpPbb)
+	}
+
+	// get wajib pajak pbb by id
+	var m_wajibPajakPbb mwp.WajibPajakPbb
+	if objekPajakPbb.WajibPajakPbb_Id != nil {
+		a.DB.Model(&mwp.WajibPajakPbb{}).Where(`"Id" = ?`, objekPajakPbb.WajibPajakPbb_Id).First(&m_wajibPajakPbb)
+	}
+
+	var dataBumi []*mhopb.SejarahObjekPajakBumi
+	filterBumi := mopb.ObjekPajakBumi{NopDetail: byNop}
+	resultBumi := a.DB.Debug().Model(mhopb.SejarahObjekPajakBumi{}).Where(filterBumi).Find(&dataBumi)
+	if resultBumi.Error != nil {
+		return sh.SetError("request", "get-sejarah-objek-pajak", source, "failed", "gagal mengambil data sejarah objek pajak bumi", dataBumi)
+	}
+
+	var sejOpBumi []mhopb.SejarahOpBumiResponse
+	for _, v := range dataBumi {
+
+		sejOpBumi = append(sejOpBumi, mhopb.SejarahOpBumiResponse{
+			KodeZNT:         v.KodeZNT,
+			LuasBumi:        v.LuasBumi,
+			NilaiSistemBumi: v.NilaiSistemBumi,
+			JenisBumi:       v.JenisBumi,
+		})
+	}
+
+	var dataBangunan []*mhopbgn.SejarahObjekPajakBangunan
+	filterBangunan := mopbgn.ObjekPajakBangunan{NopDetail: byNop}
+
+	resultBangunan := a.DB.Debug().Model(mhopbgn.SejarahObjekPajakBangunan{}).Where(filterBangunan).Find(&dataBangunan)
+	if resultBangunan.Error != nil {
+		return sh.SetError("request", "get-sejarah-objek-pajak", source, "failed", "gagal mengambil data sejarah objek pajak bangunan", dataBangunan)
+	}
+
+	var sejOpBgn []mhopbgn.SejarahOpBangunanResponse
+	for _, v := range dataBangunan {
+		perekam, _ := GetPegawaiByNip(v.Perekam_Pegawai_Nip)
+
+		sejOpBgn = append(sejOpBgn, mhopbgn.SejarahOpBangunanResponse{
+			Jpb_Kode:         v.Jpb_Kode,
+			NoFormulirSpop:   v.NoFormulirSpop,
+			LuasBangunan:     v.LuasBangunan,
+			NilaiSistem:      v.NilaiSistem,
+			TanggalPerekaman: v.TanggalPerekaman,
+			NamaPerekam:      &perekam.Nama,
+		})
+	}
+
+	var dataNilaiIndividu []*mhni.SejarahNilaiIndividu
+	filterNilaiIndividu := nilaiindividu.NilaiIndividu{NopDetail: byNop}
+
+	resultNilaiIndividu := a.DB.Debug().Model(mhni.SejarahNilaiIndividu{}).Where(filterNilaiIndividu).Find(&dataNilaiIndividu)
+	if resultNilaiIndividu.Error != nil {
+		return sh.SetError("request", "get-sejarah-objek-pajak", source, "failed", "gagal mengambil data sejarah nilai individu", dataNilaiIndividu)
+	}
+
+	var sejNilaiIndividu []mhni.SejarahNilaiIndividuResponse
+	for _, v := range dataNilaiIndividu {
+
+		penilai, _ := GetPegawaiByNip(v.NipPenilaianIndividu)
+		pemeriksa, _ := GetPegawaiByNip(v.NipPemeriksaanIndividu)
+
+		sejNilaiIndividu = append(sejNilaiIndividu, mhni.SejarahNilaiIndividuResponse{
+			NoBangunan:             v.NoBangunan,
+			NoFormulir:             v.NoFormulir,
+			NilaiIndividu:          v.NilaiIndividu,
+			TglPenilaianIndividu:   v.TglPenilaianIndividu,
+			NamaPenilai:            &penilai.Nama,
+			TglPemeriksaanIndividu: v.TglPemeriksaanIndividu,
+			NamaPemeriksa:          &pemeriksa.Nama,
+		})
+	}
+
+	var dataAnggotaOp []*mhaop.SejarahAnggotaObjekPajak
+	filterAnggotaOp := mhaop.SejarahFilterDto{
+		Induk_Provinsi_Kode:  input.Provinsi_Kode,
+		Induk_Daerah_Kode:    input.Daerah_Kode,
+		Induk_Kecamatan_Kode: input.Kecamatan_Kode,
+		Induk_Kelurahan_Kode: input.Kelurahan_Kode,
+		Induk_Blok_Kode:      input.Blok_Kode,
+		Induk_NoUrut:         input.NoUrut,
+	}
+
+	resultAnggotaOp := a.DB.Debug().Model(mhaop.SejarahAnggotaObjekPajak{}).Where(filterAnggotaOp).Find(&dataAnggotaOp)
+	if resultAnggotaOp.Error != nil {
+		return sh.SetError("request", "get-sejarah-objek-pajak", source, "failed", "gagal mengambil data sejarah anggota objek pajak", dataAnggotaOp)
+	}
+
+	var sejAnggotaOp []mhaop.SejarahAnggotaOpResponse
+	if resultAnggotaOp.RowsAffected != 0 {
+		for _, v := range dataAnggotaOp {
+
+			nopAop := fmt.Sprintf("%s.%s.%s.%s.%s.%s.%s", *v.Provinsi_Kode, *v.Daerah_Kode, *v.Kecamatan_Kode, *v.Kelurahan_Kode, *v.Blok_Kode, *v.NoUrut, *v.JenisOp)
+			sejAnggotaOp = append(sejAnggotaOp, mhaop.SejarahAnggotaOpResponse{
+				Nop:                      &nopAop,
+				LuasBumiBeban:            v.LuasBumiBeban,
+				LuasBangunanBeban:        v.LuasBangunanBeban,
+				NilaiSistemBumiBeban:     v.NilaiSistemBumiBeban,
+				NilaiSistemBangunanBeban: v.NilaiSistemBangunanBeban,
+			})
+		}
+	}
+
+	records := &mhopbb.SejarahOpResponse{
+		NamaWajibPajak:    m_wajibPajakPbb.Nama,
+		JalanObjekPajak:   objekPajakPbb.Jalan,
+		JalanWajibPajak:   m_wajibPajakPbb.Jalan,
+		ListOpPbb:         sejOpbb,
+		ListOpBangunan:    sejOpBgn,
+		ListOpBumi:        sejOpBumi,
+		ListNilaiIndividu: sejNilaiIndividu,
+		ListOpAnggota:     sejAnggotaOp,
+	}
+
+	return rp.OKSimple{
+		Data: records,
 	}, nil
 }

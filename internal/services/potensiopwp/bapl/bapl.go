@@ -3,7 +3,6 @@ package bapl
 import (
 	"errors"
 	"strconv"
-	"strings"
 
 	"gorm.io/gorm"
 
@@ -15,8 +14,8 @@ import (
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/potensiopwp/bapl"
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
-
-	suser "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
+	sbk "github.com/bapenda-kota-malang/apin-backend/internal/services/bidangkerja"
+	"github.com/bapenda-kota-malang/apin-backend/internal/services/pegawai"
 
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
 )
@@ -45,7 +44,7 @@ func Create(input m.CreateDto, userId uint, tx *gorm.DB) (any, error) {
 	return rp.OKSimple{Data: data}, nil
 }
 
-func Verify(potensiOp_Id uuid.UUID, userId uint, input m.VerifyDto) (any, error) {
+func Verify(potensiOp_Id uuid.UUID, input m.VerifyDto, userId uint, bidangKerjaKode string) (any, error) {
 	var data m.PotensiBapl
 
 	// validate data exist and copy input (payload) ke struct data jika tidak ada akan error
@@ -62,38 +61,35 @@ func Verify(potensiOp_Id uuid.UUID, userId uint, input m.VerifyDto) (any, error)
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	resp, err := suser.GetJabatanPegawai(userId)
+	pegawai, err := pegawai.GetFromUserid(uint64(userId))
 	if err != nil {
-		return sh.SetError("request", "update-data", source, "failed", "gagal data pegawai: "+err.Error(), data)
+		return nil, err
 	}
-	jabatan := strings.ToUpper(resp.(string))
-	userRole := ""
-	if kasubid := strings.Contains(jabatan, "KEPALA SUB BIDANG"); kasubid {
-		data.Kasubid_Pegawai_Id = &userId
-		userRole = "kasubid"
-	} else if kabid := strings.Contains(jabatan, "KEPALA BIDANG"); kabid {
-		data.Kabid_Pegawai_Id = &userId
-		userRole = "kabid"
+
+	bidangKerjaData, err := sbk.GetByKode(bidangKerjaKode)
+	if err != nil {
+		return sh.SetError("request", "update-data", source, "failed", "gagal data bidang kerja: "+err.Error(), data)
 	}
-	if userRole == "" {
-		return sh.SetError("request", "update-data", source, "failed", "pegawai bukan kabid atau kasubid", data)
-	}
-	switch input.Status {
-	case "disetujui":
-		if userRole == "kasubid" {
+
+	switch bidangKerjaData.Level {
+	case mtypes.LevelJabatanKasubidKasubag:
+		data.Kasubid_Pegawai_Id = &pegawai.Id
+		if input.Status == "disetujui" {
 			data.Status = mtypes.StatusVerifikasiDisetujuiKasubid
-		} else if userRole == "kabid" {
+			break
+		}
+		data.Status = mtypes.StatusVerifikasiDitolakKasubid
+	case mtypes.LevelJabatanKabid:
+		data.Kabid_Pegawai_Id = &pegawai.Id
+		if input.Status == "disetujui" {
 			data.Status = mtypes.StatusVerifikasiDisetujuiKabid
+			break
 		}
-	case "ditolak":
-		if userRole == "kasubid" {
-			data.Status = mtypes.StatusVerifikasiDitolakKasubid
-		} else if userRole == "kabid" {
-			data.Status = mtypes.StatusVerifikasiDitolakKabid
-		}
+		data.Status = mtypes.StatusVerifikasiDitolakKabid
 	default:
-		return sh.SetError("request", "update-data", source, "failed", "status tidak diketahui", data)
+		return sh.SetError("request", "update-data", source, "failed", "level jabatan tidak diperbolehkan verifikasi", data)
 	}
+
 	switch data.Status {
 	case mtypes.StatusVerifikasiBaru,
 		mtypes.StatusVerifikasiDisetujuiKasubid,

@@ -2,7 +2,6 @@ package sppt
 
 import (
 	"errors"
-
 	nop "github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	opbg "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
 	opb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
@@ -88,7 +87,7 @@ func getObjekPajakBangunanDetail(data m.Sppt) (*opbg.ObjekPajakBangunan, error) 
 	return opBngData, nil
 }
 
-func getObjekPajakPBBDetail(data m.Sppt) (*oppbb.ObjekPajakPbb, error) {
+func GetObjekPajakPBBDetail(data m.Sppt) (*oppbb.ObjekPajakPbb, error) {
 	var result *oppbb.ObjekPajakPbb
 	kelurahan := *data.Propinsi_Id + *data.Dati2_Id + *data.Kecamatan_Id + *data.Keluarahan_Id
 

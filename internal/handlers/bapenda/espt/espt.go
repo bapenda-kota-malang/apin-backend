@@ -59,6 +59,6 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-	result, err := s.Update(id, data, uint(authInfo.User_Id), nil)
+	result, err := s.Update(r.Context(), id, data, uint(authInfo.User_Id), nil)
 	hh.DataResponse(w, result, err)
 }

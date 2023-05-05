@@ -3,6 +3,7 @@ package adbmigration
 import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak"
+	sejarahaop "github.com/bapenda-kota-malang/apin-backend/internal/models/anggotaobjekpajak/sejarah"
 	adm "github.com/bapenda-kota-malang/apin-backend/internal/models/areadivision"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bankpersepsi"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/banktunggal"
@@ -68,14 +69,18 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/logbankjatim"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/menu"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu"
+	sejarahni "github.com/bapenda-kota-malang/apin-backend/internal/models/nilaiindividu/sejarah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkp"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/njoptkpflag"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/nop"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan"
+	sejarahopbgn "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbangunan/sejarah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi"
+	sejarahopbumi "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakbumi/sejarah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb"
+	sejarahopbb "github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajakpbb/sejarah"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/omset"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/pangkat"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/paymentpoint"
@@ -105,6 +110,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sksk"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/sppt"
 	spptpembayaran "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/pembayaran"
+	spptsejarah "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/sejarah"
 	sppttandaterima "github.com/bapenda-kota-malang/apin-backend/internal/models/sppt/tandaterima"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
@@ -124,6 +130,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tarif"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/tempatpembayaranspptmasal"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan/pemeriksa"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/bidangkerja"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/hargareferensi"
@@ -333,6 +340,7 @@ func GetModelList() (data []interface{}) {
 		&sppt.SpptSimulasi{},
 		&spptpembayaran.SpptPembayaran{},
 		&sppttandaterima.SpptTandaTerima{},
+		&spptsejarah.SpptSejarah{},
 	}
 	data = append(data, listModelSppt...)
 
@@ -435,6 +443,7 @@ func GetModelList() (data []interface{}) {
 		&bapenagihan.BaPenagihan{},
 		&bapenagihanpetugas.BaPenagihanPetugas{},
 		&undanganpemeriksaan.UndanganPemeriksaan{},
+		&pemeriksa.UndanganPemeriksaanPemeriksa{},
 	}
 	data = append(data, listModelPenagihan...)
 
@@ -519,6 +528,15 @@ func GetModelList() (data []interface{}) {
 		&pelaporanppat.PelaporanPpat{},
 	}
 	data = append(data, listModelPelaporanPpat...)
+
+	listModelSejarahObjekPajak := []interface{}{
+		&sejarahopbb.SejarahObjekPajakPbb{},
+		sejarahopbumi.SejarahObjekPajakBumi{},
+		sejarahopbgn.SejarahObjekPajakBangunan{},
+		sejarahni.SejarahNilaiIndividu{},
+		sejarahaop.SejarahAnggotaObjekPajak{},
+	}
+	data = append(data, listModelSejarahObjekPajak...)
 
 	return data
 }

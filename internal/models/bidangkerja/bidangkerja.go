@@ -6,7 +6,7 @@ type BidangKerja struct {
 	Id        uint64         `json:"id" gorm:"primaryKey"`
 	Level     t.LevelJabatan `json:"level"`
 	Parent_Id uint64         `json:"parent_id"`
-	Kode      *string        `json:"kode" gorm:"type:varchar(10)"`
+	Kode      *string        `json:"kode" gorm:"type:varchar(10);unique"`
 	Nama      *string        `json:"nama" gorm:"type:varchar(100)"`
 }
 

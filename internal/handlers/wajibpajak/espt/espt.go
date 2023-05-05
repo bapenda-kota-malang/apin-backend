@@ -182,7 +182,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	authInfo := r.Context().Value("authInfo").(*auth.AuthInfo)
-	result, err = s.UpdateDetail(id, input, uint(authInfo.User_Id))
+	result, err = s.UpdateDetail(r.Context(), id, input, uint(authInfo.User_Id))
 	hh.DataResponse(w, result, err)
 }
 

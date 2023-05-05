@@ -74,3 +74,13 @@ func GetNopTerbesar(w http.ResponseWriter, r *http.Request) {
 	result, err := s.GetNopTerbesar(data)
 	hh.DataResponse(w, result, err)
 }
+
+func SejarahOp(w http.ResponseWriter, r *http.Request) {
+	var data m.SejarahFilterDto
+	if hh.ValidateStructByIOR(w, r.Body, &data) == false {
+		return
+	}
+
+	result, err := s.GetSejarahOp(data)
+	hh.DataResponse(w, result, err)
+}

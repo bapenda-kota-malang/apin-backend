@@ -18,8 +18,8 @@ type PotensiBapl struct {
 	Koordinator_Pegawai_Id uint                   `json:"koordinator_pegawai_id"`
 	Petugas_Pegawai_Id     *pq.Int64Array         `json:"petugas_pegawai_id" gorm:"type:integer[]"`
 	Status                 types.StatusVerifikasi `json:"status"`
-	Kasubid_Pegawai_Id     *uint                  `json:"kasubid_pegawai_id,omitempty"`
-	Kabid_Pegawai_Id       *uint                  `json:"kabid_pegawai_id,omitempty"`
+	Kasubid_Pegawai_Id     *int                   `json:"kasubid_pegawai_id,omitempty"`
+	Kabid_Pegawai_Id       *int                   `json:"kabid_pegawai_id,omitempty"`
 	gormhelper.DateModel
 	CreateBy    *pegawai.Pegawai   `json:"createBy,omitempty" gorm:"foreignKey:CreateBy_Pegawai_Id"`
 	Koordinator *pegawai.Pegawai   `json:"koordinator,omitempty" gorm:"foreignKey:Koordinator_Pegawai_Id"`

@@ -250,6 +250,7 @@ func SetRoutes() http.Handler {
 	rh.RegCrud(r, "/sppt", sppt.Crud{})
 	r.Post("/sppt/rincian", sppt.Rincian)
 	r.Post("/sppt/salinan", sppt.Salinan)
+	r.Post("/sppt/sejarah", sppt.GetListSejarahSppt)
 
 	r.Post("/sksk/cetak", sksk.Cetak)
 	rh.RegCrud(r, "/sksk", sksk.Crud{})
@@ -732,6 +733,7 @@ func SetRoutes() http.Handler {
 		r.Get("/download/excel", objekpajakpbb.DownloadExcelList)
 		r.Post("/nop-terbesar", objekpajakpbb.GetNopTerbesar)
 		r.Patch("/rtrwmassal", objekpajakpbb.UpdateRtRwMassal)
+		r.Post("/sejarah", objekpajakpbb.SejarahOp)
 	})
 
 	r.Route("/regobjekpajakpbb", func(r chi.Router) {
@@ -774,6 +776,7 @@ func SetRoutes() http.Handler {
 
 	r.Route("/pbb", func(r chi.Router) {
 		r.Post("/penetapan-massal", sppt.PenetapanMassal)
+		r.Get("/download/pdf", sppt.DownloadPDF)
 	})
 
 	rh.RegCrud(r, "/tempatpembayaranspptmasal", tempatpembayaranspptmasal.Crud{})
@@ -819,6 +822,8 @@ func SetRoutes() http.Handler {
 	r.Route("/catatansejarahop", func(r chi.Router) {
 		r.Get("/", sppt.ListCatataSejarahOp)
 	})
+
+	r.Post("/rekapitulasi-op", sppt.GetRekapitulasi)
 
 	return r
 }

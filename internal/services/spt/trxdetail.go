@@ -1,8 +1,8 @@
 package spt
 
 import (
+	"context"
 	"fmt"
-	"strings"
 
 	"gorm.io/gorm"
 
@@ -25,11 +25,6 @@ import (
 	mdresto "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptresto"
 
 	mespt "github.com/bapenda-kota-malang/apin-backend/internal/models/espt"
-	mhdair "github.com/bapenda-kota-malang/apin-backend/internal/models/hargadasarair"
-	mjppj "github.com/bapenda-kota-malang/apin-backend/internal/models/jenisppj"
-	mtp "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifpajak"
-	mtarifreklame "github.com/bapenda-kota-malang/apin-backend/internal/models/tarifreklame"
-	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 
 	sjambong "github.com/bapenda-kota-malang/apin-backend/internal/services/jaminanbongkar"
 	sdair "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptair"
@@ -40,109 +35,7 @@ import (
 	sdpln "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptppjpln"
 	sdreklame "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptreklame"
 	sdresto "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/detailsptresto"
-
-	shda "github.com/bapenda-kota-malang/apin-backend/internal/services/hargadasarair"
-	sjppj "github.com/bapenda-kota-malang/apin-backend/internal/services/jenisppj"
-	stp "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifpajak"
-	starifreklame "github.com/bapenda-kota-malang/apin-backend/internal/services/tarifreklame"
 )
-
-// Process calculate tax
-func taxProcess(rekeningId *uint64, omset *float64, input m.Input) error {
-	omsetOpt := "lte"
-
-	// change detail for detail spt air & ppj pln before calculate tax
-	if detail, ok := input.GetDetails().(mdair.CreateDto); ok {
-		switch detail.Peruntukan {
-		case mtypes.PeruntukanIndustriAir, mtypes.PeruntukanNiaga, mtypes.PeruntukanNonNiaga, mtypes.PeruntukanPdam:
-			strPeruntukan := string(detail.Peruntukan)
-			resphdair, err := shda.GetList(mhdair.FilterDto{
-				Peruntukan:     &strPeruntukan,
-				BatasBawah:     omset,
-				BatasBawah_Opt: &omsetOpt,
-			})
-			if err != nil {
-				return err
-			}
-			hdairs := resphdair.(rp.OK).Data.([]mhdair.HargaDasarAir)
-			if len(hdairs) == 0 {
-				return fmt.Errorf("harga dasar air not found")
-			}
-			hdair := hdairs[len(hdairs)-1]
-			if detail.JenisAbt == mtypes.JenisABTNonMataAir {
-				detail.Pengenaan = *hdair.TarifBukanMataAir
-			} else {
-				detail.JenisAbt = mtypes.JenisABTMataAir
-				detail.Pengenaan = *hdair.TarifMataAir
-			}
-			input.ChangeDetails(detail)
-		default:
-			return fmt.Errorf("unknown peruntukan air")
-		}
-	} else if detail, ok := input.GetDetails().([]mdpln.CreateDto); ok {
-		for v := range detail {
-			resp, err := sjppj.GetDetail(int(detail[v].JenisPPJ_Id))
-			if err != nil {
-				return err
-			}
-			detail[v].JenisPPJ = resp.(rp.OKSimple).Data.(*mjppj.JenisPPJ)
-		}
-		input.ChangeDetails(detail)
-	} else if detail, ok := input.GetDetails().([]mdreklame.CreateDto); ok {
-		for v := range detail {
-			resp, err := starifreklame.GetDetail(int(detail[v].TarifReklame_Id))
-			if err != nil {
-				return err
-			}
-			dataReklame := resp.(rp.OKSimple).Data.(*mtarifreklame.TarifReklame)
-			if dataReklame.JenisMasa == mtypes.MasaPajakHari {
-				resp, err := starifreklame.GetList(mtarifreklame.FilterDto{
-					JenisMasa:    int16(mtypes.MasaPajakHari),
-					JenisReklame: dataReklame.JenisReklame,
-				})
-				for _, vInner := range resp.(rp.OK).Data.([]mtarifreklame.TarifReklame) {
-					if vInner.MasaPajak == nil {
-						continue
-					}
-					if strings.ToLower(*vInner.MasaPajak) == "bulan" {
-						detail[v].TarifBulan = *vInner.Tarif
-					} else if strings.ToLower(*vInner.MasaPajak) == "minggu" {
-						detail[v].TarifMinggu = *vInner.Tarif
-					} else if strings.ToLower(*vInner.MasaPajak) == "hari" {
-						detail[v].TarifHari = *vInner.Tarif
-					}
-				}
-				if err != nil {
-					return err
-				}
-			}
-			detail[v].TarifReklame = dataReklame
-		}
-		input.ChangeDetails(detail)
-	}
-
-	// get tarif pajak data for calculate tax
-	yearOrder := "order desc"
-	rspTp, err := stp.GetList(mtp.FilterDto{
-		Rekening_Id:   rekeningId,
-		Tahun_Opt:     &yearOrder,
-		OmsetAwal:     omset,
-		OmsetAwal_Opt: &omsetOpt,
-	})
-	if err != nil {
-		return err
-	}
-
-	tarifPajaks := rspTp.(rp.OK).Data.([]mtp.TarifPajak)
-	if len(tarifPajaks) == 0 {
-		return fmt.Errorf("tarif pajak not found")
-	}
-	tarifPajak := tarifPajaks[0]
-
-	input.ReplaceTarifPajakId(uint(tarifPajak.Id))
-	input.CalculateTax(tarifPajak.TarifPersen)
-	return nil
-}
 
 // Transform espt to spt data
 func TransformEspt(esptDetail *mespt.Espt) (input m.Input, err error) {
@@ -174,7 +67,7 @@ func TransformEspt(esptDetail *mespt.Espt) (input m.Input, err error) {
 // function flow is:
 //
 // create for sptd, replace id, create for data details based on data type, assign data details to data spt for respond
-func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (interface{}, error) {
+func CreateDetail(ctx context.Context, input m.Input, opts map[string]interface{}, tx *gorm.DB) (interface{}, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -187,13 +80,13 @@ func CreateDetail(input m.Input, opts map[string]interface{}, tx *gorm.DB) (inte
 			if err != nil {
 				return err
 			}
-			if opts["baseUri"].(string) == "skpdkb" {
-				input.CalculateSkpdkb()
-			}
-			createDto = input.GetSpt(opts["baseUri"].(string)).(m.CreateDto)
 		}
+		if opts["baseUri"].(string) == "skpdkb" {
+			input.CalculateSkpdkb()
+		}
+		createDto = input.GetSpt(opts["baseUri"].(string)).(m.CreateDto)
 
-		respSpt, err := Create(createDto, opts, tx)
+		respSpt, err := Create(ctx, createDto, opts, tx)
 		if err != nil {
 			return err
 		}

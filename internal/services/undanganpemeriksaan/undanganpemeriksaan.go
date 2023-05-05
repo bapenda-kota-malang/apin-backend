@@ -38,7 +38,11 @@ func Create(input m.CreateDto, user_id uint64, tx *gorm.DB) (any, error) {
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 	data.Tanggal = th.ParseTime(input.Tanggal)
-	data.Pukul = parseCurrentTime(input.Pukul)
+	data.PukulAwal = parseCurrentTime(input.PukulAwal)
+	data.PukulAkhir = parseCurrentTime(input.PukulAkhir)
+	if *data.PukulAwal >= *data.PukulAkhir {
+		return sh.SetError("request", "create-data", source, "failed", "pukul awal sama atau lebih dari pukul akhir", data)
+	}
 	data.Petugas_User_Id = &user_id
 	// simpan data ke db satu if karena result dipakai sekali, +error
 	if result := tx.Create(&data); result.Error != nil {
@@ -161,7 +165,7 @@ func Update(id int, user_id uint64, input m.UpdateDto, tx *gorm.DB) (any, error)
 	if tx == nil {
 		tx = a.DB
 	}
-	var data *m.UndanganPemeriksaan
+	var data m.UndanganPemeriksaan
 	result := tx.First(&data, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
@@ -170,7 +174,9 @@ func Update(id int, user_id uint64, input m.UpdateDto, tx *gorm.DB) (any, error)
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
 	}
 	data.Tanggal = th.ParseTime(input.Tanggal)
-	data.Pukul = parseCurrentTime(input.Pukul)
+	if input.PukulAwal != nil {
+		data.PukulAwal = parseCurrentTime(*input.PukulAwal)
+	}
 	data.Petugas_User_Id = &user_id
 	if result := tx.Save(&data); result.Error != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil menyimpan data undangan pemeriksaan", data)
@@ -270,8 +276,8 @@ func DownloadPDF(id int) (any, error) {
 		keperluan = *data.Keperluan
 	}
 
-	if data.Pukul != nil {
-		p := timehelper.ConvertDatatypesTimeToString(data.Pukul)
+	if data.PukulAwal != nil {
+		p := timehelper.ConvertDatatypesTimeToString(data.PukulAwal)
 		pukul = fmt.Sprintf("%v WIB", strings.Replace(p[0:5], ":", ".", 1))
 	}
 

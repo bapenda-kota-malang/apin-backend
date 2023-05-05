@@ -44,28 +44,26 @@ func Update(input []m.UpdateDto, tx *gorm.DB) (any, error) {
 	rowsAffected := 0
 	for _, v := range input {
 		var data m.BaPenagihanPetugas
-		// if flag delete then delete search then delete
-		if v.Deleted {
-			result := tx.Where(&m.BaPenagihanPetugas{BaPenagihan_Id: v.BaPenagihan_Id, Petugas_Id: v.Petugas_Id}).First(&data)
-			if result.RowsAffected == 0 {
-				return nil, nil
-			}
-			rowsAffected += int(result.RowsAffected)
-
+		result := tx.Where(&m.BaPenagihanPetugas{BaPenagihan_Id: v.BaPenagihan_Id, Petugas_Id: v.Petugas_Id}).First(&data)
+		rowsAffected += int(result.RowsAffected)
+		if v.Deleted && result.RowsAffected != 0 {
 			if result := tx.Delete(&data); result.Error != nil {
 				return sh.SetError("request", "update-data", source, "failed", "gagal menghapus data", data)
 			}
 		} else {
-			// if not delete then assume this is add new data
-
 			// copy input (payload) ke struct data satu if karene error dipakai sekali, +error
 			if err := sc.Copy(&data, &v); err != nil {
 				return sh.SetError("request", "create-data", source, "failed", err.Error(), data)
 			}
 
-			// simpan data ke db satu if karena result dipakai sekali, +error
-			if result := tx.Create(&data); result.Error != nil {
-				return sh.SetError("request", "create-data", source, "failed", result.Error.Error(), data)
+			if result.RowsAffected == 0 {
+				if result := tx.Create(&data); result.Error != nil {
+					return sh.SetError("request", "create-data", source, "failed", result.Error.Error(), data)
+				}
+			} else {
+				if result := tx.Save(&data); result.Error != nil {
+					return sh.SetError("request", "create-data", source, "failed", result.Error.Error(), data)
+				}
 			}
 			rowsAffected += 1
 		}

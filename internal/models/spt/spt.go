@@ -85,7 +85,7 @@ type Spt struct {
 	Kenaikan            *float64            `json:"kenaikan,omitempty" gorm:"type:decimal"`
 	Denda               *float64            `json:"denda,omitempty" gorm:"type:decimal"`
 	Pengurangan         *float64            `json:"pengurangan,omitempty" gorm:"type:decimal"`
-	Total               *float64            `json:"total,omitempty" gorm:"type:decimal"`
+	Total               float64             `json:"total,omitempty" gorm:"type:decimal"`
 	Ref_Spt_Id          *uuid.UUID          `json:"ref_spt_id,omitempty" gorm:"type:uuid"`
 	BillingPenetapan    *string             `json:"billingPenetapan,omitempty" gorm:"type:varchar(20)"`
 	Teguran_Id          *uint64             `json:"teguran_id,omitempty"`

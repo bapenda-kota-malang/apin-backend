@@ -6,7 +6,9 @@ import (
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan"
 	mbapenagihanpetugas "github.com/bapenda-kota-malang/apin-backend/internal/models/bapenagihan/petugas"
+	mup "github.com/bapenda-kota-malang/apin-backend/internal/models/undanganpemeriksaan"
 	sbapenagihanpetugas "github.com/bapenda-kota-malang/apin-backend/internal/services/bapenagihan/petugas"
+	sup "github.com/bapenda-kota-malang/apin-backend/internal/services/undanganpemeriksaan"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	"gorm.io/gorm"
@@ -30,6 +32,12 @@ func TrxCreate(input m.CreateDto, userId uint) (any, error) {
 		}
 		dataBaPenagihanPetugas := respBaPenagihanPetugas.(rp.OKSimple).Data.([]mbapenagihanpetugas.BaPenagihanPetugas)
 		data.BaPenagihanPetugas = &dataBaPenagihanPetugas
+
+		selesai := mup.StatusSelesai
+		_, err = sup.Update(int(data.Undangan_Id), uint64(userId), mup.UpdateDto{Status: &selesai}, tx)
+		if err != nil {
+			return err
+		}
 
 		return nil
 	})

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -15,16 +14,13 @@ import (
 	mtypes "github.com/bapenda-kota-malang/apin-backend/internal/models/types"
 	"github.com/google/uuid"
 
-	sbj "github.com/bapenda-kota-malang/apin-backend/internal/services/bankjatim"
 	srek "github.com/bapenda-kota-malang/apin-backend/internal/services/configuration/rekening"
 	snomertracker "github.com/bapenda-kota-malang/apin-backend/internal/services/spt/sptnomertracker"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/base64helper"
 	gh "github.com/bapenda-kota-malang/apin-backend/pkg/gormhelper"
 	ibj "github.com/bapenda-kota-malang/apin-backend/pkg/integration/bankjatim"
-	"github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sh "github.com/bapenda-kota-malang/apin-backend/pkg/servicehelper"
 	sc "github.com/jinzhu/copier"
 	"gorm.io/datatypes"
@@ -34,42 +30,7 @@ import (
 
 const source = "spt"
 
-func filePreProcess(b64String, docsname string, userId uint, oldId uuid.UUID) (fileName, path, extFile string, id uuid.UUID, err error) {
-	extFile, err = base64helper.GetExtensionBase64(b64String)
-	if err != nil {
-		return
-	}
-	path = sh.GetResourcesPath()
-	switch extFile {
-	case "pdf":
-		path = sh.GetPdfPath()
-	case "png", "jpeg":
-		path = sh.GetImgPath()
-	case "xlsx", "xls":
-		path = sh.GetExcelPath()
-	default:
-		err = errors.New("file tidak diketahui")
-		return
-	}
-	if oldId == uuid.Nil {
-		id, err = sh.GetUuidv4()
-		if err != nil {
-			err = errors.New("gagal generate uuid")
-			return
-		}
-	} else {
-		id = oldId
-	}
-	fileName = sh.GenerateFilename(docsname, id, userId, extFile)
-	return
-}
-
-func generateKodeBilling(kodeBilling *string, nomerSpt string) *string {
-	kode := fmt.Sprintf("%s%s", *kodeBilling, nomerSpt)
-	return &kode
-}
-
-func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, error) {
+func Create(ctx context.Context, input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, error) {
 	if tx == nil {
 		tx = a.DB
 	}
@@ -133,9 +94,7 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 		return sh.SetError("request", "create-data", source, "failed", "gagal mengambil data payload", data)
 	}
 
-	if data.Total == nil {
-		data.Total = &data.JumlahPajak
-	}
+	data.Total = data.JumlahPajak
 
 	if data.TanggalSpt.IsZero() {
 		data.TanggalSpt = time.Now()
@@ -150,9 +109,7 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 	yearTwoDigit := yearNow % 1e2
 	nomerSpt := fmt.Sprintf("%d%s", yearTwoDigit, nomerUrut)
 	data.NomorSpt = fmt.Sprintf("%c-%s", kode[0], nomerSpt)
-	if opts["baseUri"].(string) == "sptpd" {
-		data.KodeBilling = generateKodeBilling(dataRekening.KodeBilling, nomerSpt)
-	}
+
 	switch data.Type {
 	case mtypes.JenisPajakOA, mtypes.JenisPajakSA:
 	default:
@@ -199,6 +156,22 @@ func Create(input m.CreateDto, opts map[string]interface{}, tx *gorm.DB) (any, e
 		}
 	}
 
+	switch data.JenisKetetapan {
+	case m.JenisKetetapanSptpd:
+		data.KodeBilling = generateKodeBilling(dataRekening.KodeBilling, nomerSpt)
+		va, err := vaManager(ctx, data, ibj.ProsesCreate)
+		if err != nil {
+			return nil, err
+		}
+		data.VaJatim = &va
+	case m.JenisKetetapanSkpdkb, m.JenisKetetapanSkpdkbt:
+		data.KodeBilling = generateKodeBilling(dataRekening.KodeBilling, nomerSpt)
+		_, err := vaManager(ctx, data, ibj.ProsesUpdate)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	err = tx.Create(&data).Error
 	if err != nil {
 		return nil, err
@@ -218,6 +191,7 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 	if userId != 0 {
 		baseQuery.Joins("JOIN \"Npwpd\" ON \"Spt\".\"Npwpd_Id\" = \"Npwpd\".\"Id\" AND \"Npwpd\".\"User_Id\" = ?", userId)
 	}
+	// jatuh tempo query
 	opts := "gte"
 	if input.JatuhTempo != nil {
 		val, _ := input.JatuhTempo.Value()
@@ -226,14 +200,9 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 		opts = "="
 	}
 
-	// TODO: hapus filter date now ini
-	// if input.JatuhTempo == nil && input.JenisKetetapan_Opt == nil || *input.JenisKetetapan_Opt == "IS NULL" {
-	// 	dataDateNow := datatypes.Date(time.Now())
-	// 	input.JatuhTempo = &dataDateNow
-	// }
-
-	if input.JenisKetetapan_Opt != nil && (*input.JenisKetetapan_Opt == "IS NOT NULL" || *input.JenisKetetapan_Opt == "IS NULL") {
-		baseQuery.Where(fmt.Sprintf("\"JenisKetetapan\" %s", *input.JenisKetetapan_Opt))
+	if input.JenisKetetapan_Opt != nil && *input.JenisKetetapan_Opt == "unfilter skpdkb" {
+		baseQuery.Where("\"JenisKetetapan\" = ? AND \"JenisKetetapan\" = ?", m.JenisKetetapanSkpdkb, m.JenisKetetapanSkpdkbt)
+		input.JenisKetetapan = nil
 		input.JenisKetetapan_Opt = nil
 	}
 
@@ -280,10 +249,8 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 	input.JatuhTempo_Opt = &opts
 	result := baseQuery.Debug().
 		Select("\"Spt\".*").
-		Joins("Rekening").
 		Preload("Rekening").
 		Preload("ObjekPajak").
-		Preload("Npwpd").
 		Preload("Npwpd.PemilikWps").
 		Scopes(gh.Filter(input)).
 		Count(&count).
@@ -375,6 +342,14 @@ func GetDetail(id uuid.UUID, typeSpt string, userId uint) (any, error) {
 	return rp.OKSimple{
 		Data: data,
 	}, nil
+}
+
+func GetByVa(va *string) (m.Spt, error) {
+	var data m.Spt
+	if err := a.DB.Preload("Npwpd.ObjekPajak").Where("VaJatim", &va).First(&data).Error; err != nil {
+		return data, err
+	}
+	return data, nil
 }
 
 func Update(id uuid.UUID, input m.UpdateDto, opts map[string]interface{}, tx *gorm.DB) (any, error) {
@@ -478,34 +453,14 @@ func UpdateVa(ctx context.Context, id uuid.UUID, input m.UpdateVaDto, userId uin
 	}
 	data.JumlahPajak = *input.JumlahPajak
 
-	data.Total = &data.JumlahPajak
+	data.Total = data.JumlahPajak
 	data.Denda = input.Denda
 	if data.Denda != nil {
-		total := data.JumlahPajak + *data.Denda
-		data.Total = &total
+		data.Total = data.JumlahPajak + *data.Denda
 	}
 
-	tglExp := time.Time(data.JatuhTempo)
-	if servicehelper.IsJatuhTempo(&data.JatuhTempo) {
-		tglExp = servicehelper.EndOfMonth(time.Now())
-	}
-
-	// bank jatim
-	payload := ibj.RequestRegistration{
-		VirtualAccount: *data.VaJatim,
-		Nama:           *data.ObjekPajak.Nama,
-		TotalTagihan:   uint64(math.RoundToEven(*data.Total)),
-		TanggalExp:     tglExp.Format("20060102"),
-		Berita1:        fmt.Sprintf("%s %s", *data.Npwpd.Npwpd, time.Now().Format("01-2006")),
-		Berita2:        data.NomorSpt,
-		Berita3:        fmt.Sprintf("DENDA %d", data.Denda),
-		Berita4:        fmt.Sprintf("KENAIKAN %d", data.Kenaikan),
-		Berita5:        fmt.Sprintf("UPDATE %s", time.Now().Format("02-01-2006")),
-		FlagProses:     ibj.ProsesUpdate,
-	}
-	ctxTo, cancel := context.WithTimeout(ctx, 15*time.Second)
-	defer cancel()
-	if err := sbj.Registration(ctxTo, payload, userId); err != nil {
+	_, err := vaManager(ctx, data, ibj.ProsesUpdate)
+	if err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengubah va: "+err.Error(), data)
 	}
 

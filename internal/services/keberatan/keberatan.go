@@ -2,10 +2,10 @@ package keberatan
 
 import (
 	"strconv"
-	"strings"
 
 	m "github.com/bapenda-kota-malang/apin-backend/internal/models/keberatan"
-	suser "github.com/bapenda-kota-malang/apin-backend/internal/services/user"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/types"
+	sbk "github.com/bapenda-kota-malang/apin-backend/internal/services/bidangkerja"
 	a "github.com/bapenda-kota-malang/apin-backend/pkg/apicore"
 	rp "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/responses"
 	t "github.com/bapenda-kota-malang/apin-backend/pkg/apicore/types"
@@ -152,7 +152,7 @@ func GetDetail(id int) (any, error) {
 	}, nil
 }
 
-func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
+func Verify(id int, input m.VerifyDto, userId uint64, bidangKerjaKode string) (any, error) {
 	//ambil data based on id
 	var data *m.Keberatan
 
@@ -160,16 +160,14 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 	if result.Error != nil {
 		return sh.SetError("request", "verify-data", source, "failed", "gagal mengambil data keberatan", data)
 	}
-	//ambil nama jabatan based on userId
-	resp, err := suser.GetJabatanPegawai(uint(userId))
-	if err != nil {
-		return sh.SetError("request", "verify-data", source, "failed", "gagal data pegawai: "+err.Error(), data)
-	}
-	jabatan := strings.ToUpper(resp.(string))
-	userRole := ""
 
-	//validasi status dan jabatan yg mengolah data
-	if petugas := strings.Contains(jabatan, "PETUGAS"); petugas {
+	bidangKerjaData, err := sbk.GetByKode(bidangKerjaKode)
+	if err != nil {
+		return sh.SetError("request", "verify-data", source, "failed", "gagal data bidang kerja: "+err.Error(), data)
+	}
+
+	switch bidangKerjaData.Level {
+	case types.LevelJabatanStaff:
 		if data.Status != 0 {
 			if data.Status == 1 {
 				return sh.SetError("request", "verify-data", source, "failed", "data sudah disetujui oleh petugas", data)
@@ -180,8 +178,7 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 		data.VerifPetugas_User_Id = &userId
 		data.Status = input.Status
 		data.TanggalVerifPetugas = parseTimeNowToPointer()
-		userRole = "petugas"
-	} else if kasubid := strings.Contains(jabatan, "KEPALA SUB BIDANG"); kasubid {
+	case types.LevelJabatanKasubidKasubag:
 		if data.VerifKasubid_User_Id != nil {
 			return sh.SetError("request", "verify-data", source, "failed", "data sudah diverifikasi oleh kasubid", data)
 		}
@@ -194,8 +191,7 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 		data.VerifKasubid_User_Id = &userId
 		data.Status = input.Status
 		data.TanggalVerifKasubid = parseTimeNowToPointer()
-		userRole = "kasubid"
-	} else if kabid := strings.Contains(jabatan, "KEPALA BIDANG"); kabid {
+	case types.LevelJabatanKabid:
 		if data.VerifKabid_User_Id != nil {
 			return sh.SetError("request", "verify-data", source, "failed", "data sudah diverifikasi oleh kabid", data)
 		}
@@ -208,8 +204,7 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 		data.VerifKabid_User_Id = &userId
 		data.Status = input.Status
 		data.TanggalVerifKabid = parseTimeNowToPointer()
-		userRole = "kabid"
-	} else if kaban := strings.Contains(jabatan, "KEPALA BADAN"); kaban {
+	case types.LevelJabatanKaban:
 		if data.VerifKaban_User_Id != nil {
 			return sh.SetError("request", "verify-data", source, "failed", "data sudah diverifikasi oleh kaban", data)
 		}
@@ -222,11 +217,8 @@ func Verify(id int, input m.VerifyDto, userId uint64) (any, error) {
 		data.VerifKaban_User_Id = &userId
 		data.Status = input.Status
 		data.TanggalVerifKaban = parseTimeNowToPointer()
-		userRole = "kaban"
-	}
-
-	if userRole == "" {
-		return sh.SetError("request", "verify-data", source, "failed", "pegawai bukan kabid, kasubid, kaban maupun petugas", data)
+	default:
+		return sh.SetError("request", "verify-data", source, "failed", "level jabatan tidak diperbolehkan verifikasi", data)
 	}
 
 	if result := a.DB.Save(&data); result.Error != nil {
