@@ -49,6 +49,7 @@ import (
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/bphtbpembayaran"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/configuration/rekening"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/daerah"
+	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbdayadukung"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb12"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb13"
 	"github.com/bapenda-kota-malang/apin-backend/internal/handlers/bapenda/dbkbjpb14"
@@ -309,6 +310,9 @@ func SetRoutes() http.Handler {
 
 	rh.RegCrud(r, "/dbkbmezanin", dbkbmezanin.Crud{})
 	r.Get("/dbkbmezanin/download/excel", dbkbmezanin.DownloadExcelList)
+
+	rh.RegCrud(r, "/dbkbdayadukung", dbkbdayadukung.Crud{})
+	// r.Get("/dbkbmezanin/download/excel", dbkbmezanin.DownloadExcelList)
 
 	rh.RegCrud(r, "/nilaiindividu", nilaiindividu.Crud{})
 
