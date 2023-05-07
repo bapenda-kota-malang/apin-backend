@@ -100,7 +100,8 @@ func vaManager(ctx context.Context, data m.Spt, flagProses ibj.FlagProses) (stri
 	switch flagProses {
 	case ibj.ProsesCreate:
 		// PDL => 5 digit no VA, 3 digit jenis pajak, 2 digit tahun, 6 digit nomor SPT
-		va = fmt.Sprintf("%s0%s%s0%s", *data.Rekening.KodeVaJatim, *data.Rekening.Objek, data.NomorSpt[2:4], data.NomorSpt[4:])
+		// va = fmt.Sprintf("%s0%s%s0%s", *data.Rekening.KodeVaJatim, *data.Rekening.Objek, data.NomorSpt[2:4], data.NomorSpt[4:])
+		va = fmt.Sprintf("%s%s0%s", *data.Rekening.Objek, data.NomorSpt[2:4], data.NomorSpt[4:])
 	case ibj.ProsesUpdate, ibj.ProsesDelete:
 		if data.VaJatim == nil {
 			return "", errors.New("tidak dapat update pada nomor va kosong")
