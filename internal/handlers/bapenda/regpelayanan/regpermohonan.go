@@ -1,7 +1,6 @@
 package regpermohonan
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/services/auth"
@@ -16,7 +15,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
-	fmt.Println("reached 1")
 
 	result, err := s.Create(input)
 	hh.DataResponse(w, result, err)
@@ -29,7 +27,6 @@ func UploadLampiran(w http.ResponseWriter, r *http.Request) {
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
-	fmt.Println("reached 1")
 
 	result, err := s.UploadLampiran(input, uint(authInfo.User_Id), nil)
 	hh.DataResponse(w, result, err)

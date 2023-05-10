@@ -28,7 +28,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if hh.ValidateStructByIOR(w, r.Body, &input) == false {
 		return
 	}
-	fmt.Println("reached 1")
 
 	result, err := s.Create(input)
 	hh.DataResponse(w, result, err)
