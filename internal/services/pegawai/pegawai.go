@@ -3,7 +3,6 @@ package pegawai
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 
 	sc "github.com/jinzhu/copier"
@@ -246,7 +245,6 @@ func UpdateNew(id int, input m.UpdateDto) (interface{}, error) {
 		return sh.SetError("request", "update-data", source, "failed", "data user tidak dapat ditemukan", input)
 	}
 	if err := sc.Copy(&data, &input); err != nil {
-		fmt.Println(err)
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload untuk pegawai", input)
 	}
 	if err := sc.Copy(&dataU, &input); err != nil {

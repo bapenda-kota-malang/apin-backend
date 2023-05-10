@@ -249,6 +249,7 @@ func GetList(input m.FilterDto, userId uint, cmdBase string, tx *gorm.DB) (any, 
 	input.JatuhTempo_Opt = &opts
 	result := baseQuery.Debug().
 		Select("\"Spt\".*").
+		Joins("ObjekPajak").
 		Joins("Rekening").
 		Preload("Rekening").
 		Preload("ObjekPajak").

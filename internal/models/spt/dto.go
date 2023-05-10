@@ -137,6 +137,8 @@ type FilterDto struct {
 	StatusData         *uint8          `json:"statusData"`
 	Rekening_Id        *uint64         `json:"-"`
 	Rekening_Objek     *string         `json:"rekening_objek" refsource:"Rekening.Objek"`
+	NamaOp             *string         `json:"namaOp" refsource:"ObjekPajak.Nama"`
+	NamaOp_Opt         *string         `json:"namaOp_opt"`
 	Type               mt.JenisPajak   `json:"-"`
 	JenisKetetapan     *JenisKetetapan `json:"-"`
 	JenisKetetapan_Opt *string         `json:"-"`

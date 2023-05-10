@@ -323,6 +323,7 @@ func Create(r *http.Request, input npwpd.CreateDto) (interface{}, error) {
 		// var tmpverify = npwpd.VerifiyPendaftaranDisetujui
 		var tmpNomor = generateNomor(input.IsNomorRegistrasiAuto, input.Nomor)
 		var tmpNpwpd = GenerateNpwpd(tmpNomor, *input.ObjekPajak.Kecamatan_Id, *rekening.KodeJenisUsaha)
+		dataNpwpd.Nama = dataObjekPajak.Nama
 		dataNpwpd.JalurRegistrasi = nt.JalurRegistrasiOperator
 		dataNpwpd.Status = mt.StatusAktif
 		dataNpwpd.ObjekPajak_Id = resultCastObjekPajak.Id

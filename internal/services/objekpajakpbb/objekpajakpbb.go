@@ -346,7 +346,6 @@ func GetList(input m.FilterDto, refId int, user_id *int) (any, error) {
 		return sh.SetError("request", "get-data-list", source, "failed", "gagal mengambil data", data)
 	}
 
-	fmt.Println(data)
 	for i := 0; i < len(data); i++ {
 		kecamatan, kelurahan, err := getAreaData(data[i])
 		if err != nil {
