@@ -83,7 +83,8 @@ type UpdateDto struct {
 }
 
 type FilterDto struct {
-	Nama             string  `json:"nama"`
+	Nama             *string `json:"nama" reffunc:"LOWER"`
+	Nama_Opt         *string `json:"nama_opt"`
 	Nip              *string `json:"nip"`
 	Jabatan_Id       *int    `json:"jabatan_id"`
 	BidangKerja_Kode *int    `json:"bidangKerja_kode"`

@@ -118,7 +118,7 @@ type FilterDto struct {
 	JenisPajak          *string   `json:"jenisPajak"`
 	Golongan            *int16    `json:"golongan"`
 	Nomor               *int      `json:"nomor"`
-	ObjekPajak_Nama     *string   `json:"objekPajak_nama" refsource:"ObjekPajak.Nama"`
+	ObjekPajak_Nama     *string   `json:"objekPajak_nama" refsource:"ObjekPajak.Nama" reffunc:"LOWER"`
 	ObjekPajak_Nama_Opt *string   `json:"objekPajak_nama_opt"`
 	Npwpd               *string   `json:"npwpd"`
 	TanggalPengukuhan   *string   `json:"tanggalPengukuhan"`

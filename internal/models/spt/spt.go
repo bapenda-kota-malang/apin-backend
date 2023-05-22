@@ -5,6 +5,7 @@ import (
 
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/npwpd"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/objekpajak"
+	"github.com/bapenda-kota-malang/apin-backend/internal/models/pegawai"
 	"github.com/bapenda-kota-malang/apin-backend/internal/models/rekening"
 	mdsa "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailsptair"
 	mdhiburan "github.com/bapenda-kota-malang/apin-backend/internal/models/spt/detailspthiburan"
@@ -92,8 +93,9 @@ type Spt struct {
 	IsTeguran           bool                `json:"isTeguran,omitempty"`
 	KeteranganPenetapan *string             `json:"keteranganPenetapan,omitempty" gorm:"type:varchar(100)"`
 	StatusPenetapan     mt.StatusVerifikasi `json:"statusPenetapan"`
-	Kasubid_User_Id     *uint               `json:"kasubid_user_id,omitempty"`
-	Kabid_User_Id       *uint               `json:"kabid_user_id,omitempty"`
+	Petugas_Pegawai_Id  *uint               `json:"petugas_pegawai_id,omitempty"`
+	Kasubid_Pegawai_Id  *uint               `json:"kasubid_pegawai_id,omitempty"`
+	Kabid_Pegawai_Id    *uint               `json:"kabid_pegawai_id,omitempty"`
 	gormhelper.DateModel
 	CancelledAt      *time.Time                   `json:"cancelledAt,omitempty"`
 	Npwpd            *npwpd.Npwpd                 `json:"npwpd,omitempty" gorm:"foreignKey:Npwpd_Id"`
@@ -101,8 +103,9 @@ type Spt struct {
 	Rekening         *rekening.Rekening           `json:"rekening,omitempty" gorm:"foreignKey:Rekening_Id"`
 	TarifPajak       *tarifpajak.TarifPajak       `json:"tarifPajak,omitempty" gorm:"foreignKey:TarifPajak_Id"`
 	CreateUser       *user.User                   `json:"createBy,omitempty" gorm:"foreignKey:CreateBy_User_Id"`
-	KasubidUser      *user.User                   `json:"kasubid,omitempty" gorm:"foreignKey:Kasubid_User_Id"`
-	KabidUser        *user.User                   `json:"kabid,omitempty" gorm:"foreignKey:Kabid_User_Id"`
+	PetugasPegawai   *pegawai.Pegawai             `json:"petugas,omitempty" gorm:"foreignKey:Petugas_Pegawai_Id"`
+	KasubidPegawai   *pegawai.Pegawai             `json:"kasubid,omitempty" gorm:"foreignKey:Kasubid_Pegawai_Id"`
+	KabidPegawai     *pegawai.Pegawai             `json:"kabid,omitempty" gorm:"foreignKey:Kabid_Pegawai_Id"`
 	DetailSptAir     *mdsa.DetailSptAir           `json:"detailSptAir,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptHiburan *mdhiburan.DetailSptHiburan  `json:"detailSptHiburan,omitempty" gorm:"foreignKey:Spt_Id"`
 	DetailSptHotel   *mdsh.DetailSptHotel         `json:"detailSptHotel,omitempty" gorm:"foreignKey:Spt_Id"`

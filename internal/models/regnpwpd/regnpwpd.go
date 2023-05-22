@@ -124,7 +124,7 @@ type FilterDto struct {
 	SatuanKerja_Id         *uint64     `json:"satuanKerja_id"`
 	Rekening_Id            *uint64     `json:"rekening_id"`
 	User_Name              *string     `json:"user_name"`
-	RegObjekPajak_Nama     *string     `json:"regObjekPajak_nama" refsource:"RegObjekPajak.Nama"`
+	RegObjekPajak_Nama     *string     `json:"regObjekPajak_nama" refsource:"RegObjekPajak.Nama" reffunc:"LOWER"`
 	RegObjekPajak_Nama_Opt *string     `json:"regObjekPajak_nama_opt"`
 	TanggalMulaiUsaha      *string     `json:"tanggalMulaiUsaha"`
 	LuasBangunan           *string     `json:"luasBangunan"`

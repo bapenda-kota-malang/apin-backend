@@ -215,7 +215,7 @@ func CreateDetail(ctx context.Context, input m.Input, opts map[string]interface{
 }
 
 func UpdateDetail(id uuid.UUID, input m.Input, opts map[string]interface{}) (interface{}, error) {
-	var data m.Spt
+	var data *m.Spt
 	affected := "0"
 	err := a.DB.Transaction(func(tx *gorm.DB) error {
 		updateDto := input.GetSpt(opts["baseUri"].(string)).(m.UpdateDto)
@@ -229,7 +229,7 @@ func UpdateDetail(id uuid.UUID, input m.Input, opts map[string]interface{}) (int
 		if err != nil {
 			return err
 		}
-		data = respEspt.(rp.OK).Data.(m.Spt)
+		data = respEspt.(rp.OK).Data.(*m.Spt)
 		affected = respEspt.(rp.OK).Meta["affected"]
 
 		if input.LenDetails() == 0 {

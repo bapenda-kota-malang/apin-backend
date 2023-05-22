@@ -21,6 +21,7 @@ type CreateDto struct {
 	JumlahPajak      float64         `json:"-"`
 	Lampiran         string          `json:"lampiran" validate:"required;base64=pdf,image,excel;b64size=1024"`
 	JatuhTempo       *datatypes.Date `json:"jatuhTempo"`
+	TanggalSpt       *datatypes.Date `json:"tanggalSpt"`
 	PeriodeAkhir     *datatypes.Date `json:"periodeAkhir"`
 	PeriodeAwal      *datatypes.Date `json:"periodeAwal"`
 	TarifPajak_Id    uint64          `json:"-"`
@@ -57,13 +58,14 @@ type CreateDto struct {
 }
 
 type UpdateDto struct {
-	Npwpd_Id              uint64          `json:"-"`
+	Npwpd_Id              uint64          `json:"npwpd_id"`
 	ObjekPajak_Id         uint64          `json:"objekPajak_id"`
 	Rekening_Id           *uint64         `json:"rekening_id"`
 	LuasLokasi            *string         `json:"luasLokasi"`
 	Description           *string         `json:"description"`
-	PeriodeAwal           *datatypes.Date `json:"-"`
-	PeriodeAkhir          *datatypes.Date `json:"-"`
+	TanggalSpt            *datatypes.Date `json:"tanggalSpt"`
+	PeriodeAwal           *datatypes.Date `json:"periodeAwal"`
+	PeriodeAkhir          *datatypes.Date `json:"periodeAkhir"`
 	TarifPajak_Id         *uint64         `json:"-"`
 	Omset                 *float64        `json:"omset"`
 	JumlahPajak           *float64        `json:"-"`
@@ -137,7 +139,7 @@ type FilterDto struct {
 	StatusData         *uint8          `json:"statusData"`
 	Rekening_Id        *uint64         `json:"-"`
 	Rekening_Objek     *string         `json:"rekening_objek" refsource:"Rekening.Objek"`
-	NamaOp             *string         `json:"namaOp" refsource:"ObjekPajak.Nama"`
+	NamaOp             *string         `json:"namaOp" refsource:"ObjekPajak.Nama" reffunc:"LOWER"`
 	NamaOp_Opt         *string         `json:"namaOp_opt"`
 	Type               mt.JenisPajak   `json:"-"`
 	JenisKetetapan     *JenisKetetapan `json:"-"`

@@ -56,6 +56,7 @@ func Update(id int, input m.UpdateDto, tx *gorm.DB) (any, error) {
 			return nil, errors.New("data tidak dapat ditemukan")
 		}
 	}
+
 	// copy to model struct
 	if err := sc.Copy(&data, &input); err != nil {
 		return sh.SetError("request", "update-data", source, "failed", "gagal mengambil data payload", data)
