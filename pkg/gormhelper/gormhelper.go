@@ -69,6 +69,13 @@ func Filter(input interface{}) func(db *gorm.DB) *gorm.DB {
 				refSource = iTF.Name
 			}
 
+			refFunc := iTF.Tag.Get("reffunc")
+			if refFunc != "" {
+				refSource = fmt.Sprintf("%s(\"%s\")", refFunc, refSource)
+			} else {
+				refSource = fmt.Sprintf("\"%s\"", refSource)
+			}
+
 			if iTF.Type.String() == "*[]string" {
 				vOpt = "in"
 			}

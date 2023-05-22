@@ -43,14 +43,14 @@ func Verify(ctx context.Context, id uuid.UUID, input m.VerifyDto, userId uint, b
 
 	switch bidangKerjaData.Level {
 	case mtypes.LevelJabatanKasubidKasubag:
-		data.Kasubid_User_Id = &userId
+		data.Kasubid_Pegawai_Id = &userId
 		if input.StatusPenetapan == "disetujui" {
 			data.StatusPenetapan = mtypes.StatusVerifikasiDisetujuiKasubid
 			break
 		}
 		data.StatusPenetapan = mtypes.StatusVerifikasiDitolakKasubid
 	case mtypes.LevelJabatanKabid:
-		data.Kabid_User_Id = &userId
+		data.Kabid_Pegawai_Id = &userId
 		if input.StatusPenetapan == "disetujui" {
 			data.StatusPenetapan = mtypes.StatusVerifikasiDisetujuiKabid
 			// get data rekening

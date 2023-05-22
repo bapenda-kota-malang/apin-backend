@@ -50,7 +50,8 @@ type UpdateDto struct {
 
 type FilterDto struct {
 	Nik          *string `json:"nik"`
-	Nama         *string `json:"nama"`
+	Nama         *string `json:"nama" reffunc:"LOWER"`
+	Nama_Opt     *string `json:"nama_opt"`
 	Alamat       *string `json:"alamat"`
 	Provinsi_Id  *uint64 `json:"provinsi_id"`
 	Daerah_Id    *uint64 `json:"daerah_id"`

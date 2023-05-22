@@ -73,7 +73,8 @@ type FilterDto struct {
 	Sub2               *string `json:"sub2"`
 	Sub3               *string `json:"sub3"`
 	Kode               *string `json:"kode"`
-	Nama               *string `json:"nama"`
+	Nama               *string `json:"nama" reffunc:"LOWER"`
+	Nama_Opt           *string `json:"nama_opt"`
 	Level              *int    `json:"level"`
 	KodeBaru           *string `json:"kodeBaru"`
 	KodeJenisPajak     *string `json:"kodeJenisPajak"`

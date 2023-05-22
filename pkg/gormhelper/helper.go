@@ -2,6 +2,7 @@ package gormhelper
 
 import (
 	"fmt"
+	"strings"
 )
 
 // just local functions, avoid import if it is simple
@@ -22,18 +23,22 @@ func stringInSlice(s string, a []string) bool {
 //
 //	[]string{"=", "lt", "gt", "lte", "gte", "ne", "left", "mid", "right"}
 func optionString(col, option string, value interface{}) (whereString string, valueFinal interface{}) {
+	// extFunc := ""
 	symbol := "="
 	valueFinal = value
 	switch option {
 	case "eq":
 		symbol = "="
 	case "left":
+		value = strings.ToLower(fmt.Sprintf("%v", value))
 		symbol = "LIKE"
 		valueFinal = fmt.Sprintf("%v%%", value)
 	case "mid":
+		value = strings.ToLower(fmt.Sprintf("%v", value))
 		symbol = "LIKE"
 		valueFinal = fmt.Sprintf("%%%v%%", value)
 	case "right":
+		value = strings.ToLower(fmt.Sprintf("%v", value))
 		symbol = "LIKE"
 		valueFinal = fmt.Sprintf("%%%v", value)
 	case "lt":
@@ -53,11 +58,11 @@ func optionString(col, option string, value interface{}) (whereString string, va
 	}
 
 	if symbol == "BETWEEN" {
-		whereString = fmt.Sprintf("\"%s\" %s ? AND ?", col, symbol)
+		whereString = fmt.Sprintf("%s %s ? AND ?", col, symbol)
 	} else if symbol == "IN" {
-		whereString = fmt.Sprintf("\"%s\" %s ?", col, symbol)
+		whereString = fmt.Sprintf("%s %s ?", col, symbol)
 	} else {
-		whereString = fmt.Sprintf("\"%s\" %s ?", col, symbol)
+		whereString = fmt.Sprintf("%s %s ?", col, symbol)
 	}
 	return
 }

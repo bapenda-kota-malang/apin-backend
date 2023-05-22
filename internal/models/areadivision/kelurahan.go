@@ -24,7 +24,8 @@ type KelurahanFilterDto struct {
 	Kecamatan_Kode *string `json:"kecamatan_kode"`
 	Kode           *string `json:"kode"`
 	Kode_Opt       *string `json:"kode_opt"`
-	Nama           *string `json:"nama"`
+	Nama           *string `json:"nama" reffunc:"LOWER"`
+	Nama_Opt       *string `json:"nama_opt"`
 	Page           int     `json:"page"`
 	PageSize       int64   `json:"page_size"`
 	NoPagination   bool    `json:"no_pagination"`

@@ -25,8 +25,9 @@ type UpdateDto struct {
 
 type FilterDto struct {
 	// dynamic fields
-	Name   *string `json:"name"`
-	Status *int    `json:"status"`
+	Name     *string `json:"name" reffunc:"LOWER"`
+	Name_Opt *string `json:"name_opt"`
+	Status   *int    `json:"status"`
 	// fixed fields
 	Page         int   `json:"page"`
 	PageSize     int64 `json:"page_size"`

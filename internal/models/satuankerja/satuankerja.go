@@ -24,7 +24,8 @@ type UpdateDto struct {
 
 type FilterDto struct {
 	Kode     *string `json:"kode"`
-	Nama     *string `json:"nama"`
+	Nama     *string `json:"nama" reffunc:"LOWER"`
+	Nama_Opt *string `json:"nama_opt"`
 	Alamat   *string `json:"alamat"`
 	Telp     *string `json:"telp"`
 	Page     int     `json:"page"`

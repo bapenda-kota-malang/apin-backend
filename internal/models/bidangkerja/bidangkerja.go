@@ -28,7 +28,8 @@ type FilterDto struct {
 	Kode         *string        `json:"kode"`
 	Level        t.LevelJabatan `json:"level"`
 	Parent_Id    uint64         `json:"parent_id"`
-	Nama         *string        `json:"nama"`
+	Nama         *string        `json:"nama" reffunc:"LOWER"`
+	Nama_Opt     *string        `json:"nama_opt"`
 	Page         int            `json:"page"`
 	PageSize     int            `json:"page_size"`
 	NoPagination bool           `json:"no_pagination"`

@@ -19,7 +19,8 @@ type ProvinsiUpdateDto struct {
 
 type ProvinsiFilterDto struct {
 	Kode         *string `json:"kode"`
-	Nama         *string `json:"nama"`
+	Nama         *string `json:"nama" reffunc:"LOWER"`
+	Nama_Opt     *string `json:"nama_opt"`
 	Page         int     `json:"page"`
 	PageSize     int64   `json:"page_size"`
 	NoPagination bool    `json:"no_pagination"`
